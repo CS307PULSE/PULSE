@@ -1,19 +1,24 @@
 from User import User
-from Exceptions import UserNotFoundError
 from Database import DBHandling
+from Exceptions import SpotifyLinkingError
 
 def startServer():
+    #Allow for client connections with socket
+    #login (or register) and pass user object to client?
     return
 
-def fetchUsernamefromID(spotifyUserID):
-    foundUser = DBHandling.getUserDataFromDB(spotifyUserID, "username")
-    if foundUser is None:
-        raise UserNotFoundError()
-    return foundUser
-
-def registerUser(spotifyUserID, pulseUsername):
-    newUser = User(spotifyUserID, pulseUsername, True)
+def registerUser(displayName):
+    didConnectionFail = False
+    #Connect to api and fetch token and spotifyID
+    token = ""
+    userID = ""
+    if didConnectionFail:
+        raise SpotifyLinkingError()
+    newUser = User(displayName, token, userID)
     DBHandling.storeUserInDB(newUser)
+
+def loginUser(userID):
+    user = DBHandling.getUserFromDB(userID)
 
 if __name__ == "__main__":
     startServer()

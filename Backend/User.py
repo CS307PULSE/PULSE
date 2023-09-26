@@ -1,5 +1,6 @@
-from Exceptions import SpotifyLinkingError
-from Database import DBHandling
+from Icon import Icon
+from Playlist import Playlist
+from Stats import Stats
 from enum import Enum
 
 class Theme(Enum):
@@ -7,32 +8,24 @@ class Theme(Enum):
     LIGHT = 1
 
 class User:
-    def __init__(self, spotifyUserID, pulseUsername, isNewUser):
-        try:
-            if (isNewUser):
-                self.token = self.linkSpotify(spotifyUserID)
-            else:
-                self.token = self.fetchToken(spotifyUserID)
-            self.spotifyUserID = spotifyUserID
-            self.pulseUsername = pulseUsername
-
-        except Exception as e:
-            raise e
-        
-    def populateBasicInformation(self):
-        self.icon = DBHandling.getUserDataFromDB(self.spotifyUserID, "icon")
-        self.friends = DBHandling.getUserDataFromDB(self.spotifyUserID, "friends") #Friends will be array of spotifyIDs
-        self.playlists = DBHandling.getUserDataFromDB(self.spotifyUserID, "playlists") #Query API for playlists?
-        self.theme = DBHandling.getUserDataFromDB(self.spotifyUserID, "theme")
-
-    def linkSpotify(self):
-        didConnectionFail = True
-        token = ""
-        #Connect to api and fetch token
-        if didConnectionFail:
-            raise SpotifyLinkingError()
-        return token
-    
-    def fetchToken(self):
-        token = ""
-        return token
+    def __init__(self, 
+                 displayName="",
+                 loginToken="", 
+                 userID="", 
+                 icon=None, 
+                 friendsList=None, 
+                 playlists=None, 
+                 theme=Theme.DARK, 
+                 AllStats=None, 
+                 highScores=None, 
+                 recommendationParams=None):
+        self.displayName = displayName                                                                  # String
+        self.loginToken = loginToken                                                                    # String
+        self.userID = userID                                                                            # String
+        self.icon = icon                                                                                # Icon
+        self.friendsList = friendsList if friendsList is not None else []                               # Array of userID Strings
+        self.playlists = playlists if playlists is not None else []                                     # Array of Playlists
+        self.theme = theme                                                                              # Theme
+        self.AllStats = AllStats if AllStats is not None else {}                                        # Dict<Key:String,Value:Stats>
+        self.highScores = highScores if highScores is not None else []                                  # Array of Int
+        self.recommendationParams= recommendationParams if recommendationParams is not None else []     # Array of Doubles
