@@ -36,8 +36,42 @@ class User:
     def updateRecentSongs(self):
         self.stats.recent_songs = self.spotify_user.current_user_recently_played()['items']
     
+    # Updates array of list of top tracks with 99 objects of type Track per array entry
+    def updateTopSongs(self):
+        top_tracks = []
+        terms = ["short_term", "medium_term", "long_term"]
+
+        for i in range(3):
+            top_tracks_per_term = []
+            term = terms[i]
+
+            offset = 0
+            top_tracks_per_term.extend(self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)['items'])
+            top_tracks_per_term.extend(self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)['items'][1:])
+            
+            top_tracks.append(top_tracks_per_term)
+
+        self.stats.top_songs = top_tracks
+
+    # Updates array of list of top artists with 99 objects of type Artist per array entry
+    def updateTopArtists(self):
+        top_artists = []
+        terms = ["short_term", "medium_term", "long_term"]
+
+        for i in range(3):
+            top_artists_per_term = []
+            term = terms[i]
+
+            offset = 0
+            top_artists_per_term.extend(self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)['items'])
+            top_artists_per_term.extend(self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)['items'][1:])
+            
+            top_artists.append(top_artists_per_term)
+
+        self.stats.top_artists = top_artists
+
     # Updates list of followed artists with at most max_artists number of objects of type Artist
-    def updateFollowedArtists(self,max_artists=500):
+    def updateFollowedArtists(self, max_artists=500):
         followed_artists = []
 
         after = None
