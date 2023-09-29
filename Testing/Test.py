@@ -102,7 +102,10 @@ if (recent_history_test):
     testUser.update_recent_history()
     recent_history = testUser.stats.recent_history
     for history in recent_history:
-        printString += (f"{history['track']['name']} by {history['track']['artists'][0]['name']} at {history['played_at']} on {history['context']['type']}") + '\n'
+        context = "None"
+        if history['context'] is not None:
+            context = history['context']['type']
+        printString += (f"{history['track']['name']} by {history['track']['artists'][0]['name']} at {history['played_at']} on {context}") + '\n'
     printString += '\n\n'
 
 if (top_songs_test):
