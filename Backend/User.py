@@ -29,15 +29,15 @@ class User:
         self.playlists = playlists if playlists is not None else []                                        # Array of Playlists
         self.theme = theme                                                                                 # Theme
         self.stats = stats if stats is not None else Stats()                                               # Stats
-        self.high_scores = high_scores if high_scores is not None else []                                  # Array of Int
+        self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
 
-    # Updates list of recent songs with at most 50 objects of type Track
-    def updateRecentSongs(self):
-        self.stats.recent_songs = self.spotify_user.current_user_recently_played()['items']
+    # Updates list of recent songs with at most 50 objects of type PlayHistory
+    def update_recent_history(self):
+        self.stats.recent_history = self.spotify_user.current_user_recently_played()['items']
     
-    # Updates array of list of top tracks with 99 objects of type Track per array entry
-    def updateTopSongs(self):
+    # Updates array of list of top tracks with at most 99 objects of type Track per array entry
+    def update_top_songs(self):
         top_tracks = []
         terms = ["short_term", "medium_term", "long_term"]
 
@@ -53,8 +53,8 @@ class User:
 
         self.stats.top_songs = top_tracks
 
-    # Updates array of list of top artists with 99 objects of type Artist per array entry
-    def updateTopArtists(self):
+    # Updates array of list of top artists with at most 99 objects of type Artist per array entry
+    def update_top_artists(self):
         top_artists = []
         terms = ["short_term", "medium_term", "long_term"]
 
@@ -71,7 +71,7 @@ class User:
         self.stats.top_artists = top_artists
 
     # Updates list of followed artists with at most max_artists number of objects of type Artist
-    def updateFollowedArtists(self, max_artists=500):
+    def update_followed_artists(self, max_artists=500):
         followed_artists = []
 
         after = None
