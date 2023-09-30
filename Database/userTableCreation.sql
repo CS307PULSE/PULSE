@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS pulse.users(
     spotify_id varChar(200) NOT NULL UNIQUE,                     -- spotify username (always unique)
     token VARCHAR(200),                                          -- Spotify token
     theme INT(2) ZEROFILL NOT NULL,                              -- Chosen theme. Defaults to 0 (dark mode)
-    highscores JSON,                                             -- Highscores for games. format: '{"game1 (string)" : "score1 (string)" , "game2" : "score2" ....}'
-    reccomendation JSON                                          -- Documentation coming soon
+    highscores JSON,     -- Highscores for games. format: '{"game1 (string)" : "score1 (string)" , "game2" : "score2" ....}'
+    reccomendation JSON  -- from tracks audio features. format: '{"acousticness" : "value" , "danceability":"value" ...}'
 );
