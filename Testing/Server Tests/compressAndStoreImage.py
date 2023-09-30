@@ -6,28 +6,27 @@ import os
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-#open image
+#open image named uncompressed_image.jpg
 image = Image.open(__location__ + r"\uncompressed_image.jpg")
 
-minimum_quality = 50 
 quality = 95      # initial quality
-target = 256000   # 256 kb
+target = 8000   # 8 kb
 
-#Scale image down to under 256 kb whiel retaining the aspect ratio
+#Scale image down to under 8 kb while retaining the aspect ratio
 while True:
     output_buffer = io.BytesIO()    
     w, h = image.size
-    image = image.resize((int(w/2), int(h/2)))
+    image = image.resize((int(w * .75), int(h*.75)))
     image.save(output_buffer, "JPEG", quality=quality)
 
     file_size = output_buffer.tell()
 
-    if file_size <= target or quality <= minimum_quality:
+    if file_size <= target:
         output_buffer.close()
+        print(quality)
         break
-    else:
-        quality -= 5
-
+    
+#save image locally
 image.save(__location__ + r"\compressed_image.jpg", "JPEG", quality=quality)
 
 
