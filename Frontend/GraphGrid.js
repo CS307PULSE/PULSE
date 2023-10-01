@@ -42,7 +42,7 @@ export default function GraphGrid() {
   ]);
 
   const RemoveContainer = (container) => {
-    setLayout = layout.filter((i) => i !== container);
+    setLayout(layout.filter((i) => i !== container));
   };
 
   const AddContainer = (container) => {
@@ -50,7 +50,7 @@ export default function GraphGrid() {
   };
 
   return (
-    <React.Fragment>
+    <>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -60,15 +60,18 @@ export default function GraphGrid() {
       >
         {layout.map((container) => (
           <GraphContainer key={container.i}>
-            <div>{container.i}</div>
+            <div>
+              <div>{container.i}</div>
+              <div onClick={() => RemoveContainer(container)}>X</div>
+            </div>
           </GraphContainer>
         ))}
       </ResponsiveGridLayout>
 
       <div>
-        <Button onClick={clickMe}>Button</Button>
+        <Button onClick={AddContainer}>Button</Button>
       </div>
-    </React.Fragment>
+    </>
   );
 }
 
