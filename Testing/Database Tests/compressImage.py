@@ -23,11 +23,12 @@ while True:
 
     if file_size <= target:
         output_buffer.close()
-        print(quality)
         break
     
 #save image locally
 image.save(__location__ + r"\compressed_image.jpg", "JPEG", quality=quality)
+
+
 
 
 
