@@ -25,6 +25,8 @@ export default function GraphGrid() {
     { i: "summoned-skull", x: 0, y: 1, w: 1, h: 1 },
   ]);
 
+  const [loadoutNumber, setLoadoutNumber] = useState(1);
+
   const RemoveContainer = (container) => {
     setLayout(layout.filter((i) => i !== container));
   };
@@ -33,14 +35,25 @@ export default function GraphGrid() {
     setLayout([...layout, container]);
   };
 
+  //Database functions
+  function getFromLS(key) {
+    const storedLayout = localStorage.getItem(key);
+    return storedLayout ? JSON.parse(storedLayout) : { lg: layout };
+  }
+
+  const saveToLS = (layout, layouts) => {
+    localStorage.setItem(loadoutNumber, JSON.stringify(layouts));
+  };
+
   return (
     <React.Fragment>
       <ResponsiveGridLayout
-        layouts={{ lg: layout }}
+        layouts={getFromLS(loadoutNumber)}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={1000}
+        onLayoutChange={saveToLS}
       >
         {layout.map((container) => (
           <GraphContainer key={container.i}>
@@ -53,39 +66,10 @@ export default function GraphGrid() {
           </GraphContainer>
         ))}
       </ResponsiveGridLayout>
+      <div>
+        <button onClick={() => setLoadoutNumber(1)}>Load 1</button>
+        <button onClick={() => setLoadoutNumber(2)}>Load 2</button>
+      </div>
     </React.Fragment>
   );
 }
-
-//Database functions
-function getFromLS(key) {
-  let ls = {};
-  if (global.localStorage) {
-    try {
-      ls = JSON.parse(global.localStorage.getItem("rgl-8")) || {};
-    } catch (e) {}
-  }
-  return ls[key];
-}
-
-function saveToLS(key, value) {
-  if (global.localStorage) {
-    global.localStorage.setItem(
-      "rgl-8",
-      JSON.stringify({
-        [key]: value,
-      })
-    );
-  }
-}
-
-/*
-  const getLayouts = () => {
-    const savedLayouts = localStorage.getItem("grid-layout");
-    return savedLayouts ? JSON.parse(savedLayouts) : { lg: layout };
-  };
-
-  const handleLayoutChange = (layout, layouts) => {
-    localStorage.setItem("grid-layout", JSON.stringify(layouts));
-  };
-*/
