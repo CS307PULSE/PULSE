@@ -4,8 +4,9 @@ from User import Theme
 
 class DBHandling:
     #TODO: load in JSON fields from database 
+
+    #gets and returns an entire serialized user from the DB
     def get_user_from_DB(spotify_id):
-        #get an entire serialized user from the DB
         try:
             # Connect to database
             connection = mysql.connector.connect(host="pulse-sql-server.mysql.database.azure.com",
@@ -16,10 +17,11 @@ class DBHandling:
 
             # Get all information from specified user
             sql_fetch_blob_query = """SELECT * from pulse.users where spotify_id = %s"""
+            
+            #TODO throw error if user does not exists
             cursor.execute(sql_fetch_blob_query, (spotify_id,))
             record = cursor.fetchall()
-
-            # Print necessary information and save icon in folder 
+ 
             for row in record:
                  userFromDB = User(row[1],      #display_name
                                    row[2],      #login _token
@@ -32,29 +34,45 @@ class DBHandling:
                                    None,        #stats
                                    None,        #TODO high_scores
                                    None)        #TODO recommendation_params
-
-                image = row[3]
-                # No icon exists (null in database)
-                if (image == None):
-                    print ("No icon exists")
-                # Icon exists
-                else:
-                    print("Storing icon on disk \n")
-                    write_file(image, icon)
                 
         except mysql.connector.Error as error:
-            print("Failed to read BLOB data from MySQL table {}".format(error))
+            print("Failed to read user data from MySQL table {}".format(error))
 
         finally:
             if connection.is_connected():
                 cursor.close()
                 connection.close()
-                print("MySQL connection is closed")
+                #print("MySQL connection is closed")
 
-        return None
-    def getUserDataFromDB(userID, field):
-        #field will specify what kind of data we need from database, used if we 
-        #need simple data and not a whole user object
-        return None
+        return User
+    
+    #returns a specified field from a specified user. will return none if the field is null
+    def getUserDataFromDB(user_id, field):
+        try:
+            # Connect to database
+            connection = mysql.connector.connect(host="pulse-sql-server.mysql.database.azure.com",
+                                                user="pulse_prototype_users",
+                                                password="thisPasswordMeansNothing!!!",
+                                                database="pulse")
+            cursor = connection.cursor()
+
+            # Get specified field from specified user
+            sql_fetch_blob_query = """SELECT %s from pulse.users where user_id = %s"""
+            
+            #TODO throw error if user does not exists
+            cursor.execute(sql_fetch_blob_query, (field, user_id,))
+            record = cursor.fetchall()
+        
+                
+        except mysql.connector.Error as error:
+            print("Failed to read user data from MySQL table {}".format(error))
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+                #print("MySQL connection is closed")
+
+        return record
     def storeUserInDB(newUser):
         return None
