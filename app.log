@@ -1,0 +1,49 @@
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 345-807-312
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 345-807-312
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:15] "GET / HTTP/1.1" 200 -
+DEBUG:spotipy.client:Sending GET to https://api.spotify.com/v1/me/ with Params: {} Headers: {'Authorization': 'Bearer BQCa-PQsv_0c9ZD9pspPv4TsvIYjnhOh-tCu_gk5RcvM-lQUxXkom5S7thf4nzcsO4XRv944pdCvm4EeMJQ9YDbGUX5-z3NiePAqUTih9-YgUmac9YKsYU77j0pHXbp9FKX7IN1DixChyS7d6NFI2ZUmeUGWq_jXFNkr5pXd4XdIwIk2ihOp5d07EauVwP74QKyeiSeHly_1andsNHW3q8fW_dMJXIpaz00hI3kIRT7aAbkZQYzhyPYPCjrdCheime7MFVafj-YqvRu1TtXF1Ld1bAT0q9ICrqCjiY8Do-P_hv_vIyiEDNZEp_TdmrvU_BM8l7BONRK1H1yJODAK', 'Content-Type': 'application/json'} and Body: None 
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.spotify.com:443
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/me/ HTTP/1.1" 200 None
+DEBUG:spotipy.client:RESULTS: {'display_name': 'Noah', 'external_urls': {'spotify': 'https://open.spotify.com/user/0ajzwwwmv2hwa3k1bj2z19obr'}, 'href': 'https://api.spotify.com/v1/users/0ajzwwwmv2hwa3k1bj2z19obr', 'id': '0ajzwwwmv2hwa3k1bj2z19obr', 'images': [], 'type': 'user', 'uri': 'spotify:user:0ajzwwwmv2hwa3k1bj2z19obr', 'followers': {'href': None, 'total': 6}, 'country': 'US', 'product': 'premium', 'explicit_content': {'filter_enabled': False, 'filter_locked': False}, 'email': 'noah.stern99@gmail.com'}
+ERROR:root:An error occurred: 0ajzwwwmv2hwa3k1bj2z19obr
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:16] "[32mGET /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:16] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:21] "GET / HTTP/1.1" 200 -
+DEBUG:spotipy.client:Sending GET to https://api.spotify.com/v1/me/ with Params: {} Headers: {'Authorization': 'Bearer BQCa-PQsv_0c9ZD9pspPv4TsvIYjnhOh-tCu_gk5RcvM-lQUxXkom5S7thf4nzcsO4XRv944pdCvm4EeMJQ9YDbGUX5-z3NiePAqUTih9-YgUmac9YKsYU77j0pHXbp9FKX7IN1DixChyS7d6NFI2ZUmeUGWq_jXFNkr5pXd4XdIwIk2ihOp5d07EauVwP74QKyeiSeHly_1andsNHW3q8fW_dMJXIpaz00hI3kIRT7aAbkZQYzhyPYPCjrdCheime7MFVafj-YqvRu1TtXF1Ld1bAT0q9ICrqCjiY8Do-P_hv_vIyiEDNZEp_TdmrvU_BM8l7BONRK1H1yJODAK', 'Content-Type': 'application/json'} and Body: None 
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.spotify.com:443
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/me/ HTTP/1.1" 200 None
+DEBUG:spotipy.client:RESULTS: {'display_name': 'Noah', 'external_urls': {'spotify': 'https://open.spotify.com/user/0ajzwwwmv2hwa3k1bj2z19obr'}, 'href': 'https://api.spotify.com/v1/users/0ajzwwwmv2hwa3k1bj2z19obr', 'id': '0ajzwwwmv2hwa3k1bj2z19obr', 'images': [], 'type': 'user', 'uri': 'spotify:user:0ajzwwwmv2hwa3k1bj2z19obr', 'followers': {'href': None, 'total': 6}, 'country': 'US', 'product': 'premium', 'explicit_content': {'filter_enabled': False, 'filter_locked': False}, 'email': 'noah.stern99@gmail.com'}
+ERROR:root:An error occurred: 0ajzwwwmv2hwa3k1bj2z19obr
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:23] "[32mGET /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:23] "GET / HTTP/1.1" 200 -
+DEBUG:spotipy.client:Sending GET to https://api.spotify.com/v1/me/ with Params: {} Headers: {'Authorization': 'Bearer BQCa-PQsv_0c9ZD9pspPv4TsvIYjnhOh-tCu_gk5RcvM-lQUxXkom5S7thf4nzcsO4XRv944pdCvm4EeMJQ9YDbGUX5-z3NiePAqUTih9-YgUmac9YKsYU77j0pHXbp9FKX7IN1DixChyS7d6NFI2ZUmeUGWq_jXFNkr5pXd4XdIwIk2ihOp5d07EauVwP74QKyeiSeHly_1andsNHW3q8fW_dMJXIpaz00hI3kIRT7aAbkZQYzhyPYPCjrdCheime7MFVafj-YqvRu1TtXF1Ld1bAT0q9ICrqCjiY8Do-P_hv_vIyiEDNZEp_TdmrvU_BM8l7BONRK1H1yJODAK', 'Content-Type': 'application/json'} and Body: None 
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.spotify.com:443
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/me/ HTTP/1.1" 200 None
+DEBUG:spotipy.client:RESULTS: {'display_name': 'Noah', 'external_urls': {'spotify': 'https://open.spotify.com/user/0ajzwwwmv2hwa3k1bj2z19obr'}, 'href': 'https://api.spotify.com/v1/users/0ajzwwwmv2hwa3k1bj2z19obr', 'id': '0ajzwwwmv2hwa3k1bj2z19obr', 'images': [], 'type': 'user', 'uri': 'spotify:user:0ajzwwwmv2hwa3k1bj2z19obr', 'followers': {'href': None, 'total': 6}, 'country': 'US', 'product': 'premium', 'explicit_content': {'filter_enabled': False, 'filter_locked': False}, 'email': 'noah.stern99@gmail.com'}
+ERROR:root:An error occurred: 0ajzwwwmv2hwa3k1bj2z19obr
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:23] "[32mGET /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:16:23] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 345-807-312
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:17:10] "GET / HTTP/1.1" 200 -
+DEBUG:spotipy.client:Sending GET to https://api.spotify.com/v1/me/ with Params: {} Headers: {'Authorization': 'Bearer BQCa-PQsv_0c9ZD9pspPv4TsvIYjnhOh-tCu_gk5RcvM-lQUxXkom5S7thf4nzcsO4XRv944pdCvm4EeMJQ9YDbGUX5-z3NiePAqUTih9-YgUmac9YKsYU77j0pHXbp9FKX7IN1DixChyS7d6NFI2ZUmeUGWq_jXFNkr5pXd4XdIwIk2ihOp5d07EauVwP74QKyeiSeHly_1andsNHW3q8fW_dMJXIpaz00hI3kIRT7aAbkZQYzhyPYPCjrdCheime7MFVafj-YqvRu1TtXF1Ld1bAT0q9ICrqCjiY8Do-P_hv_vIyiEDNZEp_TdmrvU_BM8l7BONRK1H1yJODAK', 'Content-Type': 'application/json'} and Body: None 
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.spotify.com:443
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/me/ HTTP/1.1" 200 None
+DEBUG:spotipy.client:RESULTS: {'display_name': 'Noah', 'external_urls': {'spotify': 'https://open.spotify.com/user/0ajzwwwmv2hwa3k1bj2z19obr'}, 'href': 'https://api.spotify.com/v1/users/0ajzwwwmv2hwa3k1bj2z19obr', 'id': '0ajzwwwmv2hwa3k1bj2z19obr', 'images': [], 'type': 'user', 'uri': 'spotify:user:0ajzwwwmv2hwa3k1bj2z19obr', 'followers': {'href': None, 'total': 6}, 'country': 'US', 'product': 'premium', 'explicit_content': {'filter_enabled': False, 'filter_locked': False}, 'email': 'noah.stern99@gmail.com'}
+ERROR:root:An error occurred: 0ajzwwwmv2hwa3k1bj2z19obr
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:17:11] "[32mGET /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [01/Oct/2023 15:17:11] "GET / HTTP/1.1" 200 -
