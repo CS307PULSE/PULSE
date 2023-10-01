@@ -8,10 +8,10 @@ CREATE DATABASE IF NOT EXISTS pulse;
 CREATE TABLE IF NOT EXISTS pulse.users(
     user_idx1 INT(10) NOT NULL PRIMARY KEY AUTO_INCREMENT,       -- Primary key, starting at 0
     display_name VARCHAR(65) NOT NULL,                           -- PULSE display name
-    login_token VarChar(200) NOT NULL,                           -- Spotify login token
+    login_token JSON,                                            -- Spotify login token in their format
     spotify_id varChar(200) NOT NULL UNIQUE,                     -- spotify username (always unique)
-    token VARCHAR(200),                                          -- Spotify token
-    theme INT(2) ZEROFILL NOT NULL,                              -- Chosen theme. Defaults to 0 (dark mode)
+    friends JSON         -- format: '{"friends":["friend1","friend2",...]}'
     highscores JSON,     -- Highscores for games. format: '{"game1 (string)" : "score1 (string)" , "game2" : "score2" ....}'
+    theme INT(2) ZEROFILL NOT NULL,                              -- Chosen theme. Defaults to 0 (dark mode)
     recommendation JSON  -- from tracks audio features. format: '{"acousticness" : "value" , "danceability":"value" ...}'
 );
