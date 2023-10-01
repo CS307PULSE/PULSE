@@ -75,7 +75,7 @@ class DBHandling:
 
         return record
     
-    def storeUserInDB(newUser):
+    def store_user_in_DB(newUser):
 
         return None
     
