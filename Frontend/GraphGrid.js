@@ -1,16 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
-const layout = [
-  { i: "blue-eyes-dragon", x: 0, y: 0, w: 1, h: 1 },
-  { i: "dark-magician", x: 1, y: 0, w: 1, h: 1 },
-  { i: "kuriboh", x: 2, y: 0, w: 1, h: 1 },
-  { i: "spell-caster", x: 3, y: 0, w: 1, h: 1 },
-  { i: "summoned-skull", x: 4, y: 0, w: 1, h: 1 },
-];
 
 const GraphContainer = styled.div`
   background: #f5f5f5;
@@ -41,40 +33,36 @@ function clickMe() {
 }
 
 export default function GraphGrid() {
-  const getLayouts = () => {
-    const savedLayouts = localStorage.getItem("grid-layout");
-    return savedLayouts ? JSON.parse(savedLayouts) : { lg: layout };
+  const [layout, setLayout] = useState([
+    { i: "blue-eyes-dragon", x: 0, y: 0, w: 1, h: 1 },
+    { i: "dark-magician", x: 1, y: 0, w: 1, h: 1 },
+    { i: "kuriboh", x: 2, y: 0, w: 1, h: 1 },
+    { i: "spell-caster", x: 3, y: 0, w: 1, h: 1 },
+    { i: "summoned-skull", x: 0, y: 1, w: 1, h: 1 },
+  ]);
+
+  const RemoveContainer = (container) => {
+    setLayout = layout.filter((i) => i !== container);
   };
 
-  const handleLayoutChange = (layout, layouts) => {
-    localStorage.setItem("grid-layout", JSON.stringify(layouts));
+  const AddContainer = (container) => {
+    setLayout([...layout, container]);
   };
 
   return (
     <React.Fragment>
       <ResponsiveGridLayout
-        layouts={getLayouts()}
+        layouts={{ lg: layout }}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={1000}
-        onLayoutChange={handleLayoutChange}
       >
-        <GraphContainer key="blue-eyes-dragon">
-          <div>Blue Eyes Dragon</div>
-        </GraphContainer>
-        <GraphContainer key="dark-magician">
-          <div>Dark Magician</div>
-        </GraphContainer>
-        <GraphContainer key="kuriboh">
-          <div>Kuriboh</div>
-        </GraphContainer>
-        <GraphContainer key="spell-caster">
-          <div>Spell Caster</div>
-        </GraphContainer>
-        <GraphContainer key="summoned-skull">
-          <div>Summoned Skull</div>
-        </GraphContainer>
+        {layout.map((container) => (
+          <GraphContainer key={container.i}>
+            <div>{container.i}</div>
+          </GraphContainer>
+        ))}
       </ResponsiveGridLayout>
 
       <div>
@@ -83,3 +71,36 @@ export default function GraphGrid() {
     </React.Fragment>
   );
 }
+
+//Database functions
+function getFromLS(key) {
+  let ls = {};
+  if (global.localStorage) {
+    try {
+      ls = JSON.parse(global.localStorage.getItem("rgl-8")) || {};
+    } catch (e) {}
+  }
+  return ls[key];
+}
+
+function saveToLS(key, value) {
+  if (global.localStorage) {
+    global.localStorage.setItem(
+      "rgl-8",
+      JSON.stringify({
+        [key]: value,
+      })
+    );
+  }
+}
+
+/*
+  const getLayouts = () => {
+    const savedLayouts = localStorage.getItem("grid-layout");
+    return savedLayouts ? JSON.parse(savedLayouts) : { lg: layout };
+  };
+
+  const handleLayoutChange = (layout, layouts) => {
+    localStorage.setItem("grid-layout", JSON.stringify(layouts));
+  };
+*/
