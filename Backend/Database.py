@@ -76,7 +76,6 @@ class DBHandling:
         return record
     
     def store_user_in_DB(newUser):
-
         return None
     
     def get_JSON_data(data):
