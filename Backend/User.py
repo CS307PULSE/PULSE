@@ -14,7 +14,7 @@ class User:
                  userID="", 
                  spotify_user=None,
                  icon=None, 
-                 friends_list=None, 
+                 friends=None, 
                  playlists=None, 
                  theme=Theme.DARK, 
                  stats=None, 
