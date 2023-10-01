@@ -4,7 +4,6 @@ from User import Theme
 
 class DBHandling:
     #TODO: load in JSON fields from database 
-
     #gets and returns an entire serialized user from the DB
     def get_user_from_DB(spotify_id):
         try:
@@ -46,8 +45,9 @@ class DBHandling:
 
         return User
     
+    #TODO: load in JSON fields from the database
     #returns a specified field from a specified user. will return none if the field is null
-    def getUserDataFromDB(user_id, field):
+    def get_user_data_from_DB(user_id, field):
         try:
             # Connect to database
             connection = mysql.connector.connect(host="pulse-sql-server.mysql.database.azure.com",
@@ -74,5 +74,10 @@ class DBHandling:
                 #print("MySQL connection is closed")
 
         return record
+    
     def storeUserInDB(newUser):
+
+        return None
+    
+    def get_JSON_data(data):
         return None
