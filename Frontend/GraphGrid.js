@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
+import Popup from "./Popup";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -8,29 +9,12 @@ const GraphContainer = styled.div`
   background: #f5f5f5;
 `;
 
-const Button = styled.button`
-  background-color: #3f51b5;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 5px;
-  outline: 0;
-  text-transform: uppercase;
-  margin: 10px 0px;
+const CloseButton = styled.span`
+  position: absolute;
+  top: 10px;
+  right: 10px;
   cursor: pointer;
-  box-shadow: 0px 2px 2px lightgray;
-  transition: ease background-color 250ms;
-  &:hover {
-    background-color: #283593;
-  }
-  &:disabled {
-    cursor: default;
-    opacity: 0.7;
-  }
 `;
-
-function clickMe() {
-  alert("You clicked me!");
-}
 
 export default function GraphGrid() {
   const [layout, setLayout] = useState([
@@ -50,7 +34,7 @@ export default function GraphGrid() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -62,16 +46,14 @@ export default function GraphGrid() {
           <GraphContainer key={container.i}>
             <div>
               <div>{container.i}</div>
-              <div onClick={() => RemoveContainer(container)}>X</div>
+              <CloseButton onClick={() => RemoveContainer(container)}>
+                X
+              </CloseButton>
             </div>
           </GraphContainer>
         ))}
       </ResponsiveGridLayout>
-
-      <div>
-        <Button onClick={AddContainer}>Button</Button>
-      </div>
-    </>
+    </React.Fragment>
   );
 }
 
