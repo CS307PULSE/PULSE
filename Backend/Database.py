@@ -1,6 +1,8 @@
 import mysql.connector
 from User import User
 from User import Theme
+import json
+from types import SimpleNamespace
 
 class DBHandling:
     #TODO: load in JSON fields from database 
@@ -22,17 +24,17 @@ class DBHandling:
             record = cursor.fetchall()
  
             for row in record:
-                 userFromDB = User(row[1],      #display_name
-                                   row[2],      #login _token
-                                   row[3],      #spotify_id
-                                   None,        #spotify_user
-                                   None,        #icon
-                                   None,        #TODO friends
-                                   None,        #playlists
-                                   Theme.Dark,  #theme
-                                   None,        #stats
-                                   None,        #TODO high_scores
-                                   None)        #TODO recommendation_params
+                 userFromDB = User(row[1],                                                                #display_name
+                                   row[2],                                                                #login _token
+                                   row[3],                                                                #spotify_id
+                                   None,                                                                  #spotify_user
+                                   None,                                                                  #icon
+                                   json.loads(row[4], object_hook=lambda d: SimpleNamespace(**d)),        #friends
+                                   None,                                                                  #playlists
+                                   Theme(row[5]),                                                         #theme
+                                   None,                                                                  #stats
+                                   json.loads(row[6], object_hook=lambda d: SimpleNamespace(**d)),        #high_scores
+                                   json.loads(row[7], object_hook=lambda d: SimpleNamespace(**d)))        #recommendation_params
                 
         except mysql.connector.Error as error:
             print("Failed to read user data from MySQL table {}".format(error))
