@@ -15,7 +15,6 @@ class User:
                  login_token=None, 
                  spotify_id="", 
                  spotify_user=None,
-                 icon=None, 
                  friends=None, 
                  playlists=None, 
                  theme=Theme.DARK, 
@@ -26,7 +25,7 @@ class User:
         self.login_token = login_token                                                                     # Token Info Object
         self.spotify_id = spotify_id                                                                       # String
         self.spotify_user = spotify_user                                                                   # Spotify User
-        self.friends_list = friends_list if friends_list is not None else []                               # Array of spotify_id Strings
+        self.friends = friends if friends is not None else []                                              # Array of spotify_id Strings
         self.playlists = playlists if playlists is not None else []                                        # Array of Playlists
         self.theme = theme                                                                                 # Theme
         self.stats = stats if stats is not None else Stats()                                               # Stats
@@ -34,7 +33,7 @@ class User:
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
 
     # Updates the access token and spotify_user object
-    def update_access_token(self, client_id, client_secret, redirect_uri, cache_path):
+    def refresh_access_token(self, client_id, client_secret, redirect_uri, cache_path):
         # Define your desired scope (e.g., 'user-library-read' for access to a user's library)
         scopes = [
             #Images
