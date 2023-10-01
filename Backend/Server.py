@@ -101,12 +101,12 @@ def login_user(userID):
 def index():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
-        return f'Welcome, {user_id}!'
-        user = DBHandling.get_user_from_DB(user_id)
-        run_tests(user)
-        return f'Welcome, {user.display_name}!'
-    else:
-        return 'Please <a href="/login">log in with Spotify</a> to continue.'
+        if DBHandling.does_user_exist_in_DB(user_id):
+            user = DBHandling.get_user_from_DB(user_id)
+            run_tests(user)
+            return f'Welcome, {user.display_name}!'
+
+    return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
 @app.route('/login')
 def login():
@@ -134,16 +134,18 @@ def login():
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user_data = sp.me()
 
+    # Create a User object and store it in the session
     user = User(
+        display_name=user_data['display_name'],
         login_token=token_info,
-        spotify_id=user_data['id'],
+        spotify_id=sp.me()['id'],
         spotify_user=sp
     )
-
+    
     resp = make_response("COOKIE")
     resp.set_cookie('user_id_cookie', user.spotify_id)
-
-    return redirect(url_for('index'))
+    if not DBHandling.does_user_exist_in_DB(user.spotify_id):
+        DBHandling.store_new_user_in_DB(user)
 
     return redirect(url_for('index'))
 
@@ -168,16 +170,15 @@ def callback():
         user = User(
             display_name=user_data['display_name'],
             login_token=token_info,
-            spotify_id=user_data['id'],
+            spotify_id=sp.me()['id'],
             spotify_user=sp
         )
 
         resp = make_response("COOKIE")
         resp.set_cookie('user_id_cookie', user.spotify_id)
-        return resp
-        user_id = request.cookies.get('user_id_cookie')
-        if True:
-            redirect(url_for('test'))
+        if not DBHandling.does_user_exist_in_DB(user.spotify_id):
+            DBHandling.store_new_user_in_DB(user)
+
         return redirect(url_for('index'))
 
     else:
@@ -185,7 +186,6 @@ def callback():
 
 @app.route('/logout')
 def logout():
-    DBHandling.store_user_in_DB(session['user'])
     session.pop('user', None)
     return 'Logged out successfully.'
 
