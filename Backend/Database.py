@@ -102,7 +102,31 @@ class DBHandling:
                                                  json.dumps(newUser.friends),
                                                  int(newUser.theme.value),
                                                  json.dumps(newUser.highscores),
-                                                 json.dumps(newUser.recommendation))
+                                                 json.dumps(newUser.recommendation),)
+            record = cursor.fetchall()
+        except mysql.connector.Error as error:
+            print("Failed to read user data from MySQL table {}".format(error))
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+                #print("MySQL connection is closed")
+        return None
+    
+    def update_token(spotify_id, login_token):
+        try:
+            # Connect to database
+            connection = mysql.connector.connect(host="pulse-sql-server.mysql.database.azure.com",
+                                                user="pulse_prototype_users",
+                                                password="thisPasswordMeansNothing!!!",
+                                                database="pulse")
+            cursor = connection.cursor()
+
+            # Update login_token
+            sql_fetch_blob_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s """
+            
+            cursor.execute(sql_fetch_blob_query, (login_token, spotify_id,))
             record = cursor.fetchall()
         except mysql.connector.Error as error:
             print("Failed to read user data from MySQL table {}".format(error))
@@ -117,7 +141,7 @@ class DBHandling:
     def update_user(user, field):
         return None
     
-    def does_user_exist_in_DB(spotify_id):
+    def does_user_exist_in_DB(spotify_id):        
         try:
             # Connect to database
             connection = mysql.connector.connect(host="pulse-sql-server.mysql.database.azure.com",
