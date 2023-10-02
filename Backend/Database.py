@@ -6,6 +6,10 @@ from types import SimpleNamespace
 import os
 
 class DBHandling:
+    def erase():
+        db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
+        open(db_file, 'w').close()
+
     def temp_is_user_in_DB(spotify_id):
         db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
         # Check if a user with the given Spotify ID exists in the database

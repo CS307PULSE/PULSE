@@ -1,6 +1,9 @@
 from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
+from Exceptions import ErrorHandler
+from Exceptions import BadResponseError
+from Exceptions import TokenNotStoredError
 
 import json
 import spotipy
@@ -43,7 +46,6 @@ class User:
             "theme": self.theme.value,
             "high_scores": self.high_scores,
             "recommendation_params": self.recommendation_params
-            # Add other user attributes as needed
         }
         return user_data
 
@@ -59,142 +61,114 @@ class User:
             high_scores=user_data["high_scores"],
             recommendation_params=user_data["recommendation_params"],
             spotify_user=spotipy.Spotify(auth=user_data["login_token"]['access_token'])
-            # Retrieve other user attributes as needed
         )
 
     # Updates the access token and spotify_user object
-    def refresh_access_token(self, client_id, client_secret, redirect_uri, cache_path):
-        # Define your desired scope (e.g., 'user-library-read' for access to a user's library)
-        scopes = [
-            #Images
-            'ugc-image-upload',
-
-            #Spotify Connect
-            'user-read-playback-state',
-            'user-modify-playback-state',
-            'user-read-currently-playing',
-
-            #Playback
-            'app-remote-control',
-            'streaming',
-
-            #Playlists
-            'playlist-read-private',
-            'playlist-read-collaborative',
-            'playlist-modify-private',
-            'playlist-modify-public',
-
-            #Follow
-            'user-follow-modify',
-            'user-follow-read',
-            
-            #Listening History
-            'user-read-playback-position',
-            'user-top-read',
-            'user-read-recently-played',
-
-            #Library
-            'user-library-read',
-            'user-library-modify',
-
-            #Users
-            'user-read-email',
-            'user-read-private'
-
-            #Open Access
-            #user-soa-link
-            #user-soa-unlink
-            #user-manage-entitlements
-            #user-manage-partner
-            #user-create-partner
-        ]
-
-        # Convert the array to a space-separated string
-        scope = ' '.join(scopes)
-
-        # Create a SpotifyOAuth instance with the necessary parameters
-        sp_oauth = SpotifyOAuth(client_id=client_id, 
-                                client_secret=client_secret, 
-                                redirect_uri=redirect_uri, 
-                                scope=scope,
-                                cache_path=cache_path)
-
-        # Check if cached token exists and is still valid
-        token_info = sp_oauth.get_cached_token()
-
-        if not token_info:
-            # If no cached token, request authorization from the user
-            auth_url = sp_oauth.get_authorize_url()
-            print(f'Please visit this URL to authorize your application: {auth_url}')
-            response = input('Enter the URL you were redirected to: ')
-            code = sp_oauth.parse_response_code(response)
-            token_info = sp_oauth.get_access_token(code)
+    def refresh_access_token(self, sp_oauth):
+        if not self.login_token:
+            raise TokenNotStoredError
 
         # When the access token expires, use the refresh token to obtain a new one
-        if sp_oauth.is_token_expired(token_info):
-            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+        if sp_oauth.is_token_expired(self.login_token):
+            self.login_token = sp_oauth.refresh_access_token(self.login_token['refresh_token'])
 
-        sp = spotipy.Spotify(auth=token_info['access_token'])
-        self.login_token = token_info
+        sp = spotipy.Spotify(auth=self.login_token['access_token'])
         self.spotify_user = sp
     
     # Updates user Spotify ID
     def update_spotify_id(self):
-        self.spotify_id = self.spotify_user.me()['id']
+        try:
+            response = self.spotify_user.me()
+            self.spotify_id = response['id']
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
 
     # Updates list of recent songs with at most 50 objects of type PlayHistory
     def update_recent_history(self):
-        self.stats.recent_history = self.spotify_user.current_user_recently_played()['items']
+        try:
+            response = self.spotify_user.current_user_recently_played() 
+            self.stats.recent_history = response['items']
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
     
     # Updates array of list of top tracks with at most 99 objects of type Track per array entry
     def update_top_songs(self):
-        top_tracks = []
-        terms = ["short_term", "medium_term", "long_term"]
+        try:
+            top_tracks = []
+            terms = ["short_term", "medium_term", "long_term"]
 
-        for i in range(3):
-            top_tracks_per_term = []
-            term = terms[i]
+            for i in range(3):
+                top_tracks_per_term = []
+                term = terms[i]
 
-            offset = 0
-            top_tracks_per_term.extend(self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)['items'])
-            top_tracks_per_term.extend(self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)['items'][1:])
-            
-            top_tracks.append(top_tracks_per_term)
+                offset = 0
+                response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)
+                if 'error' in response:
+                    raise BadResponseError
+                
+                top_tracks_per_term.extend(response['items'])
+                response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)
+                if 'error' in response:
+                    raise BadResponseError
+                
+                top_tracks_per_term.extend(response['items'][1:])
+                
+                top_tracks.append(top_tracks_per_term)
 
-        self.stats.top_songs = top_tracks
+            self.stats.top_songs = top_tracks
+        except Exception as e:
+            ErrorHandler.handle_error(e)
 
     # Updates array of list of top artists with at most 99 objects of type Artist per array entry
     def update_top_artists(self):
-        top_artists = []
-        terms = ["short_term", "medium_term", "long_term"]
+        try:
+            top_artists = []
+            terms = ["short_term", "medium_term", "long_term"]
 
-        for i in range(3):
-            top_artists_per_term = []
-            term = terms[i]
+            for i in range(3):
+                top_artists_per_term = []
+                term = terms[i]
 
-            offset = 0
-            top_artists_per_term.extend(self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)['items'])
-            top_artists_per_term.extend(self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)['items'][1:])
-            
-            top_artists.append(top_artists_per_term)
+                offset = 0
+                response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)
+                if 'error' in response:
+                    raise BadResponseError     
+                                         
+                top_artists_per_term.extend(response['items'])
+                response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)
+                if 'error' in response:
+                    raise BadResponseError
+                
+                top_artists_per_term.extend(response['items'][1:])
+                
+                top_artists.append(top_artists_per_term)
 
-        self.stats.top_artists = top_artists
+            self.stats.top_artists = top_artists
+        except Exception as e:
+            ErrorHandler.handle_error(e)
 
     # Updates list of followed artists with at most max_artists number of objects of type Artist
     def update_followed_artists(self, max_artists=500):
-        followed_artists = []
+        try:
+            followed_artists = []
 
-        after = None
-        limit = min(50, max_artists)
+            after = None
+            limit = min(50, max_artists)
 
-        while len(followed_artists) < max_artists:
-            artists = self.spotify_user.current_user_followed_artists(limit=limit, after=after)['artists']
+            while len(followed_artists) < max_artists:
+                response = self.spotify_user.current_user_followed_artists(limit=limit, after=after)
+                if 'error' in response:
+                    raise BadResponseError
+                
+                artists = response['artists']
 
-            after = artists['cursors']['after']
+                after = artists['cursors']['after']
 
-            followed_artists.extend(artists['items'])
+                followed_artists.extend(artists['items'])
 
-            if not artists['items'] or after is None:
-                break
+                if not artists['items'] or after is None:
+                    break
 
-        self.stats.followed_artists = followed_artists
+            self.stats.followed_artists = followed_artists
+        except Exception as e:
+            ErrorHandler.handle_error(e)
