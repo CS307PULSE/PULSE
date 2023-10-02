@@ -2,6 +2,7 @@ from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
 
+import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -31,6 +32,35 @@ class User:
         self.stats = stats if stats is not None else Stats()                                               # Stats
         self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
+
+    def to_json(self):
+        # Convert the User object to a JSON-serializable dictionary
+        user_data = {
+            "display_name": self.display_name,
+            "spotify_id": self.spotify_id,
+            "login_token": self.login_token,
+            "friends": self.friends,
+            "theme": self.theme.value,
+            "high_scores": self.high_scores,
+            "recommendation_params": self.recommendation_params
+            # Add other user attributes as needed
+        }
+        return user_data
+
+    @classmethod
+    def from_json(cls, user_data):
+        # Create a User object from a JSON-serializable dictionary
+        return cls(
+            display_name=user_data["display_name"],
+            spotify_id=user_data["spotify_id"],
+            login_token=user_data["login_token"],
+            friends=user_data["friends"],
+            theme=Theme(user_data["theme"]),
+            high_scores=user_data["high_scores"],
+            recommendation_params=user_data["recommendation_params"],
+            spotify_user=spotipy.Spotify(auth=user_data["login_token"]['access_token'])
+            # Retrieve other user attributes as needed
+        )
 
     # Updates the access token and spotify_user object
     def refresh_access_token(self, client_id, client_secret, redirect_uri, cache_path):

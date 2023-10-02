@@ -3,6 +3,7 @@ from User import User
 from Database import DBHandling
 from Exceptions import SpotifyLinkingError
 import os
+import json
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -66,45 +67,14 @@ scopes = [
 # Convert the array to a space-separated string
 scope = ' '.join(scopes)
 
-def start_server():
-    #Allow for client connections with socket
-    #login (or register) and pass user object to client?
-    user = register_user("HI")
-    user.update_spotify_id()
-    print(user.display_name)
-    print(user.login_token)
-    print(user.spotify_id)
-
-    run_tests(user)
-
-    return
-
-def register_user(displayName):
-    did_connection_fail = False
-
-    if did_connection_fail:
-        raise SpotifyLinkingError()
-    
-    new_user = User(displayName)
-    new_user.update_access_token(client_id=client_id, 
-                                 client_secret=client_secret, 
-                                 redirect_uri=redirect_uri, 
-                                 cache_path=cache_path)
-
-    DBHandling.store_user_in_DB(new_user)
-    return new_user
-
-def login_user(userID):
-    return DBHandling.get_user_from_DB(userID)
-
 @app.route('/')
 def index():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
         if DBHandling.does_user_exist_in_DB(user_id):
             user = DBHandling.get_user_from_DB(user_id)
-            run_tests(user)
-            return f'Welcome, {user.display_name}!'
+            session['user'] = user.to_json()
+            return redirect(url_for('test'))
 
     return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
@@ -191,8 +161,13 @@ def logout():
 
 @app.route('/test')
 def test():
-    return 'a'
-    #run_tests(session['user'])
+    if 'user' in session:
+        user_data = session['user']  # User data is already a dictionary
+        user = User.from_json(user_data)
+        run_tests(user)
+        return f'Welcome, {user.display_name}!'
+    else:
+        return 'User session not found. Please log in again.'
 
 def run_tests(testUser):
     import time
@@ -264,18 +239,6 @@ def run_tests(testUser):
         # Open the file in write mode ('w') to clear its contents
         with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
             file.write(printString)
-
-@app.route('/setcookie', methods=['POST', 'GET'])
-def setcookie():
-    user_id = "some_value"  # Replace this with the actual user ID or value
-    resp = make_response(render_template('testfile.html', user_id=user_id))
-    resp.set_cookie('user_id_cookie', user_id)
-    return resp
-
-@app.route('/displaycookie')
-def displaycookie():
-    user_id = request.cookies.get('user_id_cookie')
-    return render_template('testfile.html', user_id=user_id)
 
 if __name__ == '__main__':
     app.run(debug=True)
