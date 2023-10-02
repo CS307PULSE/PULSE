@@ -75,6 +75,8 @@ def index():
             user = DBHandling.get_user_from_DB(user_id)
             session['user'] = user.to_json()
             return redirect(url_for('dashboard'))
+    #HANDLE COOKIES
+    #deleting what's in .cache fucks things up
 
     return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
@@ -116,8 +118,9 @@ def callback():
             spotify_user=sp
         )
 
-        resp = make_response("COOKIE")
-        resp.set_cookie('user_id_cookie', user.spotify_id)
+        resp = make_response(redirect(url_for('index')))
+        resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
+        
         if not DBHandling.does_user_exist_in_DB(user.spotify_id):
             DBHandling.store_new_user_in_DB(user)
         else:
@@ -125,7 +128,7 @@ def callback():
             DBHandling.erase()
             DBHandling.store_new_user_in_DB(user)
 
-        return redirect(url_for('index'))
+        return resp
 
     else:
         return 'Login failed. Please try again.'
