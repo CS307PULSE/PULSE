@@ -117,7 +117,7 @@ class DBHandling:
     def update_user(user, field):
         return None
     
-    def does_user_exist(spotify_id):
+    def does_user_exist_in_DB(spotify_id):
         try:
             # Connect to database
             connection = mysql.connector.connect(host="pulse-sql-server.mysql.database.azure.com",
@@ -129,7 +129,7 @@ class DBHandling:
             # Get specified field from specified user
             sql_fetch_blob_query = """SELECT spotify_id, COUNT(*) FROM pulse.users WHERE spotify_id = %s"""
             
-            cursor.execute(sql_fetch_blob_query, (spotify_id))
+            cursor.execute(sql_fetch_blob_query, (spotify_id,))
             num_exists = cursor.rowcount()
             if (num_exists == 0):
                 return 0
