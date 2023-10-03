@@ -93,7 +93,7 @@ class Database_Connector(object):
     def get_user_from_DB(self, spotify_id):
         sql_get_full_user_query = """SELECT * from pulse.users where spotify_id = %s"""
         self.db_cursor.execute(sql_get_full_user_query, (spotify_id,))
-        record = cursor.fetchall()
+        record = self.db_cursor.fetchall()
         for row in record:
             userFromDB = User(row[1],                                                                #display_name
                          row[2],                                                                #login _token
