@@ -89,6 +89,25 @@ class Database_Connector(object):
                                                 json.dumps(new_user.recommendation),)
         record = self.db_cursor.fetchall()
 
+    # Returns a newly created user object recreated from the database given spotify_id
+    def get_user_from_DB(self, spotify_id):
+        sql_get_full_user_query = """SELECT * from pulse.users where spotify_id = %s"""
+        self.db_cursor.execute(sql_get_full_user_query, (spotify_id,))
+        record = cursor.fetchall()
+        for row in record:
+            userFromDB = User(row[1],                                                                #display_name
+                         row[2],                                                                #login _token
+                        row[3],                                                                #spotify_id
+                        None,                                                                  #spotify_user
+                        None,                                                                  #icon
+                        json.loads(row[4], object_hook=lambda d: SimpleNamespace(**d)),        #friends
+                        None,                                                                  #playlists 
+                        Theme(row[5]),                                                         #theme
+                        None,                                                                  #stats
+                        json.loads(row[6], object_hook=lambda d: SimpleNamespace(**d)),        #high_scores
+                        json.loads(row[7], object_hook=lambda d: SimpleNamespace(**d)))        #recommendation_params
+            return userFromDB
+                
     def update_token(self, spotify_id, login_token):
         sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s """
         self.db_cursor.execute(sql_update_token_query, (login_token, spotify_id,))
