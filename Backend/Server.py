@@ -1,4 +1,6 @@
 from flask import Flask, redirect, request, session, url_for, make_response, render_template
+import firebase_admin
+from firebase_admin import credentials, auth
 from User import User
 from Database import DBHandling
 from Exceptions import SpotifyLinkingError
@@ -9,9 +11,6 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-
 current_dir = os.getcwd()
 lines = []
 with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
@@ -19,6 +18,13 @@ with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
         lines.append(line.strip())
 
 client_id, client_secret, redirect_uri = lines
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
+firebase_admin.initialize_app(cred)
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 scopes = [
     #Images
@@ -68,7 +74,7 @@ scopes = [
 scope = ' '.join(scopes)
 
 @app.route('/')
-def index():
+def home():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
         if DBHandling.does_user_exist_in_DB(user_id):
@@ -145,7 +151,7 @@ def dashboard():
 @app.route('/test')
 def test():
     if 'user' in session:
-        user_data = session['user']  # User data is already a dictionary
+        user_data = session['user']
         user = User.from_json(user_data)
         run_tests(user)
         return f'Welcome, {user.display_name}!'
@@ -240,12 +246,16 @@ def run_tests(testUser):
                     #Update token
                     DBHandling.erase()
                     DBHandling.store_new_user_in_DB(testUser)
+                    session['user'] = testUser.to_json()
+                    print("Token successfully refreshed!")
                     return redirect(url_for('dashboard'))
                 
             except Exception as ex:
                 print(f"An unexpected error occurred: {ex}")
                 try_count += 1
-        return redirect(url_for('login'))
+
+        print("Couldn't refresh token")
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
