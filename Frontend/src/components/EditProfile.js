@@ -1,13 +1,11 @@
 import TestIcon from "../test_icon.jpg"
 
 const profileStyle = {
-    paddding:"0px",
+    paddding:"10px",
     margin: "0px",
     backgroundColor:"#000",
     width: "100%", // Set width to 100% to cover the entire width of the screen
     height: "100vh", // Set height to 100vh to cover the entire height of the screen
-    backgroundSize: "cover", // Cover the entire container with the image
-    backgroundRepeat: "no-repeat",
 };
 const profileHeader={
     paddingTop: "150px",
@@ -19,6 +17,8 @@ const profileHeader={
     fontStyle: "normal",
     fontWeight: 600,
     lineHeight: "normal",
+    left: "calc(50vw - 10px)",
+    margin: "0px"
 };
 const profileText={
     paddingTop: "150px",
@@ -42,14 +42,19 @@ const textFieldStyle={
     margin:"10px"
 };
 
-function Profile({testParameter}){
+function EditProfile(){
     return(
-    <div className="profile" style={profileStyle}>
-        <p style={profileHeader}>Profile</p>
-        <img className="logo" alt="logo" style={{}}src={TestIcon}/>
-        <p style={profileText}>Username: </p>
-        <p style={profileHeader}>Settings</p>
+    <div className="editProfile" style={profileStyle}>
+        <p style={profileHeader}>Edit Profile</p>
+        <form action="fileupload.php" enctype="multipart/form-data" method="post">
+            <label style={profileText} for="username">Username: </label>
+            <input id="username" type="text" style={textFieldStyle}></input>
+            <p>\n</p>
+            <label style={textFieldStyle} class="custom-uploader" for="file">Upload Your File</label>
+            <input id="file" accept="image/jpeg,image/png" name="fileToUpload" type="file" />
+            <button style={textFieldStyle} name="submit" type="submit"> File </button>
+        </form>
     </div>
     );
 }
-export default Profile;
+export default EditProfile;

@@ -2,6 +2,7 @@ import "./App.css";
 import { useState } from "react";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
+import EditProfile from "./components/EditProfile";
 
 
 function App() {
@@ -16,11 +17,7 @@ function App() {
   return (
     <div>
       {isLoginClicked ? null : <Login onLoginClick={handleLoginClick} />}
-      {isLoginClicked ?
-        <Profile testParameter={"a"}/>
-        : null
-      }
-      <div></div>
+      {isLoginClicked ? <EditProfile/> : null}
     </div>
   );
 }
