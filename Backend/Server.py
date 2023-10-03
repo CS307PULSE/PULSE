@@ -1,8 +1,8 @@
 from flask import Flask, redirect, request, session, url_for, make_response, render_template
 from User import User
 from Database import DBHandling
-from Database_Connector import Database_Connector
-from Database_Connector import db_config
+from PULSE.Backend.DatabaseConnector import DatabaseConnector
+from PULSE.Backend.DatabaseConnector import db_config
 from Exceptions import SpotifyLinkingError
 from Exceptions import TokenExpiredError
 from Exceptions import SpotifyExpiredError
@@ -16,7 +16,7 @@ app.secret_key = 'your_secret_key'
 
 current_dir = os.getcwd()
 lines = []
-with open(current_dir + '\\PULSE\\Testing\\' + 'ClientData.txt', 'r') as file:
+with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
     for line in file:
         lines.append(line.strip())
 
@@ -71,15 +71,17 @@ scope = ' '.join(scopes)
 
 @app.route('/')
 def index():
+    
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
-        user_exists = None
-        with Database_Connector(db_config) as test:
+        user_exists = False
+        with DatabaseConnector(db_config) as test:
             user_exists = test.does_user_exist_in_DB(user_id)
+        #return f"{user_exists}"
         if user_exists:
             user = None
-            with Database_Connector(db_config) as test:
-                user = Database_Connector.get_user_from_DB(user_id)
+            with DatabaseConnector(db_config) as conn:
+                user = conn.get_user_from_DB(spotify_id=user_id)
             session['user'] = user.to_json()
             return redirect(url_for('dashboard'))
     #HANDLE COOKIES
@@ -128,18 +130,17 @@ def callback():
         resp = make_response(redirect(url_for('index')))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
         
-        user_exists = None
-        with Database_Connector(db_config) as test:
-            user_exists = test.does_user_exist_in_DB(user.spotify_id)
+        user_exists = False
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_DB(user.spotify_id)
         if not user_exists:
-            with Database_Connector(db_config) as test:
-                Database_Connector.store_new_user_in_DB(user)
+            
+            with DatabaseConnector(db_config) as conn:
+                test = conn.store_new_user_in_DB(user)
         else:
             #Update token
-            #TODO: Noah what was this .erase you call?
-            DBHandling.erase()
-            with Database_Connector(db_config) as test:
-                Database_Connector.store_new_user_in_DB(user)
+            with DatabaseConnector(db_config) as conn:
+                conn.update_token(user.spotify_id, user.login_token)
 
         return resp
 
@@ -251,8 +252,9 @@ def run_tests(testUser):
 
                 if not sp_oauth.is_token_expired(testUser.login_token):
                     #Update token
-                    DBHandling.erase()
-                    DBHandling.store_new_user_in_DB(testUser)
+                    with DatabaseConnector(db_config) as conn:
+                        conn.update_token(testUser.spotify_id, testUser.login_token)
+                    session["user"] = testUser.to_json()
                     return redirect(url_for('dashboard'))
                 
             except Exception as ex:
