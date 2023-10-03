@@ -27,19 +27,14 @@ class Database_Connector(object):
     
     # Checks if user exists. Returns 0, or 1. If multiple users exist, returns 0 with an error message
     def does_user_exist_in_DB(self, spotify_id):
-        sql_check_user_exists_query = "SELECT COUNT(*), username FROM pulse.users WHERE spotify_id = %s GROUP BY username"
+        sql_check_user_exists_query = "SELECT COUNT(*), spotify_id FROM pulse.users WHERE spotify_id = %s GROUP BY spotify_id"
         cursor = self.db_cursor.execute(sql_check_user_exists_query, (spotify_id,))
-        num_exists = self.db_cursor.fetchone()[0]
-        if (num_exists == 0):
-            print("User does not exist")
+         #TODO: handle errors in case of multiple spotify_id existing. THIS SHOULD NEVER HAPPEN 
+        if (cursor == None):
             return 0
-        elif (num_exists == 1):
-            print("User exists")
+        else: 
             return 1
-        elif (num_exists > 1):
-            #TODO: handle errors in case of multiple spotify_id existing. THIS SHOULD NEVER HAPPEN 
-            print("ERROR: Multiple users exist")
-            return 0
+
 
 
     # Returns a whole row for the given spotify_id    
@@ -117,8 +112,8 @@ class Database_Connector(object):
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
             'port': 3306,                                        # port
-            'user':"pulse_prototype_users",                      # username
-            'passwd':"thisPasswordMeansNothing!!!",              # password
+            'user':"pulse_admin_userz",                      # username
+            'passwd':"PurdueCS307R0cks!&!",              # password
             'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
@@ -135,8 +130,8 @@ with Database_Connector(db_config) as test:
 r"""
 # Fetch row test
 with Database_Connector(db_config) as test: 
-    display_name = 
-    spotify_id =
+    display_name = <>
+    spotify_id =   <>
     resultSet = test.get_row(display_name, spotify_id)
     print(resultSet)
 """
