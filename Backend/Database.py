@@ -7,11 +7,11 @@ import os
 
 class DBHandling:
     def erase():
-        db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
+        db_file = os.path.dirname(os.getcwd()) + "\\Backend" + '\\DBTempStorage.txt'
         open(db_file, 'w').close()
 
     def temp_is_user_in_DB(spotify_id):
-        db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
+        db_file = os.path.dirname(os.getcwd()) + "\\Backend" + '\\DBTempStorage.txt'
         # Check if a user with the given Spotify ID exists in the database
         with open(db_file, 'r') as file:
             for line in file:
@@ -21,7 +21,7 @@ class DBHandling:
         return False
 
     def temp_is_user_in_DB(spotify_id):
-        db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
+        db_file = os.path.dirname(os.getcwd()) + "\\Backend" + '\\DBTempStorage.txt'
         # Check if a user with the given Spotify ID exists in the database
         with open(db_file, 'r') as file:
             for line in file:
@@ -32,7 +32,7 @@ class DBHandling:
 
     def temp_store_user_in_DB(user):
         # Store a user in the database file
-        db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
+        db_file = os.path.dirname(os.getcwd()) + "\\Backend" + '\\DBTempStorage.txt'
         with open(db_file, 'a') as file:
             user_data = user.to_json()
             user_json = json.dumps(user_data)
@@ -40,7 +40,7 @@ class DBHandling:
 
     def temp_get_user_from_DB(spotify_id):
         # Retrieve a user by Spotify ID from the database
-        db_file = os.getcwd() + '\\Backend\\' + 'DBTempStorage.txt'
+        db_file = os.path.dirname(os.getcwd()) + "\\Backend" + '\\DBTempStorage.txt'
         with open(db_file, 'r') as file:
             for line in file:
                 user_data = json.loads(line)

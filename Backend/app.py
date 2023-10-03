@@ -11,7 +11,7 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-current_dir = os.getcwd()
+current_dir = os.path.dirname(os.getcwd())
 lines = []
 with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
     for line in file:
@@ -20,8 +20,8 @@ with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
 client_id, client_secret, redirect_uri = lines
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
-firebase_admin.initialize_app(cred)
+#cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
+#firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -73,7 +73,7 @@ scopes = [
 scope = ' '.join(scopes)
 
 @app.route('/')
-def home():
+def index():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
         if DBHandling.does_user_exist_in_DB(user_id):
@@ -173,7 +173,7 @@ def run_tests(testUser):
     # Print the datetime in EDT format
     printString = (est_datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')) + '\n'
     verbose = True
-    currentDir = os.getcwd()
+    currentDir = os.path.dirname(os.getcwd())
 
     recent_history_test = True
     top_songs_test = True
