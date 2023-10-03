@@ -34,13 +34,12 @@ class Playback:
        try:
         while True:
             self.currentlyplaying = self.user.spotify_user.get_current_playback()
-            print("Current Playback:", playback_info)
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
     def start_thread(self):
-        checker = multiprocessing.Process(target = player_checker, args=())
+        checker = multiprocessing.Process(target = 'player_checker', args=())
         checker.start()
 
     def set_shuffle(self):
