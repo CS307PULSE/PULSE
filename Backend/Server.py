@@ -70,7 +70,6 @@ scopes = [
     #user-create-partner
 ]
 
-# Convert the array to a space-separated string
 scope = ' '.join(scopes)
 
 @app.route('/')
