@@ -69,7 +69,7 @@ class Database_Connector(object):
                     file.write(image)
 
     #Stores a new user in the DB given the user object
-    def store_new_user_in_DB(self, newUser):
+    def store_new_user_in_DB(self, new_user):
         # Upload user information
         sql_store_new_user_query = """INSERT INTO pulse.users (display_name, 
                                 login_token, 
@@ -80,13 +80,13 @@ class Database_Connector(object):
                                 recommendation) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
             
         #TODO throw error if user does not exists
-        self.db_cursor.execute(sql_store_new_user_query, (newUser.display_name, 
-                                                json.dumps(newUser.login_token),
-                                                newUser.spotify_id),
-                                                json.dumps(newUser.friends),
-                                                int(newUser.theme.value),
-                                                json.dumps(newUser.highscores),
-                                                json.dumps(newUser.recommendation),)
+        self.db_cursor.execute(sql_store_new_user_query, (new_user.display_name, 
+                                                json.dumps(new_user.login_token),
+                                                new_user.spotify_id),
+                                                json.dumps(new_user.friends),
+                                                int(new_user.theme.value),
+                                                json.dumps(new_user.highscores),
+                                                json.dumps(new_user.recommendation),)
         record = self.db_cursor.fetchall()
 
     def update_token(self, spotify_id, login_token):
