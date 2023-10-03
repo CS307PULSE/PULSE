@@ -103,20 +103,15 @@ class User:
 
                 offset = 0
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)
-                if 'error' in response:
-                    raise BadResponseError
-                
                 top_tracks_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)
-                if 'error' in response:
-                    raise BadResponseError
                 
                 top_tracks_per_term.extend(response['items'][1:])
                 
                 top_tracks.append(top_tracks_per_term)
 
             self.stats.top_songs = top_tracks
-        except Exception as e:
+        except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
     # Updates array of list of top artists with at most 99 objects of type Artist per array entry
@@ -131,20 +126,16 @@ class User:
 
                 offset = 0
                 response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)
-                if 'error' in response:
-                    raise BadResponseError     
                                          
                 top_artists_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)
-                if 'error' in response:
-                    raise BadResponseError
                 
                 top_artists_per_term.extend(response['items'][1:])
                 
                 top_artists.append(top_artists_per_term)
 
             self.stats.top_artists = top_artists
-        except Exception as e:
+        except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
     # Updates list of followed artists with at most max_artists number of objects of type Artist
@@ -157,8 +148,6 @@ class User:
 
             while len(followed_artists) < max_artists:
                 response = self.spotify_user.current_user_followed_artists(limit=limit, after=after)
-                if 'error' in response:
-                    raise BadResponseError
                 
                 artists = response['artists']
 
@@ -170,5 +159,5 @@ class User:
                     break
 
             self.stats.followed_artists = followed_artists
-        except Exception as e:
+        except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
