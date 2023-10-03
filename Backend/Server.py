@@ -1,6 +1,8 @@
 from flask import Flask, redirect, request, session, url_for, make_response, render_template
 from User import User
 from Database import DBHandling
+from Database_Connector import Database_Connector
+from Database_Connector import db_config
 from Exceptions import SpotifyLinkingError
 from Exceptions import TokenExpiredError
 from Exceptions import SpotifyExpiredError
@@ -71,8 +73,13 @@ scope = ' '.join(scopes)
 def index():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
-        if DBHandling.does_user_exist_in_DB(user_id):
-            user = DBHandling.get_user_from_DB(user_id)
+        user_exists = None
+        with Database_Connector(db_config) as test:
+            user_exists = test.does_user_exist_in_DB(user_id)
+        if user_exists:
+            user = None
+            with Database_Connector(db_config) as test:
+                user = Database_Connector.get_user_from_DB(user_id)
             session['user'] = user.to_json()
             return redirect(url_for('dashboard'))
     #HANDLE COOKIES
@@ -121,12 +128,18 @@ def callback():
         resp = make_response(redirect(url_for('index')))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
         
-        if not DBHandling.does_user_exist_in_DB(user.spotify_id):
-            DBHandling.store_new_user_in_DB(user)
+        user_exists = None
+        with Database_Connector(db_config) as test:
+            user_exists = test.does_user_exist_in_DB(user.spotify_id)
+        if not user_exists:
+            with Database_Connector(db_config) as test:
+                Database_Connector.store_new_user_in_DB(user)
         else:
             #Update token
+            #TODO: Noah what was this .erase you call?
             DBHandling.erase()
-            DBHandling.store_new_user_in_DB(user)
+            with Database_Connector(db_config) as test:
+                Database_Connector.store_new_user_in_DB(user)
 
         return resp
 
