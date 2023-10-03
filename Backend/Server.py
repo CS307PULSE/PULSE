@@ -2,6 +2,8 @@ from flask import Flask, redirect, request, session, url_for, make_response, ren
 from User import User
 from Database import DBHandling
 from Exceptions import SpotifyLinkingError
+from Exceptions import TokenExpiredError
+from Exceptions import SpotifyExpiredError
 import os
 
 import spotipy
@@ -17,7 +19,6 @@ with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
         lines.append(line.strip())
 
 client_id, client_secret, redirect_uri = lines
-cache_path = current_dir + '\\Testing\\' + 'TokenCache'
 
 scopes = [
     #Images
@@ -66,45 +67,16 @@ scopes = [
 # Convert the array to a space-separated string
 scope = ' '.join(scopes)
 
-def start_server():
-    #Allow for client connections with socket
-    #login (or register) and pass user object to client?
-    user = register_user("HI")
-    user.update_spotify_id()
-    print(user.display_name)
-    print(user.login_token)
-    print(user.spotify_id)
-
-    run_tests(user)
-
-    return
-
-def register_user(displayName):
-    did_connection_fail = False
-
-    if did_connection_fail:
-        raise SpotifyLinkingError()
-    
-    new_user = User(displayName)
-    new_user.update_access_token(client_id=client_id, 
-                                 client_secret=client_secret, 
-                                 redirect_uri=redirect_uri, 
-                                 cache_path=cache_path)
-
-    DBHandling.store_user_in_DB(new_user)
-    return new_user
-
-def login_user(userID):
-    return DBHandling.get_user_from_DB(userID)
-
 @app.route('/')
 def index():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
         if DBHandling.does_user_exist_in_DB(user_id):
             user = DBHandling.get_user_from_DB(user_id)
-            run_tests(user)
-            return f'Welcome, {user.display_name}!'
+            session['user'] = user.to_json()
+            return redirect(url_for('dashboard'))
+    #HANDLE COOKIES
+    #deleting what's in .cache fucks things up
 
     return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
@@ -114,40 +86,13 @@ def login():
     sp_oauth = SpotifyOAuth(client_id=client_id, 
                             client_secret=client_secret, 
                             redirect_uri=redirect_uri, 
-                            scope=scope,
-                            cache_path=cache_path)
+                            scope=scope)
     
-    # Check if cached token exists and is still valid
-    token_info = sp_oauth.get_cached_token()
+    # Generate the authorization URL
+    auth_url = sp_oauth.get_authorize_url()
 
-    if not token_info:
-        # Generate the authorization URL
-        auth_url = sp_oauth.get_authorize_url()
-
-        # Redirect the user to the Spotify login page
-        return redirect(auth_url)
-
-    # When the access token expires, use the refresh token to obtain a new one
-    if sp_oauth.is_token_expired(token_info):
-        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
-
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-    user_data = sp.me()
-
-    # Create a User object and store it in the session
-    user = User(
-        display_name=user_data['display_name'],
-        login_token=token_info,
-        spotify_id=sp.me()['id'],
-        spotify_user=sp
-    )
-    
-    resp = make_response("COOKIE")
-    resp.set_cookie('user_id_cookie', user.spotify_id)
-    if not DBHandling.does_user_exist_in_DB(user.spotify_id):
-        DBHandling.store_new_user_in_DB(user)
-
-    return redirect(url_for('index'))
+    # Redirect the user to the Spotify login page
+    return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
@@ -155,8 +100,7 @@ def callback():
     sp_oauth = SpotifyOAuth(client_id=client_id, 
                             client_secret=client_secret, 
                             redirect_uri=redirect_uri, 
-                            scope=scope,
-                            cache_path=cache_path)
+                            scope=scope)
 
     # Validate the response from Spotify
     token_info = sp_oauth.get_access_token(request.args['code'])
@@ -174,12 +118,17 @@ def callback():
             spotify_user=sp
         )
 
-        resp = make_response("COOKIE")
-        resp.set_cookie('user_id_cookie', user.spotify_id)
+        resp = make_response(redirect(url_for('index')))
+        resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
+        
         if not DBHandling.does_user_exist_in_DB(user.spotify_id):
             DBHandling.store_new_user_in_DB(user)
+        else:
+            #Update token
+            DBHandling.erase()
+            DBHandling.store_new_user_in_DB(user)
 
-        return redirect(url_for('index'))
+        return resp
 
     else:
         return 'Login failed. Please try again.'
@@ -189,10 +138,19 @@ def logout():
     session.pop('user', None)
     return 'Logged out successfully.'
 
+@app.route('/dashboard')
+def dashboard():
+    return redirect(url_for('test'))
+
 @app.route('/test')
 def test():
-    return 'a'
-    #run_tests(session['user'])
+    if 'user' in session:
+        user_data = session['user']  # User data is already a dictionary
+        user = User.from_json(user_data)
+        run_tests(user)
+        return f'Welcome, {user.display_name}!'
+    else:
+        return 'User session not found. Please log in again.'
 
 def run_tests(testUser):
     import time
@@ -217,65 +175,77 @@ def run_tests(testUser):
     top_artists_test = True
     followed_artists_tests = True
 
-    if (recent_history_test):
-        printString += "RECENT HISTORY:\n" + '\n'
-        testUser.update_recent_history()
-        recent_history = testUser.stats.recent_history
-        for history in recent_history:
-            context = "None"
-            if history['context'] is not None:
-                context = history['context']['type']
-            printString += (f"{history['track']['name']} by {history['track']['artists'][0]['name']} at {history['played_at']} on {context}") + '\n'
-        printString += '\n\n'
+    try:
+        if (recent_history_test):
+            printString += "RECENT HISTORY:\n" + '\n'
+            testUser.update_recent_history()
+            recent_history = testUser.stats.recent_history
+            for history in recent_history:
+                context = "None"
+                if history['context'] is not None:
+                    context = history['context']['type']
+                printString += (f"{history['track']['name']} by {history['track']['artists'][0]['name']} at {history['played_at']} on {context}") + '\n'
+            printString += '\n\n'
 
-    if (top_songs_test):
-        printString += "TOP SONGS:\n" + '\n'
-        periods = ["Short Term", "Medium Term", "Long Term"]
-        testUser.update_top_songs()
-        tracks_by_period = testUser.stats.top_songs
-        for i, period in enumerate(tracks_by_period):
-            printString += periods[i] + '\n'
-            for track in period:
-                printString += (f"{track['name']} by {track['artists'][0]['name']}") + '\n'
+        if (top_songs_test):
+            printString += "TOP SONGS:\n" + '\n'
+            periods = ["Short Term", "Medium Term", "Long Term"]
+            testUser.update_top_songs()
+            tracks_by_period = testUser.stats.top_songs
+            for i, period in enumerate(tracks_by_period):
+                printString += periods[i] + '\n'
+                for track in period:
+                    printString += (f"{track['name']} by {track['artists'][0]['name']}") + '\n'
+                printString += '\n'
             printString += '\n'
-        printString += '\n'
 
-    if (top_artists_test):
-        printString += "TOP ARTISTS:\n" + '\n'
-        periods = ["Short Term", "Medium Term", "Long Term"]
-        testUser.update_top_artists()
-        artists_by_period = testUser.stats.top_artists
-        for i, period in enumerate(artists_by_period):
-            printString += periods[i] + '\n'
-            for artist in period:
+        if (top_artists_test):
+            printString += "TOP ARTISTS:\n" + '\n'
+            periods = ["Short Term", "Medium Term", "Long Term"]
+            testUser.update_top_artists()
+            artists_by_period = testUser.stats.top_artists
+            for i, period in enumerate(artists_by_period):
+                printString += periods[i] + '\n'
+                for artist in period:
+                    printString += (artist['name']) + '\n'
+                printString += '\n'
+            printString += '\n'
+
+        if (followed_artists_tests):
+            printString += "FOLLOWED ARTISTS:\n" + '\n'
+            testUser.update_followed_artists()
+            artists = testUser.stats.followed_artists
+            for artist in artists:
                 printString += (artist['name']) + '\n'
-            printString += '\n'
-        printString += '\n'
+            printString += '\n\n'
 
-    if (followed_artists_tests):
-        printString += "FOLLOWED ARTISTS:\n" + '\n'
-        testUser.update_followed_artists()
-        artists = testUser.stats.followed_artists
-        for artist in artists:
-            printString += (artist['name']) + '\n'
-        printString += '\n\n'
+        if (verbose):
+            # Open the file in write mode ('w') to clear its contents
+            with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
+                file.write(printString)
 
-    if (verbose):
-        # Open the file in write mode ('w') to clear its contents
-        with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
-            file.write(printString)
+    except TokenExpiredError as e:
+        print(f"An unexpected error occurred: {e}")
+        try_count = 0
+        max_try_count = 5
+        while try_count < max_try_count:
+            try:
+                sp_oauth = SpotifyOAuth(client_id=client_id, 
+                            client_secret=client_secret, 
+                            redirect_uri=redirect_uri, 
+                            scope=scope)
+                testUser.refresh_access_token(sp_oauth)
 
-@app.route('/setcookie', methods=['POST', 'GET'])
-def setcookie():
-    user_id = "some_value"  # Replace this with the actual user ID or value
-    resp = make_response(render_template('testfile.html', user_id=user_id))
-    resp.set_cookie('user_id_cookie', user_id)
-    return resp
-
-@app.route('/displaycookie')
-def displaycookie():
-    user_id = request.cookies.get('user_id_cookie')
-    return render_template('testfile.html', user_id=user_id)
+                if not sp_oauth.is_token_expired(testUser.login_token):
+                    #Update token
+                    DBHandling.erase()
+                    DBHandling.store_new_user_in_DB(testUser)
+                    return redirect(url_for('dashboard'))
+                
+            except Exception as ex:
+                print(f"An unexpected error occurred: {ex}")
+                try_count += 1
+        return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
