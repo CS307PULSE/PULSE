@@ -1,4 +1,6 @@
+# Need pip install python-dotenv
 from flask import Flask, redirect, request, session, url_for, make_response, render_template
+from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, auth
 from User import User
@@ -23,6 +25,8 @@ client_id, client_secret, redirect_uri = lines
 #firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for your Flask app
+
 app.secret_key = 'your_secret_key'
 
 scopes = [
@@ -73,6 +77,7 @@ scope = ' '.join(scopes)
 
 @app.route('/')
 def index():
+    return redirect(url_for('l'))
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
         user_exists = False
@@ -84,8 +89,12 @@ def index():
                 return redirect(url_for('dashboard'))
 
     #deleting what's in .cache fucks things up
-
     return 'Please <a href="/login">log in with Spotify</a> to continue.'
+
+@app.route('/l')
+def l():
+    return 'Please <a href="/login">log in with Spotify</a> to continue.'
+
 @app.route('/login')
 def login():
     # Create a SpotifyOAuth instance with the necessary parameters
@@ -154,8 +163,7 @@ def test():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        run_tests(user)
-        return f'Welcome, {user.display_name}!'
+        return run_tests(user)
     else:
         return 'User session not found. Please log in again.'
 
@@ -232,6 +240,8 @@ def run_tests(testUser):
             with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
                 file.write(printString)
 
+        return f'Welcome, {testUser.display_name}! Successfully ran tests!'
+
     except Exceptions.TokenExpiredError as e:
         print(f"An unexpected error occurred: {e}")
         try_count = 0
@@ -242,6 +252,7 @@ def run_tests(testUser):
                             client_secret=client_secret, 
                             redirect_uri=redirect_uri, 
                             scope=scope)
+
                 testUser.refresh_access_token(sp_oauth)
 
                 if not sp_oauth.is_token_expired(testUser.login_token):
@@ -262,4 +273,4 @@ def run_tests(testUser):
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True)
