@@ -147,6 +147,50 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
         
+    def update_theme(self, spotify_id, new_theme):
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (new_theme.value, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    def update_high_scores(self, spotify_id, new_high_scores):
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (create_highscore_string_for_DB(new_high_scores), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    def update_recommendation_params(self, spotify_id, new_rec_params):
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (create_rec_params_string_for_DB(new_rec_params), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
 def create_friends_string_for_DB(friends_input_array):
     friends_string = ""
     for friend in friends_input_array:
