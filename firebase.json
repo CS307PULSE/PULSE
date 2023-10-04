@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "public",
+    "site": "spotify-pulse-400915",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
