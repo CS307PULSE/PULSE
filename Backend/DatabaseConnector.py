@@ -41,11 +41,10 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_delete_user_query, (spotify_id,))
         self.db_conn.commit()
 
-    #TODO: Delete row based on spotify_id for testing purposes
     # Returns a whole row for the given spotify_id    
-    def get_row(self, field, spotify_id, data = None):
-        sql = "SELECT %s from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (field, spotify_id,))
+    def get_row(self, spotify_id, data = None):
+        sql = "SELECT from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
         return self.resultset
     
