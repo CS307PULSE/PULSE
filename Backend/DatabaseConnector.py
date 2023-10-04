@@ -104,9 +104,19 @@ class DatabaseConnector(object):
             return userFromDB
                 
     def update_token(self, spotify_id, login_token):
-        sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s """
-        self.db_cursor.execute(sql_update_token_query, (login_token, spotify_id,))
-        record = self.db_cursor.fetchall()
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (json.dumps(login_token), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
 
 def create_friends_string_for_DB(friends_input_array):
     friends_string = ""

@@ -4,9 +4,7 @@ from firebase_admin import credentials, auth
 from User import User
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
-from Exceptions import SpotifyLinkingError
-from Exceptions import TokenExpiredError
-from Exceptions import SpotifyExpiredError
+import Exceptions
 import os
 
 import spotipy
@@ -162,6 +160,7 @@ def test():
         return 'User session not found. Please log in again.'
 
 def run_tests(testUser):
+    print("Starting Tests!")
     import time
     timestamp = (time.time())
     import datetime
@@ -233,7 +232,7 @@ def run_tests(testUser):
             with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
                 file.write(printString)
 
-    except TokenExpiredError as e:
+    except Exceptions.TokenExpiredError as e:
         print(f"An unexpected error occurred: {e}")
         try_count = 0
         max_try_count = 5
@@ -248,14 +247,16 @@ def run_tests(testUser):
                 if not sp_oauth.is_token_expired(testUser.login_token):
                     #Update token
                     with DatabaseConnector(db_config) as conn:
-                        conn.update_token(testUser.spotify_id, testUser.login_token)
+                        if (conn.update_token(testUser.spotify_id, testUser.login_token) == 0):
+                            raise Exceptions.UserNotFoundError
                     session["user"] = testUser.to_json()
                     print("Token successfully refreshed!")
                     return redirect(url_for('dashboard'))
                 
             except Exception as ex:
                 print(f"An unexpected error occurred: {ex}")
-                try_count += 1
+
+            try_count += 1
 
         print("Couldn't refresh token")
         return redirect(url_for('index'))
