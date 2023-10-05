@@ -1,7 +1,13 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "Frontend/build",
     "site": "spotify-pulse-400915",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.js"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
