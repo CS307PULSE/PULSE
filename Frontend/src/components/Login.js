@@ -47,7 +47,6 @@ const loginButton={
   borderRadius: "30px",
   height: "52px",
   width: "364px",
-  
 };
 
 const loginButtonText={

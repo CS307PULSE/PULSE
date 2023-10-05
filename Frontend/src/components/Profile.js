@@ -5,12 +5,12 @@ const profileStyle = {
     margin: "0px",
     backgroundColor:"#000",
     width: "100%", // Set width to 100% to cover the entire width of the screen
-    height: "100vh", // Set height to 100vh to cover the entire height of the screen
+    height: "100%", // Set height to 100vh to cover the entire height of the screen
     backgroundSize: "cover", // Cover the entire container with the image
-    backgroundRepeat: "no-repeat",
+    backgroundRepeat: "no-repeat"
 };
 const profileHeader={
-    paddingTop: "150px",
+    paddingTop: "50px",
     paddingLeft: "50px",
     color: "#6EEB4D",
     textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
@@ -21,7 +21,7 @@ const profileHeader={
     lineHeight: "normal",
 };
 const profileText={
-    paddingTop: "150px",
+    paddingTop: "30px",
     paddingLeft: "50px",
     color: "#6EEB4D",
     textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
@@ -32,14 +32,13 @@ const profileText={
     lineHeight: "normal",
 };
 
-const textFieldStyle={
+const buttonStyle={
     backgroundColor: "#222",
     borderRadius: "10px",
     height: "40px",
-    width: "300px",
+    width: "80px",
     color:"#FFFFFF",
-    paddingLeft: "10px",
-    margin:"10px"
+    margin:"5px"
 };
 
 function Profile({testParameter}){
@@ -48,7 +47,13 @@ function Profile({testParameter}){
         <p style={profileHeader}>Profile</p>
         <img className="logo" alt="logo" style={{}}src={TestIcon}/>
         <p style={profileText}>Username: </p>
+
         <p style={profileHeader}>Settings</p>
+        <p style={profileText}>Text Size: </p>
+        <button style={buttonStyle}><p>Small</p></button>
+        <button style={buttonStyle}><p>Medium</p></button>
+        <button style={buttonStyle}><p>Large</p></button>
+        <p style={profileText}>Theme: </p>
     </div>
     );
 }

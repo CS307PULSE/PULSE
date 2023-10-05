@@ -17,7 +17,7 @@ function App() {
   return (
     <div>
       {isLoginClicked ? null : <Login onLoginClick={handleLoginClick} />}
-      {isLoginClicked ? <EditProfile/> : null}
+      {isLoginClicked ? <Profile/> : null}
     </div>
   );
 }
