@@ -1,8 +1,8 @@
 # Need pip install python-dotenv
-from flask import Flask, redirect, request, session, url_for, make_response, render_template
+from flask import Flask, redirect, request, session, url_for, make_response, Response,render_template
 from flask_cors import CORS
-import firebase_admin
-from firebase_admin import credentials, auth
+# import firebase_admin
+# from firebase_admin import credentials, auth
 from User import User
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
@@ -14,7 +14,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
-with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
+with open(current_dir + '/Testing/' + 'ClientData.txt', 'r') as file:
     for line in file:
         lines.append(line.strip())
 
@@ -25,7 +25,7 @@ client_id, client_secret, redirect_uri = lines
 #firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for your Flask app
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Enable CORS for your Flask app
 
 app.secret_key = 'your_secret_key'
 
@@ -77,7 +77,6 @@ scope = ' '.join(scopes)
 
 @app.route('/')
 def index():
-    return redirect(url_for('l'))
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
         user_exists = False
@@ -86,14 +85,16 @@ def index():
             if user_exists:
                 user = conn.get_user_from_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
+                response = Response('T')
+                # response.headers['Access-Control-Allow-Origin'] = '*'
+                return response
+                return "T"
                 return redirect(url_for('dashboard'))
 
     #deleting what's in .cache fucks things up
+    return "F"
     return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
-@app.route('/l')
-def l():
-    return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
 @app.route('/login')
 def login():
@@ -107,7 +108,7 @@ def login():
     auth_url = sp_oauth.get_authorize_url()
 
     # Redirect the user to the Spotify login page
-    return redirect(auth_url)
+    return (auth_url)
 
 @app.route('/callback')
 def callback():
