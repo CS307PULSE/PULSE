@@ -31,19 +31,20 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_check_user_exists_query, (spotify_id,))
         result = self.db_cursor.fetchone()
         row_count = result[0]
-         #TODO: handle errors in case of multiple spotify_id existing. THIS SHOULD NEVER HAPPEN 
         if (row_count == 0):
             return False
         else: 
             return True
+        
+    def delete_row_TESTING_ONLY(self, spotify_id):
+        sql_delete_user_query = "DELETE FROM pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_delete_user_query, (spotify_id,))
+        self.db_conn.commit()
 
-
-    #TODO: Delete row based on spotify_id for testing purposes
-    #TODO: Retrieve functions for individual fields
     # Returns a whole row for the given spotify_id    
-    def get_row(self, field, spotify_id, data = None):
-        sql = "SELECT %s from pulse.users where spotify_id = %s"
-        self.db_cursor.execute(sql, (field, spotify_id,))
+    def get_row(self, spotify_id, data = None):
+        sql = "SELECT from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
         return self.resultset
     
@@ -104,9 +105,92 @@ class DatabaseConnector(object):
             return userFromDB
                 
     def update_token(self, spotify_id, login_token):
-        sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s """
-        self.db_cursor.execute(sql_update_token_query, (login_token, spotify_id,))
-        record = self.db_cursor.fetchall()
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (json.dumps(login_token), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    def update_display_name(self, spotify_id, new_display_name):
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET display_name = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (new_display_name, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
+    def update_friends(self, spotify_id, new_friends):
+        try:
+            sql_update_token_query = """UPDATE pulse.users SET friends = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_token_query, (create_friends_string_for_DB(new_friends), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    def update_theme(self, spotify_id, new_theme):
+        try:
+            sql_update_theme_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_theme_query, (new_theme.value, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    def update_high_scores(self, spotify_id, new_high_scores):
+        try:
+            sql_update_scores_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_scores_query, (create_highscore_string_for_DB(new_high_scores), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    def update_recommendation_params(self, spotify_id, new_rec_params):
+        try:
+            sql_update_rec_params_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_rec_params_query, (create_rec_params_string_for_DB(new_rec_params), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
 
 def create_friends_string_for_DB(friends_input_array):
     friends_string = ""
