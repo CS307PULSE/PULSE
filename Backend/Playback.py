@@ -27,6 +27,7 @@ class Playback:
             if self.volume_support :
               self.volume = self.current_device['volume_percent']
             if self.is_playing : 
+              self.current_track = self.current_device['item']
               self.shuffle = self.current_device['shuffle_state']
               self.repeat = self.current_device['repeat_state']
               self.current_device = self.current_device['device']
