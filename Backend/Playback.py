@@ -8,25 +8,31 @@ class Playback:
     def __init__(self, user = None):
         self.user = user
         self.devices = ""
-        self.currently_playing = ""
+        self.current_device = ""
+        self.current_track = ""
         self.shuffle = ""
         self.repeat = ""
         self.current_device = ""
         self.progress = ""
-        self.status = ""
+        self.is_playing = ""
+        self.volume = ""
+        self.volume_support = ""
 
     def initial_check(self):
         try:
             self.devices = self.user.spotify_user.devices()
-            self.currently_playing = self.user.spotify_user.current_playback()
-            self.is_playing = self.currently_playing['is_playing']
+            self.current_device = self.user.spotify_user.current_playback()
+            self.is_playing = self.current_device['is_playing']
+            self.volume_support = self.current_device['supports_volume']
+            if self.volume_support :
+              self.volume = self.current_device['volume_percent']
             if self.is_playing : 
-               self.shuffle = self.currently_playing['shuffle_state']
-               self.repeat = self.currently_playing['repeat_state']
-               self.current_device = self.currently_playing['device']
-               self.progress = self.currently_playing['progress_ms']
+              self.shuffle = self.current_device['shuffle_state']
+              self.repeat = self.current_device['repeat_state']
+              self.current_device = self.current_device['device']
+              self.progress = self.current_device['progress_ms']
             else : 
-               self.progress = 0
+              self.progress = 0
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
@@ -101,7 +107,7 @@ class Playback:
     
     def switch_device(self, device):
       try:
-        if(self.status == playing):
+        if(self.is_playing == True):
           self.user.tranfer_playback(device, True)
         else:
           self.user.transfer_playback(device, False)
@@ -124,5 +130,12 @@ class Playback:
     def seek_to(self, position):
       try:
         self.user.seek_track(position)
+      except spotipy.exceptions.SpotifyException as e:
+        ErrorHandler.handle_error(e)
+
+    def check_support(self):
+      try:
+        self.current_device = self.user.spotify_user.current_playback()
+        self.volume_support = self.current_device['supports_volume']
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
