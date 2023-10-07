@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
 import { BarGraph, LineGraph } from "./Graphs";
-import { Resizeable } from "react-resizeable";
+import "react-resizable/css/styles.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -76,24 +76,7 @@ export default function GraphGrid() {
         onLayoutChange={saveToLS}
       >
         {layout.map((container) => (
-          /*<Resizeable
-            key={container.i}
-            width={container.w} // Set the initial width
-            height={1} // Set the initial height
-            onResizeStop={(e, data) => {
-              // Handle resize stop event here
-              const newWidth = Math.round(data.size.width / 1);
-              const newHeight = Math.round(data.size.height / 1);
-
-              const newLayout = layout.map((item) =>
-                item.i === container.i
-                  ? { ...item, w: newWidth, h: newHeight }
-                  : item
-              );
-              setLayout(newLayout);
-            }}
-          >*/
-          <GraphContainer key={container.i}>
+          <GraphContainer key={container.i} className="grid-cell">
             <div>
               <div>{container.i}</div>
               <CloseButton onClick={() => RemoveContainer(container)}>
@@ -102,7 +85,6 @@ export default function GraphGrid() {
             </div>
             {container.graph}
           </GraphContainer>
-          /*</Resizeable>*/
         ))}
       </ResponsiveGridLayout>
       <div>
