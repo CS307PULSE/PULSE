@@ -39,7 +39,7 @@ function App() {
     <div className="App">
       <GraphGrid />
       <div>
-        <Button onClick={openPopup}>Button</Button>
+        <Button onClick={openPopup}>Add Graph</Button>
       </div>
       <Popup isOpen={isPopupOpen} onClose={closePopup}>
         <h2> This is my Popup</h2>
