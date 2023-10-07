@@ -1,9 +1,29 @@
 import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
-import BarGraph from "./Graphs";
+import { BarGraph, LineGraph } from "./Graphs";
+import { Resizeable } from "react-resizeable";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
+
+/*
+const GraphContainer = styled(Resizeable)`
+  background: #f5f5f5;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+
+  .react-resizable-handle {
+    position: relative;
+    width: 10px;
+    height: 100%;
+    background: transparent;
+    right: 0;
+    bottom: 0;
+    cursor: col-resize;
+  }
+`;
+*/
 
 const GraphContainer = styled.div`
   background: #f5f5f5;
@@ -21,8 +41,8 @@ export default function GraphGrid() {
     { i: "blue-eyes-dragon", graph: <BarGraph />, x: 0, y: 0, w: 1, h: 1 },
     { i: "dark-magician", graph: <BarGraph />, x: 1, y: 0, w: 1, h: 1 },
     { i: "kuriboh", graph: <BarGraph />, x: 2, y: 0, w: 1, h: 1 },
-    { i: "spell-caster", graph: <BarGraph />, x: 3, y: 0, w: 1, h: 1 },
-    { i: "summoned-skull", graph: <BarGraph />, x: 0, y: 1, w: 1, h: 1 },
+    { i: "spell-caster", graph: <LineGraph />, x: 3, y: 0, w: 1, h: 1 },
+    { i: "summoned-skull", graph: <LineGraph />, x: 0, y: 1, w: 1, h: 1 },
   ]);
 
   const [loadoutNumber, setLoadoutNumber] = useState(1);
@@ -56,6 +76,23 @@ export default function GraphGrid() {
         onLayoutChange={saveToLS}
       >
         {layout.map((container) => (
+          /*<Resizeable
+            key={container.i}
+            width={container.w} // Set the initial width
+            height={1} // Set the initial height
+            onResizeStop={(e, data) => {
+              // Handle resize stop event here
+              const newWidth = Math.round(data.size.width / 1);
+              const newHeight = Math.round(data.size.height / 1);
+
+              const newLayout = layout.map((item) =>
+                item.i === container.i
+                  ? { ...item, w: newWidth, h: newHeight }
+                  : item
+              );
+              setLayout(newLayout);
+            }}
+          >*/
           <GraphContainer key={container.i}>
             <div>
               <div>{container.i}</div>
@@ -65,6 +102,7 @@ export default function GraphGrid() {
             </div>
             {container.graph}
           </GraphContainer>
+          /*</Resizeable>*/
         ))}
       </ResponsiveGridLayout>
       <div>
