@@ -179,3 +179,15 @@ class User:
 
     def set_name(self, set):
         self.display_name = set
+
+    def get_gender(self):
+        return self.gender 
+
+    def get_location(self):
+        return self.location
+
+    def get_picture(self):
+        return self.profile_picture 
+
+    def get_name(self):
+        return self.display_name
