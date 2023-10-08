@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Responsive, WidthProvider } from "react-grid-layout";
+import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
 import { BarGraph, LineGraph, PieGraph, data1, data2, data3 } from "./Graphs";
 import "react-resizable/css/styles.css";
@@ -72,6 +72,7 @@ export default function GraphGrid() {
   ]);
 
   const [loadoutNumber, setLoadoutNumber] = useState(1);
+  const [currentLayouts, setCurrentLayouts] = useState({ lg: layout });
 
   const RemoveContainer = (container) => {
     const updatedLayout = layout.filter((item) => item !== container);
@@ -97,12 +98,17 @@ export default function GraphGrid() {
     }
   }
 
-  const saveToLS = (layout, layouts) => {
-    localStorage.setItem(loadoutNumber, JSON.stringify(layouts));
+  const saveToLS = (allLayouts) => {
+    localStorage.setItem(loadoutNumber, JSON.stringify(allLayouts));
   };
 
   const handleSaveButtonClick = () => {
-    saveToLS(layout, { lg: layout });
+    console.log(currentLayouts);
+    saveToLS(currentLayouts);
+  };
+
+  const handleLayoutChange = (layout, allLayouts) => {
+    setCurrentLayouts(allLayouts);
   };
 
   return (
@@ -113,7 +119,7 @@ export default function GraphGrid() {
         cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={1000}
-        onLayoutChange={saveToLS}
+        onLayoutChange={handleLayoutChange}
       >
         {layout.map((container) => (
           <GraphContainer key={container.i} className="grid-cell">
@@ -147,6 +153,7 @@ export default function GraphGrid() {
         <p> Current layout is {loadoutNumber}</p>
         <button onClick={() => setLoadoutNumber(1)}>Load 1</button>
         <button onClick={() => setLoadoutNumber(2)}>Load 2</button>
+        <button onClick={() => setLoadoutNumber(3)}>Load 3</button>
         <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
       </div>
     </React.Fragment>
