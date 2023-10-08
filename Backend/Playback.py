@@ -60,7 +60,12 @@ class Playback:
 
     def set_repeat(self, state):
        try:
-          
+         if state == track:
+          self.user.spotif_user.repeat('track')
+         elif state ==  context:
+          self.user.spotif_user.repeat('context')
+         else:
+          self.user.spotif_user.repeat('off')
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     def skip_forward(self):
