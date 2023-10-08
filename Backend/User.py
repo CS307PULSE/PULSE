@@ -105,8 +105,11 @@ class User:
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)
                 top_tracks_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)
-                
-                top_tracks_per_term.extend(response['items'][1:])
+                if (
+                    response is not None
+                    and not response.get('items') is None
+                ):
+                    top_tracks_per_term.extend(response['items'][1:])
                 
                 top_tracks.append(top_tracks_per_term)
 
@@ -125,12 +128,14 @@ class User:
                 term = terms[i]
 
                 offset = 0
-                response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)
-                                         
+                response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)             
                 top_artists_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)
-                
-                top_artists_per_term.extend(response['items'][1:])
+                if (
+                    response is not None
+                    and not response.get('items') is None
+                ):
+                    top_artists_per_term.extend(response['items'][1:])
                 
                 top_artists.append(top_artists_per_term)
 
@@ -149,15 +154,52 @@ class User:
             while len(followed_artists) < max_artists:
                 response = self.spotify_user.current_user_followed_artists(limit=limit, after=after)
                 
+                if (
+                    response is None
+                    or response.get('artists') is None
+                    or response['artists'].get('items') is None
+                    or response.get('cursors') is None
+                    or response['cursors'].get('after') is None
+                ):
+                    break
+
                 artists = response['artists']
 
                 after = artists['cursors']['after']
 
                 followed_artists.extend(artists['items'])
 
-                if not artists['items'] or after is None:
+                if (len(response['artists']['items']) < limit):
                     break
 
             self.stats.followed_artists = followed_artists
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+
+    def search_for_items(self, max_items=20, items_type="tracks", query=""):
+        try:
+            items = []
+            offset = 0
+            limit = min(50, max_items)
+
+            while len(items) < max_items:
+                response = self.spotify_user.search(q=query, type=items_type, limit=limit, offset=offset)
+
+                if (
+                    response is None
+                    or response.get(items_type+"s") is None
+                    or response[items_type+"s"].get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                items.extend(response[items_type+"s"]['items'])
+
+                if (len(response[items_type+"s"]['items']) < limit):
+                    break
+
+            return items
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+            return ['' for _ in range(max_items)]
