@@ -1,16 +1,14 @@
 from flask import Flask, redirect, request, session, url_for, make_response, render_template
+import firebase_admin
+from firebase_admin import credentials, auth
 from User import User
-from Database import DBHandling
-from Exceptions import SpotifyLinkingError
-from Exceptions import TokenExpiredError
-from Exceptions import SpotifyExpiredError
+from Backend.DatabaseConnector import DatabaseConnector
+from Backend.DatabaseConnector import db_config
+import Exceptions
 import os
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
 
 current_dir = os.getcwd()
 lines = []
@@ -19,6 +17,13 @@ with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
         lines.append(line.strip())
 
 client_id, client_secret, redirect_uri = lines
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
+firebase_admin.initialize_app(cred)
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 scopes = [
     #Images
@@ -71,11 +76,14 @@ scope = ' '.join(scopes)
 def index():
     user_id = request.cookies.get('user_id_cookie')
     if user_id:
-        if DBHandling.does_user_exist_in_DB(user_id):
-            user = DBHandling.get_user_from_DB(user_id)
-            session['user'] = user.to_json()
-            return redirect(url_for('dashboard'))
-    #HANDLE COOKIES
+        user_exists = False
+        with DatabaseConnector(db_config) as conn:
+            user_exists = test.does_user_exist_in_DB(user_id)
+            if user_exists:
+                user = conn.get_user_from_DB(spotify_id=user_id)
+                session['user'] = user.to_json()
+                return redirect(url_for('dashboard'))
+
     #deleting what's in .cache fucks things up
 
     return 'Please <a href="/login">log in with Spotify</a> to continue.'
@@ -121,12 +129,13 @@ def callback():
         resp = make_response(redirect(url_for('index')))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
         
-        if not DBHandling.does_user_exist_in_DB(user.spotify_id):
-            DBHandling.store_new_user_in_DB(user)
-        else:
-            #Update token
-            DBHandling.erase()
-            DBHandling.store_new_user_in_DB(user)
+        user_exists = False
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_DB(user.spotify_id)
+            if not user_exists:
+                conn.store_new_user_in_DB(user)
+            else:
+                conn.update_token(user.spotify_id, user.login_token)
 
         return resp
 
@@ -145,7 +154,7 @@ def dashboard():
 @app.route('/test')
 def test():
     if 'user' in session:
-        user_data = session['user']  # User data is already a dictionary
+        user_data = session['user']
         user = User.from_json(user_data)
         run_tests(user)
         return f'Welcome, {user.display_name}!'
@@ -224,7 +233,7 @@ def run_tests(testUser):
             with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
                 file.write(printString)
 
-    except TokenExpiredError as e:
+    except Exceptions.TokenExpiredError as e:
         print(f"An unexpected error occurred: {e}")
         try_count = 0
         max_try_count = 5
@@ -238,14 +247,19 @@ def run_tests(testUser):
 
                 if not sp_oauth.is_token_expired(testUser.login_token):
                     #Update token
-                    DBHandling.erase()
-                    DBHandling.store_new_user_in_DB(testUser)
+                    with DatabaseConnector(db_config) as conn:
+                        if (conn.update_token(testUser.spotify_id, testUser.login_token) == 0):
+                            raise Exceptions.UserNotFoundError
+                    session["user"] = testUser.to_json()
+                    print("Token successfully refreshed!")
                     return redirect(url_for('dashboard'))
                 
             except Exception as ex:
                 print(f"An unexpected error occurred: {ex}")
                 try_count += 1
-        return redirect(url_for('login'))
+
+        print("Couldn't refresh token")
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
