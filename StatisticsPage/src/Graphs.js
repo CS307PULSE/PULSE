@@ -2,38 +2,38 @@ import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 
-const data = [
+export const data1 = [
   {
     day: "Monday",
-    degress: 59,
+    degrees: 59,
   },
   {
     day: "Tuesday",
-    degress: 61,
+    degrees: 61,
   },
   {
     day: "Wednesday",
-    degress: 55,
+    degrees: 55,
   },
   {
     day: "Thursday",
-    degress: 78,
+    degrees: 78,
   },
   {
     day: "Friday",
-    degress: 71,
+    degrees: 71,
   },
   {
     day: "Saturday",
-    degress: 56,
+    degrees: 56,
   },
   {
     day: "Sunday",
-    degress: 67,
+    degrees: 67,
   },
 ];
 
-const data2 = [
+export const data2 = [
   {
     id: "japan",
     color: "hsl(171, 70%, 50%)",
@@ -306,7 +306,7 @@ const data2 = [
   },
 ];
 
-const data3 = [
+export const data3 = [
   {
     id: "java",
     label: "java",
@@ -339,12 +339,12 @@ const data3 = [
   },
 ];
 
-export const BarGraph = () => {
+export const BarGraph = (props) => {
   return (
     <ResponsiveBar
-      data={data}
-      keys={["degress"]}
-      indexBy="day"
+      data={props.data}
+      keys={props.graphKeys}
+      indexBy={props.graphIndexBy}
       margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
       padding={0.4}
       valueScale={{ type: "linear" }}
@@ -357,7 +357,7 @@ export const BarGraph = () => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: "degrees",
+        legend: props.graphKeys,
         legendPosition: "middle",
         legendOffset: -40,
       }}
@@ -365,9 +365,9 @@ export const BarGraph = () => {
   );
 };
 
-export const LineGraph = () => (
+export const LineGraph = (props) => (
   <ResponsiveLine
-    data={data2}
+    data={props.data}
     margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
     xScale={{ type: "point" }}
     yScale={{
@@ -385,7 +385,7 @@ export const LineGraph = () => (
       tickSize: 5,
       tickPadding: 5,
       tickRotation: 0,
-      legend: "transportation",
+      legend: props.xName,
       legendOffset: 36,
       legendPosition: "middle",
     }}
@@ -394,7 +394,7 @@ export const LineGraph = () => (
       tickSize: 5,
       tickPadding: 5,
       tickRotation: 0,
-      legend: "count",
+      legend: props.yName,
       legendOffset: -40,
       legendPosition: "middle",
     }}
@@ -433,10 +433,10 @@ export const LineGraph = () => (
   />
 );
 
-export const Pie = () => {
+export const PieGraph = (props) => {
   return (
     <ResponsivePie
-      data={data3}
+      data={props.data}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
       innerRadius={0.5}
       padAngle={0.7}

@@ -1,29 +1,10 @@
 import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
-import { BarGraph, LineGraph } from "./Graphs";
+import { BarGraph, LineGraph, PieGraph, data1, data2, data3 } from "./Graphs";
 import "react-resizable/css/styles.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
-/*
-const GraphContainer = styled(Resizeable)`
-  background: #f5f5f5;
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
-
-  .react-resizable-handle {
-    position: relative;
-    width: 10px;
-    height: 100%;
-    background: transparent;
-    right: 0;
-    bottom: 0;
-    cursor: col-resize;
-  }
-`;
-*/
 
 const GraphContainer = styled.div`
   background: #f5f5f5;
@@ -38,11 +19,56 @@ const CloseButton = styled.span`
 
 export default function GraphGrid() {
   const [layout, setLayout] = useState([
-    { i: "blue-eyes-dragon", graph: <BarGraph />, x: 0, y: 0, w: 1, h: 1 },
-    { i: "dark-magician", graph: <BarGraph />, x: 1, y: 0, w: 1, h: 1 },
-    { i: "kuriboh", graph: <BarGraph />, x: 2, y: 0, w: 1, h: 1 },
-    { i: "spell-caster", graph: <LineGraph />, x: 3, y: 0, w: 1, h: 1 },
-    { i: "summoned-skull", graph: <LineGraph />, x: 0, y: 1, w: 1, h: 1 },
+    {
+      i: "blue-eyes-dragon",
+      graphType: "Bar",
+      data: data1,
+      graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    },
+    {
+      i: "dark-magician",
+      graphType: "Bar",
+      data: data1,
+      graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+      x: 1,
+      y: 0,
+      w: 1,
+      h: 1,
+    },
+    {
+      i: "kuriboh",
+      graphType: "Pie",
+      data: data3,
+      GraphSettigngs: {},
+      x: 2,
+      y: 0,
+      w: 1,
+      h: 1,
+    },
+    {
+      i: "spell-caster",
+      graphType: "Line",
+      data: data2,
+      graphSettings: { xName: "transportation", yName: "Count" },
+      x: 3,
+      y: 0,
+      w: 1,
+      h: 1,
+    },
+    {
+      i: "summoned-skull",
+      graphType: "Line",
+      data: data2,
+      graphSettings: { xName: "transportation", yName: "Count" },
+      x: 0,
+      y: 1,
+      w: 1,
+      h: 1,
+    },
   ]);
 
   const [loadoutNumber, setLoadoutNumber] = useState(1);
@@ -62,7 +88,12 @@ export default function GraphGrid() {
   }
 
   const saveToLS = (layout, layouts) => {
+    console.log(layouts);
     localStorage.setItem(loadoutNumber, JSON.stringify(layouts));
+  };
+
+  const handleSaveButtonClick = () => {
+    saveToLS(layout, layout);
   };
 
   return (
@@ -83,7 +114,23 @@ export default function GraphGrid() {
                 X
               </CloseButton>
             </div>
-            {container.graph}
+            {container.graphType == "Bar" ? (
+              <BarGraph
+                data={container.data}
+                graphKeys={container.graphSettings.graphKeys}
+                graphIndexBy={container.graphSettings.graphIndexBy}
+              />
+            ) : container.graphType == "Line" ? (
+              <LineGraph
+                data={container.data}
+                xName={container.graphSettings.xName}
+                yName={container.graphSettings.yName}
+              />
+            ) : container.graphType == "Pie" ? (
+              <PieGraph data={container.data} />
+            ) : (
+              <p> No Graph </p>
+            )}
           </GraphContainer>
         ))}
       </ResponsiveGridLayout>
