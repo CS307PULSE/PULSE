@@ -1,6 +1,10 @@
-import React from "react";
+import React , { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Background from "../../src/assets/Background.png";
 import Logo from "../../src/assets/LogoLogin.png";
+import axios from "axios";
+
+
 
 const loginMainStyle = {
     paddding:"0px",
@@ -61,8 +65,29 @@ const loginMainStyle = {
   }
 
  // document.body.style.overflow = "hidden"
+// for the login call for fetch
+async function fetchDataLogin() {
+  const response = await axios.get("http://127.0.0.1:5000/login");
+  const data = response.data;
+  console.log(data)
+  return data;
+}
+
 
 function Login({onLoginClick}){
+  const [isLoginURL, setIsLoginURL] = useState(" ");
+  //check if rthe user is logged in 
+  const navigate = useNavigate();
+ 
+   //get the link for loggin through Spotify
+    useEffect(() => {
+      fetchDataLogin().then(data => {
+        if (data !== null && data !== undefined) {
+          setIsLoginURL(data);
+        }
+      });
+    }, []);
+
 return(
     <div className="login" style={loginMainStyle}>
     <div className="LoginSide" style={loginStyle}>
@@ -73,7 +98,12 @@ return(
      <button
           className="loginButton"
           style={loginButton}
-          onClick={onLoginClick}
+          onClick={() => {
+            window.location.replace(isLoginURL);
+            // Perform any login logic here if needed
+            // For now, just set the state to true to indicate the button is clicked
+            onLoginClick();
+          }}
         >
           <p style={loginButtonText}>LOGIN THROUGH SPOTIFY</p>
     </button>

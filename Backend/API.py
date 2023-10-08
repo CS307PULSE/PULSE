@@ -1,28 +1,37 @@
-from flask import Flask, redirect, request, session, url_for, make_response, render_template
-import firebase_admin
-from firebase_admin import credentials, auth
+# Need pip install python-dotenv
+from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify
+from flask_cors import CORS
+# import firebase_admin
+# from firebase_admin import credentials, auth
 from User import User
-from Backend.DatabaseConnector import DatabaseConnector
-from Backend.DatabaseConnector import db_config
+from DatabaseConnector import DatabaseConnector
+from DatabaseConnector import db_config
 import Exceptions
 import os
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-current_dir = os.getcwd()
+run_connected = False
+
+current_dir = os.path.dirname(os.getcwd())
 lines = []
-with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
+with open(current_dir + '/Testing/' + 'ClientData.txt', 'r') as file:
     for line in file:
         lines.append(line.strip())
 
-client_id, client_secret, redirect_uri = lines
+client_id, client_secret, redirect_uri, redirect_uri2, redirect_uri3 = lines
+
+if not run_connected:
+    redirect_uri = redirect_uri2
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
-firebase_admin.initialize_app(cred)
+#cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
+#firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
 app.secret_key = 'your_secret_key'
 
 scopes = [
@@ -69,24 +78,35 @@ scopes = [
     #user-create-partner
 ]
 
-# Convert the array to a space-separated string
 scope = ' '.join(scopes)
+
+def get_run_connected():
+    global run_connected
+    return run_connected
 
 @app.route('/')
 def index():
+    run_connected = get_run_connected()
     user_id = request.cookies.get('user_id_cookie')
-    if user_id:
+    if (user_id):
         user_exists = False
         with DatabaseConnector(db_config) as conn:
-            user_exists = test.does_user_exist_in_DB(user_id)
+            user_exists = conn.does_user_exist_in_DB(user_id)
             if user_exists:
                 user = conn.get_user_from_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
-                return redirect(url_for('dashboard'))
+                #return jsonify(message='Login successful! Welcome to your Flask app.')
+                if run_connected:
+                    return "T"
+                else:
+                    return redirect(url_for("dashboard"))
 
     #deleting what's in .cache fucks things up
-
-    return 'Please <a href="/login">log in with Spotify</a> to continue.'
+    #return jsonify(message='Login failed! Welcome to your Flask app.')
+    if run_connected:
+        return "F"
+    else:
+        return 'Please <a href="/login">log in with Spotify</a> to continue.'
 
 @app.route('/login')
 def login():
@@ -100,7 +120,11 @@ def login():
     auth_url = sp_oauth.get_authorize_url()
 
     # Redirect the user to the Spotify login page
-    return redirect(auth_url)
+    global run_connected
+    if (run_connected):
+        return auth_url
+    else:
+        return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
@@ -156,12 +180,12 @@ def test():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        run_tests(user)
-        return f'Welcome, {user.display_name}!'
+        return run_tests(user)
     else:
         return 'User session not found. Please log in again.'
 
 def run_tests(testUser):
+    print("Starting Tests!")
     import time
     timestamp = (time.time())
     import datetime
@@ -177,12 +201,13 @@ def run_tests(testUser):
     # Print the datetime in EDT format
     printString = (est_datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')) + '\n'
     verbose = True
-    currentDir = os.getcwd()
+    currentDir = os.path.dirname(os.getcwd())
 
     recent_history_test = True
     top_songs_test = True
     top_artists_test = True
     followed_artists_tests = True
+    search_feature_test = True
 
     try:
         if (recent_history_test):
@@ -228,10 +253,52 @@ def run_tests(testUser):
                 printString += (artist['name']) + '\n'
             printString += '\n\n'
 
+        if (search_feature_test):
+            printString += "SEARCH RESULTS:\n" + '\n'
+            q = ""
+            max_items = 100
+            items_types = ["track", "artist", "album", "playlist", "show", "episode", "audiobook"]
+            result_strings = [["" for _ in range(len(items_types)+1)] for _ in range(max_items+1)]
+            i = 1
+            for items_type in items_types:
+                results = testUser.search_for_items(query=q, items_type=items_type, max_items=max_items)
+                res_num = 1
+                for result in results:
+                    item_name = result['name'] if 'name' in result else ""
+                    result_strings[res_num][i] = item_name
+                    res_num += 1
+                i+=1
+
+            import math
+            max_log = math.floor(math.log10(max_items))
+
+            for j in range(len(items_types)):
+                result_strings[0][j+1] = (items_types[j] +"s").upper()
+            for k in range(len(result_strings)):
+                if (k != 0):
+                    str_int = str(k) + " " * (max_log-math.floor(math.log10(k)))
+                    result_strings[k][0] = str_int
+                else:
+                    result_strings[k][0] = " " * (max_log + 1)
+
+            # Find the maximum length of elements in each column
+            max_lengths = [
+                max(len(row[col].rstrip()) for row in result_strings)
+                for col in range(len(result_strings[0]))
+            ]
+
+            # Iterate through the array and print with padding
+            for row in result_strings:
+                formatted_row = [f"{element:{max_lengths[i]}}" for i, element in enumerate(row)]
+                printString += " | ".join(formatted_row) + '\n'
+            printString += '\n\n'   
+
         if (verbose):
             # Open the file in write mode ('w') to clear its contents
             with open(currentDir + '\\Testing\\' + 'TestOutput.txt', 'w', encoding='utf-8') as file:
                 file.write(printString)
+
+        return f'Welcome, {testUser.display_name}! Successfully ran tests!'
 
     except Exceptions.TokenExpiredError as e:
         print(f"An unexpected error occurred: {e}")
@@ -243,6 +310,7 @@ def run_tests(testUser):
                             client_secret=client_secret, 
                             redirect_uri=redirect_uri, 
                             scope=scope)
+
                 testUser.refresh_access_token(sp_oauth)
 
                 if not sp_oauth.is_token_expired(testUser.login_token):
@@ -256,10 +324,12 @@ def run_tests(testUser):
                 
             except Exception as ex:
                 print(f"An unexpected error occurred: {ex}")
-                try_count += 1
+
+            try_count += 1
 
         print("Couldn't refresh token")
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)
