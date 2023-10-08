@@ -74,7 +74,9 @@ export default function GraphGrid() {
   const [loadoutNumber, setLoadoutNumber] = useState(1);
 
   const RemoveContainer = (container) => {
-    setLayout(layout.filter((i) => i !== container));
+    const updatedLayout = layout.filter((item) => item !== container);
+    setLayout(updatedLayout);
+    //saveToLS(updatedLayout, getFromLS(loadoutNumber));
   };
 
   const AddContainer = (container) => {
@@ -84,16 +86,23 @@ export default function GraphGrid() {
   //Database functions
   function getFromLS(key) {
     const storedLayout = localStorage.getItem(key);
-    return storedLayout ? JSON.parse(storedLayout) : { lg: layout };
+    try {
+      const layouts = JSON.parse(storedLayout);
+      if (layouts == null) {
+        throw new Error("null char");
+      }
+      return layouts;
+    } catch {
+      return { lg: layout };
+    }
   }
 
   const saveToLS = (layout, layouts) => {
-    console.log(layouts);
     localStorage.setItem(loadoutNumber, JSON.stringify(layouts));
   };
 
   const handleSaveButtonClick = () => {
-    saveToLS(layout, layout);
+    saveToLS(layout, { lg: layout });
   };
 
   return (
@@ -135,8 +144,10 @@ export default function GraphGrid() {
         ))}
       </ResponsiveGridLayout>
       <div>
+        <p> Current layout is {loadoutNumber}</p>
         <button onClick={() => setLoadoutNumber(1)}>Load 1</button>
         <button onClick={() => setLoadoutNumber(2)}>Load 2</button>
+        <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
       </div>
     </React.Fragment>
   );
