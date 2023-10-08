@@ -59,83 +59,79 @@ class Playback:
           ErrorHandler.handle_error(e)
 
     def set_repeat(self, state):
-       try:
-         if state == track:
-          self.user.spotif_user.repeat('track')
-         elif state ==  context:
-          self.user.spotif_user.repeat('context')
-         else:
-          self.user.spotif_user.repeat('off')
+       try: 
+        self.user.spotify_user.repeat(state)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
+  
     def skip_forward(self):
        try:
-        self.user.next_track()
+        self.user.spotify_user.next_track()
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
         
     def skip_backwards(self):
        try:
-        self.user.previous_track()
+        self.user.spotify_user.previous_track()
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
        
     def play(self):
        try:
-        self.user.start_playback()
+        self.user.spotify_user.start_playback()
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
        
     def pause(self):
        try:
-        self.user.pause_playback()
+        self.user.spotify_user.pause_playback()
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
        
     def get_queue(self):
        try:
-        self.user.queue()
+        self.user.spotify_user.queue()
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
     def add_queue(self, song):
        try:
-        self.user.add_to_queue(song)
+        self.user.spotify_user.add_to_queue(song)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
     def volume_change(self, percent):
        try:
         #volume will be implemented as front end slider volume only changes when slider is moved
-        self.user.volume(percent)
+        self.user.spotify_user.volume(percent)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
     def switch_device(self, device):
       try:
         if(self.is_playing == True):
-          self.user.tranfer_playback(device, True)
+          self.user.spotify_user.tranfer_playback(device, True)
         else:
-          self.user.transfer_playback(device, False)
+          self.user.spotify_user.transfer_playback(device, False)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
     def get_devices(self):
       try:
-        self.user.devices()
+        self.user.spotify_user.devices()
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
     def select_song(self, context, song):
       try:
         #need to research how context, uris, and offset all interact
-        self.user.start_playback(None, context, song, None, None)
+        self.user.spotify_user.start_playback(None, context, song, None, None)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
     def seek_to(self, position):
       try:
-        self.user.seek_track(position)
+        self.user.spotify_user.seek_track(position)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
