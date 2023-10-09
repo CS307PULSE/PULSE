@@ -36,6 +36,26 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setTheme(e.target.theme);
   };
 
+  function handleSubmit(e) {
+    // Prevent the browser from reloading the page
+    e.preventDefault();
+
+    //Reset name to avoid issues
+    setGraphName("");
+
+    // Read the form data
+    const form = e.target;
+    const formData = new FormData(form);
+    const formJson = Object.fromEntries(formData.entries());
+
+    if (validName) {
+      onClose();
+      addGraph(formJson);
+    } else {
+      alert("Invalid graph name! Enter a better name!");
+    }
+  }
+
   return (
     <div className="PopupOverlay">
       <div className="PopupContent">
@@ -43,56 +63,48 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         <button className="PopupCloseButton" onClick={onClose}>
           X
         </button>
-        <div>
-          <input
-            name="graphName"
-            rows={1}
-            cols={20}
-            className="nameField"
-            value={graphName}
-            onChange={changeGraphName}
-            placeholder="Graph Name"
-            required={true}
-          />
-        </div>
-        <div>
-          Data:{" "}
-          <select value={data} onChange={changeData}>
-            <option value="top">Top</option>
-            <option value="bottom">bottom</option>
-          </select>
-        </div>
-        <div>
-          Graph Type:{" "}
-          <select value={graphType} onChange={changeGraph}>
-            <option value="line">Line</option>
-            <option value="bar">Bar</option>
-            <option value="pie">pie</option>
-          </select>
-        </div>
-        <div>
-          Theme:{" "}
-          <select value={theme} onChange={changeTheme}>
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-        </div>
-        <div>
-          <button
-            className="TypButton"
-            onClick={() => {
-              if (validName) {
-                addGraph({ data, graphType, theme });
-                onClose();
-              } else {
-                alert("Pick a new name!");
-              }
-            }}
-          >
-            {" "}
-            Generate Graph{" "}
-          </button>
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <input
+              name="graphName"
+              rows={1}
+              cols={20}
+              className="nameField"
+              value={graphName}
+              onChange={changeGraphName}
+              placeholder="Graph Name"
+              required={true}
+            />
+          </div>
+          <div>
+            Data:{" "}
+            <select name="dataVar" value={data} onChange={changeData}>
+              <option value="top">data1</option>
+              <option value="bottom">data2</option>
+              <option value="bottom">data3</option>
+            </select>
+          </div>
+          <div>
+            Graph Type:{" "}
+            <select name="graphType" value={graphType} onChange={changeGraph}>
+              <option value="Bar">Bar</option>
+              <option value="Line">Line</option>
+              <option value="Pie">pie</option>
+            </select>
+          </div>
+          <div>
+            Theme:{" "}
+            <select name="theme" value={theme} onChange={changeTheme}>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          <div>
+            <button className="TypButton" type="submit">
+              Generate Graph
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -155,10 +155,30 @@ export default function GraphGrid() {
     setIsPopupOpen(false);
   };
 
-  //Get data from add graph popup
-  const [newGraphData, setNewGraphData] = useState({});
   const getNewGraphData = (newGraphData) => {
-    setNewGraphData(newGraphData);
+    //Set structure w/ default values & graphName & graphType
+    let newGraph = {
+      i: newGraphData.graphName,
+      graphType: newGraphData.graphType,
+      data: [],
+      graphSettings: {},
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    };
+
+    if (newGraph.graphType === "Bar") {
+      newGraph.data = data1;
+      newGraph.graphSettings = { graphKeys: ["degrees"], graphIndexBy: "day" };
+    } else if (newGraph.graphType === "Line") {
+      newGraph.data = data2;
+      newGraph.graphSettings = { xName: "transportation", yName: "Count" };
+    } else {
+      newGraph.data = data3;
+    }
+
+    AddContainer(newGraph);
   };
 
   return (
