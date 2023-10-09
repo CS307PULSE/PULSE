@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
 import { BarGraph, LineGraph, PieGraph, data1, data2, data3 } from "./Graphs";
@@ -116,7 +116,8 @@ export default function GraphGrid() {
 
   const handleLoadButtonClick = (saveNumber) => {
     setlayoutNumber(saveNumber);
-    setLayout(getFromLS(layoutNumber));
+    const loadedLayout = getFromLS(saveNumber);
+    setLayout(loadedLayout);
   };
 
   const handleLayoutChange = (layoutA, allLayouts) => {
@@ -135,6 +136,11 @@ export default function GraphGrid() {
     console.log("current layout");
     console.log(updatedLayout);
   };
+
+  //Get correct initial layout when initialized
+  useEffect(() => {
+    setLayout(getFromLS(layoutNumber));
+  }, []);
 
   return (
     <React.Fragment>

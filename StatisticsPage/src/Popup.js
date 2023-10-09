@@ -22,7 +22,7 @@ const PopupContent = styled.div`
   max-width: 80%;
 `;
 
-const CloseButton = styled.span`
+const CloseButton = styled.div`
   position: relative;
   top: -10px;
   right: -40px;
