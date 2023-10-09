@@ -69,6 +69,7 @@ const defaultLayout = [
 export default function GraphGrid() {
   //UseStates for layout setting
   const [layout, setLayout] = useState(defaultLayout);
+  const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
 
   //Remove container function
@@ -121,10 +122,13 @@ export default function GraphGrid() {
   const handleLayoutChange = (layoutA, allLayouts) => {
     //Copy position and size data of each element to their counterparts in the layout var
     let updatedLayout = [];
+    let graphNames = [];
     for (let container of layout) {
       const copyContainer = allLayouts.lg.find(
         (tempContainer) => tempContainer.i === container.i
       );
+      //Store graph names into an array for new graph use
+      graphNames = [...graphNames, container.i];
       //Position data
       container["x"] = copyContainer.x;
       container["y"] = copyContainer.y;
@@ -133,6 +137,7 @@ export default function GraphGrid() {
       container["h"] = copyContainer.h;
       updatedLayout.push(container);
     }
+    setGraphNames(graphNames);
     setLayout(updatedLayout);
   };
 
@@ -213,6 +218,7 @@ export default function GraphGrid() {
         isOpen={isPopupOpen}
         onClose={closePopup}
         addGraph={getNewGraphData}
+        graphNames={graphNames}
       />
     </React.Fragment>
   );

@@ -1,18 +1,30 @@
 import React, { useState } from "react";
 
 //Popup passing through open and close functions
-export default function Popup({ isOpen, onClose, addGraph }) {
+export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   //Use states for data to be read from when generating new graph container
   const [graphName, setGraphName] = useState("");
   const [data, setData] = useState("top");
   const [graphType, setGraph] = useState("line");
   const [theme, setTheme] = useState("dark");
+  const [validName, setValidName] = useState(false);
 
   if (!isOpen) return null; //Don't do anything when not open
 
   //Functions to change data vars from input fields
   const changeGraphName = (e) => {
-    setGraphName(e.target.value);
+    //Replace special characters w/ null
+    const regexName = e.target.value.replace(/[^\w\s]/gi, "");
+    if (
+      graphNames.some((element) => {
+        return element === regexName;
+      })
+    ) {
+      setValidName(false);
+    } else {
+      setValidName(true);
+    }
+    setGraphName(regexName);
   };
   const changeData = (e) => {
     setData(e.target.data);
@@ -32,7 +44,7 @@ export default function Popup({ isOpen, onClose, addGraph }) {
           X
         </button>
         <div>
-          <textarea
+          <input
             name="graphName"
             rows={1}
             cols={20}
@@ -69,8 +81,12 @@ export default function Popup({ isOpen, onClose, addGraph }) {
           <button
             className="TypButton"
             onClick={() => {
-              addGraph({ data, graphType, theme });
-              onClose();
+              if (validName) {
+                addGraph({ data, graphType, theme });
+                onClose();
+              } else {
+                alert("Pick a new name!");
+              }
             }}
           >
             {" "}
