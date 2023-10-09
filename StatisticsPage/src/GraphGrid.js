@@ -17,67 +17,67 @@ const CloseButton = styled.span`
   cursor: pointer;
 `;
 
+const defaultLayout = [
+  {
+    i: "bar1",
+    graphType: "Bar",
+    data: data1,
+    graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+    x: 0,
+    y: 0,
+    w: 1,
+    h: 1,
+  },
+  {
+    i: "bar2",
+    graphType: "Bar",
+    data: data1,
+    graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+    x: 1,
+    y: 0,
+    w: 1,
+    h: 1,
+  },
+  {
+    i: "pie1",
+    graphType: "Pie",
+    data: data3,
+    GraphSettigngs: {},
+    x: 2,
+    y: 0,
+    w: 1,
+    h: 1,
+  },
+  {
+    i: "line1",
+    graphType: "Line",
+    data: data2,
+    graphSettings: { xName: "transportation", yName: "Count" },
+    x: 3,
+    y: 0,
+    w: 1,
+    h: 1,
+  },
+  {
+    i: "line2",
+    graphType: "Line",
+    data: data2,
+    graphSettings: { xName: "transportation", yName: "Count" },
+    x: 0,
+    y: 1,
+    w: 1,
+    h: 1,
+  },
+];
+
 export default function GraphGrid() {
-  const [layout, setLayout] = useState([
-    {
-      i: "blue-eyes-dragon",
-      graphType: "Bar",
-      data: data1,
-      graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
-      x: 0,
-      y: 0,
-      w: 1,
-      h: 1,
-    },
-    {
-      i: "dark-magician",
-      graphType: "Bar",
-      data: data1,
-      graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
-      x: 1,
-      y: 0,
-      w: 1,
-      h: 1,
-    },
-    {
-      i: "kuriboh",
-      graphType: "Pie",
-      data: data3,
-      GraphSettigngs: {},
-      x: 2,
-      y: 0,
-      w: 1,
-      h: 1,
-    },
-    {
-      i: "spell-caster",
-      graphType: "Line",
-      data: data2,
-      graphSettings: { xName: "transportation", yName: "Count" },
-      x: 3,
-      y: 0,
-      w: 1,
-      h: 1,
-    },
-    {
-      i: "summoned-skull",
-      graphType: "Line",
-      data: data2,
-      graphSettings: { xName: "transportation", yName: "Count" },
-      x: 0,
-      y: 1,
-      w: 1,
-      h: 1,
-    },
-  ]);
+  const [layout, setLayout] = useState(defaultLayout);
+  const [layoutNumber, setlayoutNumber] = useState(1);
 
-  const [loadoutNumber, setLoadoutNumber] = useState(1);
-  const [currentLayouts, setCurrentLayouts] = useState({ lg: layout });
-
-  const RemoveContainer = (container) => {
-    const updatedLayout = layout.filter((item) => item !== container);
+  const RemoveContainer = (containerName) => {
+    let updatedLayout = layout;
+    updatedLayout = updatedLayout.filter((item) => item.i !== containerName);
     setLayout(updatedLayout);
-    //saveToLS(updatedLayout, getFromLS(loadoutNumber));
   };
 
   const AddContainer = (container) => {
@@ -88,33 +88,58 @@ export default function GraphGrid() {
   function getFromLS(key) {
     const storedLayout = localStorage.getItem(key);
     try {
-      const layouts = JSON.parse(storedLayout);
-      if (layouts == null) {
-        throw new Error("null char");
+      const newLayout = JSON.parse(storedLayout);
+      if (newLayout == null) {
+        throw new Error("null layout");
       }
-      return layouts;
-    } catch {
-      return { lg: layout };
+      setLayout(newLayout);
+      console.log("loading");
+      console.log(newLayout);
+      return newLayout;
+    } catch (e) {
+      console.log(e);
+      console.log("created new layout");
+      saveToLS();
+      return defaultLayout;
     }
   }
 
-  const saveToLS = (allLayouts) => {
-    localStorage.setItem(loadoutNumber, JSON.stringify(allLayouts));
+  const saveToLS = (storingLayout) => {
+    console.log("saving");
+    console.log(storingLayout);
+    localStorage.setItem(layoutNumber, JSON.stringify(storingLayout));
   };
 
   const handleSaveButtonClick = () => {
-    console.log(currentLayouts);
-    saveToLS(currentLayouts);
+    saveToLS(layout);
   };
 
-  const handleLayoutChange = (layout, allLayouts) => {
-    setCurrentLayouts(allLayouts);
+  const handleLoadButtonClick = (saveNumber) => {
+    setlayoutNumber(saveNumber);
+    setLayout(getFromLS(layoutNumber));
+  };
+
+  const handleLayoutChange = (layoutA, allLayouts) => {
+    let updatedLayout = [];
+    for (let container of layout) {
+      const copyContainer = allLayouts.lg.find(
+        (tempContainer) => tempContainer.i === container.i
+      );
+      container["x"] = copyContainer.x;
+      container["y"] = copyContainer.y;
+      container["w"] = copyContainer.w;
+      container["h"] = copyContainer.h;
+      updatedLayout.push(container);
+    }
+    setLayout(updatedLayout);
+    console.log("current layout");
+    console.log(updatedLayout);
   };
 
   return (
     <React.Fragment>
       <ResponsiveGridLayout
-        layouts={getFromLS(loadoutNumber)}
+        layouts={{ lg: layout }}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         rowHeight={300}
@@ -125,23 +150,23 @@ export default function GraphGrid() {
           <GraphContainer key={container.i} className="grid-cell">
             <div>
               <div>{container.i}</div>
-              <CloseButton onClick={() => RemoveContainer(container)}>
+              <CloseButton onClick={() => RemoveContainer(container.i)}>
                 X
               </CloseButton>
             </div>
-            {container.graphType == "Bar" ? (
+            {container.graphType === "Bar" ? (
               <BarGraph
                 data={container.data}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
               />
-            ) : container.graphType == "Line" ? (
+            ) : container.graphType === "Line" ? (
               <LineGraph
                 data={container.data}
                 xName={container.graphSettings.xName}
                 yName={container.graphSettings.yName}
               />
-            ) : container.graphType == "Pie" ? (
+            ) : container.graphType === "Pie" ? (
               <PieGraph data={container.data} />
             ) : (
               <p> No Graph </p>
@@ -150,10 +175,10 @@ export default function GraphGrid() {
         ))}
       </ResponsiveGridLayout>
       <div>
-        <p> Current layout is {loadoutNumber}</p>
-        <button onClick={() => setLoadoutNumber(1)}>Load 1</button>
-        <button onClick={() => setLoadoutNumber(2)}>Load 2</button>
-        <button onClick={() => setLoadoutNumber(3)}>Load 3</button>
+        <p> Current layout is {layoutNumber}</p>
+        <button onClick={() => handleLoadButtonClick(1)}>Load 1</button>
+        <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
+        <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
         <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
       </div>
     </React.Fragment>
