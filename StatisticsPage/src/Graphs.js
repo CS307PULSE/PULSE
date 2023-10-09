@@ -455,5 +455,3 @@ export const PieGraph = (props) => {
     />
   );
 };
-
-export default BarGraph;

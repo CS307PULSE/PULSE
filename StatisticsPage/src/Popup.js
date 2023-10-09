@@ -1,47 +1,19 @@
-import styled from "styled-components";
 import React, { useState } from "react";
 
-//Stylization for popup box
-const PopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-//Stylization for popup contents
-const PopupContent = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  max-width: 80%;
-`;
-
-//Stylization for popup close button
-const CloseButton = styled.span`
-  position: relative;
-  top: -10px;
-  right: -40px;
-  cursor: pointer;
-`;
-
 //Popup passing through open and close functions
-export default function Popup({ isOpen, onClose }) {
+export default function Popup({ isOpen, onClose, addGraph }) {
   //Use states for data to be read from when generating new graph container
+  const [graphName, setGraphName] = useState("");
   const [data, setData] = useState("top");
   const [graphType, setGraph] = useState("line");
   const [theme, setTheme] = useState("dark");
 
   if (!isOpen) return null; //Don't do anything when not open
 
-  //Functions to change data vars from dropdown boxes
+  //Functions to change data vars from input fields
+  const changeGraphName = (e) => {
+    setGraphName(e.target.value);
+  };
   const changeData = (e) => {
     setData(e.target.data);
   };
@@ -53,10 +25,24 @@ export default function Popup({ isOpen, onClose }) {
   };
 
   return (
-    <PopupOverlay>
-      <PopupContent>
+    <div className="PopupOverlay">
+      <div className="PopupContent">
         Add Graph
-        <CloseButton onClick={onClose}>X</CloseButton>
+        <button className="PopupCloseButton" onClick={onClose}>
+          X
+        </button>
+        <div>
+          <textarea
+            name="graphName"
+            rows={1}
+            cols={20}
+            className="nameField"
+            value={graphName}
+            onChange={changeGraphName}
+            placeholder="Graph Name"
+            required={true}
+          />
+        </div>
         <div>
           Data:{" "}
           <select value={data} onChange={changeData}>
@@ -79,7 +65,19 @@ export default function Popup({ isOpen, onClose }) {
             <option value="light">Light</option>
           </select>
         </div>
-      </PopupContent>
-    </PopupOverlay>
+        <div>
+          <button
+            className="TypButton"
+            onClick={() => {
+              addGraph({ data, graphType, theme });
+              onClose();
+            }}
+          >
+            {" "}
+            Generate Graph{" "}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

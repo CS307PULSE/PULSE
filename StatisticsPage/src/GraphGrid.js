@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
 import { BarGraph, LineGraph, PieGraph, data1, data2, data3 } from "./Graphs";
+import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -9,16 +10,6 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 //Stylized div for each of the graph containers
 const GraphContainer = styled.div`
   background: #f5f5f5;
-`;
-
-//Stylized close button for graph containers
-const CloseButton = styled.span`
-  position: absolute;
-  width: 5%;
-  height: 5%;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
 `;
 
 //Default layout so that page does not look empty
@@ -150,6 +141,21 @@ export default function GraphGrid() {
     setLayout(getFromLS(layoutNumber));
   }, []);
 
+  //Functions to enable opening and closing of the "Add Graph" menu
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const openPopup = () => {
+    setIsPopupOpen(true);
+  };
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  //Get data from add graph popup
+  const [newGraphData, setNewGraphData] = useState({});
+  const getNewGraphData = (newGraphData) => {
+    setNewGraphData(newGraphData);
+  };
+
   return (
     <React.Fragment>
       <ResponsiveGridLayout
@@ -161,12 +167,15 @@ export default function GraphGrid() {
         onLayoutChange={handleLayoutChange}
       >
         {layout.map((container) => (
-          <GraphContainer key={container.i} className="grid-cell">
+          <GraphContainer key={container.i}>
             <div>
               <div>{container.i}</div>
-              <CloseButton onClick={() => RemoveContainer(container.i)}>
+              <button
+                className="GraphCloseButton"
+                onClick={() => RemoveContainer(container.i)}
+              >
                 X
-              </CloseButton>
+              </button>
             </div>
             {container.graphType === "Bar" ? (
               <BarGraph
@@ -195,6 +204,16 @@ export default function GraphGrid() {
         <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
         <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
       </div>
+      <div>
+        <button className="TypButton" onClick={openPopup}>
+          Add Graph
+        </button>
+      </div>
+      <Popup
+        isOpen={isPopupOpen}
+        onClose={closePopup}
+        addGraph={getNewGraphData}
+      />
     </React.Fragment>
   );
 }
