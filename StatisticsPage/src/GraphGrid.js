@@ -6,17 +6,22 @@ import "react-resizable/css/styles.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
+//Stylized div for each of the graph containers
 const GraphContainer = styled.div`
   background: #f5f5f5;
 `;
 
+//Stylized close button for graph containers
 const CloseButton = styled.span`
   position: absolute;
+  width: 5%;
+  height: 5%;
   top: 10px;
   right: 10px;
   cursor: pointer;
 `;
 
+//Default layout so that page does not look empty
 const defaultLayout = [
   {
     i: "bar1",
@@ -71,70 +76,73 @@ const defaultLayout = [
 ];
 
 export default function GraphGrid() {
+  //UseStates for layout setting
   const [layout, setLayout] = useState(defaultLayout);
   const [layoutNumber, setlayoutNumber] = useState(1);
 
+  //Remove container function
   const RemoveContainer = (containerName) => {
     let updatedLayout = layout;
     updatedLayout = updatedLayout.filter((item) => item.i !== containerName);
     setLayout(updatedLayout);
   };
 
+  //Add container function
   const AddContainer = (container) => {
     setLayout([...layout, container]);
   };
 
-  //Database functions
+  //Get layout from local storage
   function getFromLS(key) {
     const storedLayout = localStorage.getItem(key);
+
+    //Try-catch to set layout to default one if recieved empty layout
     try {
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
       }
-      setLayout(newLayout);
-      console.log("loading");
-      console.log(newLayout);
       return newLayout;
     } catch (e) {
-      console.log(e);
-      console.log("created new layout");
       saveToLS();
       return defaultLayout;
     }
   }
 
+  //Send layout to local storage
   const saveToLS = (storingLayout) => {
-    console.log("saving");
-    console.log(storingLayout);
     localStorage.setItem(layoutNumber, JSON.stringify(storingLayout));
   };
 
+  //Function for save button
   const handleSaveButtonClick = () => {
     saveToLS(layout);
   };
 
+  //Function for load button
   const handleLoadButtonClick = (saveNumber) => {
     setlayoutNumber(saveNumber);
     const loadedLayout = getFromLS(saveNumber);
     setLayout(loadedLayout);
   };
 
+  //When layout changes, store to layout var
   const handleLayoutChange = (layoutA, allLayouts) => {
+    //Copy position and size data of each element to their counterparts in the layout var
     let updatedLayout = [];
     for (let container of layout) {
       const copyContainer = allLayouts.lg.find(
         (tempContainer) => tempContainer.i === container.i
       );
+      //Position data
       container["x"] = copyContainer.x;
       container["y"] = copyContainer.y;
+      //Size data
       container["w"] = copyContainer.w;
       container["h"] = copyContainer.h;
       updatedLayout.push(container);
     }
     setLayout(updatedLayout);
-    console.log("current layout");
-    console.log(updatedLayout);
   };
 
   //Get correct initial layout when initialized

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React, { useState } from "react";
 
+//Stylization for popup box
 const PopupOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -14,6 +15,7 @@ const PopupOverlay = styled.div`
   z-index: 1000;
 `;
 
+//Stylization for popup contents
 const PopupContent = styled.div`
   background: white;
   padding: 20px;
@@ -22,28 +24,30 @@ const PopupContent = styled.div`
   max-width: 80%;
 `;
 
-const CloseButton = styled.div`
+//Stylization for popup close button
+const CloseButton = styled.span`
   position: relative;
   top: -10px;
   right: -40px;
   cursor: pointer;
 `;
 
+//Popup passing through open and close functions
 export default function Popup({ isOpen, onClose }) {
+  //Use states for data to be read from when generating new graph container
   const [data, setData] = useState("top");
   const [graphType, setGraph] = useState("line");
   const [theme, setTheme] = useState("dark");
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; //Don't do anything when not open
 
+  //Functions to change data vars from dropdown boxes
   const changeData = (e) => {
     setData(e.target.data);
   };
-
   const changeGraph = (e) => {
     setGraph(e.target.graphType);
   };
-
   const changeTheme = (e) => {
     setTheme(e.target.theme);
   };

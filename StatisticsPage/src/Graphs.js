@@ -2,6 +2,7 @@ import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 
+//Sample datas
 export const data1 = [
   {
     day: "Monday",
@@ -32,7 +33,6 @@ export const data1 = [
     degrees: 67,
   },
 ];
-
 export const data2 = [
   {
     id: "japan",
@@ -305,7 +305,6 @@ export const data2 = [
     ],
   },
 ];
-
 export const data3 = [
   {
     id: "java",
@@ -339,13 +338,14 @@ export const data3 = [
   },
 ];
 
+//Bar Graph
 export const BarGraph = (props) => {
   return (
     <ResponsiveBar
       data={props.data}
       keys={props.graphKeys}
       indexBy={props.graphIndexBy}
-      margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+      margin={{ top: 30, right: 50, bottom: 50, left: 60 }}
       padding={0.4}
       valueScale={{ type: "linear" }}
       colors="#3182CE"
@@ -365,10 +365,11 @@ export const BarGraph = (props) => {
   );
 };
 
+//Line Graph
 export const LineGraph = (props) => (
   <ResponsiveLine
     data={props.data}
-    margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+    margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
     xScale={{ type: "point" }}
     yScale={{
       type: "linear",
@@ -433,6 +434,7 @@ export const LineGraph = (props) => (
   />
 );
 
+//Pie Graph
 export const PieGraph = (props) => {
   return (
     <ResponsivePie

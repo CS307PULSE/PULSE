@@ -4,6 +4,7 @@ import GraphGrid from "./GraphGrid";
 import styled from "styled-components";
 import Popup from "./Popup";
 
+//Stylized button for adding a graph
 const Button = styled.button`
   background-color: #3f51b5;
   color: white;
@@ -25,12 +26,11 @@ const Button = styled.button`
 `;
 
 function App() {
+  //Functions to enable opening and closing of the "Add Graph" menu
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
   const openPopup = () => {
     setIsPopupOpen(true);
   };
-
   const closePopup = () => {
     setIsPopupOpen(false);
   };
@@ -41,9 +41,7 @@ function App() {
       <div>
         <Button onClick={openPopup}>Add Graph</Button>
       </div>
-      <Popup isOpen={isPopupOpen} onClose={closePopup}>
-        <h2> This is my Popup</h2>
-      </Popup>
+      <Popup isOpen={isPopupOpen} onClose={closePopup} />
     </div>
   );
 }
