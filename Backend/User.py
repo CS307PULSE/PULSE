@@ -1,6 +1,7 @@
 from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
+from array import array
 from Exceptions import ErrorHandler
 from Exceptions import BadResponseError
 from Exceptions import TokenNotStoredError

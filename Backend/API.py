@@ -18,6 +18,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
 run_connected = False
+spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
@@ -192,7 +193,32 @@ def guess_the_song():
     session['players'] = 1
     session['round_num'] = 1
     session['scores'] = '0'
-    return '<a href="/games/guess_the_song/play">Play Game</a> or <a href="/games/guess_the_song/settings">Configure Settings</a></p>'
+
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+    else:
+        return 'User session not found. Please log in again.'
+
+    scores_html = '<p>User\'s Past Scores:</p><ul>'
+    for scores in user.high_scores:
+        scores_html += f'<li>Round 1: {scores[0]}, Round 2: {scores[1]}</li>'
+    scores_html += '</ul>'
+
+    # Concatenate the scores HTML with the existing HTML
+    html = f'''
+    <html>
+    <head><title>Your Game</title></head>
+    <body>
+        <h1>Welcome to the Game</h1>
+        {scores_html} <!-- Display user's past scores -->
+        <p><a href="/games/guess_the_song/play">Play Game</a> or <a href="/games/guess_the_song/settings">Configure Settings</a></p>
+    </body>
+    </html>
+    '''
+
+    # Return the combined HTML as the response
+    return html
 
 @app.route('/games/guess_the_song/settings', methods=['GET', 'POST'])
 def guess_the_song_settings():
@@ -290,9 +316,22 @@ def execute_playback():
             if user.stats.saved_songs is None:
                 user.update_saved_songs()
 
+            global spoof_songs
+            songs = user.stats.saved_songs
+            if (spoof_songs):
+                songs = []
+                songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
+                songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
+                songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
+                songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
+                songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
+                songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
             import random
-            random_track = random.choice(user.stats.saved_songs)
-            track_uri = random_track['track']['uri']
+            random_track = random.choice(songs)
+            if (spoof_songs):
+                track_uri = random_track['uri']
+            else:
+                track_uri = random_track['track']['uri']
             user.spotify_user.start_playback(uris=[track_uri])
             result = f'Playing URI {track_uri}'
         else:
@@ -376,7 +415,22 @@ def incorrect_guess():
 @app.route('/games/guess_the_song/play/display_results')
 def display_results():
     scores_str = session.get('scores', '')
-    scores = list(map(int, scores_str.split(',')))
+    map_vals = map(int, scores_str.split(','))
+    scores = list(map_vals)
+    from array import array
+
+    updateHighScores = False
+    if 'user' in session and updateHighScores:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        user.high_scores.extend(array('i', map_vals))
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_high_scores(user.spotify_id, user.high_scores) == 0):
+                raise Exceptions.UserNotFoundError
+        session["user"] = user.to_json()
+        stored_scores_status = "The scores have been stored!"
+    else:
+        stored_scores_status = "The scores have not been stored! Please try logging in and playing again to save the scores!"
     
     # Calculate and display results here
     # For example, you can show the scores of each player
@@ -394,6 +448,8 @@ def display_results():
 
     for i, score in enumerate(scores, start=1):
         html_result += f'<li>Player {i}: {score}</li>'
+
+    html_result += stored_scores_status
 
     html_result += '''
         </ul>
