@@ -26,7 +26,6 @@ class User:
                  stats=None, 
                  high_scores=None, 
                  recommendation_params=None,
-                 profile_picture=None,
                  gender=None,
                  location=None):
         self.display_name = display_name                                                                   # String
@@ -39,9 +38,8 @@ class User:
         self.stats = stats if stats is not None else Stats()                                               # Stats
         self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
-        self.gender = gender
-        self.profile_picture = profile_picture
-        self.location = location
+        self.gender = gender                                                                               # String                                   
+        self.location = location                                                                           # String
 
     def stringify(self, obj):
         if obj is None:
@@ -94,6 +92,14 @@ class User:
             self.spotify_id = response['id']
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+        
+    def update_followers(self):
+        try:
+            userinfo = self.spotify_user.currentuser()
+            followers = userinfo['followers']['total']
+            self.stats.follower_number = followers
+        except spotipy.exceptions.SpotifyException as e:
+          ErrorHandler.handle_error(e)
 
     # Updates list of recent songs with at most 50 objects of type PlayHistory
     def update_recent_history(self):
@@ -213,7 +219,7 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
-
+    # Searches for item of type items_type with query query and at most max_items number of items
     def search_for_items(self, max_items=20, items_type="tracks", query=""):
         try:
             items = []
@@ -241,27 +247,3 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
             return ['' for _ in range(max_items)]
-
-    def set_gender(self, set):
-        self.gender = set
-
-    def set_location(self, set):
-        self.location = set
-
-    def set_picture(self, set):
-        self.profile_picture = set
-
-    def set_name(self, set):
-        self.display_name = set
-
-    def get_gender(self):
-        return self.gender 
-
-    def get_location(self):
-        return self.location
-
-    def get_picture(self):
-        return self.profile_picture 
-
-    def get_name(self):
-        return self.display_name
