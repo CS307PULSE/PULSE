@@ -10,6 +10,7 @@ from User import User
 from Game import GameType, Game
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
+import json
 import Exceptions
 import os
 
@@ -181,16 +182,58 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/test"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/statistics"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
     return 'Select Game: <a href="/games/guess_the_song"> Play Guess the Song</a>'
 
+@app.route('/statistics')
+def statistics():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        result = update_data(user)
+        retries = 0
+        max_retries = 3
+
+        data = {'status' : 'Not updated',
+                'recent_history' : '',
+                'top_songs' : '',
+                'top_artists' : '',
+                'followed_artists' : '',
+                'saved_songs' : ''}
+
+        while (result <= 0):
+            if (result == -1):
+                return 'didnt work 2'
+                return jsonify(data)
+            else:
+                # Token expired but was successfully refreshed, trying again
+                result = update_data(user)
+                retries += 1
+                if (retries > max_retries):
+                    return 'didnt work 1'
+                    return jsonify(data)
+
+        data['status'] = 'Success'
+        data['recent_history'] = user.stringify(user.stats.recent_history)
+        data['top_songs'] = user.stringify(user.stats.top_songs)
+        data['top_artists'] = user.stringify(user.stats.top_artists)
+        data['followed_artists'] = user.stringify(user.stats.followed_artists)
+        data['saved_songs'] = user.stringify(user.stats.saved_songs)
+        return jsonify(data)
+        
+    else:
+        return 'User session not found. Please log in again.'
+
 @app.route('/games/guess_the_song')
 def guess_the_song():
-    session['rounds'] = 5
-    session['players'] = 1
+    if 'rounds' not in session:
+        session['rounds'] = 5
+    if 'players' not in session:
+        session['players'] = 1
+
     session['round_num'] = 1
     session['scores'] = '0'
 
@@ -307,6 +350,7 @@ def guess_the_song_play_round():
 
 @app.route('/games/guess_the_song/play/playback', methods=['POST'])
 def execute_playback():
+    timestamp_ms = 20000 #20 seconds playback
     if request.method == 'POST':
         if 'user' in session:
             user_data = session['user']
@@ -332,7 +376,7 @@ def execute_playback():
                 track_uri = random_track['uri']
             else:
                 track_uri = random_track['track']['uri']
-            user.spotify_user.start_playback(uris=[track_uri])
+            user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
             result = f'Playing URI {track_uri}'
         else:
             result = 'User session not found. Please log in again.'
@@ -469,6 +513,77 @@ def test():
         return run_tests(user)
     else:
         return 'User session not found. Please log in again.'
+
+def update_data(user, update_recent_history=True,
+                update_top_songs=True,
+                update_top_artists=True,
+                update_followed_artists=True,
+                update_saved_tracks=True):
+
+    print("Updating Data")
+    import time
+    timestamp = (time.time())
+    import datetime
+    import pytz
+
+    # Create a datetime object from the Unix timestamp in UTC
+    utc_datetime = datetime.datetime.utcfromtimestamp(timestamp)
+
+    # Set the timezone to Eastern Time (US/Eastern)
+    eastern_timezone = pytz.timezone('US/Eastern')
+    est_datetime = utc_datetime.replace(tzinfo=pytz.utc).astimezone(eastern_timezone)
+
+    # Print the datetime in EDT format
+    time_string = (est_datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')) + '\n'
+
+    try:
+        if (update_recent_history):
+            user.update_recent_history()
+
+        if (update_top_songs):
+            user.update_top_songs()
+
+        if (update_top_artists):
+            user.update_top_artists()
+
+        if (update_followed_artists):
+            user.update_followed_artists()
+
+        if (update_saved_tracks):
+            user.update_saved_songs()
+
+        print("Updated data")
+        return 1
+
+    except Exceptions.TokenExpiredError as e:
+        print(f"An unexpected error occurred: {e}")
+        try_count = 0
+        max_try_count = 5
+        while try_count < max_try_count:
+            try:
+                sp_oauth = SpotifyOAuth(client_id=client_id, 
+                            client_secret=client_secret, 
+                            redirect_uri=redirect_uri, 
+                            scope=scope)
+
+                user.refresh_access_token(sp_oauth)
+
+                if not sp_oauth.is_token_expired(user.login_token):
+                    #Update token
+                    with DatabaseConnector(db_config) as conn:
+                        if (conn.update_token(user.spotify_id, user.login_token) == 0):
+                            raise Exceptions.UserNotFoundError
+                    session["user"] = user.to_json()
+                    print("Token successfully refreshed!")
+                    return 0
+                
+            except Exception as ex:
+                print(f"An unexpected error occurred: {ex}")
+
+            try_count += 1
+
+        print("Couldn't refresh token")
+        return -1
 
 def run_tests(testUser):
     print("Starting Tests!")
