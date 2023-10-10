@@ -38,8 +38,8 @@ const textFieldStyle={
     height: "40px",
     width: "300px",
     color:"#FFFFFF",
-    paddingLeft: "10px",
-    margin:"10px"
+    padding: "10px",
+    margin:"50px"
 };
 
 function EditProfile(){
@@ -52,7 +52,8 @@ function EditProfile(){
             <p>\n</p>
             <label style={textFieldStyle} class="custom-uploader" for="file">Upload Your File</label>
             <input id="file" accept="image/jpeg,image/png" name="fileToUpload" type="file" />
-            <button style={textFieldStyle} name="submit" type="submit"> File </button>
+            <button style={textFieldStyle} name="submit" type="submit">Update</button>
+            <h1>Upload Your Profile Picture</h1>
         </form>
     </div>
     );

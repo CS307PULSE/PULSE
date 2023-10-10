@@ -1,9 +1,14 @@
 import TestIcon from "../test_icon.jpg"
+import React from "react";
+import { pulse_colors } from "../theme/Colors";
+import TextSize from "../theme/TextSize";
+
+const text_sizes = TextSize("small");
 
 const profileStyle = {
     paddding:"0px",
     margin: "0px",
-    backgroundColor:"#000",
+    backgroundColor: pulse_colors.black,
     width: "100%", // Set width to 100% to cover the entire width of the screen
     height: "100%", // Set height to 100vh to cover the entire height of the screen
     backgroundSize: "cover", // Cover the entire container with the image
@@ -15,7 +20,7 @@ const profileHeader={
     color: "#6EEB4D",
     textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
     fontFamily: "Rajdhani-SemiBold, Helvetica",
-    fontSize: "50px",
+    fontSize: text_sizes.body,
     fontStyle: "normal",
     fontWeight: 600,
     lineHeight: "normal",
@@ -26,7 +31,7 @@ const profileText={
     color: "#6EEB4D",
     textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
     fontFamily: "Rajdhani-SemiBold, Helvetica",
-    fontSize: "25px",
+    fontSize: text_sizes.body,
     fontStyle: "normal",
     fontWeight: 600,
     lineHeight: "normal",
@@ -42,6 +47,7 @@ const buttonStyle={
 };
 
 function Profile({testParameter}){
+
     return(
     <div className="profile" style={profileStyle}>
         <p style={profileHeader}>Profile</p>
@@ -50,9 +56,9 @@ function Profile({testParameter}){
 
         <p style={profileHeader}>Settings</p>
         <p style={profileText}>Text Size: </p>
-        <button style={buttonStyle}><p>Small</p></button>
-        <button style={buttonStyle}><p>Medium</p></button>
-        <button style={buttonStyle}><p>Large</p></button>
+        <button onclick={TextSize("small")} style={buttonStyle}><p>Small</p></button>
+        <button onclick={TextSize("medium")} style={buttonStyle}><p>Medium</p></button>
+        <button onclick={TextSize("large")} style={buttonStyle}><p>Large</p></button>
         <p style={profileText}>Theme: </p>
     </div>
     );
