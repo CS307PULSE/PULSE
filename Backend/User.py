@@ -37,6 +37,11 @@ class User:
         self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
 
+    def stringify(self, obj):
+        if obj is None:
+            return ''
+        return json.dumps(obj, default=lambda x: x.__dict__)
+
     def to_json(self):
         # Convert the User object to a JSON-serializable dictionary
         user_data = {
@@ -174,6 +179,7 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
+    # Updates list of saved songs with at most max_tracks number of objects of type Track
     def update_saved_songs(self, max_tracks=200):
         try:
             saved_tracks = []
