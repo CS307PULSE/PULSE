@@ -1,14 +1,15 @@
 import TestIcon from "../test_icon.jpg"
 import React from "react";
-import { pulse_colors } from "../theme/Colors";
+//import { pulseColors } from "../theme/Colors";
+import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
-
-const text_sizes = TextSize("small");
+const textSizes = TextSize("medium"); //Obtain text size values
+const themeColors = Colors("light"); //Obtain color values
 
 const profileStyle = {
     paddding:"0px",
     margin: "0px",
-    backgroundColor: pulse_colors.black,
+    backgroundColor: themeColors.background,
     width: "100%", // Set width to 100% to cover the entire width of the screen
     height: "100%", // Set height to 100vh to cover the entire height of the screen
     backgroundSize: "cover", // Cover the entire container with the image
@@ -17,10 +18,10 @@ const profileStyle = {
 const profileHeader={
     paddingTop: "50px",
     paddingLeft: "50px",
-    color: "#6EEB4D",
+    color: themeColors.text,
     textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
     fontFamily: "Rajdhani-SemiBold, Helvetica",
-    fontSize: text_sizes.body,
+    fontSize: textSizes.header1,
     fontStyle: "normal",
     fontWeight: 600,
     lineHeight: "normal",
@@ -28,10 +29,10 @@ const profileHeader={
 const profileText={
     paddingTop: "30px",
     paddingLeft: "50px",
-    color: "#6EEB4D",
+    color: themeColors.text,
     textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
     fontFamily: "Rajdhani-SemiBold, Helvetica",
-    fontSize: text_sizes.body,
+    fontSize: textSizes.body,
     fontStyle: "normal",
     fontWeight: 600,
     lineHeight: "normal",

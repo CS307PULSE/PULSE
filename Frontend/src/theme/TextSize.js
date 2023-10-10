@@ -6,24 +6,24 @@ function TextSize(textSizeSetting) {
         body: "undefined", 
         small: "undefined", 
     }
-    if (textSizeSetting == "large") {
-        text_sizes.header1 = "100px";
-        text_sizes.header2 = "100px";
-        text_sizes.header3 = "100px";
-        text_sizes.body = "100px";
-        text_sizes.small = "100px";
-    } else if (textSizeSetting == "medium") {
-        text_sizes.header1 = "50px";
-        text_sizes.header2 = "50px";
-        text_sizes.header3 = "50px";
-        text_sizes.body = "50px";
-        text_sizes.small = "50px";
-    } else if (textSizeSetting == "small") {
-        text_sizes.header1 = "25px";
-        text_sizes.header2 = "25px";
+    if (textSizeSetting === "large") {
+        text_sizes.header1 = "60px";
+        text_sizes.header2 = "45px";
+        text_sizes.header3 = "30px";
+        text_sizes.body = "20px";
+        text_sizes.small = "15px";
+    } else if (textSizeSetting === "medium") {
+        text_sizes.header1 = "45px";
+        text_sizes.header2 = "35px";
         text_sizes.header3 = "25px";
-        text_sizes.body = "25px";
-        text_sizes.small = "25px";
+        text_sizes.body = "15px";
+        text_sizes.small = "10px";
+    } else if (textSizeSetting === "small") {
+        text_sizes.header1 = "35px";
+        text_sizes.header2 = "30px";
+        text_sizes.header3 = "20px";
+        text_sizes.body = "12px";
+        text_sizes.small = "8px";
     }
     return text_sizes;
 }
