@@ -1,6 +1,7 @@
 from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
+from array import array
 from Exceptions import ErrorHandler
 from Exceptions import BadResponseError
 from Exceptions import TokenNotStoredError
@@ -35,6 +36,11 @@ class User:
         self.stats = stats if stats is not None else Stats()                                               # Stats
         self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
+
+    def stringify(self, obj):
+        if obj is None:
+            return ''
+        return json.dumps(obj, default=lambda x: x.__dict__)
 
     def to_json(self):
         # Convert the User object to a JSON-serializable dictionary
@@ -101,7 +107,6 @@ class User:
                 top_tracks_per_term = []
                 term = terms[i]
 
-                offset = 0
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)
                 top_tracks_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)
@@ -127,7 +132,6 @@ class User:
                 top_artists_per_term = []
                 term = terms[i]
 
-                offset = 0
                 response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)             
                 top_artists_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)
@@ -158,8 +162,7 @@ class User:
                     response is None
                     or response.get('artists') is None
                     or response['artists'].get('items') is None
-                    or response.get('cursors') is None
-                    or response['cursors'].get('after') is None
+                    or response['artists'].get('cursors') is None
                 ):
                     break
 
@@ -169,12 +172,41 @@ class User:
 
                 followed_artists.extend(artists['items'])
 
-                if (len(response['artists']['items']) < limit):
+                if (len(artists['items']) < limit):
                     break
 
             self.stats.followed_artists = followed_artists
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+
+    # Updates list of saved songs with at most max_tracks number of objects of type Track
+    def update_saved_songs(self, max_tracks=200):
+        try:
+            saved_tracks = []
+
+            offset = 0
+            limit = min(50, max_tracks)
+
+            while len(saved_tracks) < max_tracks:
+                response = self.spotify_user.current_user_saved_tracks(limit=limit, offset=offset)
+                
+                if (
+                    response is None
+                    or response.get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                saved_tracks.extend(response['items'])
+
+                if (len(response['items']) < limit):
+                    break
+
+            self.stats.saved_songs = saved_tracks
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+
 
     def search_for_items(self, max_items=20, items_type="tracks", query=""):
         try:
