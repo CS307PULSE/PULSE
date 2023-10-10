@@ -4,8 +4,9 @@ import Login from "./components/Login";
 import Profile from "./components/Profile";
 import EditProfile from "./components/EditProfile";
 
+import GuessTheSong from "./components/GuessTheSong";
 import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dashboard from "./components/Mainpage"
+import Mainpage from "./components/Mainpage"
 
 import axios from "axios";
 
@@ -57,7 +58,8 @@ function App() {
           )
         }
       />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<Mainpage/>} />
+      <Route path="game/guess-the-song" element={<GuessTheSong />} />
     </Routes>
   </Router>
   );
