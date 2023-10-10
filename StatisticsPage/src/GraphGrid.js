@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from "react";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import styled from "styled-components";
-import { BarGraph, LineGraph, PieGraph, data1, data2, data3 } from "./Graphs";
+import {
+  BarGraph,
+  LineGraph,
+  PieGraph,
+  line1,
+  bar1,
+  pie1,
+  pie2,
+} from "./Graphs";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
+import axios from "axios";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -17,7 +26,7 @@ const defaultLayout = [
   {
     i: "bar1",
     graphType: "Bar",
-    data: data1,
+    data: "bar1",
     graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
     x: 0,
     y: 0,
@@ -27,7 +36,7 @@ const defaultLayout = [
   {
     i: "bar2",
     graphType: "Bar",
-    data: data1,
+    data: "bar1",
     graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
     x: 1,
     y: 0,
@@ -37,7 +46,7 @@ const defaultLayout = [
   {
     i: "pie1",
     graphType: "Pie",
-    data: data3,
+    data: "pie1",
     GraphSettigngs: {},
     x: 2,
     y: 0,
@@ -47,7 +56,7 @@ const defaultLayout = [
   {
     i: "line1",
     graphType: "Line",
-    data: data2,
+    data: "line1",
     graphSettings: { xName: "transportation", yName: "Count" },
     x: 3,
     y: 0,
@@ -57,7 +66,7 @@ const defaultLayout = [
   {
     i: "line2",
     graphType: "Line",
-    data: data2,
+    data: "line1",
     graphSettings: { xName: "transportation", yName: "Count" },
     x: 0,
     y: 1,
@@ -65,6 +74,25 @@ const defaultLayout = [
     h: 1,
   },
 ];
+
+/*
+async function fetchLayouts() {
+  const response = await axios.get("http://127.0.0.1:5000/stats/layouts");
+  const data = response.data;
+  console.log(data);
+  return data;
+}
+
+async function sendLayouts(layout) {
+  const response = await axios.post(
+    "http://127.0.0.1:5000/stats/layouts",
+    layout
+  );
+  const data = response.data;
+  console.log(data);
+  return data;
+}
+*/
 
 export default function GraphGrid() {
   //UseStates for layout setting
@@ -138,6 +166,7 @@ export default function GraphGrid() {
       updatedLayout.push(container);
     }
     setGraphNames(graphNames);
+    //console.log(JSON.stringify(updatedLayout));
     setLayout(updatedLayout);
   };
 
@@ -160,7 +189,7 @@ export default function GraphGrid() {
     let newGraph = {
       i: newGraphData.graphName,
       graphType: newGraphData.graphType,
-      data: [],
+      data: newGraphData.data,
       graphSettings: {},
       x: 0,
       y: 0,
@@ -169,17 +198,27 @@ export default function GraphGrid() {
     };
 
     if (newGraph.graphType === "Bar") {
-      newGraph.data = data1;
       newGraph.graphSettings = { graphKeys: ["degrees"], graphIndexBy: "day" };
     } else if (newGraph.graphType === "Line") {
-      newGraph.data = data2;
       newGraph.graphSettings = { xName: "transportation", yName: "Count" };
-    } else {
-      newGraph.data = data3;
     }
 
     AddContainer(newGraph);
   };
+
+  function getData(dataName) {
+    if (dataName === "bar1") {
+      return bar1;
+    } else if (dataName === "line1") {
+      return line1;
+    } else if (dataName === "pie1") {
+      return pie1;
+    } else if (dataName === "pie2") {
+      return pie2;
+    }
+
+    return null;
+  }
 
   return (
     <React.Fragment>
@@ -204,20 +243,22 @@ export default function GraphGrid() {
             </div>
             {container.graphType === "Bar" ? (
               <BarGraph
-                data={container.data}
+                data={getData(container.data)}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
               />
             ) : container.graphType === "Line" ? (
               <LineGraph
-                data={container.data}
+                data={getData(container.data)}
                 xName={container.graphSettings.xName}
                 yName={container.graphSettings.yName}
               />
             ) : container.graphType === "Pie" ? (
-              <PieGraph data={container.data} />
+              <PieGraph data={getData(container.data)} />
+            ) : container.graphType === "Text" ? (
+              <p> {container.graphType} </p>
             ) : (
-              <p> No Graph </p>
+              <p> Hi</p>
             )}
           </GraphContainer>
         ))}

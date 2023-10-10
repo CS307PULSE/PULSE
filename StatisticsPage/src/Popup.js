@@ -79,9 +79,10 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           <div>
             Data:{" "}
             <select name="dataVar" value={data} onChange={changeData}>
-              <option value="top">data1</option>
-              <option value="bottom">data2</option>
-              <option value="bottom">data3</option>
+              <option value="bar1">Bar1</option>
+              <option value="line1">Line1</option>
+              <option value="pie1">Pie1</option>
+              <option value="pie2">Pie2</option>
             </select>
           </div>
           <div>
@@ -89,7 +90,8 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             <select name="graphType" value={graphType} onChange={changeGraph}>
               <option value="Bar">Bar</option>
               <option value="Line">Line</option>
-              <option value="Pie">pie</option>
+              <option value="Pie">Pie</option>
+              <option value="Text">Text</option>
             </select>
           </div>
           <div>
