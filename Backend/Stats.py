@@ -16,7 +16,6 @@ class Stats:
         self.top_artists = top_artists
         self.followed_artists = followed_artists
         self.saved_songs = saved_songs
-        self.user = user
 
     def get_followers(self):
         try:
