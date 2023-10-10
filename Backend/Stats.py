@@ -1,3 +1,9 @@
+import spotipy
+import multiprocessing
+import time
+import User
+from Exceptions import ErrorHandler
+
 class Stats:
     def __init__(self,
                  recent_history=None,
@@ -11,3 +17,10 @@ class Stats:
         self.followed_artists = followed_artists        # Array of type Artist
         self.saved_songs = saved_songs                  # Array of type Track
 
+    def get_followers(self):
+        try:
+            userinfo = self.user.spotify_user.currentuser()
+            followers = userinfo['followers']
+            followers = followers['total']
+        except spotipy.exceptions.SpotifyException as e:
+          ErrorHandler.handle_error(e)
