@@ -10,17 +10,11 @@ class Stats:
                  top_songs=None,
                  top_artists=None,
                  followed_artists=None,
-                 saved_songs=None):
-        self.recent_history = recent_history
-        self.top_songs = top_songs
-        self.top_artists = top_artists
-        self.followed_artists = followed_artists
-        self.saved_songs = saved_songs
-
-    def get_followers(self):
-        try:
-            userinfo = self.user.spotify_user.currentuser()
-            followers = userinfo['followers']
-            followers = followers['total']
-        except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+                 saved_songs=None,
+                 follower_number=None):
+        self.recent_history = recent_history            # Array of type PlayHistory
+        self.top_songs = top_songs                      # [Array of type Track, Array of type Track, Array of type Track] 
+        self.top_artists = top_artists                  # [Array of type Artist, Array of type Artist, Array of type Artist] 
+        self.followed_artists = followed_artists        # Array of type Artist
+        self.saved_songs = saved_songs                  # Array of type Track
+        self.follower_number = follower_number          # Int
