@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { Link } from "react-router-dom";
 // Styled components
 const CardContainer = styled.div`
   border: 1px solid #FFF;
@@ -30,11 +30,17 @@ line-height: normal;
 text-transform: uppercase;
   padding: 16px;
 `;
+const StyledLink = styled(Link)`
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit text color */
+`;
 
 const FriendsCard = ({children }) => {
     return (
       <CardContainer>
+        <StyledLink to="/friends">
         <Header>FRIENDS</Header>
+      </StyledLink>
         <Content>{children}</Content>
       </CardContainer>
     );

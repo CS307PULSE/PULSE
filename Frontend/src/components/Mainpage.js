@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
-import { BrowserRouter as Router, Link, Route, Routes} from "react-router-dom";
+import { Link} from "react-router-dom";
 
 const bodyStyle = {
   backgroundColor: 'black',
@@ -58,6 +58,18 @@ const friendContainerStyle = {
   backgroundColor: 'white', // Add background color for the friend component
 };
 
+const searchContainerStyle = {
+  display: 'flex',
+  marginLeft:"230px",
+  // justifyContent: 'center',
+  marginBottom: '20px',
+};
+
+const searchInputStyle = {
+  padding: '8px',
+  width: '50%',
+};
+
 
 function Mainpage() {
   return (
@@ -65,8 +77,10 @@ function Mainpage() {
       
 
       <Navbar />
-      
-      <div style={{ padding: '20px' }} />
+      <div style={{ padding: '5px' }} />
+      <div style={searchContainerStyle}>
+        <input type="text" placeholder="Search..." style={searchInputStyle} />
+      </div>
       <div style={cardContainerStyle}>
         <Card headerText="STATISTICS" style={cardStyle}>
           <p style={cardContent}>This is the content of Card 1.</p>

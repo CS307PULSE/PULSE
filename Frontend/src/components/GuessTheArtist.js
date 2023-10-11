@@ -93,7 +93,7 @@ const gameButtonText = {
   fontWeight: 700,
   fontSize: "14px",
 }
-const GuessTheSong = () => {
+const GuessTheArtist = () => {
   const [numberOfPlayers, setNumberOfPlayers] = useState(0);
   const [numberOfRounds, setNumberOfRounds] = useState(0);
   const[isStartClicked, setIsStartClicked]= useState(false);
@@ -111,6 +111,7 @@ const GuessTheSong = () => {
         alert("Please enter valid input");
       }
     };
+
   return (
     <div style={bodyStyle}>
       <Navbar />
@@ -120,7 +121,7 @@ const GuessTheSong = () => {
       <div style={boxStyle}>
           {!isStartClicked ? (
             <>
-              <h2 style={gameTitleStyle}>Guess The Song Game</h2>
+              <h2 style={gameTitleStyle}>Guess The Artist Game</h2>
               <h4 style={gameSubTitleStyle}>
                 <u>Rules of the Game:</u> The game can have 1-10 plays and 1-10 Rounds per game
               </h4>
@@ -130,8 +131,8 @@ const GuessTheSong = () => {
                   <input
                     type="number"
                     value={numberOfPlayers}
-                    onChange={(e) => handleInputChange(e.target.value, setNumberOfPlayers)}
-                    style={inputStyle}
+                     onChange={(e) => handleInputChange(e.target.value, setNumberOfPlayers)}
+                  style={inputStyle}
                   />
                 </label>
                 <div />
@@ -151,7 +152,7 @@ const GuessTheSong = () => {
             </>
           ) : (
             <div>
-              <MusicPlayerGame numberOfPlayers={numberOfPlayers} numberOfRounds={numberOfRounds}/>
+              <MusicPlayerGame numberOfPlayers={numberOfPlayers} />
             </div>
           )}
         </div>
@@ -159,4 +160,4 @@ const GuessTheSong = () => {
   );
 };
 
-export default GuessTheSong;
+export default GuessTheArtist;
