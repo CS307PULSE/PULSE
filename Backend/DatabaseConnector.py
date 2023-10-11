@@ -3,6 +3,7 @@ from User import User
 from User import Theme
 import json
 from types import SimpleNamespace
+import datetime
 
 class DatabaseConnector(object):
     def __init__(self, db_local):
@@ -36,6 +37,21 @@ class DatabaseConnector(object):
         else: 
             return True
         
+    def does_user_exist_in_stats_DB(self, spotify_id):
+        sql_check_user_exists_query = "SELECT COUNT(*) AS row_count FROM pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_check_user_exists_query, (spotify_id,))
+        result = self.db_cursor.fetchone()
+        row_count = result[0]
+        if (row_count == 0):
+            return False
+        else: 
+            return True
+
+    def create_new_user_in_stats_DB(self, spotify_id):
+        sql_store_new_user_query = """INSERT INTO pulse.base_stats (spotify_id) VALUES (%s)"""
+        self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
+        self.db_conn.commit()
+
     def delete_row_TESTING_ONLY(self, spotify_id):
         sql_delete_user_query = "DELETE FROM pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_delete_user_query, (spotify_id,))
@@ -243,6 +259,24 @@ def create_rec_params_string_for_DB(rec_input_array):
             rec_string = rec_string + "," + str(rec_value)
     return rec_string
 
+def create_follower_number_string_for_DB(follower_number_input_array):
+    follower_number_string = ""
+    for follower_number in follower_number_input_array:
+        if (follower_number_string == ""):
+            follower_number_string = follower_number_string + str(follower_number)
+        else:
+            follower_number_string = follower_number_string + "," + str(follower_number)
+    return follower_number_string
+
+def create_follower_dates_string_for_DB(follower_dates_input_array):
+    follower_dates = ""
+    for date in follower_dates_input_array:
+        if (follower_dates == ""):
+            follower_dates = follower_dates + date.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            follower_dates = follower_dates + "," + date.strftime("%Y-%m-%d %H:%M:%S")
+    return follower_dates
+
 def create_friends_array_from_DB(friends_input_string):
     if (friends_input_string == ""):
         return []
@@ -260,7 +294,17 @@ def create_rec_params_from_DB(rec_input_string):
     recommendation_params = [float(x) for x in rec_input_string.split(',')]
     return recommendation_params
 
+def create_follower_number_array_from_DB(follower_number_string):
+    if (follower_number_string == ""):
+        return []
+    follower_numbers = [int(x) for x in follower_number_string.split(',')]
+    return follower_numbers
 
+def create_follower_dates_array_from_DB(follower_dates_string):
+    if (follower_dates_string == ""):
+        return []
+    follower_dates = [x.strftime("%Y-%m-%d %H:%M:%S") for x in follower_dates_string.split(',')]
+    return follower_dates
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
             'port': 3306,                                        # port
