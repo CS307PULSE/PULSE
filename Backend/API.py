@@ -238,8 +238,10 @@ def set_layout(layout):
     #send to db
     return
 
-@app.route('/games/playback')
-def playback(filter_search=""):
+@app.route('/games/playback', methods=['POST'])
+def playback():
+    data = request.get_json()
+    filter_search = data.get('artist')
     timestamp_ms = 20000 #20 seconds playback
     if 'user' in session:
         user_data = session['user']
@@ -277,10 +279,10 @@ def playback(filter_search=""):
             track_uri = random_track['track']['uri']
         user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
         result = f'Playing URI {track_uri}'
+        return jsonify("Success!")
     else:
-        result = 'User session not found. Please log in again.'
-
-    return jsonify({'message': result})
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/games/store_scores', methods=['POST'])
 def store_scores():
@@ -295,14 +297,13 @@ def store_scores():
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_scores(user.spotify_id, scores, game_code) == 0):
-                raise Exceptions.UserNotFoundError
-            # user.highscores
-        session["user"] = user.to_json()
-        stored_scores_status = "The scores have been stored!"
+                error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        return jsonify("Success!")
     else:
-        stored_scores_status = "The scores have not been stored! Please try logging in and playing again to save the scores!"
-    
-    return jsonify({'message': stored_scores_status})
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 """
 @app.route('/games/guess_the_song')
@@ -597,8 +598,7 @@ def update_data(user, update_recent_history=True,
                 update_top_songs=True,
                 update_top_artists=True,
                 update_followed_artists=True,
-                update_saved_tracks=True,
-                update_followers=True):
+                update_saved_tracks=True):
 
     print("Updating Data")
     import time
@@ -631,8 +631,6 @@ def update_data(user, update_recent_history=True,
 
         if (update_saved_tracks):
             user.update_saved_songs()
-
-        if (update_)
 
         print("Updated data")
         return 1

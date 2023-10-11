@@ -91,8 +91,9 @@ class DatabaseConnector(object):
                                 spotify_id, 
                                 friends, 
                                 theme, 
-                                high_scores, 
-                                recommendation_params) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+                                location,
+                                gender
+                                recommendation_params) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
         
                
         self.db_cursor.execute(sql_store_new_user_query, (new_user.display_name, 
@@ -100,7 +101,8 @@ class DatabaseConnector(object):
                                                 new_user.spotify_id,
                                                 create_friends_string_for_DB(new_user.friends),
                                                 int(new_user.theme.value),
-                                                create_highscore_string_for_DB(new_user.high_scores),
+                                                new_user.location,
+                                                new_user.gender,
                                                 create_rec_params_string_for_DB(new_user.recommendation_params),))
 
         self.db_conn.commit()
