@@ -1,6 +1,7 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
+import { useEffect } from "react";
 
 //Sample datas
 export const bar1 = [
@@ -475,5 +476,22 @@ export const PieGraph = (props) => {
       arcLabelsSkipAngle={10}
       arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
     />
+  );
+};
+
+export const TopGraph = (props) => {
+  return (
+    <div className="TopGraph">
+      {props.data.map((track) => (
+        <img
+          src={track.images[0].url}
+          alt="Should be song here: oops"
+          min-height="10px"
+          max-height="10px"
+          min-width="10px"
+          max-width="10px"
+        />
+      ))}
+    </div>
   );
 };

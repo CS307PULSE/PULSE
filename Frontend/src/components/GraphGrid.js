@@ -4,6 +4,7 @@ import {
   BarGraph,
   LineGraph,
   PieGraph,
+  TopGraph,
   line1,
   bar1,
   pie1,
@@ -75,19 +76,12 @@ async function fetchBackendDatas() {
   return data;
 }
 
-async function fetchLayouts() {
-  const response = await axios.get("http://127.0.0.1:5000/statistics/layouts");
-  const data = response.data;
-  console.log(data);
-  return data;
-}
-
-async function sendLayouts(layoutNumber, layout) {
+async function sendLayouts(layouts, defaultLayout) {
   const response = await axios.post(
     "http://127.0.0.1:5000/statistics/layouts",
     {
-      layoutNumber: layoutNumber,
-      layout: layout,
+      layouts: layouts,
+      defaultLayout: defaultLayout,
     }
   );
   const data = response.data;
@@ -183,8 +177,20 @@ export default function GraphGrid() {
     setLayout(getFromLS(layoutNumber));
   }, []);
 
+  //Get data from server & set top song/artists
   useEffect(() => {
-    fetchBackendDatas();
+    const fetchData = async () => {
+      try {
+        const data = await fetchBackendDatas();
+        setTopArtists(JSON.parse(data.top_artists));
+        setTopSongs(JSON.parse(data.top_songs));
+      } catch (error) {
+        alert("Page failed!");
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -219,17 +225,34 @@ export default function GraphGrid() {
   };
 
   function getData(dataName) {
-    if (dataName === "bar1") {
-      return bar1;
-    } else if (dataName === "line1") {
-      return line1;
-    } else if (dataName === "pie1") {
-      return pie1;
-    } else if (dataName === "pie2") {
-      return pie2;
+    switch (dataName) {
+      case "bar1":
+        return bar1;
+      case "line1":
+        return line1;
+      case "pie1":
+        return pie1;
+      case "pie2":
+        return pie2;
+      case "top_songs_4week":
+        return topSongs[0];
+      case "top_songs_6month":
+        return topSongs[1];
+      case "top_songs_all":
+        return topSongs[2];
+      case "top_artists_4week":
+        return topArtists[0];
+      case "top_artists_6month":
+        return topArtists[1];
+      case "top_artists_all":
+        return topArtists[2];
+      default:
+        return null;
     }
+  }
 
-    return null;
+  if (topSongs === undefined) {
+    return <>Still Loading...</>;
   }
 
   return (
@@ -267,8 +290,8 @@ export default function GraphGrid() {
               />
             ) : container.graphType === "Pie" ? (
               <PieGraph data={getData(container.data)} />
-            ) : container.graphType === "Text" ? (
-              <p> {container.graphType} </p>
+            ) : container.graphType === "TopGraph" ? (
+              <TopGraph data={getData(container.data)} />
             ) : (
               <p> Hi</p>
             )}

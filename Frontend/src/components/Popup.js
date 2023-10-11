@@ -46,10 +46,19 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     // Read the form data
     const form = e.target;
     const formData = new FormData(form);
-    const formJson = Object.fromEntries(formData.entries());
+    let formJson = Object.fromEntries(formData.entries());
+
+    //Modify data for validation
+    if (
+      formJson.data.includes("top_songs") ||
+      formJson.data.includes("top_artists")
+    ) {
+      formJson["graphType"] = "TopGraph";
+    }
 
     if (validName) {
       onClose();
+      console.log(formJson);
       addGraph(formJson);
     } else {
       alert("Invalid graph name! Enter a better name!");
@@ -78,11 +87,23 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Data:{" "}
-            <select name="dataVar" value={data} onChange={changeData}>
+            <select name="data" value={data} onChange={changeData}>
               <option value="bar1">Bar1</option>
               <option value="line1">Line1</option>
               <option value="pie1">Pie1</option>
               <option value="pie2">Pie2</option>
+              <option value="top_songs_4week">Top Songs of last 4 weeks</option>
+              <option value="top_songs_6month">
+                Top Songs of last 6 months
+              </option>
+              <option value="top_songs_all">Top Songs of all time</option>
+              <option value="top_artists_4week">
+                Top Artists of last 4 weeks
+              </option>
+              <option value="top_artists_6month">
+                Top Artists of last 6 months
+              </option>
+              <option value="top_artists_all">Top Artists of all time</option>
             </select>
           </div>
           <div>
@@ -91,7 +112,6 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               <option value="Bar">Bar</option>
               <option value="Line">Line</option>
               <option value="Pie">Pie</option>
-              <option value="Text">Text</option>
             </select>
           </div>
           <div>
