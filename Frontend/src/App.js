@@ -1,45 +1,40 @@
 import "./App.css";
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
 import GuessTheLyric from "./components/GuessTheLyric";
 import Mainpage from "./components/Mainpage"
+import StatisticsPage from "./components/StatisticsPage";
+
 
 import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
 
 
-//--------------------------------Pending: cookies check and reture userID to backend 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
   const response = await axios.get("http://127.0.0.1:5000/");
   const data = response.data;
-  console.log(data)
+  console.log(data);
   return data;
 }
 
-
 function App() {
   const [isLoginClicked, setLoginClicked] = useState(false);
-  //check for the cache value and if it already exsists : From backend 
+  //check for the cache value and if it already exsists : From backend
   const [isCacheDB, setIsCacheDB] = useState(false);
-  
-  
-  //check using backend if the cache has a user value stored in it 
+
+  //check using backend if the cache has a user value stored in it
   useEffect(() => {
-    fetchDataCache().then(data => {
+    fetchDataCache().then((data) => {
       if (data === "T") {
         setIsCacheDB(true);
       }
     });
   }, []);
 
-
-
-
   const handleLoginClick = () => {
-
     // Perform any login logic here if needed
     // For now, just set the state to true to indicate the button is clicked
     setLoginClicked(true);
@@ -61,9 +56,11 @@ function App() {
       <Route path="game/guess-the-song" element={<GuessTheSong />} />
       <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
       <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
+      <Route path="/Statistics" element={<StatisticsPage />} />
       <Route path="friends"  />
     </Routes>
   </Router>
+
   );
 }
 
