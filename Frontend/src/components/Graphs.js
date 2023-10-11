@@ -1,7 +1,6 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
-import { useEffect } from "react";
 
 //Sample datas
 export const bar1 = [
@@ -481,15 +480,22 @@ export const PieGraph = (props) => {
 
 export const TopGraph = (props) => {
   return (
-    <div className="TopGraph">
+    <div
+      className="TopGraph"
+      onWheel={(e) => {
+        if (e.deltaY === 0) return;
+        e.preventDefault();
+        e.currentTarget.scrollTo({
+          left: e.currentTarget.scrollLeft + e.deltaY,
+          behavior: "auto",
+        });
+      }}
+    >
       {props.data.map((track) => (
         <img
           src={track.images[0].url}
-          alt="Should be song here: oops"
-          min-height="10px"
-          max-height="10px"
-          min-width="10px"
-          max-width="10px"
+          alt={track.name}
+          className="TopGraphImage"
         />
       ))}
     </div>

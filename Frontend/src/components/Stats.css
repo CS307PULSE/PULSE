@@ -64,5 +64,19 @@
 }
 
 .TopGraph {
-  overflow-y: scroll;
+  max-height: 90%;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  white-space: nowrap;
+  overscroll-behavior: none;
+  height: inherit;
+}
+
+.TopGraphImage {
+  max-width: 70%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
 }
