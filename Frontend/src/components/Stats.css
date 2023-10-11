@@ -1,3 +1,8 @@
+:root {
+  --graph-text-fill: #333333;
+  --tooltip-container-background: #ffffff;
+}
+
 .GraphCloseButton {
   outline: 0 0 0;
   position: absolute;
@@ -80,3 +85,9 @@
   margin: 0 auto;
   object-fit: contain;
 }
+
+/*
+html {
+  color-scheme: dark !important;
+}
+*/

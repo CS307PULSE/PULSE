@@ -116,9 +116,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Theme:{" "}
-            <select name="theme" value={theme} onChange={changeTheme}>
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
+            <select name="graphTheme" value={theme} onChange={changeTheme}>
+              <option value="accent">Accent</option>
+              <option value="dark2">Dark2</option>
+              <option value="spectral">Spectral</option>
+              <option value="category10">Category10</option>
             </select>
           </div>
           <div>

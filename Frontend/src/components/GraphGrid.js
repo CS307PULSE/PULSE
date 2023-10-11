@@ -22,7 +22,11 @@ const defaultLayout = [
     i: "bar1",
     graphType: "Bar",
     data: "bar1",
-    graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+    graphSettings: {
+      graphKeys: ["degrees"],
+      graphIndexBy: "day",
+      graphTheme: "accent",
+    },
     x: 0,
     y: 0,
     w: 1,
@@ -32,7 +36,11 @@ const defaultLayout = [
     i: "bar2",
     graphType: "Bar",
     data: "bar1",
-    graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+    graphSettings: {
+      graphKeys: ["degrees"],
+      graphIndexBy: "day",
+      graphTheme: "accent",
+    },
     x: 1,
     y: 0,
     w: 1,
@@ -42,7 +50,7 @@ const defaultLayout = [
     i: "pie1",
     graphType: "Pie",
     data: "pie1",
-    GraphSettigngs: {},
+    graphSettings: { graphTheme: "accent" },
     x: 2,
     y: 0,
     w: 1,
@@ -52,7 +60,11 @@ const defaultLayout = [
     i: "line1",
     graphType: "Line",
     data: "line1",
-    graphSettings: { xName: "transportation", yName: "Count" },
+    graphSettings: {
+      xName: "transportation",
+      yName: "Count",
+      graphTheme: "accent",
+    },
     x: 3,
     y: 0,
     w: 1,
@@ -62,7 +74,11 @@ const defaultLayout = [
     i: "line2",
     graphType: "Line",
     data: "line1",
-    graphSettings: { xName: "transportation", yName: "Count" },
+    graphSettings: {
+      xName: "transportation",
+      yName: "Count",
+      graphTheme: "accent",
+    },
     x: 0,
     y: 1,
     w: 1,
@@ -208,7 +224,7 @@ export default function GraphGrid() {
       i: newGraphData.graphName,
       graphType: newGraphData.graphType,
       data: newGraphData.data,
-      graphSettings: {},
+      graphSettings: { graphTheme: newGraphData.graphTheme },
       x: 0,
       y: 0,
       w: 1,
@@ -216,9 +232,15 @@ export default function GraphGrid() {
     };
 
     if (newGraph.graphType === "Bar") {
-      newGraph.graphSettings = { graphKeys: ["degrees"], graphIndexBy: "day" };
+      newGraph.graphSettings = Object.assign(
+        { graphKeys: ["degrees"], graphIndexBy: "day" },
+        newGraph.graphSettings
+      );
     } else if (newGraph.graphType === "Line") {
-      newGraph.graphSettings = { xName: "transportation", yName: "Count" };
+      newGraph.graphSettings = Object.assign(
+        { xName: "transportation", yName: "Count" },
+        newGraph.graphSettings
+      );
     }
 
     AddContainer(newGraph);
@@ -285,6 +307,7 @@ export default function GraphGrid() {
                 dataName={container.data}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
+                graphTheme={container.graphSettings.graphTheme}
               />
             ) : container.graphType === "Line" ? (
               <LineGraph
@@ -292,11 +315,13 @@ export default function GraphGrid() {
                 dataName={container.data}
                 xName={container.graphSettings.xName}
                 yName={container.graphSettings.yName}
+                graphTheme={container.graphSettings.graphTheme}
               />
             ) : container.graphType === "Pie" ? (
               <PieGraph
                 data={getData(container.data)}
                 dataName={container.data}
+                graphTheme={container.graphSettings.graphTheme}
               />
             ) : container.graphType === "TopGraph" ? (
               <TopGraph

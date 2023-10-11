@@ -363,17 +363,30 @@ export const pie2 = [
   },
 ];
 
+//Modify graph text color here
+const graphTheme = {
+  text: {
+    fill: "var(--graph-text-fill)",
+  },
+  tooltip: {
+    container: {
+      background: "var(--tooltip-container-background)",
+    },
+  },
+};
+
 //Bar Graph
 export const BarGraph = (props) => {
   return (
     <ResponsiveBar
+      theme={graphTheme}
       data={props.data}
       keys={props.graphKeys}
       indexBy={props.graphIndexBy}
       margin={{ top: 30, right: 50, bottom: 50, left: 60 }}
       padding={0.4}
       valueScale={{ type: "linear" }}
-      colors="#3182CE"
+      colors={{ scheme: props.graphTheme }}
       animate={true}
       enableLabel={false}
       axisTop={null}
@@ -393,7 +406,9 @@ export const BarGraph = (props) => {
 //Line Graph
 export const LineGraph = (props) => (
   <ResponsiveLine
+    theme={graphTheme}
     data={props.data}
+    colors={{ scheme: props.graphTheme }}
     margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
     xScale={{ type: "point" }}
     yScale={{
@@ -463,7 +478,9 @@ export const LineGraph = (props) => (
 export const PieGraph = (props) => {
   return (
     <ResponsivePie
+      theme={graphTheme}
       data={props.data}
+      colors={{ scheme: props.graphTheme }}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
       innerRadius={0.5}
       padAngle={0.7}
