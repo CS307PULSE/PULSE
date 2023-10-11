@@ -24,7 +24,10 @@ class User:
                  playlists=None, 
                  theme=Theme.DARK, 
                  stats=None, 
-                 recommendation_params=None):
+                 recommendation_params=None,
+                 gender=None,
+                 location=None):
+    
         self.display_name = display_name                                                                   # String
         self.login_token = login_token                                                                     # Token Info Object
         self.spotify_id = spotify_id                                                                       # String
@@ -34,6 +37,8 @@ class User:
         self.theme = theme                                                                                 # Theme
         self.stats = stats if stats is not None else Stats()                                               # Stats
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
+        self.gender = gender                                                                               # String                                   
+        self.location = location                                                                           # String
 
     def stringify(self, obj):
         if obj is None:
@@ -84,6 +89,14 @@ class User:
             self.spotify_id = response['id']
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+        
+    def update_followers(self):
+        try:
+            userinfo = self.spotify_user.currentuser()
+            followers = userinfo['followers']['total']
+            self.stats.follower_number = followers
+        except spotipy.exceptions.SpotifyException as e:
+          ErrorHandler.handle_error(e)
 
     # Updates list of recent songs with at most 50 objects of type PlayHistory
     def update_recent_history(self):
@@ -203,7 +216,7 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
-
+    # Searches for item of type items_type with query query and at most max_items number of items
     def search_for_items(self, max_items=20, items_type="tracks", query=""):
         try:
             items = []

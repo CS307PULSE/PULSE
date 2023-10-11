@@ -3,6 +3,7 @@ from User import User
 from User import Theme
 import json
 from types import SimpleNamespace
+import datetime
 
 class DatabaseConnector(object):
     def __init__(self, db_local):
@@ -36,6 +37,21 @@ class DatabaseConnector(object):
         else: 
             return True
         
+    def does_user_exist_in_stats_DB(self, spotify_id):
+        sql_check_user_exists_query = "SELECT COUNT(*) AS row_count FROM pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_check_user_exists_query, (spotify_id,))
+        result = self.db_cursor.fetchone()
+        row_count = result[0]
+        if (row_count == 0):
+            return False
+        else: 
+            return True
+
+    def create_new_user_in_stats_DB(self, spotify_id):
+        sql_store_new_user_query = """INSERT INTO pulse.base_stats (spotify_id) VALUES (%s)"""
+        self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
+        self.db_conn.commit()
+
     def delete_row_TESTING_ONLY(self, spotify_id):
         sql_delete_user_query = "DELETE FROM pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_delete_user_query, (spotify_id,))
@@ -188,7 +204,72 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating params:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    
+    # Update layout for the given spotify_id
+    def update_layout(self, spotify_id, new_layout):
+        try:
+            sql_update_layout_query = """UPDATE pulse.users SET layout = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_layout_query, (new_layout, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating layout:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    # Returns layout JSON object
+    def get_layout(self, spotify_id):
+        sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchall()
+        return self.resultset
+
+    def get_follower_numbers_from_DB(self, spotify_id):
+        sql_get_follower_numbers_query = "SELECT follower_numbers from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_follower_numbers_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchall()
+        return create_follower_number_array_from_DB(self.resultset)
+    
+    def get_follower_dates_from_DB(self, spotify_id):
+        sql_get_follower_dates_query = "SELECT follower_dates from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_follower_dates_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchall()
+        return create_follower_dates_array_from_DB(self.resultset)
+
+    def update_follower_numbers(self, spotify_id, follower_numbers):
+        try:
+            sql_update_follower_numbers_query = """UPDATE pulse.base_stats SET follower_numbers = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_follower_numbers_query, (create_follower_number_string_for_DB(follower_numbers), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating layout:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
+    def update_follower_dates(self, spotify_id, follower_dates):
+        try:
+            sql_update_follower_dates_query = """UPDATE pulse.base_stats SET follower_dates = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_follower_dates_query, (create_follower_dates_string_for_DB(follower_dates), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating layout:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
@@ -219,6 +300,24 @@ def create_rec_params_string_for_DB(rec_input_array):
             rec_string = rec_string + "," + str(rec_value)
     return rec_string
 
+def create_follower_number_string_for_DB(follower_number_input_array):
+    follower_number_string = ""
+    for follower_number in follower_number_input_array:
+        if (follower_number_string == ""):
+            follower_number_string = follower_number_string + str(follower_number)
+        else:
+            follower_number_string = follower_number_string + "," + str(follower_number)
+    return follower_number_string
+
+def create_follower_dates_string_for_DB(follower_dates_input_array):
+    follower_dates = ""
+    for date in follower_dates_input_array:
+        if (follower_dates == ""):
+            follower_dates = follower_dates + date.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            follower_dates = follower_dates + "," + date.strftime("%Y-%m-%d %H:%M:%S")
+    return follower_dates
+
 def create_friends_array_from_DB(friends_input_string):
     if (friends_input_string == ""):
         return []
@@ -236,11 +335,22 @@ def create_rec_params_from_DB(rec_input_string):
     recommendation_params = [float(x) for x in rec_input_string.split(',')]
     return recommendation_params
 
+def create_follower_number_array_from_DB(follower_number_string):
+    if (follower_number_string == ""):
+        return []
+    follower_numbers = [int(x) for x in follower_number_string.split(',')]
+    return follower_numbers
+
+def create_follower_dates_array_from_DB(follower_dates_string):
+    if (follower_dates_string == ""):
+        return []
+    follower_dates = [x.strftime("%Y-%m-%d %H:%M:%S") for x in follower_dates_string.split(',')]
+    return follower_dates
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
             'port': 3306,                                        # port
             'user':"pulse_admin_userz",                          # username
-            'passwd':"PurdueCS307R0cks!&!",                     # password
+            'passwd':"PurdueCS307R0cks!&!",                      # password
             'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
