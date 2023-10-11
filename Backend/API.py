@@ -190,6 +190,7 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    #GET FOLLOWER HISTORY FROM
     #get layout from db
     if 'user' in session:
         user_data = session['user']
@@ -203,7 +204,9 @@ def statistics():
                 'top_songs' : '',
                 'top_artists' : '',
                 'followed_artists' : '',
-                'saved_songs' : ''}
+                'saved_songs' : '',
+                'follower_data' : '',
+                'layout_data' : ''}
 
         while (result <= 0):
             if (result == -1):
@@ -223,6 +226,8 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
+        #data['follower_data']
+        #data['layout_data']
         return jsonify(data)
         
     else:
@@ -234,18 +239,12 @@ def set_layout(layout):
     return
 
 @app.route('/games/playback')
-def playback(round_num, filter_search=""):
-    if 'round_num' not in session:
-        session['round_num'] = round_num
-    elif session['round_num'] < round_num:
-        session['round_num'] = round_num
-    else:
-        return
+def playback(filter_search=""):
     timestamp_ms = 20000 #20 seconds playback
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        print(f"Starting Playback on round {round_num} with filter {filter_search}!")
+        print(f"Starting with filter {filter_search}!")
         
         global spoof_songs
         if (spoof_songs):
@@ -283,19 +282,21 @@ def playback(round_num, filter_search=""):
 
     return jsonify({'message': result})
 
-@app.route('/games/store_scores')
-def store_scores(game_type, scores):
-    if 'round_num' in session:
-        session['round_num'] = 0
-
+@app.route('/games/store_scores', methods=['POST'])
+def store_scores():
+    data = request.get_json()
+    game_code = data.get('gameCode')
+    scores = data.get('scores')
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        scores_data = [] # USE GAME_TYPE AND SCORES
-        user.high_scores = scores_data
+        if len(scores) < 10:
+            scores += [-1] * (10 - len(scores))
+
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_high_scores(user.spotify_id, user.high_scores) == 0):
+            if (conn.update_scores(user.spotify_id, scores, game_code) == 0):
                 raise Exceptions.UserNotFoundError
+            # user.highscores
         session["user"] = user.to_json()
         stored_scores_status = "The scores have been stored!"
     else:
@@ -596,7 +597,8 @@ def update_data(user, update_recent_history=True,
                 update_top_songs=True,
                 update_top_artists=True,
                 update_followed_artists=True,
-                update_saved_tracks=True):
+                update_saved_tracks=True,
+                update_followers=True):
 
     print("Updating Data")
     import time
@@ -629,6 +631,8 @@ def update_data(user, update_recent_history=True,
 
         if (update_saved_tracks):
             user.update_saved_songs()
+
+        if (update_)
 
         print("Updated data")
         return 1
