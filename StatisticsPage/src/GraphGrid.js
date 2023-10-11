@@ -124,7 +124,7 @@ export default function GraphGrid() {
       }
       return newLayout;
     } catch (e) {
-      saveToLS();
+      saveToLS(defaultLayout);
       return defaultLayout;
     }
   }

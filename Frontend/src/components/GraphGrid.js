@@ -73,6 +73,7 @@ const defaultLayout = [
 async function fetchBackendDatas() {
   const response = await axios.get("http://127.0.0.1:5000/statistics");
   const data = response.data;
+  console.log(data);
   return data;
 }
 
@@ -85,7 +86,6 @@ async function sendLayouts(layouts, defaultLayout) {
     }
   );
   const data = response.data;
-  console.log(data);
   return data;
 }
 
@@ -122,7 +122,8 @@ export default function GraphGrid() {
       }
       return newLayout;
     } catch (e) {
-      saveToLS();
+      console.log(e);
+      saveToLS(defaultLayout);
       return defaultLayout;
     }
   }
@@ -168,7 +169,6 @@ export default function GraphGrid() {
       updatedLayout.push(container);
     }
     setGraphNames(graphNames);
-    //console.log(JSON.stringify(updatedLayout));
     setLayout(updatedLayout);
   };
 
@@ -235,12 +235,14 @@ export default function GraphGrid() {
       case "pie2":
         return pie2;
       case "top_songs_4week":
+        console.log(topSongs[0]);
         return topSongs[0];
       case "top_songs_6month":
         return topSongs[1];
       case "top_songs_all":
         return topSongs[2];
       case "top_artists_4week":
+        console.log(topArtists[0]);
         return topArtists[0];
       case "top_artists_6month":
         return topArtists[1];
@@ -264,13 +266,14 @@ export default function GraphGrid() {
         rowHeight={300}
         width={"100%"}
         onLayoutChange={handleLayoutChange}
+        draggableCancel=".custom-draggable-cancel"
       >
         {layout.map((container) => (
           <div className="graphContainer" key={container.i}>
             <div>
               <div>{container.i}</div>
               <button
-                className="GraphCloseButton"
+                className="GraphCloseButton custom-draggable-cancel"
                 onClick={() => RemoveContainer(container.i)}
               >
                 X
@@ -279,19 +282,27 @@ export default function GraphGrid() {
             {container.graphType === "Bar" ? (
               <BarGraph
                 data={getData(container.data)}
+                dataName={container.data}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
               />
             ) : container.graphType === "Line" ? (
               <LineGraph
                 data={getData(container.data)}
+                dataName={container.data}
                 xName={container.graphSettings.xName}
                 yName={container.graphSettings.yName}
               />
             ) : container.graphType === "Pie" ? (
-              <PieGraph data={getData(container.data)} />
+              <PieGraph
+                data={getData(container.data)}
+                dataName={container.data}
+              />
             ) : container.graphType === "TopGraph" ? (
-              <TopGraph data={getData(container.data)} />
+              <TopGraph
+                data={getData(container.data)}
+                dataName={container.data}
+              />
             ) : (
               <p> Hi</p>
             )}

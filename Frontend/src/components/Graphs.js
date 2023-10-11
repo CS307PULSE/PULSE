@@ -1,6 +1,9 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
+import axios from "axios";
 
 //Sample datas
 export const bar1 = [
@@ -478,10 +481,18 @@ export const PieGraph = (props) => {
   );
 };
 
+async function sendPlayRequest(songID) {
+  const response = await axios.post("http://127.0.0.1:5000/statistics/play", {
+    songID: songID,
+  });
+  const data = response.data;
+  return data;
+}
+
 export const TopGraph = (props) => {
   return (
     <div
-      className="TopGraph"
+      className="TopGraph custom-draggable-cancel"
       onWheel={(e) => {
         if (e.deltaY === 0) return;
         e.preventDefault();
@@ -491,13 +502,31 @@ export const TopGraph = (props) => {
         });
       }}
     >
-      {props.data.map((track) => (
-        <img
-          src={track.images[0].url}
-          alt={track.name}
-          className="TopGraphImage"
-        />
-      ))}
+      {props.dataName.includes("top_artist")
+        ? props.data.map((track) => (
+            <a data-tooltip-id="my-tooltip" data-tooltip-content={track.name}>
+              <img
+                src={track.images[0].url}
+                alt={track.name}
+                className="TopGraphImage"
+              />
+            </a>
+          ))
+        : props.data.map((track) => (
+            <a
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={track.name + " by " + track.artists[0].name}
+              onClick={() => sendPlayRequest(track.id)}
+              style={{ cursor: "pointer" }}
+            >
+              <img
+                src={track.album.images[0].url}
+                alt={track.name}
+                className="TopGraphImage"
+              />
+            </a>
+          ))}
+      <Tooltip id="my-tooltip" />
     </div>
   );
 };
