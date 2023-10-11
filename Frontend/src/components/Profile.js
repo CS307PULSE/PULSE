@@ -15,35 +15,30 @@ const bodyStyle = {
     padding: 0,
     height: '100vh',
 };
-const profileStyle = {
-    paddding:"0px",
-    margin: "0px",
+const profileContainerStyle = {
+    padding: "20px",
+    margin: "20px",
     backgroundColor: themeColors.background,
     width: "100%", // Set width to 100% to cover the entire width of the screen
     height: "100%", // Set height to 100vh to cover the entire height of the screen
-    backgroundSize: "cover", // Cover the entire container with the image
-    backgroundRepeat: "no-repeat"
+    display: "inline"
 };
 const profileHeader={
-    paddingTop: "50px",
-    paddingLeft: "50px",
     color: themeColors.text,
-    textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
-    fontFamily: "Rajdhani-SemiBold, Helvetica",
+    fontFamily: "'Poppins', sans-serif",
     fontSize: textSizes.header1,
     fontStyle: "normal",
     fontWeight: 600,
-    lineHeight: "normal",
+    lineHeight: "normal"
 };
 const profileText={
-    paddingTop: "30px",
-    paddingLeft: "50px",
     color: themeColors.text,
     fontSize: textSizes.body,
     fontStyle: "normal",
+    fontFamily: "'Poppins', sans-serif"
 };
 
-const buttonStyle={
+const buttonStyle = {
     backgroundColor: "#222",
     borderRadius: "10px",
     height: "40px",
@@ -52,24 +47,70 @@ const buttonStyle={
     margin:"5px"
 };
 
+const textFieldStyle = {
+    backgroundColor: "#222",
+    borderRadius: "10px",
+    height: "20px",
+    width: "300px",
+    color:"#FFFFFF",
+    padding: "10px",
+    margin:"10px"
+};
+
+const iconContainerStyle = {
+    width: "100px",
+    height: "120px",
+    position: "relative",
+    display: "inline-block",
+    justifyContent: "center"
+}
+const iconPictureStyle = {
+    width: "100px",
+    height: "100px",
+    borderRadius: "10px"
+}
+
 function Profile({testParameter}){
 
     return(
     <div style={bodyStyle}>
         <Navbar />
-        <div className="profile" style={profileStyle}>
-            <p style={profileHeader}>Profile</p>
-            <img className="logo" alt="logo" style={{}}src={TestIcon}/>
-            <p style={profileText}>Username: </p>
+        <div className="profile" style={profileContainerStyle}>
+            <p style={profileHeader}>Profile</p> <br></br>
+            <form action="fileupload.php" enctype="multipart/form-data" method="post">
+                
+                <div style={iconContainerStyle}>
+                    <img style={iconPictureStyle} src={TestIcon}/>
+                    <input id="file" accept="image/jpeg,image/png" name="fileToUpload" type="file"/>
+                </div> <br></br>
+
+                <label style={profileText} for="username">Username: </label>
+                <input id="username" type="text" style={textFieldStyle}></input> <br></br>
+                
+                <label style={profileText} for="username">Location: </label>
+                <input id="username" type="text" style={textFieldStyle}></input> <br></br>
+                
+                <label style={profileText} for="username">Username: </label>
+                <input id="username" type="text" style={textFieldStyle}></input> <br></br>
+
+                <button style={buttonStyle} name="submit" type="submit">Save Changes</button> <br></br>
+            </form>
 
             <p style={profileHeader}>Settings</p>
+
             <p style={profileText}>Text Size: </p>
             <div style={{display:"flex"}}>
                 <button onclick={TextSize("small")} style={buttonStyle}><p>Small</p></button>
                 <button onclick={TextSize("medium")} style={buttonStyle}><p>Medium</p></button>
                 <button onclick={TextSize("large")} style={buttonStyle}><p>Large</p></button>
             </div>
+
             <p style={profileText}>Theme: </p>
+            <div style={{display:"flex"}}>
+                <button onclick={Colors("light")} style={buttonStyle}><p>Light</p></button>
+                <button onclick={Colors("darK")} style={buttonStyle}><p>Dark</p></button>
+            </div>
+
         </div>
         <SongPlayer />
     </div>

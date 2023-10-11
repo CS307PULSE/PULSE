@@ -7,8 +7,8 @@ import SongPlayer from "./SongPlayer";
 
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
-const textSizes = TextSize("small"); //Obtain text size values
-const themeColors = Colors("light"); //Obtain color values
+const textSizes = TextSize("large"); //Obtain text size values
+const themeColors = Colors("dark"); //Obtain color values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,
@@ -22,19 +22,18 @@ const cardContainerStyle = {
   flexWrap: 'wrap',
   justifyContent: 'space-around',
   width: '75%', // Set width to 75% of the container
-
 };
 
 const cardStyle = {
   marginBottom: '20px', // Add some bottom margin for spacing
   textAlign: 'center',
   fontFamily: "'Poppins', sans-serif",
-  
 };
 
 const cardContent={
   color: themeColors.text,
-  fontSize: textSizes.body
+  fontSize: textSizes.body,
+  fontFamily: "'Poppins', sans-serif",
 };
 
 const buttonContainerStyle = {
