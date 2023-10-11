@@ -234,7 +234,7 @@ def set_layout(layout):
     return
 
 @app.route('/games/playback')
-def playback(round_num, filter_search):
+def playback(round_num, filter_search=""):
     if 'round_num' not in session:
         session['round_num'] = round_num
     elif session['round_num'] < round_num:
