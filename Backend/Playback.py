@@ -8,7 +8,7 @@ class Playback:
     def __init__(self, user = None):
         self.user = user
         self.devices = ""
-        self.current_device = ""
+        self.playback = ""
         self.current_track = ""
         self.shuffle = ""
         self.repeat = ""
@@ -18,35 +18,35 @@ class Playback:
         self.volume = ""
         self.volume_support = ""
 
-    def initial_check(self):
+    def check_playback(self):
         try:
             self.devices = self.user.spotify_user.devices()
-            self.current_device = self.user.spotify_user.current_playback()
-            self.is_playing = self.current_device['is_playing']
-            self.volume_support = self.current_device['supports_volume']
+            self.playback = self.user.spotify_user.current_playback()
+            print(self.playback)
+            self.is_playing = self.playback['is_playing']
+            self.volume_support = self.playback['device']['supports_volume']
+            self.shuffle = self.playback['shuffle_state']
+            self.repeat = self.playback['repeat_state']
+            self.current_device = self.playback['device']
             if self.volume_support :
-              self.volume = self.current_device['volume_percent']
+              self.volume = self.playback['device']['volume_percent']
             if self.is_playing : 
-              self.current_track = self.current_device['item']
-              self.shuffle = self.current_device['shuffle_state']
-              self.repeat = self.current_device['repeat_state']
-              self.current_device = self.current_device['device']
-              self.progress = self.current_device['progress_ms']
-            else : 
-              self.progress = 0
+              self.current_track = self.playback['item']
+              self.progress = self.playback['progress_ms']
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
     def player_checker(self):
        try:
         while True:
-            self.currentlyplaying = self.user.spotify_user.get_current_playback()
+            self.currentlyplaying = self.check_playback()
+            self.print_player()
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
     def start_thread(self):
-        checker = multiprocessing.Process(target = 'player_checker', args=())
+        checker = multiprocessing.Process(target=self.player_checker)
         checker.start()
 
     def set_shuffle(self):
@@ -118,7 +118,7 @@ class Playback:
     
     def get_devices(self):
       try:
-        self.user.spotify_user.devices()
+        self.devices = self.user.spotify_user.devices()
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
@@ -137,7 +137,19 @@ class Playback:
 
     def check_support(self):
       try:
-        self.current_device = self.user.spotify_user.current_playback()
+        self.playback = self.user.spotify_user.current_playback()
         self.volume_support = self.current_device['supports_volume']
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
+
+    def print_player(self):
+      print(f"User: {self.user}")
+      print(f"Devices: {self.devices}")
+      print(f"Current Device: {self.current_device}")
+      print(f"Current Track: {self.current_track}")
+      print(f"Shuffle: {self.shuffle}")
+      print(f"Repeat: {self.repeat}")
+      print(f"Progress: {self.progress}")
+      print(f"Is Playing: {self.is_playing}")
+      print(f"Volume: {self.volume}")
+      print(f"Volume Support: {self.volume_support}")
