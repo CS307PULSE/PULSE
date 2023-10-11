@@ -4,10 +4,16 @@ import React, { useState } from "react";
 export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   //Use states for data to be read from when generating new graph container
   const [graphName, setGraphName] = useState("");
-  const [data, setData] = useState("top");
-  const [graphType, setGraph] = useState("line");
+  const [data, setData] = useState("bar1");
+  const [graphType, setGraph] = useState("bar");
   const [theme, setTheme] = useState("dark");
   const [validName, setValidName] = useState(false);
+
+  //Use states to selectively disable choices depending on data type
+  const [noneData, setNoneData] = useState(false);
+  const [barData, setBarData] = useState(false);
+  const [lineData, setLineData] = useState(false);
+  const [pieData, setPieData] = useState(false);
 
   if (!isOpen) return null; //Don't do anything when not open
 
@@ -26,14 +32,49 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     }
     setGraphName(regexName);
   };
+
   const changeData = (e) => {
-    setData(e.target.data);
+    const newData = e.target.value;
+    setData(newData);
+    if (newData.includes("top_songs") || newData.includes("top_artists")) {
+      setNoneData(true);
+      setBarData(false);
+      setLineData(false);
+      setPieData(false);
+    } else if (newData === "bar1") {
+      setNoneData(false);
+      setBarData(true);
+      setLineData(false);
+      setPieData(false);
+    } else if (newData === "line1") {
+      setNoneData(false);
+      setBarData(false);
+      setLineData(true);
+      setPieData(false);
+    } else if (newData === "pie1" || newData === "pie2") {
+      setNoneData(false);
+      setBarData(false);
+      setLineData(false);
+      setPieData(true);
+    } else {
+      setNoneData(false);
+      setBarData(false);
+      setLineData(false);
+      setPieData(false);
+    }
+    setGraph("");
   };
+
   const changeGraph = (e) => {
-    setGraph(e.target.graphType);
+    setGraph("TopGraph");
   };
+
   const changeTheme = (e) => {
-    setTheme(e.target.theme);
+    if (data.includes("top_songs") || data.includes("top_artists")) {
+      setTheme("None");
+    } else {
+      setTheme(e.target.value);
+    }
   };
 
   function handleSubmit(e) {
@@ -47,14 +88,6 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     const form = e.target;
     const formData = new FormData(form);
     let formJson = Object.fromEntries(formData.entries());
-
-    //Modify data for validation
-    if (
-      formJson.data.includes("top_songs") ||
-      formJson.data.includes("top_artists")
-    ) {
-      formJson["graphType"] = "TopGraph";
-    }
 
     if (validName) {
       onClose();
@@ -109,14 +142,26 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           <div>
             Graph Type:{" "}
             <select name="graphType" value={graphType} onChange={changeGraph}>
-              <option value="Bar">Bar</option>
-              <option value="Line">Line</option>
-              <option value="Pie">Pie</option>
+              <option value="TopGraph" disabled={!noneData}></option>
+              <option value="Bar" disabled={!barData}>
+                Bar
+              </option>
+              <option value="Line" disabled={!lineData}>
+                Line
+              </option>
+              <option value="Pie" disabled={!pieData}>
+                Pie
+              </option>
             </select>
           </div>
           <div>
             Theme:{" "}
-            <select name="graphTheme" value={theme} onChange={changeTheme}>
+            <select
+              name="graphTheme"
+              value={theme}
+              onChange={changeTheme}
+              disabled={noneData}
+            >
               <option value="accent">Accent</option>
               <option value="dark2">Dark2</option>
               <option value="spectral">Spectral</option>
