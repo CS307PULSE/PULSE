@@ -5,6 +5,7 @@ import Profile from "./components/Profile";
 import EditProfile from "./components/EditProfile";
 
 import GuessTheSong from "./components/GuessTheSong";
+import GuessTheArtist from "./components/GuessTheArtist";
 import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Mainpage from "./components/Mainpage"
 
@@ -61,6 +62,7 @@ function App() {
       <Route path="/dashboard" element={<Mainpage/>} />
       <Route path="/profile" element={<Profile/>} />
       <Route path="game/guess-the-song" element={<GuessTheSong />} />
+      <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
     </Routes>
   </Router>
   );

@@ -68,6 +68,18 @@ const friendContainerStyle = {
   backgroundColor: themeColors.background2, // Add background color for the friend component
 };
 
+const searchContainerStyle = {
+  display: 'flex',
+  marginLeft:"230px",
+  // justifyContent: 'center',
+  marginBottom: '20px',
+};
+
+const searchInputStyle = {
+  padding: '8px',
+  width: '50%',
+};
+
 
 function Mainpage() {
   return (
@@ -75,16 +87,18 @@ function Mainpage() {
       
 
       <Navbar />
-      
-      <div style={{ padding: '20px' }} />
-        <div style={cardContainerStyle}>
-          <Card headerText="STATISTICS" style={cardStyle}>
-            <p style={cardContent}>This is the content of Card 1.</p>
-          </Card>
-          <Card headerText="DJ MIXER" style={cardStyle}>
-            <p style={cardContent}>This is the content of Card 2.</p>
-          </Card>
-        </div>
+      <div style={{ padding: '5px' }} />
+      <div style={searchContainerStyle}>
+        <input type="text" placeholder="Search..." style={searchInputStyle} />
+      </div>
+      <div style={cardContainerStyle}>
+        <Card headerText="STATISTICS" style={cardStyle}>
+          <p style={cardContent}>This is the content of Card 1.</p>
+        </Card>
+        <Card headerText="DJ MIXER" style={cardStyle}>
+          <p style={cardContent}>This is the content of Card 2.</p>
+        </Card>
+      </div>
       <div style={{ padding: '20px' }} />
       <div style={cardContainerStyle}>
         <Card headerText="GAMES" style={cardStyle}>
@@ -107,7 +121,7 @@ function Mainpage() {
       <div style={friendContainerStyle}>
         <FriendsCard/>
       </div>
-      
+
       <SongPlayer />
     </div>
    

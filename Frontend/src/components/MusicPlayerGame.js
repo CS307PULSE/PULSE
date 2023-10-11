@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const musicPlayerStyle = {
   backgroundColor: "black",
@@ -10,6 +10,7 @@ const musicPlayerStyle = {
 const playButtonStyle = {
   backgroundColor: "#6eeb4d",
   padding: "10px 20px",
+  width: "100%",
   borderRadius: "5px",
   cursor: "pointer",
   fontSize: "18px",
@@ -26,14 +27,35 @@ const playerCheckboxStyle = {
   margin: "5px",
 };
 
-const MusicPlayerGame = () => {
+const buttonContainerStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-around",
+  width: "100%",
+  marginTop: "10px",
+};
+
+const buttonStyle = {
+  backgroundColor: "#6eeb4d",
+  padding: "10px 20px",
+  borderRadius: "5px",
+  cursor: "pointer",
+  fontSize: "18px",
+  margin: "5px",
+};
+
+const MusicPlayerGame = ({ numberOfPlayers }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [players, setPlayers] = useState([
-    { id: 1, name: "Player 1", selected: false },
-    { id: 2, name: "Player 2", selected: false },
-    { id: 3, name: "Player 3", selected: false },
-    // Add more players as needed
-  ]);
+  const [players, setPlayers] = useState([]);
+
+  useEffect(() => {
+    const initialPlayers = Array.from({ length: numberOfPlayers }, (_, index) => ({
+      id: index + 1,
+      name: `Player ${index + 1}`,
+      selected: false,
+    }));
+    setPlayers(initialPlayers);
+  }, [numberOfPlayers]);
 
   const handlePlayButtonClick = () => {
     // Add logic for playing music
@@ -53,6 +75,12 @@ const MusicPlayerGame = () => {
     setPlayers((prevPlayers) => prevPlayers.map((player) => ({ ...player, selected: false })));
   };
 
+  const handlePlayersSelectedRightClick = () => {
+    // Add logic for players selected got it right
+    // You can access the selected players from the 'players' state
+    console.log("Players Selected Got It Right:", players.filter((player) => player.selected));
+  };
+
   return (
     <div style={musicPlayerStyle}>
       <button style={playButtonStyle} onClick={handlePlayButtonClick}>
@@ -70,7 +98,15 @@ const MusicPlayerGame = () => {
             {player.name}
           </label>
         ))}
-        <button onClick={handleEveryoneWrongClick}>Everyone Got It Wrong</button>
+        <div style={{padding:"20px"}}/>
+        <div style={buttonContainerStyle}>
+          <button style={buttonStyle} onClick={handleEveryoneWrongClick}>
+            Everyone Got It Wrong
+          </button>
+          <button style={buttonStyle} onClick={handlePlayersSelectedRightClick}>
+            Players Selected Got It Right
+          </button>
+        </div>
       </div>
     </div>
   );

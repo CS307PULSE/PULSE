@@ -93,7 +93,7 @@ const gameButtonText = {
   fontWeight: 700,
   fontSize: "14px",
 }
-const GuessTheSong = () => {
+const GuessTheArtist = () => {
   const [numberOfPlayers, setNumberOfPlayers] = useState(0);
   const [numberOfRounds, setNumberOfRounds] = useState(0);
   const[isStartClicked, setIsStartClicked]= useState(false);
@@ -103,12 +103,13 @@ const GuessTheSong = () => {
     const newValue = Math.min(Math.max(parseInt(value), 1), 10);
     setter(newValue);
   };
-  
+
   const handleStartGameClick = () => {
       if (numberOfPlayers !== 0 && numberOfRounds !== 0) {
         setIsStartClicked(true);
       }
     };
+
   return (
     <div style={bodyStyle}>
       <Navbar />
@@ -118,7 +119,7 @@ const GuessTheSong = () => {
       <div style={boxStyle}>
           {!isStartClicked ? (
             <>
-              <h2 style={gameTitleStyle}>Guess The Song Game</h2>
+              <h2 style={gameTitleStyle}>Guess The Artist Game</h2>
               <h4 style={gameSubTitleStyle}>
                 <u>Rules of the Game:</u> The game can have 1-10 plays and 1-10 Rounds per game
               </h4>
@@ -128,8 +129,8 @@ const GuessTheSong = () => {
                   <input
                     type="number"
                     value={numberOfPlayers}
-                    onChange={(e) => handleInputChange(e.target.value, setNumberOfPlayers)}
-                    style={inputStyle}
+                     onChange={(e) => handleInputChange(e.target.value, setNumberOfPlayers)}
+                  style={inputStyle}
                   />
                 </label>
                 <div />
@@ -157,4 +158,4 @@ const GuessTheSong = () => {
   );
 };
 
-export default GuessTheSong;
+export default GuessTheArtist;
