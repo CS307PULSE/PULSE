@@ -91,8 +91,9 @@ class DatabaseConnector(object):
                                 spotify_id, 
                                 friends, 
                                 theme, 
-                                high_scores, 
-                                recommendation_params) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+                                location,
+                                gender
+                                recommendation_params) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
         
                
         self.db_cursor.execute(sql_store_new_user_query, (new_user.display_name, 
