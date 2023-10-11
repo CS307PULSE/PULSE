@@ -59,6 +59,7 @@ function App() {
         }
       />
       <Route path="/dashboard" element={<Mainpage/>} />
+      <Route path="/profile" element={<Profile/>} />
       <Route path="game/guess-the-song" element={<GuessTheSong />} />
     </Routes>
   </Router>
