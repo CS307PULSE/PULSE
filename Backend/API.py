@@ -235,6 +235,12 @@ def set_layout(layout):
 
 @app.route('/games/playback')
 def playback(round_num, filter_search):
+    if 'round_num' not in session:
+        session['round_num'] = round_num
+    elif session['round_num'] < round_num:
+        session['round_num'] = round_num
+    else:
+        return
     timestamp_ms = 20000 #20 seconds playback
     if 'user' in session:
         user_data = session['user']
@@ -279,6 +285,9 @@ def playback(round_num, filter_search):
 
 @app.route('/games/store_scores')
 def store_scores(game_type, scores):
+    if 'round_num' in session:
+        session['round_num'] = 0
+
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
