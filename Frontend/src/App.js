@@ -11,6 +11,7 @@ import StatisticsPage from "./components/StatisticsPage";
 
 import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
+import DJMixer from "./components/DJMixer";
 
 
 // for the cache and DB call for fetch
@@ -58,7 +59,8 @@ function App() {
       <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
       <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
       <Route path="/Statistics" element={<StatisticsPage />} />
-      <Route path="games" element={<Games />} />
+      <Route path="/games" element={<Games />} />
+      <Route path="/DJmixer" element={<DJMixer />} />
       <Route path="friends"  />
     </Routes>
   </Router>
