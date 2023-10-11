@@ -5,6 +5,7 @@ from array import array
 from Exceptions import ErrorHandler
 from Exceptions import BadResponseError
 from Exceptions import TokenNotStoredError
+from datetime import datetime
 
 import json
 import spotipy
@@ -98,6 +99,7 @@ class User:
             userinfo = self.spotify_user.currentuser()
             followers = userinfo['followers']['total']
             self.stats.follower_number = followers
+            now = datetime.now()
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
