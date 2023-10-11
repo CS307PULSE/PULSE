@@ -1,6 +1,7 @@
 from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
+from array import array
 from Exceptions import ErrorHandler
 from Exceptions import BadResponseError
 from Exceptions import TokenNotStoredError
@@ -24,7 +25,9 @@ class User:
                  theme=Theme.DARK, 
                  stats=None, 
                  high_scores=None, 
-                 recommendation_params=None):
+                 recommendation_params=None,
+                 gender=None,
+                 location=None):
         self.display_name = display_name                                                                   # String
         self.login_token = login_token                                                                     # Token Info Object
         self.spotify_id = spotify_id                                                                       # String
@@ -35,6 +38,13 @@ class User:
         self.stats = stats if stats is not None else Stats()                                               # Stats
         self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
+        self.gender = gender                                                                               # String                                   
+        self.location = location                                                                           # String
+
+    def stringify(self, obj):
+        if obj is None:
+            return ''
+        return json.dumps(obj, default=lambda x: x.__dict__)
 
     def to_json(self):
         # Convert the User object to a JSON-serializable dictionary
@@ -82,6 +92,14 @@ class User:
             self.spotify_id = response['id']
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+        
+    def update_followers(self):
+        try:
+            userinfo = self.spotify_user.currentuser()
+            followers = userinfo['followers']['total']
+            self.stats.follower_number = followers
+        except spotipy.exceptions.SpotifyException as e:
+          ErrorHandler.handle_error(e)
 
     # Updates list of recent songs with at most 50 objects of type PlayHistory
     def update_recent_history(self):
@@ -101,12 +119,14 @@ class User:
                 top_tracks_per_term = []
                 term = terms[i]
 
-                offset = 0
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=0)
                 top_tracks_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_tracks(time_range=term, limit=50, offset=49)
-                
-                top_tracks_per_term.extend(response['items'][1:])
+                if (
+                    response is not None
+                    and not response.get('items') is None
+                ):
+                    top_tracks_per_term.extend(response['items'][1:])
                 
                 top_tracks.append(top_tracks_per_term)
 
@@ -124,13 +144,14 @@ class User:
                 top_artists_per_term = []
                 term = terms[i]
 
-                offset = 0
-                response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)
-                                         
+                response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=0)             
                 top_artists_per_term.extend(response['items'])
                 response = self.spotify_user.current_user_top_artists(time_range=term, limit=50, offset=49)
-                
-                top_artists_per_term.extend(response['items'][1:])
+                if (
+                    response is not None
+                    and not response.get('items') is None
+                ):
+                    top_artists_per_term.extend(response['items'][1:])
                 
                 top_artists.append(top_artists_per_term)
 
@@ -149,15 +170,182 @@ class User:
             while len(followed_artists) < max_artists:
                 response = self.spotify_user.current_user_followed_artists(limit=limit, after=after)
                 
+                if (
+                    response is None
+                    or response.get('artists') is None
+                    or response['artists'].get('items') is None
+                    or response['artists'].get('cursors') is None
+                ):
+                    break
+
                 artists = response['artists']
 
                 after = artists['cursors']['after']
 
                 followed_artists.extend(artists['items'])
 
-                if not artists['items'] or after is None:
+                if (len(artists['items']) < limit):
                     break
 
             self.stats.followed_artists = followed_artists
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+
+    # Updates list of saved songs with at most max_tracks number of objects of type Track
+    def update_saved_songs(self, max_tracks=200):
+        try:
+            saved_tracks = []
+
+            offset = 0
+            limit = min(50, max_tracks)
+
+            while len(saved_tracks) < max_tracks:
+                response = self.spotify_user.current_user_saved_tracks(limit=limit, offset=offset)
+                
+                if (
+                    response is None
+                    or response.get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                saved_tracks.extend(response['items'])
+
+                if (len(response['items']) < limit):
+                    break
+
+            self.stats.saved_songs = saved_tracks
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+
+    # Searches for item of type items_type with query query and at most max_items number of items
+    def search_for_items(self, max_items=20, items_type="tracks", query=""):
+        try:
+            items = []
+            offset = 0
+            limit = min(50, max_items)
+
+            while len(items) < max_items:
+                response = self.spotify_user.search(q=query, type=items_type, limit=limit, offset=offset)
+
+                if (
+                    response is None
+                    or response.get(items_type+"s") is None
+                    or response[items_type+"s"].get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                items.extend(response[items_type+"s"]['items'])
+
+                if (len(response[items_type+"s"]['items']) < limit):
+                    break
+
+            return items
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+            return ['' for _ in range(max_items)]
+    
+    # Returns array of track objects
+    def get_recommendations(self, 
+                            seed_tracks=[], 
+                            seed_artists=[], 
+                            seed_genres=[], 
+                            max_items=10,
+                            min_energy=0,
+                            max_energy=1,
+                            #target_energy,
+                            min_popularity=0,
+                            max_populatirty=100,
+                            #target_popularity,
+                            min_acousticness=0,
+                            max_acousticness=1,
+                            #target_acousticness,
+                            min_danceability=0,
+                            max_danceability=1,
+                            #target_danceability,
+                            #min_duration_ms,
+                            #max_duration_ms,
+                            #target_duration_ms,
+                            min_instrumentalness=0,
+                            max_instrumentalness=1,
+                            #target_instrumentalness,
+                            min_key=0,
+                            max_key=1,
+                            #target_key,
+                            min_liveness=0,
+                            max_liveness=1,
+                            #target_liveness,
+                            #min_loudness,
+                            #max_loudness,
+                            #target_loudness,
+                            min_mode=0,
+                            max_mode=1,
+                            #target_mode,
+                            min_speechiness=0,
+                            max_speechiness=1,
+                            #target_speechiness,
+                            #min_tempo,
+                            #max_tempo,
+                            #target_tempo,
+                            #min_time_signature,
+                            #max_time_signature,
+                            #target_time_signature,
+                            min_valence=0,
+                            max_valence=1,
+                            #target_valence
+                            ):
+        try:
+            recommendations = self.spotify_user.recommendations(seed_tracks=seed_tracks, 
+                                                                seed_artists=seed_artists, 
+                                                                seed_genres=seed_genres, 
+                                                                max_items=max_items,
+                                                                min_energy=min_energy,
+                                                                max_energy=max_energy,
+                                                                #target_energy=target_energy,
+                                                                min_popularity=min_popularity,
+                                                                max_populatirty=max_populatirty,
+                                                                #target_popularity=max_populatirty,
+                                                                min_acousticness=min_acousticness,
+                                                                max_acousticness=max_acousticness,
+                                                                #target_acousticness=target_acousticness,
+                                                                min_danceability=min_danceability,
+                                                                max_danceability=max_danceability,
+                                                                #target_danceability=target_danceability,
+                                                                #min_duration_ms=min_duration_ms,
+                                                                #max_duration_ms=max_duration_ms,
+                                                                #target_duration_ms=target_duration_ms,
+                                                                min_instrumentalness=min_instrumentalness,
+                                                                max_instrumentalness=max_instrumentalness,
+                                                                #target_instrumentalness=target_instrumentalness,
+                                                                min_key=min_key,
+                                                                max_key=max_key,
+                                                                #target_key=target_key,
+                                                                min_liveness=min_liveness,
+                                                                max_liveness=max_liveness,
+                                                                #target_liveness=target_liveness,
+                                                                #min_loudness=min_loudness,
+                                                                #max_loudness=max_loudness,
+                                                                #target_loudness=target_loudness,
+                                                                min_mode=min_mode,
+                                                                max_mode=max_mode,
+                                                                #target_mode=target_mode,
+                                                                min_speechiness=min_speechiness,
+                                                                max_speechiness=max_speechiness,
+                                                                #target_speechiness=target_speechiness,
+                                                                #min_tempo=min_tempo,
+                                                                #max_tempo=max_tempo,
+                                                                #target_tempo=target_tempo,
+                                                                #min_time_signature=min_time_signature,
+                                                                #max_time_signature=max_time_signature,
+                                                                #target_time_signature=target_time_signature,
+                                                                min_valence=min_valence,
+                                                                max_valence=max_valence,
+                                                                #target_valence=target_valence
+                                                                )
+            return recommendations['tracks']
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+            return ['' for _ in range(max_items)]

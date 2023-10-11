@@ -1,0 +1,4 @@
+
+*.pyc
+Frontend/node_modules/*
+StatisticsPage/node_modules/*
