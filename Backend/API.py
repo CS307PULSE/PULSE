@@ -182,7 +182,26 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/statistics"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/dane_tests"> Click here to run tests!</a>'
+
+@app.route('/dane_tests')
+def dane_tests():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        sp_oauth = SpotifyOAuth(client_id=client_id, 
+                            client_secret=client_secret, 
+                            redirect_uri=redirect_uri, 
+                            scope=scope)
+        user.refresh_access_token(sp_oauth)
+        from Playback import Playback
+        playback = Playback(user = user)
+        playback.check_playback()
+        playback.print_player()
+        playback.start_thread()
+    else:
+        return "Failed"
+    return ' '
 
 @app.route('/games')
 def games():
