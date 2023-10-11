@@ -3,10 +3,12 @@ import { useState, useEffect, } from "react";
 import Login from "./components/Login";
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
-import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import GuessTheLyric from "./components/GuessTheLyric";
 import Mainpage from "./components/Mainpage"
 
+import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
+
 
 //--------------------------------Pending: cookies check and reture userID to backend 
 // for the cache and DB call for fetch
@@ -58,6 +60,8 @@ function App() {
       <Route path="/dashboard" element={<Mainpage/>} />
       <Route path="game/guess-the-song" element={<GuessTheSong />} />
       <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
+      <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
+      <Route path="friends"  />
     </Routes>
   </Router>
   );

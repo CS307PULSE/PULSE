@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
-import { BrowserRouter as Router, Link, Route, Routes} from "react-router-dom";
+import { Link} from "react-router-dom";
 
 const bodyStyle = {
   backgroundColor: 'black',

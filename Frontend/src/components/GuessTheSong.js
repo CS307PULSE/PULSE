@@ -103,10 +103,12 @@ const GuessTheSong = () => {
     const newValue = Math.min(Math.max(parseInt(value), 1), 10);
     setter(newValue);
   };
-  
+
   const handleStartGameClick = () => {
       if (numberOfPlayers !== 0 && numberOfRounds !== 0) {
         setIsStartClicked(true);
+      } else {
+        alert("Please enter valid input");
       }
     };
   return (
@@ -149,7 +151,7 @@ const GuessTheSong = () => {
             </>
           ) : (
             <div>
-              <MusicPlayerGame numberOfPlayers={numberOfPlayers} />
+              <MusicPlayerGame numberOfPlayers={numberOfPlayers} numberOfRounds={numberOfRounds}/>
             </div>
           )}
         </div>
