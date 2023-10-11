@@ -1,18 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import TextSize from "../theme/TextSize";
+import Colors from "../theme/Colors"; 
+const textSizes = TextSize("medium"); //Obtain text size values
+const themeColors = Colors("light"); //Obtain color values
+
 // Styled components
 const CardContainer = styled.div`
-  border: 1px solid #FFF;
-
+  border: 1px solid ${themeColors.border};
   overflow: hidden;
   width: 500px;
   height: 300px
 `;
 
 const Header = styled.div`
-  background-color: #6EEB4D; // Set background color to green
-  color: black; // Set text color to green
+  background-color: ${themeColors.green}; // Set background color to green
+  color: ${themeColors.black}; // Set text color to black
   text-align: center;
   font-family: 'Poppins', sans-serif;
   padding: 10px;
@@ -23,21 +27,21 @@ const Header = styled.div`
   text-transform: uppercase;
 `;
 
-const Content = styled.div`
-color: #FFF;
-font-family: Rhodium Libre;
-font-size: 12px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
-text-transform: uppercase;
+const Content = styled.div `
+  color: ${themeColors.white};
+  font-family: Rhodium Libre;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
   padding: 16px;
 `;
 
 
-const Card = ({ headerText, children }) => {
+const Card = ({ headerText, children, width = "500px", height = "300px"}) => {
   return (
-    <CardContainer>
+    <CardContainer style={{width:width, height:height}}>
       <Header>{headerText}</Header>
       <Content>{children}</Content>
     </CardContainer>
