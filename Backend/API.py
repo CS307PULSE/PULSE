@@ -190,6 +190,7 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    #get layout from db
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -227,6 +228,73 @@ def statistics():
     else:
         return 'User session not found. Please log in again.'
 
+@app.route('/statistics/set_layout')
+def set_layout(layout):
+    #send to db
+    return
+
+@app.route('/games/playback')
+def playback(round_num, filter_search):
+    timestamp_ms = 20000 #20 seconds playback
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        print(f"Starting Playback on round {round_num} with filter {filter_search}!")
+        
+        global spoof_songs
+        if (spoof_songs):
+            songs = []
+            songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
+        elif filter_search == "":
+            if user.stats.saved_songs is None:
+                user.update_saved_songs()
+            songs = user.stats.saved_songs
+        else:
+            results = user.search_for_items(query=filter_search, items_type='artist', max_items=5)
+            if results['artists']['items']:
+                artist_id = results['artists']['items'][0]['id']
+                songs = user.spotify_user.artist_top_tracks(artist_id)
+            else:
+                if user.stats.saved_songs is None:
+                    user.update_saved_songs()
+                songs = user.stats.saved_songs 
+
+        import random
+        random_track = random.choice(songs)
+        if (spoof_songs):
+            track_uri = random_track['uri']
+        else:
+            track_uri = random_track['track']['uri']
+        user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        result = f'Playing URI {track_uri}'
+    else:
+        result = 'User session not found. Please log in again.'
+
+    return jsonify({'message': result})
+
+@app.route('/games/store_scores')
+def store_scores(game_type, scores):
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        scores_data = [] # USE GAME_TYPE AND SCORES
+        user.high_scores = scores_data
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_high_scores(user.spotify_id, user.high_scores) == 0):
+                raise Exceptions.UserNotFoundError
+        session["user"] = user.to_json()
+        stored_scores_status = "The scores have been stored!"
+    else:
+        stored_scores_status = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+    
+    return jsonify({'message': stored_scores_status})
+
+"""
 @app.route('/games/guess_the_song')
 def guess_the_song():
     if 'rounds' not in session:
@@ -504,7 +572,8 @@ def display_results():
     '''
 
     return html_result
-
+"""
+    
 @app.route('/test')
 def test():
     if 'user' in session:
