@@ -12,7 +12,7 @@ const images = {
     prevButton: "https://cdn-icons-png.flaticon.com/512/3318/3318703.png"
 }
 
-const songPlayerBackgroundStyle = {
+const songPlayerStyle = {
     position: 'fixed',
     bottom: "0",
     padding: '0px',
@@ -34,7 +34,7 @@ const playbackSliderStyle = {
     height: "40px",
     margin: '10px auto',
     position: 'absolute',
-    right: '30%'
+    right: '20%'
 };
 
 const volumeSliderStyle = {
@@ -45,16 +45,41 @@ const volumeSliderStyle = {
     right: '30px'
 };
 
-
+const infoContainerStyle = {
+    padding:"10px"
+}
+const songNameTextStyle = {
+    color: themeColors.black,
+    fontSize: textSizes.body,
+    fontWeight: "bold",
+    margin: "0px",
+}
+const artistNameTextStyle = {
+    color: themeColors.black,
+    fontSize: textSizes.body,
+    margin: "0px"
+}
+const timestampTextStyle = {
+    
+}
 
 function SongPlayer() {
     return(
         
-        <div className="player" style={songPlayerBackgroundStyle}>
+        <div className="player" style={songPlayerStyle}>
             <img style={songPlayerButtonStyle} src={images.prevButton} alt="Previous Song"></img>
             <img style={songPlayerButtonStyle} src={images.playButton} alt="Play Song"></img>
             <img style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
-            <input style={playbackSliderStyle} type="range" id="mySlider" min="0" max="1000" value="200" step="1"></input> 
+            <img style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
+            <div style={infoContainerStyle}>
+                <p style={songNameTextStyle}>lol</p>
+                <p style={artistNameTextStyle}>lolasdsadasdasdas 2</p>
+            </div>
+            <div style={infoContainerStyle}>
+                <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", left: "40%"}}>0:00</span>
+                <input style={playbackSliderStyle} type="range" id="mySlider" min="0" max="1000" value="200" step="1"/>
+                <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", right: "20%"}}>23:59</span>
+            </div>
             <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value="20" step="1"></input> 
                 
         </div>
