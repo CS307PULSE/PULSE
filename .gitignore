@@ -1,8 +1,5 @@
 
 *.pyc
 Frontend/node_modules/*
-Backend/API.py
-Backend/.cache
-Testing/TestOutput.txt
-Testing/ClientData.txt
-Testing/ClientData.txt
+StatisticsPage/node_modules/*
+
