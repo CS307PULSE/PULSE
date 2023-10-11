@@ -2,6 +2,7 @@ import spotipy
 import multiprocessing
 import time
 import User
+import webbrowser
 from Exceptions import ErrorHandler
 
 class Playback:
@@ -17,12 +18,12 @@ class Playback:
         self.is_playing = ""
         self.volume = ""
         self.volume_support = ""
+        self.current_image = ""
 
     def check_playback(self):
         try:
             self.devices = self.user.spotify_user.devices()
             self.playback = self.user.spotify_user.current_playback()
-            print(self.playback)
             self.is_playing = self.playback['is_playing']
             self.volume_support = self.playback['device']['supports_volume']
             self.shuffle = self.playback['shuffle_state']
@@ -33,6 +34,7 @@ class Playback:
             if self.is_playing : 
               self.current_track = self.playback['item']
               self.progress = self.playback['progress_ms']
+              self.current_image = self.current_track['album']['images']['url']
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
@@ -142,6 +144,22 @@ class Playback:
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
+    def play_playlist(self, playlist_uri):
+      playlist = self.user.spotify_user.playlist(playlist_uri)
+      playlist_first_song = playlist['tracks']['items']['track']['TrackObject']
+      self.select_song(playlist_uri, playlist_first_song)
+      self.play()
+
+    def open_playlist(self, playlist_uri):
+      playlist = self.user.spotify_user.playlist(playlist_uri)
+      playlist_link = playlist['external_urls']['spotify']
+      webbrowser.open(playlist_link) 
+      
+    def open_song(self, song_uri):
+      tracks = self.user.spotify_user.track(song_uri)
+      song_link = tracks[0]['external_urls']['spotify'] 
+      webbrowser.open(song_link) 
+    
     def print_player(self):
       print(f"User: {self.user}")
       print(f"Devices: {self.devices}")
