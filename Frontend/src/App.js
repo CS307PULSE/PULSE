@@ -61,8 +61,8 @@ function App() {
       />
       <Route path="/dashboard" element={<Mainpage/>} />
       <Route path="/profile" element={<Profile/>} />
-      <Route path="game/guess-the-song" element={<GuessTheSong />} />
-      <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
+      <Route path="/game/guess-the-song" element={<GuessTheSong />} />
+      <Route path="/game/guess-the-artist" element={<GuessTheArtist />} />
     </Routes>
   </Router>
   );

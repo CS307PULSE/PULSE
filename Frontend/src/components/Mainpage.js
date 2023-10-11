@@ -26,6 +26,7 @@ const cardContainerStyle = {
 
 const cardStyle = {
   marginBottom: '20px', // Add some bottom margin for spacing
+  padding: '20px',
   textAlign: 'center',
   fontFamily: "'Poppins', sans-serif",
 };
@@ -52,7 +53,7 @@ const buttonStyle = {
   borderColor: themeColors.text,
   borderRadius: '10px',
   cursor: 'pointer',
-  marginBottom: '5px', // Small space between buttons
+  margin: '5px', // Small space between buttons
   width: '90%',
 };
 

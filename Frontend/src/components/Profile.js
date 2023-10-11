@@ -17,11 +17,10 @@ const bodyStyle = {
 };
 const profileContainerStyle = {
     padding: "20px",
-    margin: "20px",
-    backgroundColor: themeColors.background,
+    margin: "0px",
     width: "100%", // Set width to 100% to cover the entire width of the screen
     height: "100%", // Set height to 100vh to cover the entire height of the screen
-    display: "inline"
+    display: "inline-block"
 };
 const profileHeader={
     color: themeColors.text,
@@ -38,13 +37,24 @@ const profileText={
     fontFamily: "'Poppins', sans-serif"
 };
 
+const buttonContainerStyle = {
+    display: 'flex',
+    alignItems: 'center', // Center buttons horizontally
+    marginTop: '10px', // Space between cards and buttons
+    width: "500px"
+};
+
 const buttonStyle = {
-    backgroundColor: "#222",
-    borderRadius: "10px",
-    height: "40px",
-    width: "80px",
-    color:"#FFFFFF",
-    margin:"5px"
+    backgroundColor: themeColors.background,
+    color: themeColors.text,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: themeColors.text,
+    borderRadius: '10px',
+    cursor: 'pointer',
+    margin: '5px', // Small space between buttons
+    width: '100%',
+    height: "50px"
 };
 
 const textFieldStyle = {
@@ -76,7 +86,7 @@ function Profile({testParameter}){
     <div style={bodyStyle}>
         <Navbar />
         <div className="profile" style={profileContainerStyle}>
-            <p style={profileHeader}>Profile</p> <br></br>
+            <p style={profileHeader}>Profile</p>
             <form action="fileupload.php" enctype="multipart/form-data" method="post">
                 
                 <div style={iconContainerStyle}>
@@ -93,24 +103,25 @@ function Profile({testParameter}){
                 <label style={profileText} for="username">Username: </label>
                 <input id="username" type="text" style={textFieldStyle}></input> <br></br>
 
-                <button style={buttonStyle} name="submit" type="submit">Save Changes</button> <br></br>
+                <div style={buttonContainerStyle}>
+                    <button style={buttonStyle} name="submit" type="submit">Save Changes</button>
+                </div>
             </form>
 
             <p style={profileHeader}>Settings</p>
 
             <p style={profileText}>Text Size: </p>
-            <div style={{display:"flex"}}>
+            <div style={buttonContainerStyle}>
                 <button onclick={TextSize("small")} style={buttonStyle}><p>Small</p></button>
                 <button onclick={TextSize("medium")} style={buttonStyle}><p>Medium</p></button>
                 <button onclick={TextSize("large")} style={buttonStyle}><p>Large</p></button>
             </div>
 
             <p style={profileText}>Theme: </p>
-            <div style={{display:"flex"}}>
+            <div style={buttonContainerStyle}>
                 <button onclick={Colors("light")} style={buttonStyle}><p>Light</p></button>
                 <button onclick={Colors("darK")} style={buttonStyle}><p>Dark</p></button>
             </div>
-
         </div>
         <SongPlayer />
     </div>

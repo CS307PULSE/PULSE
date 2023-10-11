@@ -4,14 +4,12 @@ import styled from 'styled-components';
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
 const textSizes = TextSize("medium"); //Obtain text size values
-const themeColors = Colors("light"); //Obtain color values
+const themeColors = Colors("dark"); //Obtain color values
 
 // Styled components
 const CardContainer = styled.div`
   border: 1px solid ${themeColors.border};
   overflow: hidden;
-  width: 500px;
-  height: 300px
 `;
 
 const Header = styled.div`
