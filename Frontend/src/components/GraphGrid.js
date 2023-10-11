@@ -13,6 +13,7 @@ import {
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
+import tempData from "./tempDataFile.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -201,8 +202,11 @@ export default function GraphGrid() {
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
       } catch (error) {
-        alert("Page failed!");
+        alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
+        // Temporary measure to keep things going
+        setTopArtists(JSON.parse(tempData.top_artists));
+        setTopSongs(JSON.parse(tempData.top_songs));
       }
     };
 
