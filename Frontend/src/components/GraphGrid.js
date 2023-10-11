@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
-import styled from "styled-components";
+import { Responsive, WidthProvider } from "react-grid-layout";
 import {
   BarGraph,
   LineGraph,
   PieGraph,
+  TopGraph,
   line1,
   bar1,
   pie1,
@@ -13,13 +13,9 @@ import {
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
+import tempData from "./tempDataFile.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
-//Stylized div for each of the graph containers
-const GraphContainer = styled.div`
-  background: #f5f5f5;
-`;
 
 //Default layout so that page does not look empty
 const defaultLayout = [
@@ -27,7 +23,11 @@ const defaultLayout = [
     i: "bar1",
     graphType: "Bar",
     data: "bar1",
-    graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+    graphSettings: {
+      graphKeys: ["degrees"],
+      graphIndexBy: "day",
+      graphTheme: "accent",
+    },
     x: 0,
     y: 0,
     w: 1,
@@ -37,7 +37,11 @@ const defaultLayout = [
     i: "bar2",
     graphType: "Bar",
     data: "bar1",
-    graphSettings: { graphKeys: ["degrees"], graphIndexBy: "day" },
+    graphSettings: {
+      graphKeys: ["degrees"],
+      graphIndexBy: "day",
+      graphTheme: "accent",
+    },
     x: 1,
     y: 0,
     w: 1,
@@ -47,7 +51,7 @@ const defaultLayout = [
     i: "pie1",
     graphType: "Pie",
     data: "pie1",
-    GraphSettigngs: {},
+    graphSettings: { graphTheme: "accent" },
     x: 2,
     y: 0,
     w: 1,
@@ -57,7 +61,11 @@ const defaultLayout = [
     i: "line1",
     graphType: "Line",
     data: "line1",
-    graphSettings: { xName: "transportation", yName: "Count" },
+    graphSettings: {
+      xName: "transportation",
+      yName: "Count",
+      graphTheme: "accent",
+    },
     x: 3,
     y: 0,
     w: 1,
@@ -67,7 +75,11 @@ const defaultLayout = [
     i: "line2",
     graphType: "Line",
     data: "line1",
-    graphSettings: { xName: "transportation", yName: "Count" },
+    graphSettings: {
+      xName: "transportation",
+      yName: "Count",
+      graphTheme: "accent",
+    },
     x: 0,
     y: 1,
     w: 1,
@@ -75,21 +87,23 @@ const defaultLayout = [
   },
 ];
 
-/*
-async function fetchLayouts() {
-  const response = await axios.get("http://127.0.0.1:5000/stats/layouts");
+async function fetchBackendDatas() {
+  const response = await axios.get("http://127.0.0.1:5000/statistics");
   const data = response.data;
   console.log(data);
   return data;
 }
 
-async function sendLayouts(layout) {
+/*
+async function sendLayouts(layouts, defaultLayout) {
   const response = await axios.post(
-    "http://127.0.0.1:5000/stats/layouts",
-    layout
+    "http://127.0.0.1:5000/statistics/layouts",
+    {
+      layouts: layouts,
+      defaultLayout: defaultLayout,
+    }
   );
   const data = response.data;
-  console.log(data);
   return data;
 }
 */
@@ -99,6 +113,10 @@ export default function GraphGrid() {
   const [layout, setLayout] = useState(defaultLayout);
   const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
+
+  //Top data
+  const [topArtists, setTopArtists] = useState();
+  const [topSongs, setTopSongs] = useState();
 
   //Remove container function
   const RemoveContainer = (containerName) => {
@@ -114,16 +132,16 @@ export default function GraphGrid() {
 
   //Get layout from local storage
   function getFromLS(key) {
-    const storedLayout = localStorage.getItem(key);
-
     //Try-catch to set layout to default one if recieved empty layout
     try {
+      const storedLayout = localStorage.getItem(key);
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
       }
       return newLayout;
     } catch (e) {
+      console.log(e);
       saveToLS(defaultLayout);
       return defaultLayout;
     }
@@ -131,7 +149,11 @@ export default function GraphGrid() {
 
   //Send layout to local storage
   const saveToLS = (storingLayout) => {
-    localStorage.setItem(layoutNumber, JSON.stringify(storingLayout));
+    try {
+      localStorage.setItem(layoutNumber, JSON.stringify(storingLayout));
+    } catch (e) {
+      alert(e);
+    }
   };
 
   //Function for save button
@@ -166,13 +188,32 @@ export default function GraphGrid() {
       updatedLayout.push(container);
     }
     setGraphNames(graphNames);
-    //console.log(JSON.stringify(updatedLayout));
     setLayout(updatedLayout);
   };
 
   //Get correct initial layout when initialized
   useEffect(() => {
     setLayout(getFromLS(layoutNumber));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  //Get data from server & set top song/artists
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchBackendDatas();
+        setTopArtists(JSON.parse(data.top_artists));
+        setTopSongs(JSON.parse(data.top_songs));
+      } catch (error) {
+        alert("Page failed fetching - loading backup data");
+        console.error("Error fetching data:", error);
+        // Temporary measure to keep things going
+        setTopArtists(JSON.parse(tempData.top_artists));
+        setTopSongs(JSON.parse(tempData.top_songs));
+      }
+    };
+
+    fetchData();
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -190,7 +231,7 @@ export default function GraphGrid() {
       i: newGraphData.graphName,
       graphType: newGraphData.graphType,
       data: newGraphData.data,
-      graphSettings: {},
+      graphSettings: { graphTheme: newGraphData.graphTheme },
       x: 0,
       y: 0,
       w: 1,
@@ -198,26 +239,51 @@ export default function GraphGrid() {
     };
 
     if (newGraph.graphType === "Bar") {
-      newGraph.graphSettings = { graphKeys: ["degrees"], graphIndexBy: "day" };
+      newGraph.graphSettings = Object.assign(
+        { graphKeys: ["degrees"], graphIndexBy: "day" },
+        newGraph.graphSettings
+      );
     } else if (newGraph.graphType === "Line") {
-      newGraph.graphSettings = { xName: "transportation", yName: "Count" };
+      newGraph.graphSettings = Object.assign(
+        { xName: "transportation", yName: "Count" },
+        newGraph.graphSettings
+      );
     }
 
     AddContainer(newGraph);
   };
 
   function getData(dataName) {
-    if (dataName === "bar1") {
-      return bar1;
-    } else if (dataName === "line1") {
-      return line1;
-    } else if (dataName === "pie1") {
-      return pie1;
-    } else if (dataName === "pie2") {
-      return pie2;
+    switch (dataName) {
+      case "bar1":
+        return bar1;
+      case "line1":
+        return line1;
+      case "pie1":
+        return pie1;
+      case "pie2":
+        return pie2;
+      case "top_songs_4week":
+        console.log(topSongs[0]);
+        return topSongs[0];
+      case "top_songs_6month":
+        return topSongs[1];
+      case "top_songs_all":
+        return topSongs[2];
+      case "top_artists_4week":
+        console.log(topArtists[0]);
+        return topArtists[0];
+      case "top_artists_6month":
+        return topArtists[1];
+      case "top_artists_all":
+        return topArtists[2];
+      default:
+        return null;
     }
+  }
 
-    return null;
+  if (topSongs === undefined) {
+    return <>Still Loading...</>;
   }
 
   return (
@@ -227,15 +293,16 @@ export default function GraphGrid() {
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         rowHeight={300}
-        width={1000}
+        width={"100%"}
         onLayoutChange={handleLayoutChange}
+        draggableCancel=".custom-draggable-cancel"
       >
         {layout.map((container) => (
-          <GraphContainer key={container.i}>
+          <div className="graphContainer" key={container.i}>
             <div>
               <div>{container.i}</div>
               <button
-                className="GraphCloseButton"
+                className="GraphCloseButton custom-draggable-cancel"
                 onClick={() => RemoveContainer(container.i)}
               >
                 X
@@ -244,23 +311,34 @@ export default function GraphGrid() {
             {container.graphType === "Bar" ? (
               <BarGraph
                 data={getData(container.data)}
+                dataName={container.data}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
+                graphTheme={container.graphSettings.graphTheme}
               />
             ) : container.graphType === "Line" ? (
               <LineGraph
                 data={getData(container.data)}
+                dataName={container.data}
                 xName={container.graphSettings.xName}
                 yName={container.graphSettings.yName}
+                graphTheme={container.graphSettings.graphTheme}
               />
             ) : container.graphType === "Pie" ? (
-              <PieGraph data={getData(container.data)} />
-            ) : container.graphType === "Text" ? (
-              <p> {container.graphType} </p>
+              <PieGraph
+                data={getData(container.data)}
+                dataName={container.data}
+                graphTheme={container.graphSettings.graphTheme}
+              />
+            ) : container.graphType === "TopGraph" ? (
+              <TopGraph
+                data={getData(container.data)}
+                dataName={container.data}
+              />
             ) : (
               <p> Hi</p>
             )}
-          </GraphContainer>
+          </div>
         ))}
       </ResponsiveGridLayout>
       <div>
