@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
+import { Responsive, WidthProvider } from "react-grid-layout";
 import {
   BarGraph,
   LineGraph,
@@ -94,6 +94,7 @@ async function fetchBackendDatas() {
   return data;
 }
 
+/*
 async function sendLayouts(layouts, defaultLayout) {
   const response = await axios.post(
     "http://127.0.0.1:5000/statistics/layouts",
@@ -105,6 +106,7 @@ async function sendLayouts(layouts, defaultLayout) {
   const data = response.data;
   return data;
 }
+*/
 
 export default function GraphGrid() {
   //UseStates for layout setting
@@ -192,6 +194,7 @@ export default function GraphGrid() {
   //Get correct initial layout when initialized
   useEffect(() => {
     setLayout(getFromLS(layoutNumber));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //Get data from server & set top song/artists

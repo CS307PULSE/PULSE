@@ -521,16 +521,20 @@ export const TopGraph = (props) => {
     >
       {props.dataName.includes("top_artist")
         ? props.data.map((track) => (
-            <a data-tooltip-id="my-tooltip" data-tooltip-content={track.name}>
+            <span
+              href=""
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={track.name}
+            >
               <img
                 src={track.images[0].url}
                 alt={track.name}
                 className="TopGraphImage"
               />
-            </a>
+            </span>
           ))
         : props.data.map((track) => (
-            <a
+            <span
               data-tooltip-id="my-tooltip"
               data-tooltip-content={track.name + " by " + track.artists[0].name}
               onClick={() => sendPlayRequest(track.id)}
@@ -541,7 +545,7 @@ export const TopGraph = (props) => {
                 alt={track.name}
                 className="TopGraphImage"
               />
-            </a>
+            </span>
           ))}
       <Tooltip id="my-tooltip" />
     </div>
