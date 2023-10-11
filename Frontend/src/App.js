@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
 import GuessTheLyric from "./components/GuessTheLyric";
+import Games from "./components/Games";
 import Mainpage from "./components/Mainpage"
 import StatisticsPage from "./components/StatisticsPage";
 
@@ -57,6 +58,7 @@ function App() {
       <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
       <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
       <Route path="/Statistics" element={<StatisticsPage />} />
+      <Route path="games" element={<Games />} />
       <Route path="friends"  />
     </Routes>
   </Router>
