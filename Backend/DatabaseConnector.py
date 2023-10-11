@@ -188,9 +188,33 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating params:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
+    
+    # Update layout for the given spotify_id
+    def update_layout(self, spotify_id, new_layout):
+        try:
+            sql_update_layout_query = """UPDATE pulse.users SET layout = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_layout_query, (new_layout, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating layout:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    # Returns layout JSON object
+    def get_layout(self, spotify_id):
+        sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchall()
+        return self.resultset
+
 
 def create_friends_string_for_DB(friends_input_array):
     friends_string = ""
@@ -235,6 +259,7 @@ def create_rec_params_from_DB(rec_input_string):
         return []
     recommendation_params = [float(x) for x in rec_input_string.split(',')]
     return recommendation_params
+
 
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
