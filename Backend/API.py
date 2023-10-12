@@ -180,7 +180,7 @@ def callback():
             resp = make_response(redirect(url_for('index')))
         else:
             #resp = make_response("A")
-            resp = make_response(redirect("http://localhost:3000/dashboard"))
+            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -203,7 +203,6 @@ def games():
 
 @app.route('/statistics')
 def statistics():
-    print(session['user'])
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -231,9 +230,9 @@ def statistics():
                 if (retries > max_retries):
                     return 'didnt work 1'
                     return jsonify(data)
-
+        
         with DatabaseConnector(db_config) as conn:
-            layout = conn.get_layout(user.spotify_id)
+            layout = conn.get_layout_from_DB(user.spotify_id)
         with DatabaseConnector(db_config) as conn:
             followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -245,7 +244,6 @@ def statistics():
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
 
         if layout is not None:
-            print(layout)
             data['layout_data'] = jsonify(layout)
 
         if followers is not None:
@@ -713,4 +711,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='127.0.0.1', port=8080)
