@@ -170,6 +170,8 @@ def callback():
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
+        session['user'] = user.to_json()
+
         global run_connected
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
