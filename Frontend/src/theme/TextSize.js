@@ -6,19 +6,19 @@ function TextSize(textSizeSetting) {
         body: "undefined", 
         small: "undefined", 
     }
-    if (textSizeSetting === "large") {
+    if (textSizeSetting === 2) {
         text_sizes.header1 = "60px";
         text_sizes.header2 = "45px";
         text_sizes.header3 = "30px";
         text_sizes.body = "20px";
         text_sizes.small = "15px";
-    } else if (textSizeSetting === "medium") {
+    } else if (textSizeSetting === 1) {
         text_sizes.header1 = "45px";
         text_sizes.header2 = "35px";
         text_sizes.header3 = "25px";
         text_sizes.body = "15px";
         text_sizes.small = "10px";
-    } else if (textSizeSetting === "small") {
+    } else if (textSizeSetting === 0) {
         text_sizes.header1 = "35px";
         text_sizes.header2 = "30px";
         text_sizes.header3 = "20px";

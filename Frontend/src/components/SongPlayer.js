@@ -4,7 +4,12 @@ import axios from "axios";
 
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
-const textSizes = TextSize("medium"); //Obtain text size values
+
+/*console.log("shit");
+var textSizeSetting = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true}).response.data[0];
+console.log(textSizeSetting);*/
+
+const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("light"); //Obtain color values
 
 const images = {
@@ -108,6 +113,7 @@ function SongPlayer() {
             document.getElementById("playButton").src = images.playButton;
         }
     }, [playState]);
+    
     useEffect(() => { //Nexting
         if (nextState) {
             axios
@@ -119,6 +125,7 @@ function SongPlayer() {
             .catch((error) => {
                 console.error("Error skipping song:", error);
             });
+            setPlayState(true);
         }
         setNextState(false);
     }, [nextState]);
@@ -133,6 +140,7 @@ function SongPlayer() {
             .catch((error) => {
                 console.error("Error preving song:", error);
             });
+            setPlayState(true);
         }
         setPrevState(false);
     }, [prevState]);
@@ -143,8 +151,10 @@ function SongPlayer() {
         <div className="player" style={songPlayerStyle}>
             <img id="prevButton" style={songPlayerButtonStyle} src={images.prevButton} onClick={() => {setPrevState(true)}} alt="Previous Song"></img>
             <img id="playButton" style={songPlayerButtonStyle} src={images.playButton} onClick={() => {setPlayState(!playState)}} alt="Play Song"></img>
-            <img id="nextButton" transform="rotate(180)" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
+            <img id="nextButton" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
             <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
+            <img id="nextButton" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
+            <img id="nextButton" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
             <div style={infoContainerStyle}>
                 <p style={songNameTextStyle}>lol</p>
                 <p style={artistNameTextStyle}>asdsadasj daskldj askop</p>

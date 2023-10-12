@@ -4,7 +4,7 @@ import FriendsCard from './FriendsCard';
 
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
-const textSizes = TextSize("medium"); //Obtain text size values
+const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("light"); //Obtain color values
 
 const bodyStyle = {

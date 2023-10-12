@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
-const textSizes = TextSize("large"); //Obtain text size values
+const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("dark"); //Obtain color values
 
 // Styled components

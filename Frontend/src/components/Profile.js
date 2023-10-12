@@ -6,7 +6,7 @@ import SongPlayer from "./SongPlayer";
 
 import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
-const textSizes = TextSize("medium"); //Obtain text size values
+const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("dark"); //Obtain color values
 
 const bodyStyle = {
@@ -112,9 +112,9 @@ function Profile({testParameter}){
 
             <p style={profileText}>Text Size: </p>
             <div style={buttonContainerStyle}>
-                <button onclick={TextSize("small")} style={buttonStyle}><p>Small</p></button>
-                <button onclick={TextSize("medium")} style={buttonStyle}><p>Medium</p></button>
-                <button onclick={TextSize("large")} style={buttonStyle}><p>Large</p></button>
+                <button onclick={TextSize(1)} style={buttonStyle}><p>Small</p></button>
+                <button onclick={TextSize(1)} style={buttonStyle}><p>Medium</p></button>
+                <button onclick={TextSize(1)} style={buttonStyle}><p>Large</p></button>
             </div>
 
             <p style={profileText}>Theme: </p>
