@@ -236,8 +236,10 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
-        data['follower_data'] = jsonify(followers)
-        data['layout_data'] = jsonify(layout)
+        if layout is not None:
+            data['layout_data'] = jsonify(layout)
+        if followers is not None:
+            data['follower_data'] = jsonify(followers)
         return jsonify(data)
         
     else:
@@ -433,298 +435,27 @@ def repeat():
         player.set_repeat()
     else:
         result = 'User session not found. Please log in again.'
-
-@app.route('/player/volume', methods=['post'])
-def volume():
+        
+@app.route('/player/set_time')
+def set_time():
     if 'user' in session:
-        data = request.get_json()
-        setvol = data.get('volume')
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.volume_change(setvol)
+        player.set_repeat()
     else:
         result = 'User session not found. Please log in again.'
-"""
-@app.route('/games/guess_the_song')
-def guess_the_song():
-    if 'rounds' not in session:
-        session['rounds'] = 5
-    if 'players' not in session:
-        session['players'] = 1
 
-    session['round_num'] = 1
-    session['scores'] = '0'
+def generate():
+    while True:
+        data = f"Data from server at {time.strftime('%H:%M:%S')}"
+        yield f"data: {data}\n\n"
+        time.sleep(1)
 
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-    else:
-        return 'User session not found. Please log in again.'
+@app.route('/player/updatestart')
+def sse():
+    return Response(generate(), content_type='text/event-stream')
 
-    scores_html = '<p>User\'s Past Scores:</p><ul>'
-    for scores in user.high_scores:
-        scores_html += f'<li>Round 1: {scores[0]}, Round 2: {scores[1]}</li>'
-    scores_html += '</ul>'
-
-    # Concatenate the scores HTML with the existing HTML
-    html = f'''
-    <html>
-    <head><title>Your Game</title></head>
-    <body>
-        <h1>Welcome to the Game</h1>
-        {scores_html} <!-- Display user's past scores -->
-        <p><a href="/games/guess_the_song/play">Play Game</a> or <a href="/games/guess_the_song/settings">Configure Settings</a></p>
-    </body>
-    </html>
-    '''
-
-    # Return the combined HTML as the response
-    return html
-
-@app.route('/games/guess_the_song/settings', methods=['GET', 'POST'])
-def guess_the_song_settings():
-    if request.method == 'POST':
-        rounds = int(request.form['rounds'])
-        players = int(request.form['players'])
-
-        session['rounds'] = rounds
-        session['players'] = players
-        session['scores'] = '0,' * (players - 1) + '0'
-        return '<a href="/games/guess_the_song/play">Start Game</a> or <a href="/games/guess_the_song/settings">Re-Configure Settings</a></p>'
-
-    return '''
-    <html>
-    <head><title>Play Game</title></head>
-    <body>
-        <h1>Play Game</h1>
-        <form method="POST">
-            <label for="rounds">Number of Rounds (3-10):</label>
-            <input type="number" id="rounds" name="rounds" min="3" max="10" required><br>
-
-            <label for="players">Number of Players (1-5):</label>
-            <input type="number" id="players" name="players" min="1" max="5" required><br>
-
-            <input type="submit" value="Start Game">
-        </form>
-    </body>
-    </html>
-    '''
-
-@app.route('/games/guess_the_song/play')
-def guess_the_song_play():
-    return 'We will soon play a song that you listen to and you have to guess it! Please make sure your Spotify is on! <a href=/games/guess_the_song/play/round> Click here to start round 1!</a>'
-
-@app.route('/games/guess_the_song/play/round')
-def guess_the_song_play_round():
-    return '''
-    <html>
-    <head><title>Guess The Song</title></head>
-    <body>
-        <h1>Guess The Song</h1>
-        <button id="execute-button">Play Song</button>
-        <br>
-        <a href="/games/guess_the_song/play/correct">Click here if someone guessed correctly</a>
-        <br>
-        <a href="/games/guess_the_song/play/incorrect">Click here if everyone guessed incorrectly</a>
-        
-        <script>
-            var executing = false; // Flag to track if the Python function is executing
-
-            document.getElementById('execute-button').addEventListener('click', executeFunction);
-
-            function executeFunction() {
-                if (!executing) {
-                    // Set the flag to true to indicate that the Python function is executing
-                    executing = true;
-
-                    // Call the Python function here
-                    callPythonFunction();
-
-                    // You can add any other logic you need here
-
-                } else {
-                    alert('Song playback has already started');
-                }
-            }
-
-            // Function to call the Python function
-            function callPythonFunction() {
-                // Make an AJAX request to execute the Python function
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '/games/guess_the_song/play/playback', true);
-                xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        // executing = false;
-                        executing = true; // Keep true for now so we don't run it over and over
-                    }
-                };
-                xhr.send(JSON.stringify({}));
-            }
-        </script>
-    </body>
-    </html>
-    '''
-
-@app.route('/games/guess_the_song/play/playback', methods=['POST'])
-def execute_playback():
-    timestamp_ms = 20000 #20 seconds playback
-    if request.method == 'POST':
-        if 'user' in session:
-            user_data = session['user']
-            user = User.from_json(user_data)
-            print(f"Starting Playback on round {session['round_num']} out of {session['rounds']} with player scores {session['scores']}!")
-            
-            if user.stats.saved_songs is None:
-                user.update_saved_songs()
-
-            global spoof_songs
-            songs = user.stats.saved_songs
-            if (spoof_songs):
-                songs = []
-                songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
-                songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
-                songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
-                songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
-                songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
-                songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
-            import random
-            random_track = random.choice(songs)
-            if (spoof_songs):
-                track_uri = random_track['uri']
-            else:
-                track_uri = random_track['track']['uri']
-            user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
-            result = f'Playing URI {track_uri}'
-        else:
-            result = 'User session not found. Please log in again.'
-
-        return jsonify({'message': result})
-    return jsonify({'error': 'Invalid request'})
-
-@app.route('/games/guess_the_song/play/correct', methods=['GET', 'POST'])
-def correct_guess():
-    error_message = None
-
-    if request.method == 'POST':
-        player_number = int(request.form.get('player_number'))
-        if 1 <= player_number <= session['players']:
-            # Redirect to the correct route based on the player number
-            return redirect(f'/games/guess_the_song/play/correct/{player_number}')
-        else:
-            error_message = 'Invalid player number. Please enter a valid player number.'
-
-    # Render the HTML directly within the function
-    html_template = f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Correct Guess</title>
-    </head>
-    <body>
-        <h1>Correct Guess</h1>
-        
-        {f'<p style="color: red;">{error_message}</p>' if error_message else ''}
-        
-        <form method="post">
-            <label for="player_number">Enter Player Number (1 through {session['players']}):</label>
-            <input type="number" id="player_number" name="player_number" min="1" max="{session['players']}" required>
-            <input type="submit" value="Submit">
-        </form>
-    </body>
-    </html>
-    '''
-    return render_template_string(html_template)
-
-@app.route('/games/guess_the_song/play/correct/<int:player_number>')
-def correct_guess_with_number(player_number):
-    # Retrieve scores from the session
-    scores = list(map(int, session.get('scores', '').split(',')))
-
-    # Validate the player_number to ensure it's within bounds
-    if 1 <= player_number <= len(scores):
-        # Increment the score of the player who guessed correctly
-        scores[player_number - 1] += 1
-
-        # Update the scores in the session
-        session['scores'] = ','.join(map(str, scores))
-        session['round_num'] += 1
-
-        if session['round_num'] > session['rounds']:
-            return 'Good job, scores have been updated! <a href="/games/guess_the_song/play/display_results"> Click here to go to display the final scores!</a>'
-
-        return 'Good job, scores have been updated! <a href="/games/guess_the_song/play/round"> Click here to go to the next round!</a>'
-    
-    else:
-        return "Invalid player number."
-
-@app.route('/games/guess_the_song/play/incorrect')
-def incorrect_guess():
-    # Retrieve scores from the session
-    scores = list(map(int, session.get('scores', '').split(',')))
-
-    # Decrement one from everyone's score
-    scores = [score - 1 for score in scores]
-
-    # Update the scores in the session
-    session['scores'] = ','.join(map(str, scores))
-    session['round_num'] += 1
-    if session['round_num'] > session['rounds']:
-        return 'Nobody got it correct, scores have been updated! <a href="/games/guess_the_song/play/display_results"> Click here to go to display the final scores!</a>'
-
-    return 'Nobody got it correct, scores have been updated! <a href="/games/guess_the_song/play/round"> Click here to go to the next round!</a>'
-
-@app.route('/games/guess_the_song/play/display_results')
-def display_results():
-    scores_str = session.get('scores', '')
-    map_vals = map(int, scores_str.split(','))
-    scores = list(map_vals)
-    from array import array
-
-    updateHighScores = False
-    if 'user' in session and updateHighScores:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        user.high_scores.extend(array('i', map_vals))
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_high_scores(user.spotify_id, user.high_scores) == 0):
-                raise Exceptions.UserNotFoundError
-        session["user"] = user.to_json()
-        stored_scores_status = "The scores have been stored!"
-    else:
-        stored_scores_status = "The scores have not been stored! Please try logging in and playing again to save the scores!"
-    
-    # Calculate and display results here
-    # For example, you can show the scores of each player
-
-    # Construct the HTML for displaying the results and prompting to go back to games tab
-    html_result = '''
-    <html>
-    <head><title>Results</title></head>
-    <body>
-        <h1>Results</h1>
-        
-        <p>Scores:</p>
-        <ul>
-    '''
-
-    for i, score in enumerate(scores, start=1):
-        html_result += f'<li>Player {i}: {score}</li>'
-
-    html_result += stored_scores_status
-
-    html_result += '''
-        </ul>
-        
-        <p><a href="/games">Go back to the games tab</a></p>
-    </body>
-    </html>
-    '''
-
-    return html_result
-"""
-    
 @app.route('/test')
 def test():
     if 'user' in session:

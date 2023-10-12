@@ -92,7 +92,7 @@ class DatabaseConnector(object):
                                 friends, 
                                 theme, 
                                 location,
-                                gender
+                                gender,
                                 recommendation_params) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
         
                
