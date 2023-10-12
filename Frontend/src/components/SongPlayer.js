@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { pulseColors } from "../theme/Colors";
 
 import TextSize from "../theme/TextSize";
@@ -67,10 +67,18 @@ const artistNameTextStyle = {
     overflow: "hidden"
 }
 
+const deviceDropdownStyle = {
+    color: themeColors.white,
+    width: "120px",
+    height: "30px",
+    backgroundColor: themeColors.black
+}
+
 
 function SongPlayer() {
+    const [volumeLevel, setVolumeLevel] = useState('');
+    const [timestamp, setTimestamp] = useState('');
     return(
-        
         <div className="player" style={songPlayerStyle}>
             <img style={songPlayerButtonStyle} src={images.prevButton} alt="Previous Song"></img>
             <img style={songPlayerButtonStyle} src={images.playButton} alt="Play Song"></img>
@@ -82,18 +90,18 @@ function SongPlayer() {
             </div>
             <div style={infoContainerStyle}>
                 <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", left: "40%"}}>0:00</span>
-                <input style={playbackSliderStyle} type="range" id="mySlider" min="0" max="1000" value="200" step="1"/>
+                <input style={playbackSliderStyle} type="range" id="mySlider" min="0" max="1000" value={timestamp} step="1" onChange={e => setTimestamp(e.target.value)}/>
                 <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", right: "20%"}}>23:59</span>
             </div>
             <div>
-                <select name="dropdown" id="myDropdown">
+                <select style={deviceDropdownStyle} name="dropdown" id="myDropdown">
                     <option value="" disabled selected>Select an option</option>
                     <option value="option1">Option 1</option>
                     <option value="option2">Option 2</option>
                     <option value="option3">Option 3</option>
                 </select>
             </div>
-            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value="20" step="1"></input> 
+            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={e => setVolumeLevel(e.target.value)}></input> 
                 
         </div>
     );
