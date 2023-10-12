@@ -244,10 +244,10 @@ def statistics():
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
 
         if layout is not None:
-            data['layout_data'] = jsonify(layout)
+            data['layout_data'] = layout
 
         if followers is not None:
-            data['follower_data'] = jsonify(followers)
+            data['follower_data'] = followers
 
         return jsonify(data)
         
