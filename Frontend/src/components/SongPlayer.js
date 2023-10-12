@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { pulseColors } from "../theme/Colors";
+import axios from "axios";
 
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
@@ -78,7 +79,20 @@ const deviceDropdownStyle = {
 function SongPlayer() {
     const [volumeLevel, setVolumeLevel] = useState('');
     const [timestamp, setTimestamp] = useState('');
+    useEffect(() => {
+        axios
+        .post("http://127.0.0.1:5000/player/play", {})
+        .then((response) => {
+            // Handle the response from the backend if needed
+            console.log("Player scores sent successfully:", response.data);
+        })
+        .catch((error) => {
+            console.error("Error sending player scores:", error);
+        });
+    }, []);
+
     return(
+        
         <div className="player" style={songPlayerStyle}>
             <img style={songPlayerButtonStyle} src={images.prevButton} alt="Previous Song"></img>
             <img style={songPlayerButtonStyle} src={images.playButton} alt="Play Song"></img>
