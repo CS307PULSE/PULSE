@@ -197,7 +197,7 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/player/prev"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/player/skip"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
@@ -429,12 +429,14 @@ def prev():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.skip_backwards()
-        response_data = 'Music skipping prev.'
+        try:
+            player.skip_backwards()
+            response_data = 'Music skipping prev.'
+        except spotipy.exceptions.SpotifyException as e:
+            response_data = 'prev failed'
     else:
         response_data = 'User session not found. Please log in again.'
-    return 'Welcome to the Dashboard! <a href="/player/prev"> Click here to prev!</a>'
-    "return jsonify(response_data)"
+    return jsonify(response_data)
 
 @app.route('/player/shuffle')
 def shuffle():
@@ -843,8 +845,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-<<<<<<< HEAD
-    app.run(host='0.0.0.0', port=5000)
-=======
     app.run(host='127.0.0.1', port=8080)
->>>>>>> main
