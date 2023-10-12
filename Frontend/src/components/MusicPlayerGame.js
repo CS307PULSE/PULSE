@@ -71,6 +71,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   const [currentNumberOfRounds, setCurrentNumberOfRounds] =
     useState(numberOfRounds);
   const [showScores, setShowScores] = useState(false);
+  const [playButtonDisabled, setPlayButtonDisabled] = useState(false);
 
   useEffect(() => {
     const initialPlayers = Array.from(
@@ -85,9 +86,28 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     setPlayers(initialPlayers);
   }, [numberOfPlayers]);
 
+  useEffect(() => {
+    // Reset play button state at the start of each round
+    setIsPlaying(false);
+    setPlayButtonDisabled(false);
+  }, [currentNumberOfRounds]);
+
   const handlePlayButtonClick = () => {
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.post("http://127.0.0.1:8080/games/playback", { artist: "" })
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("Playback initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating playback:", error);
+    });
+
     // Add logic for playing music
-    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
+      setIsPlaying(true);
+      setPlayButtonDisabled(true);
+    }
   };
 
   const handleCheckboxChange = (playerId) => {
@@ -101,6 +121,16 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   };
 
   const handleEveryoneWrongClick = () => {
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("pause initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating pause:", error);
+    });
+
     // Add logic for everyone got it wrong
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) => ({ ...player, selected: false }))
@@ -110,6 +140,17 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   };
 
   const handlePlayersSelectedRightClick = () => {
+
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("pause initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating pause:", error);
+    });
+
     // Check if at least one player is selected
     const isAnyPlayerSelected = players.some((player) => player.selected);
 
@@ -150,8 +191,11 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     const playerScores = players.map((player) => player.score);
 
     // Make a POST request to send player scores to the backend
-    axios
-     .post(backendEndpoint, { gameCode, scores: playerScores })
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    axiosInstance
+      .post(backendEndpoint, { gameCode, scores: playerScores })
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("Player scores sent successfully:", response.data);
@@ -177,7 +221,11 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
 
   return (
     <div style={musicPlayerStyle}>
-      <button style={playButtonStyle} onClick={handlePlayButtonClick}>
+      <button
+        style={playButtonStyle}
+        onClick={handlePlayButtonClick}
+        disabled={playButtonDisabled}
+      >
         {isPlaying ? "Pause" : "Play"}
       </button>
       <div style={playerListStyle}>
