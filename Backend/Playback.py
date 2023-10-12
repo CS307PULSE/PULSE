@@ -35,7 +35,7 @@ class Playback:
             if self.is_playing : 
               self.current_track = self.playback['item']
               self.progress = self.playback['progress_ms']
-              self.current_image = self.current_track['album']['images']['url']
+              self.current_image = self.current_track['album']['images'][0]
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
@@ -43,7 +43,6 @@ class Playback:
        try:
         while True:
             self.currentlyplaying = self.check_playback()
-            self.print_player()
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)

@@ -22,7 +22,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
-run_connected = True
+run_connected = False
 spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
@@ -197,7 +197,7 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/player/play"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/player/prev"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
@@ -435,7 +435,8 @@ def prev():
         response_data = 'Music skipping prev.'
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
+    return 'Welcome to the Dashboard! <a href="/player/prev"> Click here to prev!</a>'
+    "return jsonify(response_data)"
 
 @app.route('/player/shuffle')
 def shuffle():
@@ -471,6 +472,19 @@ def volume_change():
         player = Playback(user)
         player.volume_change(volume)
         response_data = 'volume changed to ' + volume
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/player/play_artist')
+def play_artist():
+    if 'user' in session:
+        data = request.get_json()
+        track = data.get('track')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        suggested_tracks = user.get_recommendations(track)
+        response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
