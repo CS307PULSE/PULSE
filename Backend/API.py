@@ -22,7 +22,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
-run_connected = False
+run_connected = True
 spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
@@ -181,7 +181,6 @@ def callback():
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
-            #resp = make_response("A")
             resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
@@ -224,15 +223,15 @@ def statistics():
 
         while (result <= 0):
             if (result == -1):
-                return 'didnt work 2'
-                return jsonify(data)
+                error_message = "Unexpected token error"
+                return make_response(jsonify({'error': error_message}), 420)
             else:
                 # Token expired but was successfully refreshed, trying again
                 result = update_data(user)
                 retries += 1
                 if (retries > max_retries):
-                    return 'didnt work 1'
-                    return jsonify(data)
+                    error_message = "Unexpected token error, expired a lot!"
+                    return make_response(jsonify({'error': error_message}), 420420)
         
         with DatabaseConnector(db_config) as conn:
             layout = conn.get_layout_from_DB(user.spotify_id)
@@ -256,7 +255,8 @@ def statistics():
         return jsonify(data)
         
     else:
-        return 'User session not found. Please log in again.'
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/statistics/set_layout', methods=['POST'])
 def set_layout():
@@ -897,4 +897,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='127.0.0.1', port=8080)
+    app.run(host='127.0.0.1', port=5000)
