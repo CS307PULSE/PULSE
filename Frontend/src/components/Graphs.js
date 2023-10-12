@@ -408,12 +408,12 @@ export const BarGraph = (props) => {
 export const LineGraph = (props) => {
   const [data, setData] = useState();
   const fixData = () => {
-    let dataPoints = [];
-    props.data.map((dataPoint) => {
-      const newDataPoint = { x: dataPoint.date, y: dataPoint.followers };
-      dataPoints.push(newDataPoint);
-    });
-    let tempData = { id: "Followers", data: dataPoints };
+    let tempData = {
+      id: "Followers",
+      data: props.data.map((dataPoint) => {
+        return { x: dataPoint.date, y: dataPoint.followers };
+      }),
+    };
     console.log(tempData);
     return [tempData];
   };

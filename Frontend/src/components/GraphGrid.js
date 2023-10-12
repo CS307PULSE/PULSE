@@ -94,10 +94,9 @@ async function fetchBackendDatas() {
   return data;
 }
 
-/*
 async function sendLayouts(layouts, defaultLayout) {
   const response = await axios.post(
-    "http://127.0.0.1:5000/statistics/layouts",
+    "http://127.0.0.1:5000/statistics/set_layout",
     {
       layouts: layouts,
       defaultLayout: defaultLayout,
@@ -106,13 +105,13 @@ async function sendLayouts(layouts, defaultLayout) {
   const data = response.data;
   return data;
 }
-*/
 
 export default function GraphGrid() {
   //UseStates for layout setting
   const [layout, setLayout] = useState(defaultLayout);
   const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
+  const [defaultLayoutNum, setDefaultLayoutNum] = useState(1);
 
   //Pulled data
   const [topArtists, setTopArtists] = useState();
@@ -129,6 +128,10 @@ export default function GraphGrid() {
   //Add container function
   const AddContainer = (container) => {
     setLayout([...layout, container]);
+  };
+
+  const changeDefaultLayoutNum = (e) => {
+    setDefaultLayoutNum(e.target.value);
   };
 
   //Get layout from local storage
@@ -148,6 +151,14 @@ export default function GraphGrid() {
     }
   }
 
+  function getAllFromLS() {
+    let allLayouts = [];
+    for (let i = 1; i < 4; i++) {
+      allLayouts.push(getFromLS(i));
+    }
+    return allLayouts;
+  }
+
   //Send layout to local storage
   const saveToLS = (storingLayout) => {
     try {
@@ -160,6 +171,7 @@ export default function GraphGrid() {
   //Function for save button
   const handleSaveButtonClick = () => {
     saveToLS(layout);
+    sendLayouts(getAllFromLS(), defaultLayoutNum);
   };
 
   //Function for load button
@@ -206,6 +218,15 @@ export default function GraphGrid() {
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
         setFollowers(JSON.parse(data.follower_data));
+        //Set local storage of layouts
+        /*
+        let recievedLayouts = JSON.parse(data.layout_data);
+        for (let i = 1; i < 4; i++) {
+          setlayoutNumber(i);
+          saveToLS(data.layout.getItem(i));
+        }
+        setlayoutNumber(recievedLayouts.defaultLayout);
+        */
       } catch (error) {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
@@ -358,6 +379,18 @@ export default function GraphGrid() {
         <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
         <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
         <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
+      </div>
+      <div>
+        <p>Set Default Layout: </p>
+        <select
+          name="defaultLayout"
+          value={defaultLayoutNum}
+          onChange={changeDefaultLayoutNum}
+        >
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
       </div>
       <div>
         <button className="TypButton" onClick={openPopup}>
