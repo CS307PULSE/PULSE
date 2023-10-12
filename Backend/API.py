@@ -455,6 +455,19 @@ def repeat():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
+@app.route('/djmixer/songrec', methods=['POST'])
+def songrec():
+    if 'user' in session:
+        data = request.get_json()
+        track = data.get('track')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        suggested_tracks = user.get_recommendations(track)
+        response_data = suggested_tracks
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
 @app.route('/test')
 def test():
     if 'user' in session:
