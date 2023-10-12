@@ -446,16 +446,6 @@ def set_time():
     else:
         result = 'User session not found. Please log in again.'
 
-def generate():
-    while True:
-        data = f"Data from server at {time.strftime('%H:%M:%S')}"
-        yield f"data: {data}\n\n"
-        time.sleep(1)
-
-@app.route('/player/updatestart')
-def sse():
-    return Response(generate(), content_type='text/event-stream')
-
 @app.route('/test')
 def test():
     if 'user' in session:
