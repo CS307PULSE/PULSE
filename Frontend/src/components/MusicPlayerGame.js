@@ -71,6 +71,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   const [currentNumberOfRounds, setCurrentNumberOfRounds] =
     useState(numberOfRounds);
   const [showScores, setShowScores] = useState(false);
+  const [playButtonDisabled, setPlayButtonDisabled] = useState(false);
 
   useEffect(() => {
     const initialPlayers = Array.from(
@@ -85,9 +86,18 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     setPlayers(initialPlayers);
   }, [numberOfPlayers]);
 
+  useEffect(() => {
+    // Reset play button state at the start of each round
+    setIsPlaying(false);
+    setPlayButtonDisabled(false);
+  }, [currentNumberOfRounds]);
+
   const handlePlayButtonClick = () => {
     // Add logic for playing music
-    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
+      setIsPlaying(true);
+      setPlayButtonDisabled(true);
+    }
   };
 
   const handleCheckboxChange = (playerId) => {
@@ -150,7 +160,10 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     const playerScores = players.map((player) => player.score);
 
     // Make a POST request to send player scores to the backend
-    axios
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    axiosInstance
       .post(backendEndpoint, { gameCode, scores: playerScores })
       .then((response) => {
         // Handle the response from the backend if needed
@@ -177,7 +190,11 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
 
   return (
     <div style={musicPlayerStyle}>
-      <button style={playButtonStyle} onClick={handlePlayButtonClick}>
+      <button
+        style={playButtonStyle}
+        onClick={handlePlayButtonClick}
+        disabled={playButtonDisabled}
+      >
         {isPlaying ? "Pause" : "Play"}
       </button>
       <div style={playerListStyle}>

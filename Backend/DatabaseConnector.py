@@ -129,11 +129,13 @@ class DatabaseConnector(object):
     def get_followers_from_DB(self, spotify_id):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
-        result = self.db_cursor.fetchall()
-        if (result is None or [] or "[]"):
+        results = self.db_cursor.fetchall()
+        if (results is None or results is [] or results is "[]"):
             return None
-        self.resultset = result
-        if (self.resultset == []):
+        self.resultset = json.load(results)
+        print(self.resultset.__class__)
+        print(self.resultset)
+        if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
     
@@ -141,8 +143,13 @@ class DatabaseConnector(object):
     def get_layout_from_DB(self, spotify_id):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()[0]
-        if (self.resultset is None or self.resultset is [(None,)] or self.resultset is "[(None,)]"):
+        results = self.db_cursor.fetchall()
+        if (results is [(None,)] or results is "" or results is None):
+            return None
+        self.resultset = results[0]
+        print(self.resultset.__class__)
+        print(self.resultset)
+        if (self.resultset is [(None,)] or self.resultset is "" or self.resultset is None):
             return None
         
         return self.resultset
@@ -159,7 +166,7 @@ class DatabaseConnector(object):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
-        return score_string_to_array(self.resultset)
+        return score_string_to_array(self.resultset[0][0])
 
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
@@ -294,7 +301,7 @@ class DatabaseConnector(object):
     # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     def update_scores(self, spotify_id, score_array, game):
         
-        master_scores = self.get_scores(spotify_id)
+        master_scores = self.get_scores_from_DB(spotify_id)
         try:
             sql_update_scores_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_scores_query, (score_array_to_string(update_new_score_and_delete_oldest(master_scores,score_array,game)), spotify_id,))
@@ -305,7 +312,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating layout:", str(e))
+            print("Error updating scores:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed   
     
@@ -411,7 +418,7 @@ def score_array_to_string(arr):
 
 def score_string_to_array(s):
     # Convert the string back to a 3D array
-    elements = s.split()
+    elements = s.split(',')
     flat_list = [int(element) for element in elements]
     
     # Create a 3D array from the flattened
