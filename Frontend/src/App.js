@@ -16,7 +16,7 @@ import DJMixer from "./components/DJMixer";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
-  const response = await axios.get("http://127.0.0.1:5000/");
+  const response = await axios.get("http://127.0.0.1:8080/");
   const data = response.data;
   console.log(data);
   return data;

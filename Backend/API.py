@@ -177,7 +177,7 @@ def callback():
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
-            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
+            resp = make_response(redirect("http://localhost:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -709,4 +709,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=8080)
