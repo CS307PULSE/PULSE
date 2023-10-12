@@ -95,10 +95,14 @@ async function fetchBackendDatas() {
 }
 
 async function sendLayouts(layouts, defaultLayout) {
+  console.log({
+    layout: layouts,
+    defaultLayout: defaultLayout,
+  });
   const response = await axios.post(
     "http://127.0.0.1:5000/statistics/set_layout",
     {
-      layouts: layouts,
+      layout: layouts,
       defaultLayout: defaultLayout,
     }
   );
@@ -215,6 +219,7 @@ export default function GraphGrid() {
     const fetchData = async () => {
       try {
         const data = await fetchBackendDatas();
+        console.log(data);
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
         setFollowers(JSON.parse(data.follower_data));
