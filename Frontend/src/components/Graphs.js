@@ -427,8 +427,6 @@ export const LineGraph = (props) => {
   }, []);
 
   if (data === undefined) {
-    console.log(data);
-    console.log(line1);
     return <>Still generating graph</>;
   }
 
@@ -528,7 +526,7 @@ export const PieGraph = (props) => {
 };
 
 async function sendPlayRequest(songID) {
-  const response = await axios.post("http://127.0.0.1:8080/statistics/play", {
+  const response = await axios.post("http://127.0.0.1:5000/statistics/play", {
     songID: songID,
     withCredentials: true,
   });

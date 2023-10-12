@@ -129,22 +129,25 @@ class DatabaseConnector(object):
     def get_followers_from_DB(self, spotify_id):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
-        self.resultset = json.load(self.db_cursor.fetchall())
-        print(self.resultset.__class__)
-        print(self.resultset)
+        result = self.db_cursor.fetchall()
+        if (result is None or [] or "[]"):
+            return None
+        self.resultset = result
         if (self.resultset == []):
             return None
         return self.resultset
     
     # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
     def get_layout_from_DB(self, spotify_id):
+        print("getting layout data")
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
-        self.resultset = json.loads(self.db_cursor.fetchall())
-        print(self.resultset.__class__)
+        self.resultset = self.db_cursor.fetchall()[0]
         print(self.resultset)
-        if (self.resultset == [(None,)]):       #TODO THIS MAY BE WRONG NOW
+        if (self.resultset is None or self.resultset is [(None,)] or self.resultset is "[(None,)]"):
+            print("returning none")
             return None
+        
         return self.resultset
 
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   

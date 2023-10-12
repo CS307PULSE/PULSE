@@ -88,7 +88,7 @@ const defaultLayout = [
 ];
 
 async function fetchBackendDatas() {
-  const response = await axios.get("http://127.0.0.1:8080/statistics", {
+  const response = await axios.get("http://127.0.0.1:5000/statistics", {
     withCredentials: true,
   });
   const data = response.data;
@@ -97,16 +97,13 @@ async function fetchBackendDatas() {
 }
 
 async function sendLayouts(layouts, defaultLayout) {
-  console.log({
-    layout: layouts,
-    defaultLayout: defaultLayout,
+  const axiosInstance = axios.create({
+    withCredentials: true,
   });
-  const response = await axios.post(
+  const response = await axiosInstance.post(
     "http://127.0.0.1:5000/statistics/set_layout",
     {
-      layout: layouts,
-      defaultLayout: defaultLayout,
-      withCredentials: true,
+      layout: { layouts: layouts, defaultLayout: defaultLayout },
     }
   );
   const data = response.data;
@@ -225,16 +222,31 @@ export default function GraphGrid() {
         console.log(data);
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
-        setFollowers(JSON.parse(data.follower_data));
-        //Set local storage of layouts
-        /*
-        let recievedLayouts = JSON.parse(data.layout_data);
-        for (let i = 1; i < 4; i++) {
-          setlayoutNumber(i);
-          saveToLS(data.layout.getItem(i));
+        if (data.follower_data === "") {
+        } else {
+          setFollowers(JSON.parse(data.follower_data));
         }
-        setlayoutNumber(recievedLayouts.defaultLayout);
-        */
+        console.log(data.layout_data);
+        if (data.layout_data === "") {
+        } else {
+          console.log("Getting databse layouts");
+          //Set local storage of layouts
+          /*
+          console.log(data.layout_data);
+          let recievedLayouts = data.layout_data.layouts;
+
+          console.log(recievedLayouts);
+          for (let i = 1; i < 4; i++) {
+            setlayoutNumber(i);
+            console.log(recievedLayouts[i]);
+            saveToLS(recievedLayouts[i]);
+          }
+          if (recievedLayouts[1] === "") {
+          } else {
+            console.log(recievedLayouts[1]);
+            setlayoutNumber(recievedLayouts[1]);
+          }*/
+        }
       } catch (error) {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);

@@ -233,7 +233,7 @@ def statistics():
                     return jsonify(data)
 
         with DatabaseConnector(db_config) as conn:
-            layout = conn.get_layout(user.spotify_id)
+            layout = conn.get_layout_from_DB(user.spotify_id)
         with DatabaseConnector(db_config) as conn:
             followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -245,12 +245,12 @@ def statistics():
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
 
         if layout is not None:
-            print(layout)
-            data['layout_data'] = jsonify(layout)
+            print(" /n/n/nthis is le layout")
+            data['layout_data'] = layout[0]
+            print(data['layout_data'])
 
         if followers is not None:
-            data['follower_data'] = jsonify(followers)
-
+            data['follower_data'] = followers
         return jsonify(data)
         
     else:
@@ -713,4 +713,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=5000)
