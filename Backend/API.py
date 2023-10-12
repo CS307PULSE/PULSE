@@ -486,7 +486,7 @@ def songrec():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('profile/upload', methods=['POST'])
+@app.route('/profile/upload', methods=['POST'])
 def upload_image():
     if 'user' in session:
         data = request.get_json()
@@ -502,7 +502,7 @@ def upload_image():
         response_data = 'User session not found. Please log in again.'
     return jsonify(storage_loc)
 
-@app.route('profile/getimage', methods=['GET'])
+@app.route('/profile/getimage', methods=['GET'])
 def get_image():
     if 'user' in session:
         user_data = session['user']
@@ -518,6 +518,7 @@ def change_displayname():
     if 'user' in session:
         data = request.get_json()
         newname = data.get('displayname')
+        newname = newname.title()
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
@@ -531,6 +532,7 @@ def change_gender():
     if 'user' in session:
         data = request.get_json()
         gender = data.get('gender')
+        gender = gender.capitalize()
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
@@ -540,13 +542,14 @@ def change_gender():
     return jsonify(response_data)
 
 @app.route('/profile/change_location', methods="POST")
-def change_gender():
+def change_location():
     if 'user' in session:
         data = request.get_json()
-        gender = data.get('location')
+        location = data.get('location')
+        location = location.title()
         user_data = session['user']
         user = User.from_json(user_data)
-        user.gender = gender
+        user.location = location
         response_data = 'location updated.'
     else:
         response_data = 'User session not found. Please log in again.'
