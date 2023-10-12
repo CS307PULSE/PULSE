@@ -165,7 +165,9 @@ class DatabaseConnector(object):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
-        return score_string_to_array(self.resultset)
+        print(self.resultset)
+        print(self.resultset[0])
+        return score_string_to_array(self.resultset[0])
 
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
@@ -300,7 +302,7 @@ class DatabaseConnector(object):
     # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     def update_scores(self, spotify_id, score_array, game):
         
-        master_scores = self.get_scores(spotify_id)
+        master_scores = self.get_scores_from_DB(spotify_id)
         try:
             sql_update_scores_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_scores_query, (score_array_to_string(update_new_score_and_delete_oldest(master_scores,score_array,game)), spotify_id,))
