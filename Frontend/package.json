@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@nivo/bar": "^0.83.0",
-    "@nivo/line": "^0.83.0",
+    "@nivo/bar": "^0.55.0",
+    "@nivo/line": "^0.55.0",
     "@nivo/pie": "^0.83.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.5.1",
+    "firebase-functions": "^4.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-grid-layout": "^1.4.2",
@@ -21,7 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-api": "cd ../Backend && flask run --no-debugger",
+    "start-api": "cd ../Backend && flask run -h 127.0.0.1 -p 8080 --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

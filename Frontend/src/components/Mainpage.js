@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React from "react";
+import React, {useEffect} from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
@@ -84,8 +84,6 @@ const searchInputStyle = {
 function Mainpage() {
   return (
     <div style={bodyStyle}>
-      
-
       <Navbar />
       <div style={{ padding: '5px' }} />
       <div style={searchContainerStyle}>

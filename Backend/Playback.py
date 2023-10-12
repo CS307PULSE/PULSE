@@ -167,7 +167,16 @@ class Playback:
       tracks = self.user.spotify_user.track(song_uri)
       song_link = tracks[0]['external_urls']['spotify'] 
       webbrowser.open(song_link) 
+    """
+    def check_track(self, player_val):
+      if(player_val)
     
+    def check_device(self, player_val):
+
+    def check_time(self, player_val):
+
+    def check_queue(self, player_val):
+    """
     def print_player(self):
       print(f"User: {self.user}")
       print(f"Devices: {self.devices}")
