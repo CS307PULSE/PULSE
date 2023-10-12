@@ -92,6 +92,16 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   }, [currentNumberOfRounds]);
  
   const handlePlayButtonClick = () => {
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.post("http://127.0.0.1:8080/games/playback", { artist: "" })
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("Playback initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating playback:", error);
+    });
+
     // Add logic for playing music
     if (!isPlaying) {
       setIsPlaying(true);
@@ -110,6 +120,16 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   };
 
   const handleEveryoneWrongClick = () => {
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("pause initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating pause:", error);
+    });
+
     // Add logic for everyone got it wrong
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) => ({ ...player, selected: false }))
@@ -119,6 +139,17 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   };
 
   const handlePlayersSelectedRightClick = () => {
+
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("pause initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating pause:", error);
+    });
+
     // Check if at least one player is selected
     const isAnyPlayerSelected = players.some((player) => player.selected);
 
