@@ -77,7 +77,7 @@ const defaultLayout = [
 
 /*
 async function fetchLayouts() {
-  const response = await axios.get("http://127.0.0.1:5000/stats/layouts");
+  const response = await axios.get("http://127.0.0.1:8080/stats/layouts");
   const data = response.data;
   console.log(data);
   return data;
@@ -85,7 +85,7 @@ async function fetchLayouts() {
 
 async function sendLayouts(layout) {
   const response = await axios.post(
-    "http://127.0.0.1:5000/stats/layouts",
+    "http://127.0.0.1:8080/stats/layouts",
     layout
   );
   const data = response.data;
