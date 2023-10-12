@@ -476,8 +476,8 @@ def volume_change():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/player/play_artist', methods=['POST'])
-def play_artist():
+@app.route('/player/play_playlist', methods=['POST'])
+def play_playlist():
     if 'user' in session:
         data = request.get_json()
         playlist_uri = data.get('spotify_uri')
