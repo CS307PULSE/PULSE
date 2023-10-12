@@ -88,7 +88,9 @@ const defaultLayout = [
 ];
 
 async function fetchBackendDatas() {
-  const response = await axios.get("http://127.0.0.1:8080/statistics");
+  const response = await axios.get("http://127.0.0.1:8080/statistics", {
+    withCredentials: true,
+  });
   const data = response.data;
   console.log(data);
   return data;
@@ -101,6 +103,7 @@ async function sendLayouts(layouts, defaultLayout) {
     {
       layouts: layouts,
       defaultLayout: defaultLayout,
+      withCredentials: true,
     }
   );
   const data = response.data;

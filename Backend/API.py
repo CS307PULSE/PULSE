@@ -41,9 +41,11 @@ if not run_firebase:
 #firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
+app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+app.config['SESSION_COOKIE_SECURE'] = False
 
 scopes = [
     #Images
