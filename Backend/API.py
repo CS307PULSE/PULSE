@@ -459,6 +459,20 @@ def repeat():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
+@app.route('/player/volume', methods=['POST'])
+def volume_change():
+    if 'user' in session:
+        data = request.get_json()
+        volume = data.get('volume')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.volume_change(volume)
+        response_data = 'volume changed to ' + volume
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
 @app.route('/djmixer/songrec', methods=['POST'])
 def songrec():
     if 'user' in session:
