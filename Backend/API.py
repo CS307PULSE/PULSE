@@ -468,6 +468,32 @@ def songrec():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
+@app.route('profile/upload', methods=['POST'])
+def upload_image():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        
+        response_data = 'Profile Icon to Database'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('profile/getimage', methods=['GET'])
+def get_image():
+    if 'user' in session:
+        storage_log = os.path.join(os.getcwd()) + "\Icons"
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            image = get_
+            with open(storage_log, 'wb') as file:
+                file.write(image)
+        response_data = 'Found and uploaded profile.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
 @app.route('/test')
 def test():
     if 'user' in session:
