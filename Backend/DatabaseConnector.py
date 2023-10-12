@@ -246,37 +246,17 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchall()
         return self.resultset
 
-    def get_follower_numbers_from_DB(self, spotify_id):
-        sql_get_follower_numbers_query = "SELECT follower_numbers from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_follower_numbers_query, (spotify_id,))
+    def get_followers_from_DB(self, spotify_id):
+        sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
-        return create_follower_number_array_from_DB(self.resultset)
+        return json.loads(self.resultset)
     
-    def get_follower_dates_from_DB(self, spotify_id):
-        sql_get_follower_dates_query = "SELECT follower_dates from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_follower_dates_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
-        return create_follower_dates_array_from_DB(self.resultset)
 
-    def update_follower_numbers(self, spotify_id, follower_numbers):
+    def update_followers(self, spotify_id, follower_dates):
         try:
-            sql_update_follower_numbers_query = """UPDATE pulse.base_stats SET follower_numbers = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_follower_numbers_query, (create_follower_number_string_for_DB(follower_numbers), spotify_id,))
-            self.db_conn.commit()
-            # Optionally, you can check if any rows were affected by the UPDATE operation.
-            # If you want to fetch the updated record, you can do it separately.
-            affected_rows = self.db_cursor.rowcount
-            return affected_rows
-        except Exception as e:
-            # Handle any exceptions that may occur during the database operation.
-            print("Error updating layout:", str(e))
-            self.db_conn.rollback()
-            return 0  # Indicate that the update failed
-
-    def update_follower_dates(self, spotify_id, follower_dates):
-        try:
-            sql_update_follower_dates_query = """UPDATE pulse.base_stats SET follower_dates = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_follower_dates_query, (create_follower_dates_string_for_DB(follower_dates), spotify_id,))
+            sql_update_followers = """UPDATE pulse.base_stats SET followers = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_followers, (json.dumps(follower_dates), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -372,18 +352,6 @@ def create_rec_params_from_DB(rec_input_string):
         return []
     recommendation_params = [float(x) for x in rec_input_string.split(',')]
     return recommendation_params
-
-def create_follower_number_array_from_DB(follower_number_string):
-    if (follower_number_string == ""):
-        return []
-    follower_numbers = [int(x) for x in follower_number_string.split(',')]
-    return follower_numbers
-
-def create_follower_dates_array_from_DB(follower_dates_string):
-    if (follower_dates_string == ""):
-        return []
-    follower_dates = [x.strftime("%Y-%m-%d %H:%M:%S") for x in follower_dates_string.split(',')]
-    return follower_dates
 
 def score_array_to_string(arr):
     # Convert the 3D array to a string by flattening it
