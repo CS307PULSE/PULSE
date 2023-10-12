@@ -22,7 +22,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
-run_connected = False
+run_connected = True
 spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
@@ -476,18 +476,32 @@ def volume_change():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/player/play_artist')
+@app.route('/player/play_artist', methods=['POST'])
 def play_artist():
     if 'user' in session:
         data = request.get_json()
-        track = data.get('track')
+        playlist_uri = data.get('spotify_uri')
         user_data = session['user']
         user = User.from_json(user_data)
-        suggested_tracks = user.get_recommendations(track)
-        response_data = suggested_tracks
+        player = Playback(user)
+        player.play_artist(playlist_uri)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
+
+@app.route('/player/play_artist', methods=['POST'])
+def play_artist():
+    if 'user' in session:
+        data = request.get_json()
+        artist_uri = data.get('spotify_uri')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.play_artist(artist_uri)
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
 
 @app.route('/djmixer/songrec', methods=['POST'])
 def songrec():

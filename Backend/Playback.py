@@ -156,7 +156,11 @@ class Playback:
       playlist = self.user.spotify_user.playlist(playlist_uri)
       playlist_first_song = playlist['tracks']['items']['track']['TrackObject']
       self.select_song(playlist_uri, playlist_first_song)
-      self.play()
+
+    def play_artist(self, artist_uri):
+      artist_tracks = self.user.spotify_user.artist_top_tracks(artist_uri)
+      artist_first_song = artist_tracks[1]
+      self.select_song(artist_uri, artist_first_song)
 
     def open_playlist(self, playlist_uri):
       playlist = self.user.spotify_user.playlist(playlist_uri)
@@ -167,6 +171,12 @@ class Playback:
       tracks = self.user.spotify_user.track(song_uri)
       song_link = tracks[0]['external_urls']['spotify'] 
       webbrowser.open(song_link) 
+
+    def open_artist(self, artist_uri):
+      artist_tracks = self.user.spotify_user.artist(artist_uri)
+      artist_link = artist['external_urls']['spotify']
+      webbrowser.open(artist_link)
+    
     """
     def check_track(self, player_val):
       if(player_val)
