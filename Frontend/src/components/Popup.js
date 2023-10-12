@@ -56,6 +56,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       setBarData(false);
       setLineData(false);
       setPieData(true);
+    } else if (newData === "followers") {
+      setNoneData(false);
+      setBarData(false);
+      setLineData(true);
+      setPieData(false);
     } else {
       setNoneData(false);
       setBarData(false);
@@ -137,6 +142,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
                 Top Artists of last 6 months
               </option>
               <option value="top_artists_all">Top Artists of all time</option>
+              <option value="followers">Followers</option>
             </select>
           </div>
           <div>

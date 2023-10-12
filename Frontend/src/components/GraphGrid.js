@@ -114,9 +114,10 @@ export default function GraphGrid() {
   const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
 
-  //Top data
+  //Pulled data
   const [topArtists, setTopArtists] = useState();
   const [topSongs, setTopSongs] = useState();
+  const [followers, setFollowers] = useState();
 
   //Remove container function
   const RemoveContainer = (containerName) => {
@@ -174,17 +175,17 @@ export default function GraphGrid() {
     let updatedLayout = [];
     let graphNames = [];
     for (let container of layout) {
-      const copyContainer = allLayouts.lg.find(
+      const diffContainer = allLayouts.lg.find(
         (tempContainer) => tempContainer.i === container.i
       );
       //Store graph names into an array for new graph use
       graphNames = [...graphNames, container.i];
       //Position data
-      container["x"] = copyContainer.x;
-      container["y"] = copyContainer.y;
+      container["x"] = diffContainer.x;
+      container["y"] = diffContainer.y;
       //Size data
-      container["w"] = copyContainer.w;
-      container["h"] = copyContainer.h;
+      container["w"] = diffContainer.w;
+      container["h"] = diffContainer.h;
       updatedLayout.push(container);
     }
     setGraphNames(graphNames);
@@ -204,12 +205,15 @@ export default function GraphGrid() {
         const data = await fetchBackendDatas();
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
+        setFollowers(JSON.parse(data.follower_data));
       } catch (error) {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
         // Temporary measure to keep things going
+        console.log(JSON.parse(tempData.follower_data));
         setTopArtists(JSON.parse(tempData.top_artists));
         setTopSongs(JSON.parse(tempData.top_songs));
+        setFollowers(JSON.parse(tempData.follower_data));
       }
     };
 
@@ -244,10 +248,17 @@ export default function GraphGrid() {
         newGraph.graphSettings
       );
     } else if (newGraph.graphType === "Line") {
-      newGraph.graphSettings = Object.assign(
-        { xName: "transportation", yName: "Count" },
-        newGraph.graphSettings
-      );
+      if (newGraph.data === "followers") {
+        newGraph.graphSettings = Object.assign(
+          { xName: "date", yName: "Followers" },
+          newGraph.graphSettings
+        );
+      } else {
+        newGraph.graphSettings = Object.assign(
+          { xName: "transportation", yName: "Count" },
+          newGraph.graphSettings
+        );
+      }
     }
 
     AddContainer(newGraph);
@@ -264,19 +275,19 @@ export default function GraphGrid() {
       case "pie2":
         return pie2;
       case "top_songs_4week":
-        console.log(topSongs[0]);
         return topSongs[0];
       case "top_songs_6month":
         return topSongs[1];
       case "top_songs_all":
         return topSongs[2];
       case "top_artists_4week":
-        console.log(topArtists[0]);
         return topArtists[0];
       case "top_artists_6month":
         return topArtists[1];
       case "top_artists_all":
         return topArtists[2];
+      case "followers":
+        return followers;
       default:
         return null;
     }
@@ -290,8 +301,8 @@ export default function GraphGrid() {
     <React.Fragment>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
+        breakpoints={{ lg: 700, xs: 300, xxs: 0 }}
+        cols={{ lg: 5, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={"100%"}
         onLayoutChange={handleLayoutChange}

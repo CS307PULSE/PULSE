@@ -4,6 +4,7 @@ import { ResponsivePie } from "@nivo/pie";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 //Sample datas
 export const bar1 = [
@@ -404,75 +405,103 @@ export const BarGraph = (props) => {
 };
 
 //Line Graph
-export const LineGraph = (props) => (
-  <ResponsiveLine
-    theme={graphTheme}
-    data={props.data}
-    colors={{ scheme: props.graphTheme }}
-    margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
-    xScale={{ type: "point" }}
-    yScale={{
-      type: "linear",
-      min: "auto",
-      max: "auto",
-      stacked: true,
-      reverse: false,
-    }}
-    yFormat=" >-.2f"
-    axisTop={null}
-    axisRight={null}
-    axisBottom={{
-      orient: "bottom",
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: props.xName,
-      legendOffset: 36,
-      legendPosition: "middle",
-    }}
-    axisLeft={{
-      orient: "left",
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: props.yName,
-      legendOffset: -40,
-      legendPosition: "middle",
-    }}
-    pointSize={10}
-    pointColor={{ theme: "background" }}
-    pointBorderWidth={2}
-    pointBorderColor={{ from: "serieColor" }}
-    pointLabelYOffset={-12}
-    useMesh={true}
-    legends={[
-      {
-        anchor: "bottom-right",
-        direction: "column",
-        justify: false,
-        translateX: 100,
-        translateY: 0,
-        itemsSpacing: 0,
-        itemDirection: "left-to-right",
-        itemWidth: 80,
-        itemHeight: 20,
-        itemOpacity: 0.75,
-        symbolSize: 12,
-        symbolShape: "circle",
-        symbolBorderColor: "rgba(0, 0, 0, .5)",
-        effects: [
-          {
-            on: "hover",
-            style: {
-              itemBackground: "rgba(0, 0, 0, .03)",
-              itemOpacity: 1,
+export const LineGraph = (props) => {
+  const [data, setData] = useState();
+  const fixData = () => {
+    let dataPoints = [];
+    props.data.map((dataPoint) => {
+      const newDataPoint = { x: dataPoint.date, y: dataPoint.followers };
+      dataPoints.push(newDataPoint);
+    });
+    let tempData = { id: "Followers", data: dataPoints };
+    console.log(tempData);
+    return [tempData];
+  };
+
+  useEffect(() => {
+    if (props.dataName === "followers") {
+      setData(fixData());
+    } else {
+      setData(props.data);
+    }
+  }, []);
+
+  if (data === undefined) {
+    console.log(data);
+    console.log(line1);
+    return <>Still generating graph</>;
+  }
+
+  return (
+    <ResponsiveLine
+      theme={graphTheme}
+      data={data}
+      colors={{ scheme: props.graphTheme }}
+      margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
+      xScale={{ type: "point" }}
+      yScale={{
+        type: "linear",
+        min: "auto",
+        max: "auto",
+        stacked: true,
+        reverse: false,
+      }}
+      yFormat=" >-.2f"
+      axisTop={null}
+      axisRight={null}
+      axisBottom={{
+        orient: "bottom",
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+        legend: props.xName,
+        legendOffset: 36,
+        legendPosition: "middle",
+      }}
+      axisLeft={{
+        orient: "left",
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+        legend: props.yName,
+        legendOffset: -40,
+        legendPosition: "middle",
+      }}
+      pointSize={10}
+      pointColor={{ theme: "background" }}
+      pointBorderWidth={2}
+      pointBorderColor={{ from: "serieColor" }}
+      pointLabelYOffset={-12}
+      useMesh={true}
+      legends={[
+        {
+          anchor: "bottom-right",
+          direction: "column",
+          justify: false,
+          translateX: 100,
+          translateY: 0,
+          itemsSpacing: 0,
+          itemDirection: "left-to-right",
+          itemWidth: 80,
+          itemHeight: 20,
+          itemOpacity: 0.75,
+          symbolSize: 12,
+          symbolShape: "circle",
+          symbolBorderColor: "rgba(0, 0, 0, .5)",
+          effects: [
+            {
+              on: "hover",
+              style: {
+                itemBackground: "rgba(0, 0, 0, .03)",
+                itemOpacity: 1,
+              },
             },
-          },
-        ],
-      },
-    ]}
-  />
-);
+          ],
+        },
+      ]}
+    />
+  );
+};
 
 //Pie Graph
 export const PieGraph = (props) => {
