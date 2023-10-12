@@ -102,9 +102,9 @@ def index():
     if (user_id):
         user_exists = False
         with DatabaseConnector(db_config) as conn:
-            user_exists = conn.does_user_exist_in_DB(user_id)
+            user_exists = conn.does_user_exist_in_user_DB(user_id)
             if user_exists:
-                user = conn.get_user_from_DB(spotify_id=user_id)
+                user = conn.get_user_from_user_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
                 #return jsonify(message='Login successful! Welcome to your Flask app.')
                 if run_connected:
@@ -164,9 +164,10 @@ def callback():
         
         user_exists = False
         with DatabaseConnector(db_config) as conn:
-            user_exists = conn.does_user_exist_in_DB(user.spotify_id)
+            user_exists = conn.does_user_exist_in_user_DB(user.spotify_id)
             if not user_exists:
-                conn.store_new_user_in_DB(user)
+                conn.create_new_user_in_user_DB(user)
+                conn.create_new_user_in_stats_DB(user.spotify_id)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
