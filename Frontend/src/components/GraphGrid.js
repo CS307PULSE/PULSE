@@ -92,7 +92,7 @@ async function fetchBackendDatas() {
     withCredentials: true,
   });
   const data = response.data;
-  console.log(data);
+  console.log(response);
   return data;
 }
 
@@ -107,6 +107,7 @@ async function sendLayouts(layouts, defaultLayout) {
     }
   );
   const data = response.data;
+  console.log(response);
   return data;
 }
 
@@ -121,6 +122,7 @@ export default function GraphGrid() {
   const [topArtists, setTopArtists] = useState();
   const [topSongs, setTopSongs] = useState();
   const [followers, setFollowers] = useState();
+  const [finishedPullingData, setFinished] = useState(false);
 
   //Remove container function
   const RemoveContainer = (containerName) => {
@@ -143,6 +145,7 @@ export default function GraphGrid() {
     //Try-catch to set layout to default one if recieved empty layout
     try {
       const storedLayout = localStorage.getItem(key);
+      console.log(storedLayout);
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
@@ -150,7 +153,7 @@ export default function GraphGrid() {
       return newLayout;
     } catch (e) {
       console.log(e);
-      saveToLS(defaultLayout);
+      saveToLS(key, defaultLayout);
       return defaultLayout;
     }
   }
@@ -164,9 +167,13 @@ export default function GraphGrid() {
   }
 
   //Send layout to local storage
-  const saveToLS = (storingLayout) => {
+  const saveToLS = (key, storingLayout) => {
     try {
-      localStorage.setItem(layoutNumber, JSON.stringify(storingLayout));
+      console.log(
+        "Layout " + key + " (should be " + layoutNumber + " ) stored as"
+      );
+      console.log(storingLayout);
+      localStorage.setItem(key, JSON.stringify(storingLayout));
     } catch (e) {
       alert(e);
     }
@@ -174,7 +181,7 @@ export default function GraphGrid() {
 
   //Function for save button
   const handleSaveButtonClick = () => {
-    saveToLS(layout);
+    saveToLS(layoutNumber, layout);
     sendLayouts(getAllFromLS(), defaultLayoutNum);
   };
 
@@ -231,22 +238,21 @@ export default function GraphGrid() {
         } else {
           console.log("Getting databse layouts");
           //Set local storage of layouts
-          /*
-          console.log(data.layout_data);
-          let recievedLayouts = data.layout_data.layouts;
+          const layout_data = JSON.parse(data.layout_data);
+          let newLayouts = layout_data.layouts;
+          console.log(newLayouts);
 
-          console.log(recievedLayouts);
-          for (let i = 1; i < 4; i++) {
-            setlayoutNumber(i);
-            console.log(recievedLayouts[i]);
-            saveToLS(recievedLayouts[i]);
+          for (let i = 0; i < 3; i++) {
+            setlayoutNumber(i + 1);
+            saveToLS(i + 1, newLayouts[i]);
           }
-          if (recievedLayouts[1] === "") {
+          if (layout_data.defaultLayout === "") {
           } else {
-            console.log(recievedLayouts[1]);
-            setlayoutNumber(recievedLayouts[1]);
-          }*/
+            console.log(parseInt(layout_data.defaultLayout));
+            setlayoutNumber(parseInt(layout_data.defaultLayout));
+          }
         }
+        setFinished(true);
       } catch (error) {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
@@ -255,6 +261,7 @@ export default function GraphGrid() {
         setTopArtists(JSON.parse(tempData.top_artists));
         setTopSongs(JSON.parse(tempData.top_songs));
         setFollowers(JSON.parse(tempData.follower_data));
+        setFinished(true);
       }
     };
 
@@ -334,7 +341,7 @@ export default function GraphGrid() {
     }
   }
 
-  if (topSongs === undefined) {
+  if (!finishedPullingData) {
     return <>Still Loading...</>;
   }
 

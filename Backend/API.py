@@ -245,9 +245,7 @@ def statistics():
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
 
         if layout is not None:
-            print(" /n/n/nthis is le layout")
             data['layout_data'] = layout[0]
-            print(data['layout_data'])
 
         if followers is not None:
             data['follower_data'] = followers
