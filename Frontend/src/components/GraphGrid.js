@@ -122,6 +122,10 @@ export default function GraphGrid() {
   const [topArtists, setTopArtists] = useState();
   const [topSongs, setTopSongs] = useState();
   const [followers, setFollowers] = useState();
+  const [recentSongs, setRecentSongs] = useState();
+  const [savedSongs, setSavedSongs] = useState();
+  const [savedAlbums, setSavedAlbums] = useState();
+  const [followedArtists, setFollowedArtists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
 
   //Remove container function
@@ -226,14 +230,29 @@ export default function GraphGrid() {
     const fetchData = async () => {
       try {
         const data = await fetchBackendDatas();
-        console.log(data);
+        const objData = {
+          top_artists: JSON.parse(data.top_artists),
+          top_songs: JSON.parse(data.top_songs),
+          recent_history: JSON.parse(data.recent_history),
+          saved_songs: JSON.parse(data.saved_songs),
+          followed_artists: JSON.parse(data.followed_artists),
+          layout_data: JSON.parse(data.layout_data),
+        };
+        console.log(objData);
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
+        setRecentSongs(JSON.parse(data.recent_history));
+        setSavedSongs(JSON.parse(data.saved_songs));
+        //setSavedAlbums(JSON.parse(data.saved_albums));
+        setFollowedArtists(JSON.parse(data.followed_artists));
+
+        //Followers
         if (data.follower_data === "") {
         } else {
           setFollowers(JSON.parse(data.follower_data));
         }
-        console.log(data.layout_data);
+
+        //Layout
         if (data.layout_data === "") {
         } else {
           console.log("Getting databse layouts");
@@ -252,6 +271,7 @@ export default function GraphGrid() {
             console.log(parseInt(layout_data.defaultLayout));
           }
         }
+
         setFinished(true);
       } catch (error) {
         alert("Page failed fetching - loading backup data");
@@ -261,6 +281,7 @@ export default function GraphGrid() {
         setTopArtists(JSON.parse(tempData.top_artists));
         setTopSongs(JSON.parse(tempData.top_songs));
         setFollowers(JSON.parse(tempData.follower_data));
+
         setFinished(true);
       }
     };
@@ -336,6 +357,14 @@ export default function GraphGrid() {
         return topArtists[2];
       case "followers":
         return followers;
+      case "recent_songs":
+        return recentSongs;
+      case "saved_songs":
+        return savedSongs;
+      case "saved_albums":
+        return savedAlbums;
+      case "followed_artists":
+        return followedArtists;
       default:
         return null;
     }

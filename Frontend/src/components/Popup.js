@@ -36,7 +36,14 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const changeData = (e) => {
     const newData = e.target.value;
     setData(newData);
-    if (newData.includes("top_songs") || newData.includes("top_artists")) {
+    if (
+      newData.includes("top_songs") ||
+      newData.includes("top_artists") ||
+      newData === "recent_songs" ||
+      newData === "saved_songs" ||
+      newData === "saved_albums" ||
+      newData === "followed_artists"
+    ) {
       setNoneData(true);
       setBarData(false);
       setLineData(false);
@@ -143,6 +150,10 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               </option>
               <option value="top_artists_all">Top Artists of all time</option>
               <option value="followers">Followers</option>
+              <option value="recent_songs">Recent Songs</option>
+              <option value="saved_songs">Saved Songs</option>
+              <option value="saved_albums">Saved Albums</option>
+              <option value="followed_artists">Followed Artists</option>
             </select>
           </div>
           <div>

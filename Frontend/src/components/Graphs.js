@@ -547,34 +547,96 @@ export const TopGraph = (props) => {
         });
       }}
     >
-      {props.dataName.includes("top_artist")
-        ? props.data.map((track) => (
-            <span
-              href=""
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={track.name}
-            >
-              <img
-                src={track.images[0].url}
-                alt={track.name}
-                className="TopGraphImage"
-              />
-            </span>
-          ))
-        : props.data.map((track) => (
-            <span
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={track.name + " by " + track.artists[0].name}
-              onClick={() => sendPlayRequest(track.id)}
-              style={{ cursor: "pointer" }}
-            >
-              <img
-                src={track.album.images[0].url}
-                alt={track.name}
-                className="TopGraphImage"
-              />
-            </span>
-          ))}
+      {props.dataName.includes("top_artist") ||
+      props.dataName.includes("followed_artists") ? (
+        props.data.map((artist) => (
+          <span
+            href=""
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={artist.name}
+          >
+            <img
+              src={artist.images[0].url}
+              alt={artist.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("top_song") ? (
+        props.data.map((track) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={track.name + " by " + track.artists[0].name}
+            onClick={() => sendPlayRequest(track.uri)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={track.album.images[0].url}
+              alt={track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("recent_songs") ? (
+        props.data.map((trackObj) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={
+              trackObj.track.name +
+              " by " +
+              trackObj.track.artists[0].name +
+              " played at " +
+              trackObj.played_at
+            }
+            onClick={() => sendPlayRequest(trackObj.track.uri)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={trackObj.track.album.images[0].url}
+              alt={trackObj.track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("saved_songs") ? (
+        props.data.map((trackObj) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={
+              trackObj.track.name +
+              " by " +
+              trackObj.track.artists[0].name +
+              " added at " +
+              trackObj.added_at
+            }
+            onClick={() => sendPlayRequest(trackObj.track.id)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={trackObj.track.album.images[0].url}
+              alt={trackObj.track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("saved_albums") ? (
+        props.data.map((track) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={track.name + " by " + track.artists[0].name}
+            onClick={() => sendPlayRequest(track.id)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={track.album.images[0].url}
+              alt={track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : (
+        <p>Bad data name</p>
+      )}
       <Tooltip id="my-tooltip" />
     </div>
   );
