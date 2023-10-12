@@ -516,10 +516,24 @@ def play_artist():
         user = User.from_json(user_data)
         player = Playback(user)
         player.play_artist(artist_uri)
+        response_data = 'Song playing'
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
+@app.route('/player/play_song', methods=['POST'])
+def play_song():
+    if 'user' in session:
+        data = request.get_json()
+        song_uri = data.get('spotify_uri')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.select_song(song=[song_uri])
+        response_data = 'Song playing'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/djmixer/songrec', methods=['POST'])
 def songrec():
@@ -528,7 +542,7 @@ def songrec():
         track = data.get('track')
         user_data = session['user']
         user = User.from_json(user_data)
-        suggested_tracks = user.get_recommendations(track)
+        suggested_tracks = user.get_recommendations(seed_tracks=track)
         response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
@@ -898,3 +912,4 @@ def run_tests(testUser):
 if __name__ == '__main__':
     #app.run(debug=True)
     app.run(host='127.0.0.1', port=5000)
+

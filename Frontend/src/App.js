@@ -1,6 +1,9 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
+import Profile from "./components/Profile";
+//import EditProfile from "./components/EditProfile";
+
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
 import GuessTheLyric from "./components/GuessTheLyric";
@@ -44,6 +47,7 @@ function App() {
   const handleLoginClick = () => {
     // Perform any login logic here if needed
     // For now, just set the state to true to indicate the button is clicked
+    
     setLoginClicked(true);
   };
   return (
@@ -60,6 +64,7 @@ function App() {
           }
         />
         <Route path="/dashboard" element={<Mainpage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="game/guess-the-song" element={<GuessTheSong />} />
         <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
         <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />

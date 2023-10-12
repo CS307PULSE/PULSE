@@ -68,7 +68,8 @@ const ScoreStyle = {
 const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [players, setPlayers] = useState([]);
-  const [currentNumberOfRounds, setCurrentNumberOfRounds] = useState(numberOfRounds);
+  const [currentNumberOfRounds, setCurrentNumberOfRounds] =
+    useState(numberOfRounds);
   const [showScores, setShowScores] = useState(false);
   const [playButtonDisabled, setPlayButtonDisabled] = useState(false);
 
@@ -85,12 +86,12 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     setPlayers(initialPlayers);
   }, [numberOfPlayers]);
 
-   useEffect(() => {
+  useEffect(() => {
     // Reset play button state at the start of each round
     setIsPlaying(false);
     setPlayButtonDisabled(false);
   }, [currentNumberOfRounds]);
- 
+
   const handlePlayButtonClick = () => {
     const axiosInstance = axios.create({withCredentials: true});
     axiosInstance.post("http://127.0.0.1:8080/games/playback", { artist: "" })
@@ -192,9 +193,9 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     // Make a POST request to send player scores to the backend
     const axiosInstance = axios.create({
       withCredentials: true,
-    })
+    });
     axiosInstance
-     .post(backendEndpoint, { gameCode, scores: playerScores })
+      .post(backendEndpoint, { gameCode, scores: playerScores })
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("Player scores sent successfully:", response.data);
@@ -220,13 +221,13 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
 
   return (
     <div style={musicPlayerStyle}>
-    <button
-      style={playButtonStyle}
-      onClick={handlePlayButtonClick}
-      disabled={playButtonDisabled}
-    >
-      {isPlaying ? "Pause" : "Play"}
-    </button>
+      <button
+        style={playButtonStyle}
+        onClick={handlePlayButtonClick}
+        disabled={playButtonDisabled}
+      >
+        {isPlaying ? "Pause" : "Play"}
+      </button>
       <div style={playerListStyle}>
         <h3>Player List</h3>
         {players.map((player) => (

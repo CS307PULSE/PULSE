@@ -132,6 +132,8 @@ class DatabaseConnector(object):
         results = self.db_cursor.fetchall()
         if (results is None or results is [] or results is "[]"):
             return None
+        print(self.resultset.__class__)
+        print(self.resultset)
         self.resultset = json.load(results)
         print(self.resultset.__class__)
         print(self.resultset)
@@ -151,6 +153,7 @@ class DatabaseConnector(object):
         print(self.resultset)
         if (self.resultset is [(None,)] or self.resultset is "" or self.resultset is None):
             return None
+        
         return self.resultset
 
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   
