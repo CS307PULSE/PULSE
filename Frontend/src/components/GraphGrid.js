@@ -219,7 +219,7 @@ export default function GraphGrid() {
   useEffect(() => {
     setLayout(getFromLS(layoutNumber));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [finishedPullingData]);
 
   //Get data from server & set top song/artists
   useEffect(() => {
@@ -248,8 +248,8 @@ export default function GraphGrid() {
           }
           if (layout_data.defaultLayout === "") {
           } else {
-            console.log(parseInt(layout_data.defaultLayout));
             setlayoutNumber(parseInt(layout_data.defaultLayout));
+            console.log(parseInt(layout_data.defaultLayout));
           }
         }
         setFinished(true);
