@@ -404,7 +404,7 @@ def skip():
     else:
         result = 'User session not found. Please log in again.'
 
-@app.router('/player/prev')
+@app.route('/player/prev')
 def prev():
     if 'user' in session:
         user_data = session['user']
@@ -414,7 +414,7 @@ def prev():
     else:
         result = 'User session not found. Please log in again.'
 
-@app.router('/player/shuffle')
+@app.route('/player/shuffle')
 def shuffle():
     if 'user' in session:
         user_data = session['user']
@@ -424,7 +424,7 @@ def shuffle():
     else:
         result = 'User session not found. Please log in again.'
 
-@app.router('/player/repeat')
+@app.route('/player/repeat')
 def repeat():
     if 'user' in session:
         user_data = session['user']
@@ -434,7 +434,7 @@ def repeat():
     else:
         result = 'User session not found. Please log in again.'
 
-@app.router('/player/volume', methods=['post'])
+@app.route('/player/volume', methods=['post'])
 def volume():
     if 'user' in session:
         data = request.get_json()
