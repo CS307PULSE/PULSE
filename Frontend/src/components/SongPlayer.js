@@ -81,13 +81,13 @@ function SongPlayer() {
     const [timestamp, setTimestamp] = useState('');
     useEffect(() => {
         axios
-        .post("http://127.0.0.1:5000/player/play", {})
+        .get("http://127.0.0.1:5000/player/play", {})
         .then((response) => {
             // Handle the response from the backend if needed
-            console.log("Player scores sent successfully:", response.data);
+            console.log("Song played successfully:", response.data);
         })
         .catch((error) => {
-            console.error("Error sending player scores:", error);
+            console.error("Error playing song:", error);
         });
     }, []);
 
@@ -100,7 +100,7 @@ function SongPlayer() {
             <img style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
             <div style={infoContainerStyle}>
                 <p style={songNameTextStyle}>lol</p>
-                <p style={artistNameTextStyle}>lolasdsadasdasdas2asddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</p>
+                <p style={artistNameTextStyle}>asdsadasj daskldj askop</p>
             </div>
             <div style={infoContainerStyle}>
                 <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", left: "40%"}}>0:00</span>
