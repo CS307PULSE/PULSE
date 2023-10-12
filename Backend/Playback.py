@@ -132,7 +132,7 @@ class Playback:
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
-    def select_song(self, context, song):
+    def select_song(self, context=None, song=None):
       try:
         #need to research how context, uris, and offset all interact
         self.user.spotify_user.start_playback(None, context, song, None, None)
