@@ -19,6 +19,7 @@ class Playback:
         self.volume = ""
         self.volume_support = ""
         self.current_image = ""
+        self.start_thread()
 
     def check_playback(self):
         try:
