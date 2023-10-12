@@ -144,7 +144,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   // Function to send player data to the backend
   const sendPlayerDataToBackend = () => {
     // Assuming your backend API endpoint is 'your-backend-api-endpoint'
-    const backendEndpoint = "http://127.0.0.1:5000/games/store_scores";
+    const backendEndpoint = "http://127.0.0.1:8080/games/store_scores";
 
     // Extract player scores as an array of integers
     const playerScores = players.map((player) => player.score);
