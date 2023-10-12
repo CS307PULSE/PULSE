@@ -284,7 +284,6 @@ def set_theme():
 
 @app.route('/get_theme')
 def get_theme():
-    print("lol")
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
