@@ -13,14 +13,14 @@ from DatabaseConnector import db_config
 import json
 import Exceptions
 import os
-import Playback
+from Playback import Playback
 import time
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
-run_connected = False
+run_connected = True
 spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
@@ -170,11 +170,13 @@ def callback():
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
+        session['user'] = user.to_json()
+
         global run_connected
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
-            resp = make_response("Set")
+            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -189,7 +191,7 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/statistics"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/player/pause"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
@@ -236,10 +238,14 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
+
         if layout is not None:
+            print(layout)
             data['layout_data'] = jsonify(layout)
+
         if followers is not None:
             data['follower_data'] = jsonify(followers)
+
         return jsonify(data)
         
     else:
@@ -383,8 +389,10 @@ def play():
         user = User.from_json(user_data)
         player = Playback(user)
         player.play()
+        response_data = 'Music Playing started.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/pause')
 def pause():
@@ -393,8 +401,10 @@ def pause():
         user = User.from_json(user_data)
         player = Playback(user)
         player.pause()
+        response_data = 'Music player paused.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/skip')
 def skip():
@@ -403,8 +413,10 @@ def skip():
         user = User.from_json(user_data)
         player = Playback(user)
         player.skip_forwards()
+        response_data = 'Music skipping.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/prev')
 def prev():
@@ -413,8 +425,10 @@ def prev():
         user = User.from_json(user_data)
         player = Playback(user)
         player.skip_backwards()
+        response_data = 'Music skipping prev.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/shuffle')
 def shuffle():
@@ -423,8 +437,10 @@ def shuffle():
         user = User.from_json(user_data)
         player = Playback(user)
         player.shuffle()
+        response_data = 'Music changing shuffle.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/repeat')
 def repeat():
@@ -433,28 +449,10 @@ def repeat():
         user = User.from_json(user_data)
         player = Playback(user)
         player.set_repeat()
+        response_data = 'Music changing repeat.'
     else:
-        result = 'User session not found. Please log in again.'
-        
-@app.route('/player/set_time')
-def set_time():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        player = Playback(user)
-        player.set_repeat()
-    else:
-        result = 'User session not found. Please log in again.'
-
-def generate():
-    while True:
-        data = f"Data from server at {time.strftime('%H:%M:%S')}"
-        yield f"data: {data}\n\n"
-        time.sleep(1)
-
-@app.route('/player/updatestart')
-def sse():
-    return Response(generate(), content_type='text/event-stream')
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/test')
 def test():
@@ -697,4 +695,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=5000)
