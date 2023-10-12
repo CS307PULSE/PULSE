@@ -114,7 +114,7 @@ class DatabaseConnector(object):
         sql_fetch_blob_query = """SELECT icon from pulse.users where spotify_id = %s"""
         self.db_cursor.execute(sql_fetch_blob_query, (spotify_id,))
         icon = self.db_cursor.fetchall()
-        if (icon is None):
+        if (icon[0] is None):
             #print ("No icon exists")
             return None
         # Icon exists
@@ -123,18 +123,16 @@ class DatabaseConnector(object):
             # Convert binary data to proper format and write it on Hard Disk
             #with open(storage_loc, 'wb') as file:
             #file.write(image)
-            return icon
+            return icon[0]
 
     # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
     def get_followers_from_DB(self, spotify_id):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
-        results = self.db_cursor.fetchall()
-        if (results is None or results is [] or results is "[]"):
+        results = self.db_cursor.fetchone()
+        if (results[0] is None or results is [] or results is "[]"):
             return None
-        print(self.resultset.__class__)
-        print(self.resultset)
-        self.resultset = json.load(results)
+        self.resultset = json.load(results[0])
         print(self.resultset.__class__)
         print(self.resultset)
         if (self.resultset == []) or (self.resultset is None):
@@ -145,13 +143,13 @@ class DatabaseConnector(object):
     def get_layout_from_DB(self, spotify_id):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
-        results = self.db_cursor.fetchall()
-        if (results is [(None,)] or results is "" or results is None):
+        results = self.db_cursor.fetchone()
+        if (results is [(None,)] or results is "" or results[0] is None):
             return None
         self.resultset = results[0]
         print(self.resultset.__class__)
         print(self.resultset)
-        if (self.resultset is [(None,)] or self.resultset is "" or self.resultset is None):
+        if (self.resultset is None or self.resultset is ""):
             return None
         
         return self.resultset
@@ -167,8 +165,10 @@ class DatabaseConnector(object):
     def get_scores_from_DB(self, spotify_id):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
-        return score_string_to_array(self.resultset[0][0])
+        self.resultset = self.db_cursor.fetchone()
+        #print(self.resultset[0])
+        #print(self.resultset[0].__class__)
+        return score_string_to_array(self.resultset[0])
 
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
@@ -221,7 +221,7 @@ class DatabaseConnector(object):
             return 0  # Indicate that the update failed
     
     # Updates followers (expected dictionary) in user DB. Returns 1 if sucessful, 0 if not
-    def update_followers(self, spotify_id, new_followers):
+    def update_followers(self, spotify_id, new_date, new_count):
         try:
             sql_update_followers = """UPDATE pulse.base_stats SET followers = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_followers, (json.dumps(new_followers), spotify_id,))
@@ -304,6 +304,8 @@ class DatabaseConnector(object):
     def update_scores(self, spotify_id, score_array, game):
         
         master_scores = self.get_scores_from_DB(spotify_id)
+        print("MADE IT")
+        print(master_scores)
         try:
             sql_update_scores_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_scores_query, (score_array_to_string(update_new_score_and_delete_oldest(master_scores,score_array,game)), spotify_id,))
@@ -414,13 +416,15 @@ def create_rec_params_from_DB(rec_input_string):
     return recommendation_params
 
 def score_array_to_string(arr):
+    print("AT ARRAY TO STRING")
     # Convert the 3D array to a string by flattening it
     flattened = [str(item) for sublist1 in arr for sublist2 in sublist1 for item in sublist2]
     return ' '.join(flattened)
 
 def score_string_to_array(s):
     # Convert the string back to a 3D array
-    elements = s.split(',')
+    elements = s.split()
+    print("AT STRING TO ARRAY")
     flat_list = [int(element) for element in elements]
     
     # Create a 3D array from the flattened
@@ -440,10 +444,12 @@ def score_string_to_array(s):
 
 #game = 0, 1, 2, 3, or 4 
 def update_new_score_and_delete_oldest(arr_3d, new_array, game):
+    print("AT UPDATE NEW SCORE")
     # Update the first array with the new 2D array
     arr_3d[game].insert(0, new_array)
     # Remove the last array
     arr_3d[game].pop()
+    return  arr_3d
 
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
