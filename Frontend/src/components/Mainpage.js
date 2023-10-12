@@ -1,14 +1,20 @@
+import { Link } from "react-router-dom";
 import React, {useEffect} from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
-import { Link} from "react-router-dom";
+import SongPlayer from "./SongPlayer";
+import TextSize from "../theme/TextSize";
+import Colors from "../theme/Colors";
+
+const textSizes = TextSize(1); //Obtain text size values
+const themeColors = Colors("dark"); //Obtain color values
 
 const bodyStyle = {
-  backgroundColor: 'black',
+  backgroundColor: themeColors.background,
   margin: 0,
   padding: 0,
-  height: '100vh',
+  height: '100vh'
 };
 
 const cardContainerStyle = {
@@ -16,17 +22,19 @@ const cardContainerStyle = {
   flexWrap: 'wrap',
   justifyContent: 'space-around',
   width: '75%', // Set width to 75% of the container
-
 };
 
 const cardStyle = {
   marginBottom: '20px', // Add some bottom margin for spacing
+  padding: '20px',
   textAlign: 'center',
   fontFamily: "'Poppins', sans-serif",
 };
 
 const cardContent={
-color: 'white',
+  color: themeColors.text,
+  fontSize: textSizes.body,
+  fontFamily: "'Poppins', sans-serif",
 };
 
 const buttonContainerStyle = {
@@ -37,13 +45,15 @@ const buttonContainerStyle = {
 };
 
 const buttonStyle = {
-  backgroundColor: 'black',
-  color: 'white',
+  backgroundColor: themeColors.background,
+  color: themeColors.text,
   padding: '8px',
-  border: '1px solid white', // White border
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  borderColor: themeColors.text,
   borderRadius: '10px',
   cursor: 'pointer',
-  marginBottom: '5px', // Small space between buttons
+  margin: '5px', // Small space between buttons
   width: '90%',
 };
 
@@ -55,7 +65,7 @@ const friendContainerStyle = {
   right: 0,
   width: '20%', // Take up 20% of the viewport width
   height: '900', // Take up the full height
-  backgroundColor: 'white', // Add background color for the friend component
+  backgroundColor: themeColors.backgorund, // Add background color for the friend component
 };
 
 const searchContainerStyle = {
@@ -89,28 +99,29 @@ function Mainpage() {
       </div>
       <div style={{ padding: '20px' }} />
       <div style={cardContainerStyle}>
-      <Card headerText="GAMES" style={cardStyle}>
-            <p style={cardContent}>
-              <div style={buttonContainerStyle}>
-              {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
-              <Link to="/game/guess-the-song" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS THE SONG</Link>
-              <Link to="/game/guess-the-artist" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS THE ARTIST</Link>
-              <Link to="/game/guess-who-listens" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS WHO LISTENS TO THE SONG</Link>
-              <Link to="/game/guess-the-lyric" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS THE NEXT LYRIC</Link>
-              <Link to="/game/heads-up" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>HEADS UP</Link>
-            </div>
-            </p>
-          </Card>
+        <Card headerText="GAMES" style={cardStyle}>
+          <p style={cardContent}>
+            <div style={buttonContainerStyle}>
+            {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
+            <Link to="/game/guess-the-song" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS THE SONG</Link>
+            <Link to="/game/guess-the-artist" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS THE ARTIST</Link>
+            <Link to="/game/guess-who-listens" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS WHO LISTENS TO THE SONG</Link>
+            <Link to="/game/guess-the-lyric" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>GUESS THE NEXT LYRIC</Link>
+            <Link to="/game/heads-up" style={{ ...buttonStyle, textDecoration: 'none', textAlign: 'center' }}>HEADS UP</Link>
+          </div>
+          </p>
+        </Card>
         <Card headerText="UPLOADER" style={cardStyle}>
           <p style={cardContent}>ENTER LOCAL FILE PATH:</p>
         </Card>
-    
       </div>
      {/* Define routes for each game */}
       <div style={friendContainerStyle}>
-      <FriendsCard/>
+        <FriendsCard/>
       </div>
-      </div>
+
+      <SongPlayer />
+    </div>
    
   );
 }

@@ -68,7 +68,8 @@ const ScoreStyle = {
 const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [players, setPlayers] = useState([]);
-  const [currentNumberOfRounds, setCurrentNumberOfRounds] = useState(numberOfRounds);
+  const [currentNumberOfRounds, setCurrentNumberOfRounds] =
+    useState(numberOfRounds);
   const [showScores, setShowScores] = useState(false);
   const [playButtonDisabled, setPlayButtonDisabled] = useState(false);
 
@@ -85,13 +86,23 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     setPlayers(initialPlayers);
   }, [numberOfPlayers]);
 
-   useEffect(() => {
+  useEffect(() => {
     // Reset play button state at the start of each round
     setIsPlaying(false);
     setPlayButtonDisabled(false);
   }, [currentNumberOfRounds]);
- 
+
   const handlePlayButtonClick = () => {
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.post("http://127.0.0.1:8080/games/playback", { artist: "" })
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("Playback initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating playback:", error);
+    });
+
     // Add logic for playing music
     if (!isPlaying) {
       setIsPlaying(true);
@@ -110,6 +121,16 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   };
 
   const handleEveryoneWrongClick = () => {
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("pause initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating pause:", error);
+    });
+
     // Add logic for everyone got it wrong
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) => ({ ...player, selected: false }))
@@ -119,6 +140,17 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   };
 
   const handlePlayersSelectedRightClick = () => {
+
+    const axiosInstance = axios.create({withCredentials: true});
+    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    .then((response) => {
+      // Handle the response from the backend if needed
+      console.log("pause initiated successfully:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error initiating pause:", error);
+    });
+
     // Check if at least one player is selected
     const isAnyPlayerSelected = players.some((player) => player.selected);
 
@@ -153,7 +185,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
   // Function to send player data to the backend
   const sendPlayerDataToBackend = () => {
     // Assuming your backend API endpoint is 'your-backend-api-endpoint'
-    const backendEndpoint = "http://127.0.0.1:8080/games/store_scores";
+    const backendEndpoint = "http://127.0.0.1:5000/games/store_scores";
 
     // Extract player scores as an array of integers
     const playerScores = players.map((player) => player.score);
@@ -161,9 +193,9 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
     // Make a POST request to send player scores to the backend
     const axiosInstance = axios.create({
       withCredentials: true,
-    })
+    });
     axiosInstance
-     .post(backendEndpoint, { gameCode, scores: playerScores })
+      .post(backendEndpoint, { gameCode, scores: playerScores })
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("Player scores sent successfully:", response.data);
@@ -189,13 +221,13 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode }) => {
 
   return (
     <div style={musicPlayerStyle}>
-    <button
-      style={playButtonStyle}
-      onClick={handlePlayButtonClick}
-      disabled={playButtonDisabled}
-    >
-      {isPlaying ? "Pause" : "Play"}
-    </button>
+      <button
+        style={playButtonStyle}
+        onClick={handlePlayButtonClick}
+        disabled={playButtonDisabled}
+      >
+        {isPlaying ? "Pause" : "Play"}
+      </button>
       <div style={playerListStyle}>
         <h3>Player List</h3>
         {players.map((player) => (
