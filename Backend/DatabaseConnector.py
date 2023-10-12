@@ -133,8 +133,6 @@ class DatabaseConnector(object):
         if (results[0] is None or results is [] or results is "[]"):
             return None
         self.resultset = json.load(results[0])
-        print(self.resultset.__class__)
-        print(self.resultset)
         if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
@@ -147,8 +145,6 @@ class DatabaseConnector(object):
         if (results is [(None,)] or results is "" or results[0] is None):
             return None
         self.resultset = results[0]
-        print(self.resultset.__class__)
-        print(self.resultset)
         if (self.resultset is None or self.resultset is ""):
             return None
         return self.resultset
@@ -165,8 +161,6 @@ class DatabaseConnector(object):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        #print(self.resultset[0])
-        #print(self.resultset[0].__class__)
         return score_string_to_array(self.resultset[0])
 
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
@@ -303,8 +297,6 @@ class DatabaseConnector(object):
     def update_scores(self, spotify_id, score_array, game):
         
         master_scores = self.get_scores_from_DB(spotify_id)
-        print("MADE IT")
-        print(master_scores)
         try:
             sql_update_scores_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_scores_query, (score_array_to_string(update_new_score_and_delete_oldest(master_scores,score_array,game)), spotify_id,))
@@ -415,7 +407,6 @@ def create_rec_params_from_DB(rec_input_string):
     return recommendation_params
 
 def score_array_to_string(arr):
-    print("AT ARRAY TO STRING")
     # Convert the 3D array to a string by flattening it
     flattened = [str(item) for sublist1 in arr for sublist2 in sublist1 for item in sublist2]
     return ' '.join(flattened)
@@ -423,7 +414,6 @@ def score_array_to_string(arr):
 def score_string_to_array(s):
     # Convert the string back to a 3D array
     elements = s.split()
-    print("AT STRING TO ARRAY")
     flat_list = [int(element) for element in elements]
     
     # Create a 3D array from the flattened
@@ -443,7 +433,6 @@ def score_string_to_array(s):
 
 #game = 0, 1, 2, 3, or 4 
 def update_new_score_and_delete_oldest(arr_3d, new_array, game):
-    print("AT UPDATE NEW SCORE")
     # Update the first array with the new 2D array
     arr_3d[game].insert(0, new_array)
     # Remove the last array
