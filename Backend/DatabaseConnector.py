@@ -253,6 +253,8 @@ class DatabaseConnector(object):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
+        if (self.resultset == []):
+            return None
         return self.resultset
     
 
