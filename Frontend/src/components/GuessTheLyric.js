@@ -93,10 +93,11 @@ const gameButtonText = {
   fontWeight: 700,
   fontSize: "14px",
 }
-const GuessTheArtist = () => {
+const GuessTheLyric = () => {
   const [numberOfPlayers, setNumberOfPlayers] = useState(0);
   const [numberOfRounds, setNumberOfRounds] = useState(0);
   const[isStartClicked, setIsStartClicked]= useState(false);
+  const [selectedArtist, setSelectedArtist] = useState("");
 
   const handleInputChange = (value, setter) => {
     // Ensure the input value is between 1 and 10
@@ -105,13 +106,12 @@ const GuessTheArtist = () => {
   };
 
   const handleStartGameClick = () => {
-      if (numberOfPlayers !== 0 && numberOfRounds !== 0) {
+      if (numberOfPlayers !== 0 && numberOfRounds !== 0 && selectedArtist.trim() !== "") {
         setIsStartClicked(true);
       } else {
         alert("Please enter valid input");
       }
     };
-
   return (
     <div style={bodyStyle}>
       <Navbar />
@@ -121,7 +121,7 @@ const GuessTheArtist = () => {
       <div style={boxStyle}>
           {!isStartClicked ? (
             <>
-              <h2 style={gameTitleStyle}>Guess The Artist Game</h2>
+              <h2 style={gameTitleStyle}>Guess The NEXT LYRIC</h2>
               <h4 style={gameSubTitleStyle}>
                 <u>Rules of the Game:</u> The game can have 1-10 plays and 1-10 Rounds per game
               </h4>
@@ -131,8 +131,8 @@ const GuessTheArtist = () => {
                   <input
                     type="number"
                     value={numberOfPlayers}
-                     onChange={(e) => handleInputChange(e.target.value, setNumberOfPlayers)}
-                  style={inputStyle}
+                    onChange={(e) => handleInputChange(e.target.value, setNumberOfPlayers)}
+                    style={inputStyle}
                   />
                 </label>
                 <div />
@@ -145,6 +145,15 @@ const GuessTheArtist = () => {
                     style={inputStyle}
                   />
                 </label>
+                <label style={gameTextStyle}>
+                Artist:
+                <input
+                  type="text"
+                  value={selectedArtist}
+                  onChange={(e) => setSelectedArtist(e.target.value)}
+                  style={inputStyle}
+                />
+              </label>
                 <button className="gameButton" style={gameButton} onClick={handleStartGameClick}>
                   <p style={gameButtonText}>START GAME</p>
                 </button>
@@ -152,7 +161,7 @@ const GuessTheArtist = () => {
             </>
           ) : (
             <div>
-              <MusicPlayerGame numberOfPlayers={numberOfPlayers} />
+              <MusicPlayerGame numberOfPlayers={numberOfPlayers} numberOfRounds={numberOfRounds}/>
             </div>
           )}
         </div>
@@ -160,4 +169,4 @@ const GuessTheArtist = () => {
   );
 };
 
-export default GuessTheArtist;
+export default GuessTheLyric;

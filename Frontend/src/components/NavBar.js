@@ -1,5 +1,3 @@
-// Navbar.js
-
 import React from 'react';
 import { Link } from 'react-router-dom'; // If using React Router for navigation
 import LogoPNG from "../../src/assets/LogoPNG.png";

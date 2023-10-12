@@ -190,6 +190,8 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    #GET FOLLOWER HISTORY FROM
+    #get layout from db
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -202,7 +204,9 @@ def statistics():
                 'top_songs' : '',
                 'top_artists' : '',
                 'followed_artists' : '',
-                'saved_songs' : ''}
+                'saved_songs' : '',
+                'follower_data' : '',
+                'layout_data' : ''}
 
         while (result <= 0):
             if (result == -1):
@@ -222,11 +226,86 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
+        #data['follower_data']
+        #data['layout_data']
         return jsonify(data)
         
     else:
         return 'User session not found. Please log in again.'
 
+@app.route('/statistics/set_layout')
+def set_layout(layout):
+    #send to db
+    return
+
+@app.route('/games/playback', methods=['POST'])
+def playback():
+    data = request.get_json()
+    filter_search = data.get('artist')
+    timestamp_ms = 20000 #20 seconds playback
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        print(f"Starting with filter {filter_search}!")
+        
+        global spoof_songs
+        if (spoof_songs):
+            songs = []
+            songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
+            songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
+        elif filter_search == "":
+            if user.stats.saved_songs is None:
+                user.update_saved_songs()
+            songs = user.stats.saved_songs
+        else:
+            results = user.search_for_items(query=filter_search, items_type='artist', max_items=5)
+            if results['artists']['items']:
+                artist_id = results['artists']['items'][0]['id']
+                songs = user.spotify_user.artist_top_tracks(artist_id)
+            else:
+                if user.stats.saved_songs is None:
+                    user.update_saved_songs()
+                songs = user.stats.saved_songs 
+
+        import random
+        random_track = random.choice(songs)
+        if (spoof_songs):
+            track_uri = random_track['uri']
+        else:
+            track_uri = random_track['track']['uri']
+        user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        result = f'Playing URI {track_uri}'
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/games/store_scores', methods=['POST'])
+def store_scores():
+    data = request.get_json()
+    game_code = data.get('gameCode')
+    scores = data.get('scores')
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        if len(scores) < 10:
+            scores += [-1] * (10 - len(scores))
+
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_scores(user.spotify_id, scores, game_code) == 0):
+                error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+"""
 @app.route('/games/guess_the_song')
 def guess_the_song():
     if 'rounds' not in session:
@@ -504,7 +583,8 @@ def display_results():
     '''
 
     return html_result
-
+"""
+    
 @app.route('/test')
 def test():
     if 'user' in session:

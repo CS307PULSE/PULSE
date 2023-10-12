@@ -1,6 +1,9 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
+import axios from "axios";
 
 //Sample datas
 export const bar1 = [
@@ -360,17 +363,30 @@ export const pie2 = [
   },
 ];
 
+//Modify graph text color here
+const graphTheme = {
+  text: {
+    fill: "var(--graph-text-fill)",
+  },
+  tooltip: {
+    container: {
+      background: "var(--tooltip-container-background)",
+    },
+  },
+};
+
 //Bar Graph
 export const BarGraph = (props) => {
   return (
     <ResponsiveBar
+      theme={graphTheme}
       data={props.data}
       keys={props.graphKeys}
       indexBy={props.graphIndexBy}
       margin={{ top: 30, right: 50, bottom: 50, left: 60 }}
       padding={0.4}
       valueScale={{ type: "linear" }}
-      colors="#3182CE"
+      colors={{ scheme: props.graphTheme }}
       animate={true}
       enableLabel={false}
       axisTop={null}
@@ -390,7 +406,9 @@ export const BarGraph = (props) => {
 //Line Graph
 export const LineGraph = (props) => (
   <ResponsiveLine
+    theme={graphTheme}
     data={props.data}
+    colors={{ scheme: props.graphTheme }}
     margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
     xScale={{ type: "point" }}
     yScale={{
@@ -460,7 +478,9 @@ export const LineGraph = (props) => (
 export const PieGraph = (props) => {
   return (
     <ResponsivePie
+      theme={graphTheme}
       data={props.data}
+      colors={{ scheme: props.graphTheme }}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
       innerRadius={0.5}
       padAngle={0.7}
@@ -475,5 +495,59 @@ export const PieGraph = (props) => {
       arcLabelsSkipAngle={10}
       arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
     />
+  );
+};
+
+async function sendPlayRequest(songID) {
+  const response = await axios.post("http://127.0.0.1:5000/statistics/play", {
+    songID: songID,
+  });
+  const data = response.data;
+  return data;
+}
+
+export const TopGraph = (props) => {
+  return (
+    <div
+      className="TopGraph custom-draggable-cancel"
+      onWheel={(e) => {
+        if (e.deltaY === 0) return;
+        e.preventDefault();
+        e.currentTarget.scrollTo({
+          left: e.currentTarget.scrollLeft + e.deltaY,
+          behavior: "auto",
+        });
+      }}
+    >
+      {props.dataName.includes("top_artist")
+        ? props.data.map((track) => (
+            <span
+              href=""
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={track.name}
+            >
+              <img
+                src={track.images[0].url}
+                alt={track.name}
+                className="TopGraphImage"
+              />
+            </span>
+          ))
+        : props.data.map((track) => (
+            <span
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={track.name + " by " + track.artists[0].name}
+              onClick={() => sendPlayRequest(track.id)}
+              style={{ cursor: "pointer" }}
+            >
+              <img
+                src={track.album.images[0].url}
+                alt={track.name}
+                className="TopGraphImage"
+              />
+            </span>
+          ))}
+      <Tooltip id="my-tooltip" />
+    </div>
   );
 };
