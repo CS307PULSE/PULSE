@@ -3,13 +3,22 @@ import { Link } from 'react-router-dom'; // If using React Router for navigation
 import LogoPNG from "../../src/assets/LogoPNG.png";
 import ProfileIcon from "../../src/assets/ProfileIcon.png";
 
+import TextSize from "../theme/TextSize";
+import Colors from "../theme/Colors"; 
+const textSizes = TextSize(1); //Obtain text size values
+const themeColors = Colors("light"); //Obtain color values
+
 const navbarStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  backgroundColor: "#6EEB4D",
+  backgroundColor: themeColors.green,
   padding: '0 1rem',
-  color: 'white',
+  color: themeColors.white,
+  /*position: "fixed",
+  top: "0",
+  left: 0,
+  width: "100%"*/
 };
 
 const logoStyle = {
@@ -17,21 +26,20 @@ const logoStyle = {
   height: 60,
 };
 
-
 const linkContainerStyle = {
   display: 'flex',
 };
 
 const linkStyle = {
-  color: '#FFF',
+  color: themeColors.white,
   fontWeight: 500,
   textTransform: 'uppercase',
   fontFamily: "'Poppins', sans-serif",
-  textDecoration: 'none',
+  textDecoration: 'none', 
   margin: '0 1rem',
   padding: '0.5rem 1rem',
   borderRadius: 20,
-  backgroundColor: 'black',
+  backgroundColor: themeColors.black,
 };
 
 const profileIconStyle = {

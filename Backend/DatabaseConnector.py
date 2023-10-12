@@ -151,6 +151,7 @@ class DatabaseConnector(object):
         print(self.resultset)
         if (self.resultset is None or self.resultset is ""):
             return None
+        
         return self.resultset
 
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   

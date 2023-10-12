@@ -19,6 +19,7 @@ class Playback:
         self.volume = ""
         self.volume_support = ""
         self.current_image = ""
+        self.start_thread()
 
     def check_playback(self):
         try:
@@ -34,7 +35,7 @@ class Playback:
             if self.is_playing : 
               self.current_track = self.playback['item']
               self.progress = self.playback['progress_ms']
-              self.current_image = self.current_track['album']['images']['url']
+              self.current_image = self.current_track['album']['images'][0]
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
@@ -42,7 +43,6 @@ class Playback:
        try:
         while True:
             self.currentlyplaying = self.check_playback()
-            self.print_player()
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
@@ -74,7 +74,7 @@ class Playback:
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
   
-    def skip_forward(self):
+    def skip_forwards(self):
        try:
         self.user.spotify_user.next_track()
        except spotipy.exceptions.SpotifyException as e:
@@ -132,7 +132,7 @@ class Playback:
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
     
-    def select_song(self, context, song):
+    def select_song(self, context=None, song=None):
       try:
         #need to research how context, uris, and offset all interact
         self.user.spotify_user.start_playback(None, context, song, None, None)
@@ -156,7 +156,11 @@ class Playback:
       playlist = self.user.spotify_user.playlist(playlist_uri)
       playlist_first_song = playlist['tracks']['items']['track']['TrackObject']
       self.select_song(playlist_uri, playlist_first_song)
-      self.play()
+
+    def play_artist(self, artist_uri):
+      artist_tracks = self.user.spotify_user.artist_top_tracks(artist_uri)
+      artist_first_song = artist_tracks[1]
+      self.select_song(artist_uri, artist_first_song)
 
     def open_playlist(self, playlist_uri):
       playlist = self.user.spotify_user.playlist(playlist_uri)
@@ -167,6 +171,12 @@ class Playback:
       tracks = self.user.spotify_user.track(song_uri)
       song_link = tracks[0]['external_urls']['spotify'] 
       webbrowser.open(song_link) 
+
+    def open_artist(self, artist_uri):
+      artist_tracks = self.user.spotify_user.artist(artist_uri)
+      artist_link = artist['external_urls']['spotify']
+      webbrowser.open(artist_link)
+    
     """
     def check_track(self, player_val):
       if(player_val)

@@ -4,6 +4,11 @@ import Background from "../../src/assets/Background.png";
 import Logo from "../../src/assets/LogoLogin.png";
 import axios from "axios";
 
+import TextSize from "../theme/TextSize";
+import Colors from "../theme/Colors"; 
+const textSizes = TextSize(1); //Obtain text size values
+const themeColors = Colors("light"); //Obtain color values
+
 const loginMainStyle = {
   paddding: "0px",
   margin: "0px",
@@ -64,7 +69,7 @@ const padding = {
 // document.body.style.overflow = "hidden"
 // for the login call for fetch
 async function fetchDataLogin() {
-  const response = await axios.get("http://127.0.0.1:8080/login", {
+  const response = await axios.get("http://127.0.0.1:5000/login", {
     withCredentials: true,
   });
   const data = response.data;
