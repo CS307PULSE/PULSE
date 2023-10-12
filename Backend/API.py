@@ -197,8 +197,6 @@ def games():
 
 @app.route('/statistics')
 def statistics():
-    #GET FOLLOWER HISTORY FROM
-    #get layout from db
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -229,6 +227,8 @@ def statistics():
 
         with DatabaseConnector(db_config) as conn:
             layout = jsonify(conn.get_layout(user.spotify_id))
+        with DatabaseConnector(db_config) as conn:
+            followers = jsonify(conn.get_followers_from_DB(user.spotify_id))
 
         data['status'] = 'Success'
         data['recent_history'] = user.stringify(user.stats.recent_history)
@@ -236,7 +236,7 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
-        #data['follower_data']
+        data['follower_data'] = jsonify(followers)
         data['layout_data'] = layout
         return jsonify(data)
         
@@ -374,7 +374,7 @@ def store_scores():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.router('/player/play')
+@app.route('/player/play')
 def play():
     if 'user' in session:
         user_data = session['user']
@@ -384,7 +384,7 @@ def play():
     else:
         result = 'User session not found. Please log in again.'
 
-@app.router('/player/pause')
+@app.route('/player/pause')
 def pause():
     if 'user' in session:
         user_data = session['user']
@@ -394,7 +394,7 @@ def pause():
     else:
         result = 'User session not found. Please log in again.'
 
-@app.router('/player/skip')
+@app.route('/player/skip')
 def skip():
     if 'user' in session:
         user_data = session['user']
