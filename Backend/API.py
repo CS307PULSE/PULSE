@@ -195,7 +195,7 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/player/pause"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/player/play"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
@@ -513,7 +513,7 @@ def get_image():
         response_data = 'User session not found. Please log in again.'
     return jsonify(storage_loc)
 
-@app.route('/profile/change_displayname', methods='POST')
+@app.route('/profile/change_displayname', methods=['POST'])
 def change_displayname():
     if 'user' in session:
         data = request.get_json()
@@ -527,7 +527,7 @@ def change_displayname():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/change_gender', methods='POST')
+@app.route('/profile/change_gender', methods=['POST'])
 def change_gender():
     if 'user' in session:
         data = request.get_json()
@@ -541,7 +541,7 @@ def change_gender():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/change_location', methods='POST')
+@app.route('/profile/change_location', methods=['POST'])
 def change_location():
     if 'user' in session:
         data = request.get_json()
@@ -555,7 +555,7 @@ def change_location():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/get_displayname', methods='GET')
+@app.route('/profile/get_displayname', methods=['GET'])
 def get_displayname():
     if 'user' in session:
         user_data = session['user']
@@ -566,7 +566,7 @@ def get_displayname():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/get_gender', methods='GET')
+@app.route('/profile/get_gender', methods=['GET'])
 def get_gender():
     if 'user' in session:
         user_data = session['user']
@@ -577,7 +577,7 @@ def get_gender():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/get_location', methods='GET')
+@app.route('/profile/get_location', methods=['GET'])
 def get_location():
     if 'user' in session:
         user_data = session['user']
