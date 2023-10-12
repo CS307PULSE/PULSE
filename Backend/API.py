@@ -13,7 +13,7 @@ from DatabaseConnector import db_config
 import json
 import Exceptions
 import os
-import Playback
+from Playback import Playback
 import time
 
 import spotipy
@@ -170,6 +170,8 @@ def callback():
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
+        session['user'] = user.to_json()
+
         global run_connected
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
@@ -189,7 +191,7 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/statistics"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/player/pause"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
@@ -387,8 +389,10 @@ def play():
         user = User.from_json(user_data)
         player = Playback(user)
         player.play()
+        response_data = 'Music Playing started.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/pause')
 def pause():
@@ -397,8 +401,10 @@ def pause():
         user = User.from_json(user_data)
         player = Playback(user)
         player.pause()
+        response_data = 'Music player paused.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/skip')
 def skip():
@@ -407,8 +413,10 @@ def skip():
         user = User.from_json(user_data)
         player = Playback(user)
         player.skip_forwards()
+        response_data = 'Music skipping.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/prev')
 def prev():
@@ -417,8 +425,10 @@ def prev():
         user = User.from_json(user_data)
         player = Playback(user)
         player.skip_backwards()
+        response_data = 'Music skipping prev.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/shuffle')
 def shuffle():
@@ -427,8 +437,10 @@ def shuffle():
         user = User.from_json(user_data)
         player = Playback(user)
         player.shuffle()
+        response_data = 'Music changing shuffle.'
     else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/player/repeat')
 def repeat():
@@ -437,18 +449,10 @@ def repeat():
         user = User.from_json(user_data)
         player = Playback(user)
         player.set_repeat()
+        response_data = 'Music changing repeat.'
     else:
-        result = 'User session not found. Please log in again.'
-        
-@app.route('/player/set_time')
-def set_time():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        player = Playback(user)
-        player.set_repeat()
-    else:
-        result = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
 
 @app.route('/test')
 def test():
@@ -691,4 +695,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=5000)

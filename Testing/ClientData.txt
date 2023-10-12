@@ -2,4 +2,4 @@ b005853164f14338a36718c31b6f4ece
 4a7aa1e7544145adb3de271b34122959
 https://spotify-pulse-400915.firebaseapp.com/callback
 http://127.0.0.1:5000/callback
-http://127.0.0.1:8080/callback
+http://127.0.0.1:5000/callback
