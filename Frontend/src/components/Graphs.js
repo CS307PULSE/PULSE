@@ -525,11 +525,16 @@ export const PieGraph = (props) => {
   );
 };
 
-async function sendPlayRequest(songID) {
-  const response = await axios.post("http://127.0.0.1:5000/statistics/play", {
-    songID: songID,
+async function sendSongRequest(spotify_uri) {
+  const axiosInstance = axios.create({
     withCredentials: true,
   });
+  const response = await axiosInstance.post(
+    "http://127.0.0.1:5000/player/play_song",
+    {
+      spotify_uri: spotify_uri,
+    }
+  );
   const data = response.data;
   return data;
 }
@@ -567,7 +572,7 @@ export const TopGraph = (props) => {
           <span
             data-tooltip-id="my-tooltip"
             data-tooltip-content={track.name + " by " + track.artists[0].name}
-            onClick={() => sendPlayRequest(track.uri)}
+            onClick={() => sendSongRequest(track.uri)}
             style={{ cursor: "pointer" }}
           >
             <img
@@ -588,7 +593,7 @@ export const TopGraph = (props) => {
               " played at " +
               trackObj.played_at
             }
-            onClick={() => sendPlayRequest(trackObj.track.uri)}
+            onClick={() => sendSongRequest(trackObj.track.uri)}
             style={{ cursor: "pointer" }}
           >
             <img
@@ -609,7 +614,7 @@ export const TopGraph = (props) => {
               " added at " +
               trackObj.added_at
             }
-            onClick={() => sendPlayRequest(trackObj.track.id)}
+            onClick={() => sendSongRequest(trackObj.track.id)}
             style={{ cursor: "pointer" }}
           >
             <img
@@ -624,7 +629,7 @@ export const TopGraph = (props) => {
           <span
             data-tooltip-id="my-tooltip"
             data-tooltip-content={track.name + " by " + track.artists[0].name}
-            onClick={() => sendPlayRequest(track.id)}
+            onClick={() => sendSongRequest(track.id)}
             style={{ cursor: "pointer" }}
           >
             <img

@@ -132,6 +132,8 @@ class DatabaseConnector(object):
         results = self.db_cursor.fetchall()
         if (results is None or results is [] or results is "[]"):
             return None
+        print(self.resultset.__class__)
+        print(self.resultset)
         self.resultset = json.load(results)
         print(self.resultset.__class__)
         print(self.resultset)
