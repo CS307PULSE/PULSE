@@ -62,7 +62,7 @@ class DatabaseConnector(object):
     # User creation
 
     #Stores a new user in the user DB given the user object. Returns 1 if successful, 0 if not.
-    def creat_new_user_in_user_DB(self, new_user):
+    def create_new_user_in_user_DB(self, new_user):
         try:
             sql_store_new_user_query = """INSERT INTO pulse.users (display_name, 
                                 login_token, 
@@ -109,30 +109,29 @@ class DatabaseConnector(object):
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
     
-    # Gets the icon for the given spotify_id and stores it to storage_loc
+    # Returns icon from DB. Returns None if no icon exists, and a BLOB if it does
     def get_icon_from_DB(self, spotify_id, storage_loc):
-        sql_fetch_blob_query = """SELECT * from pulse.users where spotify_id = %s"""
+        sql_fetch_blob_query = """SELECT icon from pulse.users where spotify_id = %s"""
         self.db_cursor.execute(sql_fetch_blob_query, (spotify_id,))
-        record = self.db_cursor.fetchall()
-        for row in record:
-            print("spotify_id = ", row[1], )
-            print("token = ", row[2])
-            image = row[3]
-            # No icon exists (null in database)
-            if (image == None):
-                print ("No icon exists")
-            # Icon exists
-            else:
-                print("Storing icon on disk \n")
-                # Convert binary data to proper format and write it on Hard Disk
-                with open(storage_loc, 'wb') as file:
-                    file.write(image)
+        icon = self.db_cursor.fetchall()
+        if (icon is None):
+            #print ("No icon exists")
+            return None
+        # Icon exists
+        else:
+            #print("sending icon \n")
+            # Convert binary data to proper format and write it on Hard Disk
+            #with open(storage_loc, 'wb') as file:
+            #file.write(image)
+            return icon
 
     # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
     def get_followers_from_DB(self, spotify_id):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         self.resultset = json.load(self.db_cursor.fetchall())
+        print(self.resultset.__class__)
+        print(self.resultset)
         if (self.resultset == []):
             return None
         return self.resultset
@@ -142,7 +141,8 @@ class DatabaseConnector(object):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
         self.resultset = json.loads(self.db_cursor.fetchall())
-        #print(self.resultset.__class__)
+        print(self.resultset.__class__)
+        print(self.resultset)
         if (self.resultset == [(None,)]):       #TODO THIS MAY BE WRONG NOW
             return None
         return self.resultset
@@ -232,6 +232,22 @@ class DatabaseConnector(object):
         try:
             sql_update_token_query = """UPDATE pulse.users SET friends = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_token_query, (create_friends_string_for_DB(new_friends), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
+    # Updates icon (expected BLOB) in user DB. Returns 1 if successful, 0 if not.
+    def update_icon(self, spotify_id, new_icon):
+        try:
+            sql_update_icon_query = """UPDATE pulse.users SET icon = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_icon_query, (new_icon, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
