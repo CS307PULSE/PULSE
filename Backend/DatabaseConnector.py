@@ -170,7 +170,7 @@ class DatabaseConnector(object):
     def update_theme(self, spotify_id, new_theme):
         try:
             sql_update_theme_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_theme_query, (new_theme.value, spotify_id,))
+            self.db_cursor.execute(sql_update_theme_query, (int(new_theme.value), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -181,7 +181,6 @@ class DatabaseConnector(object):
             print("Error updating token:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
-    
     def update_text_size(self, spotify_id, new_text_size):
         try:
             sql_update_text_size_query = """UPDATE pulse.users SET text_size = %s WHERE spotify_id = %s"""
@@ -200,6 +199,12 @@ class DatabaseConnector(object):
     def get_text_size(self,spotify_id):
         sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_text_size_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchall()
+        return self.resultset
+    
+    def get_theme(self, spotify_id):
+        sql_get_theme_query = "SELECT theme from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_theme_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
         return self.resultset
     
