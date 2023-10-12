@@ -101,7 +101,8 @@ class DatabaseConnector(object):
                                                 new_user.spotify_id,
                                                 create_friends_string_for_DB(new_user.friends),
                                                 int(new_user.theme.value),
-                                                create_highscore_string_for_DB(new_user.high_scores),
+                                                new_user.location,
+                                                new_user.gender,
                                                 create_rec_params_string_for_DB(new_user.recommendation_params),))
 
         self.db_conn.commit()
@@ -117,11 +118,11 @@ class DatabaseConnector(object):
                          spotify_id=row[3],                                                             
                          friends=create_friends_array_from_DB(row[4]),        
                          theme=Theme(row[5]),                                                         
-                         recommendation_params=create_rec_params_string_for_DB(row[7])
+                         recommendation_params=create_rec_params_string_for_DB(row[7]),
                          location = row[9],
                          gender = row[10])       
             return userFromDB
-                
+               
     def update_token(self, spotify_id, login_token):
         try:
             sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s"""
@@ -180,7 +181,28 @@ class DatabaseConnector(object):
             print("Error updating token:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
-   
+    
+    def update_text_size(self, spotify_id, new_text_size):
+        try:
+            sql_update_text_size_query = """UPDATE pulse.users SET text_size = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_text_size_query, (new_text_size, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    
+    def get_text_size(self,spotify_id):
+        sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_text_size_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchall()
+        return self.resultset
+    
     def update_recommendation_params(self, spotify_id, new_rec_params):
         try:
             sql_update_rec_params_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
