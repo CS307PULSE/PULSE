@@ -20,7 +20,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
-run_connected = True
+run_connected = False
 spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
@@ -195,7 +195,7 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard! <a href="/player/pause"> Click here to run tests!</a>'
+    return 'Welcome to the Dashboard! <a href="/test"> Click here to run tests!</a>'
 
 @app.route('/games')
 def games():
@@ -216,6 +216,7 @@ def statistics():
                 'top_artists' : '',
                 'followed_artists' : '',
                 'saved_songs' : '',
+                'saved_albums' : '',
                 'follower_data' : '',
                 'layout_data' : ''}
 
@@ -242,6 +243,7 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
+        data['saved_albums'] = user.stringify(user.stats.saved_albums)
 
         if layout is not None:
             data['layout_data'] = jsonify(layout)
@@ -288,7 +290,7 @@ def get_theme():
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            return jsonify(conn.get_theme(user.spotify_id))
+            return jsonify(conn.get_theme_from_DB(user.spotify_id))
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -314,6 +316,22 @@ def get_text_size():
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
             return jsonify(conn.get_text_size(user.spotify_id))
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/update_followers')
+def update_followers():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        follower_data = user.get_followers_with_time()
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
+                error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -483,7 +501,8 @@ def update_data(user, update_recent_history=True,
                 update_top_songs=True,
                 update_top_artists=True,
                 update_followed_artists=True,
-                update_saved_tracks=True):
+                update_saved_tracks=True,
+                update_saved_albums=True):
 
     print("Updating Data")
     import time
@@ -516,6 +535,9 @@ def update_data(user, update_recent_history=True,
 
         if (update_saved_tracks):
             user.update_saved_songs()
+
+        if (update_saved_albums):
+            user.update_saved_albums()
 
         print("Updated data")
         return 1
@@ -575,7 +597,9 @@ def run_tests(testUser):
     followed_artists_tests = True
     search_feature_test = False
     saved_tracks_test = True
-    guess_the_song_game = True
+    saved_albums_test = True
+    followers_test = True
+    guess_the_song_game = False
 
     try:
         if (recent_history_test):
@@ -627,6 +651,20 @@ def run_tests(testUser):
             saved_songs = testUser.stats.saved_songs
             for track in saved_songs:
                 printString += (f"{track['track']['name']} by {track['track']['artists'][0]['name']}") + '\n'
+            printString += '\n\n'
+        
+        if (saved_albums_test):
+            printString += "SAVED ABLUMS:\n" + '\n'
+            testUser.update_saved_albums(max_albums=10000)
+            saved_albums = testUser.stats.saved_albums
+            for album in saved_albums:
+                printString += (f"{album['album']['name']}") + '\n'
+            printString += '\n\n'
+        
+        if (followers_test):
+            printString += "FOLLOWER INFO:\n" + '\n'
+            result = testUser.get_followers_with_time()
+            printString += str(result[1]) + " at " + str(result[0])
             printString += '\n\n'
 
         if (search_feature_test):
