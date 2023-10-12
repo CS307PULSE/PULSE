@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
@@ -7,7 +8,7 @@ import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
 const textSizes = TextSize("large"); //Obtain text size values
 const themeColors = Colors("dark"); //Obtain color values
-import { Link} from "react-router-dom";
+
 
 const bodyStyle = {
   backgroundColor: themeColors.background,
@@ -64,7 +65,7 @@ const friendContainerStyle = {
   right: 0,
   width: '20%', // Take up 20% of the viewport width
   height: '900', // Take up the full height
-  backgroundColor: themeColors.background2, // Add background color for the friend component
+  backgroundColor: themeColors.backgorund, // Add background color for the friend component
 };
 
 const searchContainerStyle = {
