@@ -225,6 +225,9 @@ def statistics():
                     return 'didnt work 1'
                     return jsonify(data)
 
+        with DatabaseConnector(db_config) as conn:
+            layout = jsonify(conn.get_layout(user.spotify_id))
+
         data['status'] = 'Success'
         data['recent_history'] = user.stringify(user.stats.recent_history)
         data['top_songs'] = user.stringify(user.stats.top_songs)
@@ -232,7 +235,7 @@ def statistics():
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
         #data['follower_data']
-        #data['layout_data']
+        data['layout_data'] = layout
         return jsonify(data)
         
     else:
@@ -252,18 +255,7 @@ def set_layout():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/statistics/get_layout', methods=['POST'])
-def get_layout():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        with DatabaseConnector(db_config) as conn:
-            return jsonify(conn.get_layout(user.spotify_id))
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
-
-@app.route('/statistics/set_theme')
+@app.route('/set_theme')
 def set_theme():
     data = request.get_json()
     theme = data.get('theme')
@@ -277,7 +269,7 @@ def set_theme():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/statistics/get_theme', methods=['POST'])
+@app.route('/get_theme', methods=['POST'])
 def get_theme():
     if 'user' in session:
         user_data = session['user']
@@ -288,7 +280,7 @@ def get_theme():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/statistics/set_text_size')
+@app.route('/set_text_size')
 def set_text_size():
     data = request.get_json()
     text_size = data.get('text_size')
@@ -302,7 +294,7 @@ def set_text_size():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/statistics/get_text_size', methods=['POST'])
+@app.route('/get_text_size', methods=['POST'])
 def get_text_size():
     if 'user' in session:
         user_data = session['user']
