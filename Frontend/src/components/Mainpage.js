@@ -5,10 +5,10 @@ import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
 import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors"; 
-const textSizes = TextSize("large"); //Obtain text size values
-const themeColors = Colors("dark"); //Obtain color values
+import Colors from "../theme/Colors";
 
+const textSizes = TextSize(1); //Obtain text size values
+const themeColors = Colors("dark"); //Obtain color values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,

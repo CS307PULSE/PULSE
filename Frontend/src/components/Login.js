@@ -6,7 +6,7 @@ import axios from "axios";
 
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
-const textSizes = TextSize("medium"); //Obtain text size values
+const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("light"); //Obtain color values
 
 const loginMainStyle = {
@@ -69,7 +69,7 @@ const padding = {
 // document.body.style.overflow = "hidden"
 // for the login call for fetch
 async function fetchDataLogin() {
-  const response = await axios.get("http://127.0.0.1:8080/login", {
+  const response = await axios.get("http://127.0.0.1:5000/login", {
     withCredentials: true,
   });
   const data = response.data;

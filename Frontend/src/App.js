@@ -2,7 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
-import EditProfile from "./components/EditProfile";
+//import EditProfile from "./components/EditProfile";
 
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
@@ -22,7 +22,7 @@ import DJMixer from "./components/DJMixer";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
-  const response = await axios.get("http://127.0.0.1:8080/", {
+  const response = await axios.get("http://127.0.0.1:5000/", {
     withCredentials: true,
   });
   const data = response.data;
@@ -64,6 +64,7 @@ function App() {
           }
         />
         <Route path="/dashboard" element={<Mainpage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="game/guess-the-song" element={<GuessTheSong />} />
         <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
         <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />

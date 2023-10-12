@@ -74,7 +74,7 @@ class Playback:
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
   
-    def skip_forward(self):
+    def skip_forwards(self):
        try:
         self.user.spotify_user.next_track()
        except spotipy.exceptions.SpotifyException as e:

@@ -284,11 +284,12 @@ def set_theme():
 
 @app.route('/get_theme')
 def get_theme():
+    print("lol")
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            return jsonify(conn.get_theme(user.spotify_id))
+            return jsonify(conn.get_theme_from_DB(user.spotify_id))
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -711,4 +712,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='127.0.0.1', port=8080)
+    app.run(host='127.0.0.1', port=5000)
