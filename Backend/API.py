@@ -516,6 +516,7 @@ def play_artist():
         user = User.from_json(user_data)
         player = Playback(user)
         player.play_artist(artist_uri)
+        response_data = 'Song playing'
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -528,7 +529,8 @@ def play_song():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.select_song(song=song_uri)
+        player.select_song(song=[song_uri])
+        response_data = 'Song playing'
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)

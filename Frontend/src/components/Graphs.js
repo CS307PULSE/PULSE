@@ -4,6 +4,7 @@ import { ResponsivePie } from "@nivo/pie";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 //Sample datas
 export const bar1 = [
@@ -404,75 +405,101 @@ export const BarGraph = (props) => {
 };
 
 //Line Graph
-export const LineGraph = (props) => (
-  <ResponsiveLine
-    theme={graphTheme}
-    data={props.data}
-    colors={{ scheme: props.graphTheme }}
-    margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
-    xScale={{ type: "point" }}
-    yScale={{
-      type: "linear",
-      min: "auto",
-      max: "auto",
-      stacked: true,
-      reverse: false,
-    }}
-    yFormat=" >-.2f"
-    axisTop={null}
-    axisRight={null}
-    axisBottom={{
-      orient: "bottom",
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: props.xName,
-      legendOffset: 36,
-      legendPosition: "middle",
-    }}
-    axisLeft={{
-      orient: "left",
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: props.yName,
-      legendOffset: -40,
-      legendPosition: "middle",
-    }}
-    pointSize={10}
-    pointColor={{ theme: "background" }}
-    pointBorderWidth={2}
-    pointBorderColor={{ from: "serieColor" }}
-    pointLabelYOffset={-12}
-    useMesh={true}
-    legends={[
-      {
-        anchor: "bottom-right",
-        direction: "column",
-        justify: false,
-        translateX: 100,
-        translateY: 0,
-        itemsSpacing: 0,
-        itemDirection: "left-to-right",
-        itemWidth: 80,
-        itemHeight: 20,
-        itemOpacity: 0.75,
-        symbolSize: 12,
-        symbolShape: "circle",
-        symbolBorderColor: "rgba(0, 0, 0, .5)",
-        effects: [
-          {
-            on: "hover",
-            style: {
-              itemBackground: "rgba(0, 0, 0, .03)",
-              itemOpacity: 1,
+export const LineGraph = (props) => {
+  const [data, setData] = useState();
+  const fixData = () => {
+    let tempData = {
+      id: "Followers",
+      data: props.data.map((dataPoint) => {
+        return { x: dataPoint.date, y: dataPoint.followers };
+      }),
+    };
+    console.log(tempData);
+    return [tempData];
+  };
+
+  useEffect(() => {
+    if (props.dataName === "followers") {
+      setData(fixData());
+    } else {
+      setData(props.data);
+    }
+  }, []);
+
+  if (data === undefined) {
+    return <>Still generating graph</>;
+  }
+
+  return (
+    <ResponsiveLine
+      theme={graphTheme}
+      data={data}
+      colors={{ scheme: props.graphTheme }}
+      margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
+      xScale={{ type: "point" }}
+      yScale={{
+        type: "linear",
+        min: "auto",
+        max: "auto",
+        stacked: true,
+        reverse: false,
+      }}
+      yFormat=" >-.2f"
+      axisTop={null}
+      axisRight={null}
+      axisBottom={{
+        orient: "bottom",
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+        legend: props.xName,
+        legendOffset: 36,
+        legendPosition: "middle",
+      }}
+      axisLeft={{
+        orient: "left",
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+        legend: props.yName,
+        legendOffset: -40,
+        legendPosition: "middle",
+      }}
+      pointSize={10}
+      pointColor={{ theme: "background" }}
+      pointBorderWidth={2}
+      pointBorderColor={{ from: "serieColor" }}
+      pointLabelYOffset={-12}
+      useMesh={true}
+      legends={[
+        {
+          anchor: "bottom-right",
+          direction: "column",
+          justify: false,
+          translateX: 100,
+          translateY: 0,
+          itemsSpacing: 0,
+          itemDirection: "left-to-right",
+          itemWidth: 80,
+          itemHeight: 20,
+          itemOpacity: 0.75,
+          symbolSize: 12,
+          symbolShape: "circle",
+          symbolBorderColor: "rgba(0, 0, 0, .5)",
+          effects: [
+            {
+              on: "hover",
+              style: {
+                itemBackground: "rgba(0, 0, 0, .03)",
+                itemOpacity: 1,
+              },
             },
-          },
-        ],
-      },
-    ]}
-  />
-);
+          ],
+        },
+      ]}
+    />
+  );
+};
 
 //Pie Graph
 export const PieGraph = (props) => {
@@ -498,11 +525,16 @@ export const PieGraph = (props) => {
   );
 };
 
-async function sendPlayRequest(songID) {
-  const response = await axios.post("http://127.0.0.1:5000/statistics/play", {
-    songID: songID,
+async function sendSongRequest(spotify_uri) {
+  const axiosInstance = axios.create({
     withCredentials: true,
   });
+  const response = await axiosInstance.post(
+    "http://127.0.0.1:5000/player/play_song",
+    {
+      spotify_uri: spotify_uri,
+    }
+  );
   const data = response.data;
   return data;
 }
@@ -520,34 +552,96 @@ export const TopGraph = (props) => {
         });
       }}
     >
-      {props.dataName.includes("top_artist")
-        ? props.data.map((track) => (
-            <span
-              href=""
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={track.name}
-            >
-              <img
-                src={track.images[0].url}
-                alt={track.name}
-                className="TopGraphImage"
-              />
-            </span>
-          ))
-        : props.data.map((track) => (
-            <span
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={track.name + " by " + track.artists[0].name}
-              onClick={() => sendPlayRequest(track.id)}
-              style={{ cursor: "pointer" }}
-            >
-              <img
-                src={track.album.images[0].url}
-                alt={track.name}
-                className="TopGraphImage"
-              />
-            </span>
-          ))}
+      {props.dataName.includes("top_artist") ||
+      props.dataName.includes("followed_artists") ? (
+        props.data.map((artist) => (
+          <span
+            href=""
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={artist.name}
+          >
+            <img
+              src={artist.images[0].url}
+              alt={artist.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("top_song") ? (
+        props.data.map((track) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={track.name + " by " + track.artists[0].name}
+            onClick={() => sendSongRequest(track.uri)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={track.album.images[0].url}
+              alt={track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("recent_songs") ? (
+        props.data.map((trackObj) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={
+              trackObj.track.name +
+              " by " +
+              trackObj.track.artists[0].name +
+              " played at " +
+              trackObj.played_at
+            }
+            onClick={() => sendSongRequest(trackObj.track.uri)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={trackObj.track.album.images[0].url}
+              alt={trackObj.track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("saved_songs") ? (
+        props.data.map((trackObj) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={
+              trackObj.track.name +
+              " by " +
+              trackObj.track.artists[0].name +
+              " added at " +
+              trackObj.added_at
+            }
+            onClick={() => sendSongRequest(trackObj.track.id)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={trackObj.track.album.images[0].url}
+              alt={trackObj.track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : props.dataName.includes("saved_albums") ? (
+        props.data.map((track) => (
+          <span
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={track.name + " by " + track.artists[0].name}
+            onClick={() => sendSongRequest(track.id)}
+            style={{ cursor: "pointer" }}
+          >
+            <img
+              src={track.album.images[0].url}
+              alt={track.name}
+              className="TopGraphImage"
+            />
+          </span>
+        ))
+      ) : (
+        <p>Bad data name</p>
+      )}
       <Tooltip id="my-tooltip" />
     </div>
   );

@@ -92,34 +92,41 @@ async function fetchBackendDatas() {
     withCredentials: true,
   });
   const data = response.data;
-  console.log(data);
+  console.log(response);
   return data;
 }
 
-/*
 async function sendLayouts(layouts, defaultLayout) {
-  const response = await axios.post(
-    "http://127.0.0.1:5000/statistics/layouts",
+  const axiosInstance = axios.create({
+    withCredentials: true,
+  });
+  const response = await axiosInstance.post(
+    "http://127.0.0.1:5000/statistics/set_layout",
     {
-      layouts: layouts,
-      defaultLayout: defaultLayout,
-      withCredentials: true,
+      layout: { layouts: layouts, defaultLayout: defaultLayout },
     }
   );
   const data = response.data;
+  console.log(response);
   return data;
 }
-*/
 
 export default function GraphGrid() {
   //UseStates for layout setting
   const [layout, setLayout] = useState(defaultLayout);
   const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
+  const [defaultLayoutNum, setDefaultLayoutNum] = useState(1);
 
-  //Top data
+  //Pulled data
   const [topArtists, setTopArtists] = useState();
   const [topSongs, setTopSongs] = useState();
+  const [followers, setFollowers] = useState();
+  const [recentSongs, setRecentSongs] = useState();
+  const [savedSongs, setSavedSongs] = useState();
+  const [savedAlbums, setSavedAlbums] = useState();
+  const [followedArtists, setFollowedArtists] = useState();
+  const [finishedPullingData, setFinished] = useState(false);
 
   //Remove container function
   const RemoveContainer = (containerName) => {
@@ -133,11 +140,16 @@ export default function GraphGrid() {
     setLayout([...layout, container]);
   };
 
+  const changeDefaultLayoutNum = (e) => {
+    setDefaultLayoutNum(e.target.value);
+  };
+
   //Get layout from local storage
   function getFromLS(key) {
     //Try-catch to set layout to default one if recieved empty layout
     try {
       const storedLayout = localStorage.getItem(key);
+      console.log(storedLayout);
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
@@ -145,15 +157,27 @@ export default function GraphGrid() {
       return newLayout;
     } catch (e) {
       console.log(e);
-      saveToLS(defaultLayout);
+      saveToLS(key, defaultLayout);
       return defaultLayout;
     }
   }
 
+  function getAllFromLS() {
+    let allLayouts = [];
+    for (let i = 1; i < 4; i++) {
+      allLayouts.push(getFromLS(i));
+    }
+    return allLayouts;
+  }
+
   //Send layout to local storage
-  const saveToLS = (storingLayout) => {
+  const saveToLS = (key, storingLayout) => {
     try {
-      localStorage.setItem(layoutNumber, JSON.stringify(storingLayout));
+      console.log(
+        "Layout " + key + " (should be " + layoutNumber + " ) stored as"
+      );
+      console.log(storingLayout);
+      localStorage.setItem(key, JSON.stringify(storingLayout));
     } catch (e) {
       alert(e);
     }
@@ -161,7 +185,8 @@ export default function GraphGrid() {
 
   //Function for save button
   const handleSaveButtonClick = () => {
-    saveToLS(layout);
+    saveToLS(layoutNumber, layout);
+    sendLayouts(getAllFromLS(), defaultLayoutNum);
   };
 
   //Function for load button
@@ -177,17 +202,17 @@ export default function GraphGrid() {
     let updatedLayout = [];
     let graphNames = [];
     for (let container of layout) {
-      const copyContainer = allLayouts.lg.find(
+      const diffContainer = allLayouts.lg.find(
         (tempContainer) => tempContainer.i === container.i
       );
       //Store graph names into an array for new graph use
       graphNames = [...graphNames, container.i];
       //Position data
-      container["x"] = copyContainer.x;
-      container["y"] = copyContainer.y;
+      container["x"] = diffContainer.x;
+      container["y"] = diffContainer.y;
       //Size data
-      container["w"] = copyContainer.w;
-      container["h"] = copyContainer.h;
+      container["w"] = diffContainer.w;
+      container["h"] = diffContainer.h;
       updatedLayout.push(container);
     }
     setGraphNames(graphNames);
@@ -198,21 +223,66 @@ export default function GraphGrid() {
   useEffect(() => {
     setLayout(getFromLS(layoutNumber));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [finishedPullingData]);
 
   //Get data from server & set top song/artists
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchBackendDatas();
+        const objData = {
+          top_artists: JSON.parse(data.top_artists),
+          top_songs: JSON.parse(data.top_songs),
+          recent_history: JSON.parse(data.recent_history),
+          saved_songs: JSON.parse(data.saved_songs),
+          followed_artists: JSON.parse(data.followed_artists),
+          layout_data: JSON.parse(data.layout_data),
+        };
+        console.log(objData);
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
+        setRecentSongs(JSON.parse(data.recent_history));
+        setSavedSongs(JSON.parse(data.saved_songs));
+        //setSavedAlbums(JSON.parse(data.saved_albums));
+        setFollowedArtists(JSON.parse(data.followed_artists));
+
+        //Followers
+        if (data.follower_data === "") {
+        } else {
+          setFollowers(JSON.parse(data.follower_data));
+        }
+
+        //Layout
+        if (data.layout_data === "") {
+        } else {
+          console.log("Getting databse layouts");
+          //Set local storage of layouts
+          const layout_data = JSON.parse(data.layout_data);
+          let newLayouts = layout_data.layouts;
+          console.log(newLayouts);
+
+          for (let i = 0; i < 3; i++) {
+            setlayoutNumber(i + 1);
+            saveToLS(i + 1, newLayouts[i]);
+          }
+          if (layout_data.defaultLayout === "") {
+          } else {
+            setlayoutNumber(parseInt(layout_data.defaultLayout));
+            console.log(parseInt(layout_data.defaultLayout));
+          }
+        }
+
+        setFinished(true);
       } catch (error) {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
         // Temporary measure to keep things going
+        console.log(JSON.parse(tempData.follower_data));
         setTopArtists(JSON.parse(tempData.top_artists));
         setTopSongs(JSON.parse(tempData.top_songs));
+        setFollowers(JSON.parse(tempData.follower_data));
+
+        setFinished(true);
       }
     };
 
@@ -247,10 +317,17 @@ export default function GraphGrid() {
         newGraph.graphSettings
       );
     } else if (newGraph.graphType === "Line") {
-      newGraph.graphSettings = Object.assign(
-        { xName: "transportation", yName: "Count" },
-        newGraph.graphSettings
-      );
+      if (newGraph.data === "followers") {
+        newGraph.graphSettings = Object.assign(
+          { xName: "date", yName: "Followers" },
+          newGraph.graphSettings
+        );
+      } else {
+        newGraph.graphSettings = Object.assign(
+          { xName: "transportation", yName: "Count" },
+          newGraph.graphSettings
+        );
+      }
     }
 
     AddContainer(newGraph);
@@ -267,25 +344,33 @@ export default function GraphGrid() {
       case "pie2":
         return pie2;
       case "top_songs_4week":
-        console.log(topSongs[0]);
         return topSongs[0];
       case "top_songs_6month":
         return topSongs[1];
       case "top_songs_all":
         return topSongs[2];
       case "top_artists_4week":
-        console.log(topArtists[0]);
         return topArtists[0];
       case "top_artists_6month":
         return topArtists[1];
       case "top_artists_all":
         return topArtists[2];
+      case "followers":
+        return followers;
+      case "recent_songs":
+        return recentSongs;
+      case "saved_songs":
+        return savedSongs;
+      case "saved_albums":
+        return savedAlbums;
+      case "followed_artists":
+        return followedArtists;
       default:
         return null;
     }
   }
 
-  if (topSongs === undefined) {
+  if (!finishedPullingData) {
     return <>Still Loading...</>;
   }
 
@@ -293,8 +378,8 @@ export default function GraphGrid() {
     <React.Fragment>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
+        breakpoints={{ lg: 700, xs: 300, xxs: 0 }}
+        cols={{ lg: 5, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={"100%"}
         onLayoutChange={handleLayoutChange}
@@ -350,6 +435,18 @@ export default function GraphGrid() {
         <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
         <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
         <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
+      </div>
+      <div>
+        <p>Set Default Layout: </p>
+        <select
+          name="defaultLayout"
+          value={defaultLayoutNum}
+          onChange={changeDefaultLayoutNum}
+        >
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
       </div>
       <div>
         <button className="TypButton" onClick={openPopup}>
