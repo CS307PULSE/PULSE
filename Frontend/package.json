@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-api": "cd ../Backend && flask run -h localhost -p 8080 --no-debugger",
+    "start-api": "cd ../Backend && flask run -h 127.0.0.1 -p 8080 --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
