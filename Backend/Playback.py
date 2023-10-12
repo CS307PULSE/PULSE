@@ -60,9 +60,17 @@ class Playback:
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
-    def set_repeat(self, state):
+    def set_repeat(self):
        try: 
-        self.user.spotify_user.repeat(state)
+        if self.repeat == "off":
+          self.user.spotify_user.repeat('context')
+          self.repeat == "context"
+        elif self.state == "context":
+          self.user.spotify_user.repeat('track')
+          self.repeat == "track"
+        elif self.state == "track":
+          self.user.spotify_user.repeat('off')
+          self.repeat == "off"
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
   

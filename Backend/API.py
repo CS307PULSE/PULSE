@@ -2,7 +2,7 @@
 #pip install python-dotenv
 #pip install flask-cors
 #pip install mysql.connector
-from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string
+from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
 from flask_cors import CORS
 # import firebase_admin
 # from firebase_admin import credentials, auth
@@ -13,6 +13,8 @@ from DatabaseConnector import db_config
 import json
 import Exceptions
 import os
+import Playback
+import time
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -303,6 +305,85 @@ def store_scores(game_type, scores):
     
     return jsonify({'message': stored_scores_status})
 
+@app.router('/player/play')
+def play():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.play()
+    else:
+        result = 'User session not found. Please log in again.'
+
+@app.router('/player/pause')
+def pause():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.pause()
+    else:
+        result = 'User session not found. Please log in again.'
+
+@app.router('/player/skip')
+def skip():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.skip_forwards()
+    else:
+        result = 'User session not found. Please log in again.'
+
+@app.router('/player/prev')
+def prev():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.skip_backwards()
+    else:
+        result = 'User session not found. Please log in again.'
+
+@app.router('/player/shuffle')
+def shuffle():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.shuffle()
+    else:
+        result = 'User session not found. Please log in again.'
+
+@app.router('/player/repeat')
+def repeat():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.set_repeat()
+    else:
+        result = 'User session not found. Please log in again.'
+        
+@app.router('/player/set_time')
+def set_time():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.set_repeat()
+    else:
+        result = 'User session not found. Please log in again.'
+
+def generate():
+    while True:
+        data = f"Data from server at {time.strftime('%H:%M:%S')}"
+        yield f"data: {data}\n\n"
+        time.sleep(1)
+
+@app.route('/player/updatestart')
+def sse():
+    return Response(generate(), content_type='text/event-stream')
 """
 @app.route('/games/guess_the_song')
 def guess_the_song():
