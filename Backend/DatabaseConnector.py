@@ -165,9 +165,7 @@ class DatabaseConnector(object):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
-        print(self.resultset)
-        print(self.resultset[0])
-        return score_string_to_array(self.resultset[0])
+        return score_string_to_array(self.resultset[0][0])
 
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
@@ -313,7 +311,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating layout:", str(e))
+            print("Error updating scores:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed   
     
@@ -419,7 +417,7 @@ def score_array_to_string(arr):
 
 def score_string_to_array(s):
     # Convert the string back to a 3D array
-    elements = s.split()
+    elements = s.split(',')
     flat_list = [int(element) for element in elements]
     
     # Create a 3D array from the flattened
