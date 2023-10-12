@@ -177,6 +177,7 @@ def callback():
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
+            #resp = make_response("A")
             resp = make_response(redirect("http://localhost:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
@@ -200,6 +201,7 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    print(session['user'])
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
