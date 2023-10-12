@@ -152,7 +152,7 @@ const GuessTheArtist = () => {
             </>
           ) : (
             <div>
-              <MusicPlayerGame numberOfPlayers={numberOfPlayers} />
+              <MusicPlayerGame numberOfPlayers={numberOfPlayers} numberOfRounds={numberOfRounds} gameCode={1}/>
             </div>
           )}
         </div>

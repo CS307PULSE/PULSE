@@ -41,9 +41,11 @@ if not run_firebase:
 #firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
+app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+app.config['SESSION_COOKIE_SECURE'] = False
 
 scopes = [
     #Images
@@ -177,6 +179,7 @@ def callback():
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
+            #resp = make_response("A")
             resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
@@ -227,9 +230,9 @@ def statistics():
                 if (retries > max_retries):
                     return 'didnt work 1'
                     return jsonify(data)
-
+        
         with DatabaseConnector(db_config) as conn:
-            layout = conn.get_layout(user.spotify_id)
+            layout = conn.get_layout_from_DB(user.spotify_id)
         with DatabaseConnector(db_config) as conn:
             followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -241,11 +244,10 @@ def statistics():
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
 
         if layout is not None:
-            print(layout)
-            data['layout_data'] = jsonify(layout)
+            data['layout_data'] = layout
 
         if followers is not None:
-            data['follower_data'] = jsonify(followers)
+            data['follower_data'] = followers
 
         return jsonify(data)
         
@@ -451,6 +453,19 @@ def repeat():
         player = Playback(user)
         player.set_repeat()
         response_data = 'Music changing repeat.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/djmixer/songrec', methods=['POST'])
+def songrec():
+    if 'user' in session:
+        data = request.get_json()
+        track = data.get('track')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        suggested_tracks = user.get_recommendations(track)
+        response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -696,4 +711,4 @@ def run_tests(testUser):
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='127.0.0.1', port=8080)
