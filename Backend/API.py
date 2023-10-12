@@ -139,6 +139,7 @@ def login():
 
 @app.route('/callback')
 def callback():
+    code = request.args.get('code')
     # Handle the callback from Spotify after user login
     sp_oauth = SpotifyOAuth(client_id=client_id, 
                             client_secret=client_secret, 
@@ -146,7 +147,7 @@ def callback():
                             scope=scope)
 
     # Validate the response from Spotify
-    token_info = sp_oauth.get_access_token(request.args['code'])
+    token_info = sp_oauth.get_access_token(code)
 
     if token_info:
         # Create a Spotify object and fetch user data
@@ -160,9 +161,6 @@ def callback():
             spotify_id=sp.me()['id'],
             spotify_user=sp
         )
-
-        resp = make_response(redirect(url_for('index')))
-        resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
         
         user_exists = False
         with DatabaseConnector(db_config) as conn:
@@ -171,6 +169,13 @@ def callback():
                 conn.store_new_user_in_DB(user)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
+
+        global run_connected
+        if not run_connected:
+            resp = make_response(redirect(url_for('index')))
+        else:
+            resp = make_response("Set")
+        resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
 
@@ -222,6 +227,9 @@ def statistics():
                     return 'didnt work 1'
                     return jsonify(data)
 
+        with DatabaseConnector(db_config) as conn:
+            layout = jsonify(conn.get_layout(user.spotify_id))
+
         data['status'] = 'Success'
         data['recent_history'] = user.stringify(user.stats.recent_history)
         data['top_songs'] = user.stringify(user.stats.top_songs)
@@ -229,16 +237,75 @@ def statistics():
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
         #data['follower_data']
-        #data['layout_data']
+        data['layout_data'] = layout
         return jsonify(data)
         
     else:
         return 'User session not found. Please log in again.'
 
 @app.route('/statistics/set_layout')
-def set_layout(layout):
-    #send to db
-    return
+def set_layout():
+    data = request.get_json()
+    layout = data.get('layout')
+
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.update_layout(user.spotify_id, layout))
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/set_theme')
+def set_theme():
+    data = request.get_json()
+    theme = data.get('theme')
+
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.update_theme(user.spotify_id, theme))
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/get_theme', methods=['POST'])
+def get_theme():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.get_theme(user.spotify_id))
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/set_text_size')
+def set_text_size():
+    data = request.get_json()
+    text_size = data.get('text_size')
+
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.update_text_size(user.spotify_id, text_size))
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/get_text_size', methods=['POST'])
+def get_text_size():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.get_text_size(user.spotify_id))
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/games/playback', methods=['POST'])
 def playback():
