@@ -6,22 +6,17 @@
     "@nivo/bar": "^0.83.0",
     "@nivo/line": "^0.83.0",
     "@nivo/pie": "^0.83.0",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "axios": "^1.5.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-grid-layout": "^1.4.2",
     "react-router-dom": "^6.16.0",
     "react-scripts": "^5.0.1",
     "react-tooltip": "^5.21.5",
-    "styled-components": "^6.0.8",
-    "web-vitals": "^2.1.4"
+    "styled-components": "^6.0.9"
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-api": "cd ../Backend && flask run --no-debugger",
+    "start-api": "cd ../Backend && flask run -h 127.0.0.1 -p 8080 --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

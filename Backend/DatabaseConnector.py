@@ -129,10 +129,13 @@ class DatabaseConnector(object):
     def get_followers_from_DB(self, spotify_id):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
-        self.resultset = json.load(self.db_cursor.fetchall())
+        results = self.db_cursor.fetchall()
+        if results is None:
+            return None
+        self.resultset = json.load(results)
         print(self.resultset.__class__)
         print(self.resultset)
-        if (self.resultset == []):
+        if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
     
@@ -140,10 +143,13 @@ class DatabaseConnector(object):
     def get_layout_from_DB(self, spotify_id):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
-        self.resultset = json.loads(self.db_cursor.fetchall())
+        results = self.db_cursor.fetchall()
+        if results is None:
+            return None
+        self.resultset = json.loads(results)
         print(self.resultset.__class__)
         print(self.resultset)
-        if (self.resultset == [(None,)]):       #TODO THIS MAY BE WRONG NOW
+        if (self.resultset == [(None,)]) or (self.resultset is None):       #TODO THIS MAY BE WRONG NOW
             return None
         return self.resultset
 
