@@ -180,7 +180,7 @@ def callback():
             resp = make_response(redirect(url_for('index')))
         else:
             #resp = make_response("A")
-            resp = make_response(redirect("http://localhost:3000/dashboard"))
+            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -233,7 +233,7 @@ def statistics():
                     return jsonify(data)
 
         with DatabaseConnector(db_config) as conn:
-            layout = conn.get_layout(user.spotify_id)
+            layout = conn.get_layout_from_DB(user.spotify_id)
         with DatabaseConnector(db_config) as conn:
             followers = conn.get_followers_from_DB(user.spotify_id)
 
