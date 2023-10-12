@@ -64,7 +64,9 @@ const padding = {
 // document.body.style.overflow = "hidden"
 // for the login call for fetch
 async function fetchDataLogin() {
-  const response = await axios.get("http://127.0.0.1:5000/login");
+  const response = await axios.get("http://127.0.0.1:8080/login", {
+    withCredentials: true,
+  });
   const data = response.data;
   console.log(data);
   return data;

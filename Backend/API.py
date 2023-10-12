@@ -41,9 +41,11 @@ if not run_firebase:
 #firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
+app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
+app.config['SESSION_COOKIE_SECURE'] = False
 
 scopes = [
     #Images
@@ -102,9 +104,9 @@ def index():
     if (user_id):
         user_exists = False
         with DatabaseConnector(db_config) as conn:
-            user_exists = conn.does_user_exist_in_DB(user_id)
+            user_exists = conn.does_user_exist_in_user_DB(user_id)
             if user_exists:
-                user = conn.get_user_from_DB(spotify_id=user_id)
+                user = conn.get_user_from_user_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
                 #return jsonify(message='Login successful! Welcome to your Flask app.')
                 if run_connected:
@@ -164,9 +166,10 @@ def callback():
         
         user_exists = False
         with DatabaseConnector(db_config) as conn:
-            user_exists = conn.does_user_exist_in_DB(user.spotify_id)
+            user_exists = conn.does_user_exist_in_user_DB(user.spotify_id)
             if not user_exists:
-                conn.store_new_user_in_DB(user)
+                conn.create_new_user_in_user_DB(user)
+                conn.create_new_user_in_stats_DB(user.spotify_id)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
@@ -176,7 +179,8 @@ def callback():
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
-            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
+            #resp = make_response("A")
+            resp = make_response(redirect("http://localhost:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -199,6 +203,7 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    print(session['user'])
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -450,6 +455,19 @@ def repeat():
         player = Playback(user)
         player.set_repeat()
         response_data = 'Music changing repeat.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/djmixer/songrec', methods=['POST'])
+def songrec():
+    if 'user' in session:
+        data = request.get_json()
+        track = data.get('track')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        suggested_tracks = user.get_recommendations(track)
+        response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
