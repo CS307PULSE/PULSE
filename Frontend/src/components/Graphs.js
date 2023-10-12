@@ -501,6 +501,7 @@ export const PieGraph = (props) => {
 async function sendPlayRequest(songID) {
   const response = await axios.post("http://127.0.0.1:8080/statistics/play", {
     songID: songID,
+    withCredentials: true,
   });
   const data = response.data;
   return data;
