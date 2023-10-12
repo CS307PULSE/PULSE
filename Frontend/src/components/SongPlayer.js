@@ -9,6 +9,7 @@ const themeColors = Colors("light"); //Obtain color values
 
 const images = {
     playButton: "https://cdn-icons-png.flaticon.com/512/3318/3318660.png",
+    pauseButton: "https://cdn-icons-png.flaticon.com/512/8286/8286763.png",
     nextButton: "https://cdn-icons-png.flaticon.com/512/7030/7030549.png",
     prevButton: "https://cdn-icons-png.flaticon.com/512/3318/3318703.png"
 }
@@ -79,25 +80,71 @@ const deviceDropdownStyle = {
 function SongPlayer() {
     const [volumeLevel, setVolumeLevel] = useState('');
     const [timestamp, setTimestamp] = useState('');
+    const [playState, setPlayState] = useState(false);
+    const [nextState, setNextState] = useState(false);
+    const [prevState, setPrevState] = useState(false);
     useEffect(() => {
-        axios
-        .get("http://127.0.0.1:5000/player/play", {})
-        .then((response) => {
-            // Handle the response from the backend if needed
-            console.log("Song played successfully:", response.data);
-        })
-        .catch((error) => {
-            console.error("Error playing song:", error);
-        });
-    }, []);
+        if (playState) { //Play and pause
+            axios
+            .get("http://127.0.0.1:5000/player/play", {withCredentials: true})
+            .then((response) => {
+                // Handle the response from the backend if needed
+                console.log("Song played successfully:", response.data);
+            })
+            .catch((error) => {
+                console.error("Error playing song:", error);
+            });
+            document.getElementById("playButton").src = images.pauseButton;
+        } else {
+            axios
+            .get("http://127.0.0.1:5000/player/pause", {withCredentials: true})
+            .then((response) => {
+                // Handle the response from the backend if needed
+                console.log("Song paused successfully:", response.data);
+            })
+            .catch((error) => {
+                console.error("Error pausing song:", error);
+            });
+            document.getElementById("playButton").src = images.playButton;
+        }
+    }, [playState]);
+    useEffect(() => { //Nexting
+        if (nextState) {
+            axios
+            .get("http://127.0.0.1:5000/player/skip", {withCredentials: true})
+            .then((response) => {
+                // Handle the response from the backend if needed
+                console.log("Song skipping successfully:", response.data);
+            })
+            .catch((error) => {
+                console.error("Error skipping song:", error);
+            });
+        }
+        setNextState(false);
+    }, [nextState]);
+    useEffect(() => { //Preving
+        if (prevState) {
+            axios
+            .get("http://127.0.0.1:5000/player/prev", {withCredentials: true})
+            .then((response) => {
+                // Handle the response from the backend if needed
+                console.log("Song preved successfully:", response.data);
+            })
+            .catch((error) => {
+                console.error("Error preving song:", error);
+            });
+        }
+        setPrevState(false);
+    }, [prevState]);
+
 
     return(
         
         <div className="player" style={songPlayerStyle}>
-            <img style={songPlayerButtonStyle} src={images.prevButton} alt="Previous Song"></img>
-            <img style={songPlayerButtonStyle} src={images.playButton} alt="Play Song"></img>
-            <img style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
-            <img style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
+            <img id="prevButton" style={songPlayerButtonStyle} src={images.prevButton} onClick={() => {setPrevState(true)}} alt="Previous Song"></img>
+            <img id="playButton" style={songPlayerButtonStyle} src={images.playButton} onClick={() => {setPlayState(!playState)}} alt="Play Song"></img>
+            <img id="nextButton" transform="rotate(180)" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
+            <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Next Song"></img>
             <div style={infoContainerStyle}>
                 <p style={songNameTextStyle}>lol</p>
                 <p style={artistNameTextStyle}>asdsadasj daskldj askop</p>

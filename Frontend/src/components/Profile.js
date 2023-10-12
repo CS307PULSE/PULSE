@@ -97,14 +97,14 @@ function Profile({testParameter}){
                 <label style={profileText} for="username">Username: </label>
                 <input id="username" type="text" style={textFieldStyle}></input> <br></br>
                 
-                <label style={profileText} for="username">Location: </label>
-                <input id="username" type="text" style={textFieldStyle}></input> <br></br>
-                
-                <label style={profileText} for="username">Username: </label>
-                <input id="username" type="text" style={textFieldStyle}></input> <br></br>
+                <label style={profileText} for="gender">Gender: </label>
+                <input id="gender" type="text" style={textFieldStyle}></input> <br></br>
+
+                <label style={profileText} for="location">Location: </label>
+                <input id="location" type="text" style={textFieldStyle}></input> <br></br>
 
                 <div style={buttonContainerStyle}>
-                    <button style={buttonStyle} name="submit" type="submit">Save Changes</button>
+                    <button style={buttonStyle} name="submit" type="submit" onsubmit="">Save Changes</button>
                 </div>
             </form>
 
