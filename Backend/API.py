@@ -20,7 +20,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
-run_connected = False
+run_connected = True
 spoof_songs = True
 
 current_dir = os.path.dirname(os.getcwd())
@@ -174,7 +174,7 @@ def callback():
         if not run_connected:
             resp = make_response(redirect(url_for('index')))
         else:
-            resp = make_response("Set")
+            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -236,10 +236,14 @@ def statistics():
         data['top_artists'] = user.stringify(user.stats.top_artists)
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
+
         if layout is not None:
+            print(layout)
             data['layout_data'] = jsonify(layout)
+
         if followers is not None:
             data['follower_data'] = jsonify(followers)
+
         return jsonify(data)
         
     else:
