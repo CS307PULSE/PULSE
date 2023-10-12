@@ -5,6 +5,7 @@ from array import array
 from Exceptions import ErrorHandler
 from Exceptions import BadResponseError
 from Exceptions import TokenNotStoredError
+from datetime import datetime
 
 import json
 import spotipy
@@ -24,10 +25,10 @@ class User:
                  playlists=None, 
                  theme=Theme.DARK, 
                  stats=None, 
-                 high_scores=None, 
                  recommendation_params=None,
                  gender=None,
                  location=None):
+    
         self.display_name = display_name                                                                   # String
         self.login_token = login_token                                                                     # Token Info Object
         self.spotify_id = spotify_id                                                                       # String
@@ -36,7 +37,6 @@ class User:
         self.playlists = playlists if playlists is not None else []                                        # Array of Playlists
         self.theme = theme                                                                                 # Theme
         self.stats = stats if stats is not None else Stats()                                               # Stats
-        self.high_scores = high_scores if high_scores is not None else []                                  # Array of Ints
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
         self.gender = gender                                                                               # String                                   
         self.location = location                                                                           # String
@@ -54,7 +54,6 @@ class User:
             "login_token": self.login_token,
             "friends": self.friends,
             "theme": self.theme.value,
-            "high_scores": self.high_scores,
             "recommendation_params": self.recommendation_params
         }
         return user_data
@@ -68,7 +67,6 @@ class User:
             login_token=user_data["login_token"],
             friends=user_data["friends"],
             theme=Theme(user_data["theme"]),
-            high_scores=user_data["high_scores"],
             recommendation_params=user_data["recommendation_params"],
             spotify_user=spotipy.Spotify(auth=user_data["login_token"]['access_token'])
         )
@@ -98,6 +96,7 @@ class User:
             userinfo = self.spotify_user.currentuser()
             followers = userinfo['followers']['total']
             self.stats.follower_number = followers
+            now = datetime.now()
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 

@@ -2,18 +2,18 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import GuessTheSong from "./components/GuessTheSong";
-import {
-  Navigate,
-  BrowserRouter as Router,
-  Route,
-  Routes,
-} from "react-router-dom";
-import Mainpage from "./components/Mainpage";
+import GuessTheArtist from "./components/GuessTheArtist";
+import GuessTheLyric from "./components/GuessTheLyric";
+import Games from "./components/Games";
+import Mainpage from "./components/Mainpage"
 import StatisticsPage from "./components/StatisticsPage";
 
-import axios from "axios";
 
-//--------------------------------Pending: cookies check and reture userID to backend
+import { Navigate,  BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import axios from "axios";
+import DJMixer from "./components/DJMixer";
+
+
 // for the cache and DB call for fetch
 async function fetchDataCache() {
   const response = await axios.get("http://127.0.0.1:5000/");
@@ -42,23 +42,29 @@ function App() {
     setLoginClicked(true);
   };
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            isCacheDB ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Login onLoginClick={handleLoginClick} />
-            )
-          }
-        />
-        <Route path="/dashboard" element={<Mainpage />} />
-        <Route path="game/guess-the-song" element={<GuessTheSong />} />
-        <Route path="/Statistics" element={<StatisticsPage />} />
-      </Routes>
-    </Router>
+  <Router>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          isCacheDB ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <Login onLoginClick={handleLoginClick} />
+          )
+        }
+      />
+      <Route path="/dashboard" element={<Mainpage/>} />
+      <Route path="game/guess-the-song" element={<GuessTheSong />} />
+      <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
+      <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
+      <Route path="/Statistics" element={<StatisticsPage />} />
+      <Route path="/games" element={<Games />} />
+      <Route path="/DJmixer" element={<DJMixer />} />
+      <Route path="friends"  />
+    </Routes>
+  </Router>
+
   );
 }
 
