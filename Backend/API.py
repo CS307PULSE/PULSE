@@ -364,26 +364,18 @@ def repeat():
         player.set_repeat()
     else:
         result = 'User session not found. Please log in again.'
-        
-@app.router('/player/set_time')
-def set_time():
+
+@app.router('/player/volume', methods=['post'])
+def volume():
     if 'user' in session:
+        data = request.get_json()
+        setvol = data.get('volume')
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.set_repeat()
+        player.volume_change(setvol)
     else:
         result = 'User session not found. Please log in again.'
-
-def generate():
-    while True:
-        data = f"Data from server at {time.strftime('%H:%M:%S')}"
-        yield f"data: {data}\n\n"
-        time.sleep(1)
-
-@app.route('/player/updatestart')
-def sse():
-    return Response(generate(), content_type='text/event-stream')
 """
 @app.route('/games/guess_the_song')
 def guess_the_song():
