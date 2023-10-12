@@ -14,6 +14,8 @@ import json
 import Exceptions
 import os
 from Playback import Playback
+from PIL import Image
+import io
 import time
 
 import spotipy
@@ -473,25 +475,98 @@ def songrec():
 @app.route('profile/upload', methods=['POST'])
 def upload_image():
     if 'user' in session:
+        data = request.get_json()
+        image_og = data.get('image_loc')
         user_data = session['user']
         user = User.from_json(user_data)
-        
-        response_data = 'Profile Icon to Database'
+        #open image named uncompressed_image.jpg
+        storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
+        os.rename(image_og, storage_loc)
+        #save image locally
+        response_data = 'Found and uploaded profile.'
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
+    return jsonify(storage_loc)
 
 @app.route('profile/getimage', methods=['GET'])
 def get_image():
     if 'user' in session:
-        storage_log = os.path.join(os.getcwd()) + "\Icons"
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
+        response_data = storage_loc
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(storage_loc)
+
+@app.route('/profile/change_displayname', methods="POST")
+def change_displayname():
+    if 'user' in session:
+        data = request.get_json()
+        newname = data.get('displayname')
         user_data = session['user']
         user = User.from_json(user_data)
-        with DatabaseConnector(db_config) as conn:
-            image = get_
-            with open(storage_log, 'wb') as file:
-                file.write(image)
-        response_data = 'Found and uploaded profile.'
+        user.display_name = newname
+        response_data = 'username updated.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/change_gender', methods="POST")
+def change_gender():
+    if 'user' in session:
+        data = request.get_json()
+        gender = data.get('gender')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        user.gender = gender
+        response_data = 'gender updated.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/change_location', methods="POST")
+def change_gender():
+    if 'user' in session:
+        data = request.get_json()
+        gender = data.get('location')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        user.gender = gender
+        response_data = 'location updated.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_displayname', methods="GET")
+def get_displayname():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        name = user.display_name
+        response_data = name
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_gender', methods="GET")
+def get_gender():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        gender = user.gender
+        response_data = gender
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_location', methods="GET")
+def get_location():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        location = user.location
+        response_data = location
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
