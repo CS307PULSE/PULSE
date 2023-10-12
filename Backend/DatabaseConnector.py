@@ -244,6 +244,9 @@ class DatabaseConnector(object):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchall()
+        #print(self.resultset.__class__)
+        if (self.resultset == [(None,)]):
+            return None
         return self.resultset
 
     def get_followers_from_DB(self, spotify_id):
