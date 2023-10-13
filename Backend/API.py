@@ -306,7 +306,7 @@ def search_bar():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        results = user.search_for_items(max_items=5, items_type="tracks", query=query)
+        results = user.search_for_items(max_items=5, items_type="track", query=query)
         return jsonify(results)
 
     else:
