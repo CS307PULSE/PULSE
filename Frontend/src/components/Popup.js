@@ -42,7 +42,8 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       newData === "recent_songs" ||
       newData === "saved_songs" ||
       newData === "saved_albums" ||
-      newData === "followed_artists"
+      newData === "followed_artists" ||
+      newData === "saved_playlists"
     ) {
       setNoneData(true);
       setBarData(false);
@@ -103,6 +104,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
 
     if (validName) {
       onClose();
+      console.log("This is graph:");
       console.log(formJson);
       addGraph(formJson);
     } else {
@@ -153,6 +155,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               <option value="recent_songs">Recent Songs</option>
               <option value="saved_songs">Saved Songs</option>
               <option value="saved_albums">Saved Albums</option>
+              <option value="saved_playlists">Saved Playlists</option>
               <option value="followed_artists">Followed Artists</option>
             </select>
           </div>

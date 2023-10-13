@@ -126,6 +126,7 @@ export default function GraphGrid() {
   const [savedSongs, setSavedSongs] = useState();
   const [savedAlbums, setSavedAlbums] = useState();
   const [followedArtists, setFollowedArtists] = useState();
+  const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
 
   //Remove container function
@@ -149,7 +150,7 @@ export default function GraphGrid() {
     //Try-catch to set layout to default one if recieved empty layout
     try {
       const storedLayout = localStorage.getItem(key);
-      console.log(storedLayout);
+      //console.log(storedLayout);
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
@@ -229,27 +230,35 @@ export default function GraphGrid() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("getting");
         const data = await fetchBackendDatas();
-        const objData = {
-          top_artists: JSON.parse(data.top_artists),
-          top_songs: JSON.parse(data.top_songs),
-          recent_history: JSON.parse(data.recent_history),
-          saved_songs: JSON.parse(data.saved_songs),
-          followed_artists: JSON.parse(data.followed_artists),
-          layout_data: JSON.parse(data.layout_data),
-        };
-        console.log(objData);
+        try {
+          const objData = {
+            top_artists: JSON.parse(data.top_artists),
+            top_songs: JSON.parse(data.top_songs),
+            recent_history: JSON.parse(data.recent_history),
+            saved_songs: JSON.parse(data.saved_songs),
+            saved_albums: JSON.parse(data.saved_albums),
+            followed_artists: JSON.parse(data.followed_artists),
+            layout_data: JSON.parse(data.layout_data),
+            follower_data: data.follower_data,
+            saved_playlists: JSON.parse(data.saved_playlists),
+          };
+          console.log(objData);
+        } catch (e) {}
+
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
         setRecentSongs(JSON.parse(data.recent_history));
         setSavedSongs(JSON.parse(data.saved_songs));
-        //setSavedAlbums(JSON.parse(data.saved_albums));
+        setSavedAlbums(JSON.parse(data.saved_albums));
         setFollowedArtists(JSON.parse(data.followed_artists));
+        setSavedPlaylists(JSON.parse(data.saved_playlists));
 
         //Followers
         if (data.follower_data === "") {
         } else {
-          setFollowers(JSON.parse(data.follower_data));
+          setFollowers(data.follower_data);
         }
 
         //Layout
@@ -287,6 +296,7 @@ export default function GraphGrid() {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -363,6 +373,8 @@ export default function GraphGrid() {
         return savedSongs;
       case "saved_albums":
         return savedAlbums;
+      case "saved_playlists":
+        return savedPlaylists;
       case "followed_artists":
         return followedArtists;
       default:
@@ -378,7 +390,7 @@ export default function GraphGrid() {
     <React.Fragment>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
-        breakpoints={{ lg: 700, xs: 300, xxs: 0 }}
+        breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
         cols={{ lg: 5, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={"100%"}

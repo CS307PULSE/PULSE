@@ -573,7 +573,7 @@ def play_artist():
     return jsonify(response_data)
 
 @app.route('/player/play_album', methods=['POST'])
-def play_song():
+def play_album():
     if 'user' in session:
         data = request.get_json()
         album_uri = data.get('spotify_uri')
