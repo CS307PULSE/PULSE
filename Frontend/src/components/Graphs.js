@@ -407,6 +407,7 @@ export const BarGraph = (props) => {
 //Line Graph
 export const LineGraph = (props) => {
   const [data, setData] = useState();
+  const [xScale, setXScale] = useState({ type: "point" });
   const fixData = () => {
     let tempData = {
       id: "Followers",
@@ -422,6 +423,11 @@ export const LineGraph = (props) => {
   useEffect(() => {
     try {
       if (props.dataName === "followers") {
+        setXScale({
+          type: "time",
+          format: "%Y-%m-%d %H:%M:%S",
+          precision: "millisecond",
+        });
         setData(fixData());
       } else {
         setData(props.data);
@@ -437,6 +443,9 @@ export const LineGraph = (props) => {
   } else if (data === "Bad Data") {
     return <p>Your data is empty!</p>;
   }
+
+  const xAxisTicks = xScale.type === "time" ? [] : "auto";
+
   try {
     return (
       <ResponsiveLine
@@ -444,7 +453,7 @@ export const LineGraph = (props) => {
         data={data}
         colors={{ scheme: props.graphTheme }}
         margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
-        xScale={{ type: "point" }}
+        xScale={xScale}
         yScale={{
           type: "linear",
           min: "auto",
@@ -457,6 +466,7 @@ export const LineGraph = (props) => {
         axisRight={null}
         axisBottom={{
           orient: "bottom",
+          tickValues: { xAxisTicks },
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,

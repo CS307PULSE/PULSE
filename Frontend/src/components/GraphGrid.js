@@ -187,6 +187,7 @@ export default function GraphGrid() {
   //Function for save button
   const handleSaveButtonClick = () => {
     saveToLS(layoutNumber, layout);
+    console.log(layout);
     sendLayouts(getAllFromLS(), defaultLayoutNum);
   };
 
@@ -232,6 +233,8 @@ export default function GraphGrid() {
       try {
         console.log("getting");
         const data = await fetchBackendDatas();
+
+        //Log data in console to view
         try {
           const objData = {
             top_artists: JSON.parse(data.top_artists),
@@ -247,22 +250,57 @@ export default function GraphGrid() {
           console.log(objData);
         } catch (e) {}
 
-        setTopArtists(JSON.parse(data.top_artists));
-        setTopSongs(JSON.parse(data.top_songs));
-        setRecentSongs(JSON.parse(data.recent_history));
-        setSavedSongs(JSON.parse(data.saved_songs));
-        setSavedAlbums(JSON.parse(data.saved_albums));
-        setFollowedArtists(JSON.parse(data.followed_artists));
-        setSavedPlaylists(JSON.parse(data.saved_playlists));
+        //Try catch for each data for parsing failure when data field empty
+        try {
+          setTopArtists(JSON.parse(data.top_artists));
+        } catch (e) {
+          console.log("Top Artist empty");
+        }
+        try {
+          setTopSongs(JSON.parse(data.top_songs));
+        } catch (e) {
+          console.log("Top Song empty");
+        }
+        try {
+          setRecentSongs(JSON.parse(data.recent_history));
+        } catch (e) {
+          console.log("Recent songs empty");
+        }
+
+        try {
+          setSavedSongs(JSON.parse(data.saved_songs));
+        } catch (e) {
+          console.log("Saved Songs empty");
+        }
+
+        try {
+          setSavedAlbums(JSON.parse(data.saved_albums));
+        } catch (e) {
+          console.log("Saved Albums empty");
+        }
+
+        try {
+          setSavedPlaylists(JSON.parse(data.saved_playlists));
+        } catch (e) {
+          console.log("Saved Playlists empty");
+        }
+
+        try {
+          setFollowedArtists(JSON.parse(data.followed_artists));
+        } catch (e) {
+          console.log("Followed Artists empty");
+        }
 
         //Followers
         if (data.follower_data === "") {
+          console.log("Followers empty");
         } else {
           setFollowers(data.follower_data);
         }
 
         //Layout
         if (data.layout_data === "") {
+          console.log("Layout empty");
         } else {
           console.log("Getting databse layouts");
           //Set local storage of layouts
