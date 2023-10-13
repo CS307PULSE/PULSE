@@ -722,6 +722,24 @@ export const TopGraph = (props) => {
               />
             </span>
           ))
+        ) : props.dataName.includes("song_recommendations") ? (
+          props.data.map((trackObj, index) => (
+            <span
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={
+                trackObj.track.name + " by " + trackObj.track.artists[0].name
+              }
+              onClick={() => sendSongRequest(trackObj.track.uri)}
+              style={{ cursor: "pointer" }}
+              key={trackObj.track.id + index}
+            >
+              <img
+                src={trackObj.track.album.images[0].url}
+                alt={trackObj.track.name}
+                className="TopGraphImage"
+              />
+            </span>
+          ))
         ) : (
           <p>Bad data name</p>
         )}
