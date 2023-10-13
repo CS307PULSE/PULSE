@@ -154,7 +154,7 @@ class DatabaseConnector(object):
     def get_row_from_user_DB(self, spotify_id, data = None):
         sql = "SELECT from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
+        self.resultset = self.db_cursor.fetchone()
         return self.resultset
     
     #Returns score array from DB in the form of a 5x10x10 array.
@@ -175,8 +175,8 @@ class DatabaseConnector(object):
     def get_theme_from_DB(self, spotify_id):
         sql_get_theme_query = "SELECT theme from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_theme_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
-        return self.resultset
+        self.resultset = self.db_cursor.fetchone()
+        return int(self.resultset[0])
     
     # Returns a newly created user object recreated from the user database given spotify_id
     def get_user_from_user_DB(self, spotify_id):
