@@ -201,8 +201,8 @@ class DatabaseConnector(object):
     # Updates display_name (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_display_name(self, spotify_id, new_display_name):
         try:
-            sql_update_token_query = """UPDATE pulse.users SET display_name = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_token_query, (new_display_name, spotify_id,))
+            sql_update_display_name_query = """UPDATE pulse.users SET display_name = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_display_name_query, (new_display_name, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -210,7 +210,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating display name:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
@@ -227,7 +227,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating layout:", str(e))
+            print("Error updating followers:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
@@ -243,7 +243,23 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating friends:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    
+    # Update gender (expected string) in user DB. Returns 1 if successful, 0 if not.
+    def update_gender(self, spotify_id, new_gender):
+        try:
+            sql_update_gender_query = """UPDATE pulse.users SET gender = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_gender_query, (new_gender, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating gender:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
@@ -259,7 +275,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating icon:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
@@ -279,6 +295,23 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
+    # Update layout (expected string) in user DB. Returns 1 if successful, 0 if not.
+    def update_location(self, spotify_id, new_location):
+        try:
+            sql_update_location_query = """UPDATE pulse.users SET location = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_location_query, (new_location, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating location:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
+
     # Update recommendation (expected array) in user DB. Returns 1 if successful, 0 if not.
     def update_recommendation_params(self, spotify_id, new_rec_params):
         try:
@@ -325,7 +358,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating text size:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
@@ -341,7 +374,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating theme:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
         
