@@ -446,9 +446,11 @@ def get_scores():
         with DatabaseConnector(db_config) as conn:
             scores = conn.get_scores_from_DB(user.spotify_id)
         
-        return scores
+        # Serialize the data to JSON, replacing -1 with an empty string
+        serialized_data = [[[str(cell) if cell != -1 else "" for cell in row] for row in matrix] for matrix in scores]
 
-        return jsonify("Success!")
+        return jsonify({'scores': serialized_data})
+
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -459,11 +461,12 @@ def play():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.play()
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.play()
             else:
                 return "Failed to reauthenticate token"
@@ -478,11 +481,12 @@ def pause():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.pause()
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.pause()
             else:
                 return "Failed to reauthenticate token"
@@ -497,11 +501,12 @@ def skip():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.skip_forwards()
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.skip_forwards()
             else:
                 return "Failed to reauthenticate token"
@@ -516,11 +521,12 @@ def prev():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.skip_backwards()
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.skip_backwards()
             else:
                 return "Failed to reauthenticate token"
@@ -533,11 +539,12 @@ def shuffle():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.set_shuffle()
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.set_shuffle()
             else:
                 return "Failed to reauthenticate token"
@@ -552,11 +559,12 @@ def repeat():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.set_repeat()
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.set_repeat()
             else:
                 return "Failed to reauthenticate token"
@@ -573,11 +581,12 @@ def volume_change():
         volume = data.get('volume')
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.volume_change(volume)
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.volume_change(volume)
             else:
                 return "Failed to reauthenticate token"
@@ -594,11 +603,12 @@ def play_playlist():
         playlist_uri = data.get('spotify_uri')
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.play_playlist(playlist_uri)
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.play_playlist(playlist_uri)
             else:
                 return "Failed to reauthenticate token"
@@ -615,12 +625,12 @@ def play_artist():
         artist_uri = data.get('spotify_uri')
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
-        player.play_artist(artist_uri)
         try:
+            player = Playback(user)
             player.play_artist(artist_uri)
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.play_artist(artist_uri)
             else:
                 return "Failed to reauthenticate token"
@@ -637,11 +647,12 @@ def play_album():
         album_uri = data.get('spotify_uri')
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.play_album(album_uri)
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.play_album(album_uri)
             else:
                 return "Failed to reauthenticate token"
@@ -657,11 +668,12 @@ def play_song():
         song_uri = data.get('spotify_uri')
         user_data = session['user']
         user = User.from_json(user_data)
-        player = Playback(user)
         try:
+            player = Playback(user)
             player.select_song(song=[song_uri])
         except Exception as e:
             if (try_refresh(user, e)):
+                player = Playback(user)
                 player.select_song(song=[song_uri])
             else:
                 return "Failed to reauthenticate token"
