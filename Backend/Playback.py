@@ -58,10 +58,8 @@ class Playback:
             self.user.spotify_user.shuffle(False)
           else :
             self.user.spotify_user.shuffle(True)
-          return 1
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
-          return -1
 
     def set_repeat(self):
        try: 
@@ -74,42 +72,33 @@ class Playback:
         elif self.repeat == "track":
           self.user.spotify_user.repeat('off')
           self.repeat == "off"
-        return 1
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
   
     def skip_forwards(self):
        try:
         self.user.spotify_user.next_track()
-        return 1
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
         
     def skip_backwards(self):
        try:
         self.user.spotify_user.previous_track()
-        return 1
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
        
     def play(self):
        try:
         self.user.spotify_user.start_playback()
-        return 1
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
        
     def pause(self):
        try:
         self.user.spotify_user.pause_playback()
-        return 1
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
+
     def get_queue(self):
        try:
         self.user.spotify_user.queue()
@@ -126,10 +115,8 @@ class Playback:
        try:
         #volume will be implemented as front end slider volume only changes when slider is moved
         self.user.spotify_user.volume(percent)
-        return 1
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
     
     def switch_device(self, device):
       try:
@@ -137,10 +124,8 @@ class Playback:
           self.user.spotify_user.tranfer_playback(device, True)
         else:
           self.user.spotify_user.transfer_playback(device, False)
-        return 1
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
     
     def get_devices(self):
       try:
@@ -152,18 +137,14 @@ class Playback:
       try:
         #need to research how context, uris, and offset all interact
         self.user.spotify_user.start_playback(None, context, song, None, None)
-        return 1
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
 
     def seek_to(self, position):
       try:
         self.user.spotify_user.seek_track(position)
-        return 1
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
 
     def check_support(self):
       try:
@@ -177,10 +158,8 @@ class Playback:
         playlist = self.user.spotify_user.playlist(playlist_uri)
         playlist_first_song = playlist['tracks']['items']['track']['TrackObject']
         self.select_song(playlist_uri, playlist_first_song)
-        return 1
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
 
     def play_artist(self, artist_uri):
       try:
@@ -189,7 +168,6 @@ class Playback:
         self.select_song(artist_uri, artist_first_song)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
 
     def play_album(self, album_uri):
       try:
@@ -198,8 +176,6 @@ class Playback:
         self.select_song(album_uri, album_first_song)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-        return -1
-
 
     def open_playlist(self, playlist_uri):
       playlist = self.user.spotify_user.playlist(playlist_uri)
@@ -212,8 +188,8 @@ class Playback:
       webbrowser.open(song_link) 
 
     def open_artist(self, artist_uri):
-      artist_tracks = self.user.spotify_user.artist(artist_uri)
-      artist_link = artist['external_urls']['spotify']
+      artists = self.user.spotify_user.artist(artist_uri)
+      artist_link = artists['external_urls']['spotify']
       webbrowser.open(artist_link)
     
     """
