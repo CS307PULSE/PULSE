@@ -524,6 +524,19 @@ def play_artist():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
+@app.route('/player/play_album', methods=['POST'])
+def play_song():
+    if 'user' in session:
+        data = request.get_json()
+        album_uri = data.get('spotify_uri')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        player = Playback(user)
+        player.play_album(album_uri)
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
 @app.route('/player/play_song', methods=['POST'])
 def play_song():
     if 'user' in session:
