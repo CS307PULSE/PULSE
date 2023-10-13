@@ -298,6 +298,20 @@ def set_layout():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
+@app.route('/search_bar', methods=['POST'])
+def search_bar():
+    data = request.get_json()
+    query = data.get('query')
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        results = user.search_for_items(max_items=5, items_type="tracks", query=query)
+        return jsonify(results)
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
 @app.route('/set_theme', methods=['POST'])
 def set_theme():
     data = request.get_json()
