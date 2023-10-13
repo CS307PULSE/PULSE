@@ -424,41 +424,46 @@ export default function GraphGrid() {
   };
 
   function getData(dataName) {
-    switch (dataName) {
-      case "bar1":
-        return bar1;
-      case "line1":
-        return line1;
-      case "pie1":
-        return pie1;
-      case "pie2":
-        return pie2;
-      case "top_songs_4week":
-        return topSongs[0];
-      case "top_songs_6month":
-        return topSongs[1];
-      case "top_songs_all":
-        return topSongs[2];
-      case "top_artists_4week":
-        return topArtists[0];
-      case "top_artists_6month":
-        return topArtists[1];
-      case "top_artists_all":
-        return topArtists[2];
-      case "followers":
-        return followers;
-      case "recent_songs":
-        return recentSongs;
-      case "saved_songs":
-        return savedSongs;
-      case "saved_albums":
-        return savedAlbums;
-      case "saved_playlists":
-        return savedPlaylists;
-      case "followed_artists":
-        return followedArtists;
-      default:
-        return null;
+    try {
+      switch (dataName) {
+        case "bar1":
+          return bar1;
+        case "line1":
+          return line1;
+        case "pie1":
+          return pie1;
+        case "pie2":
+          return pie2;
+        case "top_songs_4week":
+          return topSongs[0];
+        case "top_songs_6month":
+          return topSongs[1];
+        case "top_songs_all":
+          return topSongs[2];
+        case "top_artists_4week":
+          return topArtists[0];
+        case "top_artists_6month":
+          return topArtists[1];
+        case "top_artists_all":
+          return topArtists[2];
+        case "followers":
+          return followers;
+        case "recent_songs":
+          return recentSongs;
+        case "saved_songs":
+          return savedSongs;
+        case "saved_albums":
+          return savedAlbums;
+        case "saved_playlists":
+          return savedPlaylists;
+        case "followed_artists":
+          return followedArtists;
+        default:
+          return null;
+      }
+    } catch (e) {
+      console.log(e);
+      return "";
     }
   }
 
