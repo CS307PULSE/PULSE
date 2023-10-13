@@ -15,6 +15,7 @@ import Exceptions
 import os
 from Playback import Playback
 from PIL import Image
+import random
 import io
 import time
 
@@ -166,6 +167,8 @@ def callback():
             spotify_id=sp.me()['id'],
             spotify_user=sp
         )
+
+        user.refresh_access_token(sp_oauth=sp_oauth)
         
         user_exists = False
         with DatabaseConnector(db_config) as conn:
@@ -338,6 +341,11 @@ def playback():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
+        try:
+            user.update_spotify_id()
+        except Exception as e:
+            if not (try_refresh(user, e)):
+                return "Failed to reauthenticate token"
         print(f"Starting with filter {filter_search}!")
         
         global spoof_songs
@@ -349,26 +357,28 @@ def playback():
             songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
             songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
             songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
+            random_track = random.choice(songs)
+            track_uri = random_track['uri']
         elif filter_search == "":
             if user.stats.saved_songs is None:
                 user.update_saved_songs()
             songs = user.stats.saved_songs
+            random_track = random.choice(songs)
+            track_uri = random_track['track']['uri']
         else:
             results = user.search_for_items(query=filter_search, items_type='artist', max_items=5)
-            if results['artists']['items']:
-                artist_id = results['artists']['items'][0]['id']
-                songs = user.spotify_user.artist_top_tracks(artist_id)
+            if results[0]['id']:
+                artist_id = results[0]['id']
+                songs = user.spotify_user.artist_top_tracks(artist_id)['tracks']
+                random_track = random.choice(songs)
+                track_uri = random_track['uri']
             else:
                 if user.stats.saved_songs is None:
                     user.update_saved_songs()
-                songs = user.stats.saved_songs 
-
-        import random
-        random_track = random.choice(songs)
-        if (spoof_songs):
-            track_uri = random_track['uri']
-        else:
-            track_uri = random_track['track']['uri']
+                songs = user.stats.saved_songs
+                random_track = random.choice(songs)
+                track_uri = random_track['track']['uri']
+                
         user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
         return jsonify("Success!")
     else:
@@ -395,6 +405,23 @@ def store_scores():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    
+@app.route('/games/get_scores')
+def get_scores():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+
+        with DatabaseConnector(db_config) as conn:
+            scores = conn.get_scores_from_DB(user.spotify_id)
+        
+        return scores
+
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
 
 @app.route('/player/play')
 def play():
@@ -797,13 +824,15 @@ def update_data(user,
     except Exceptions.TokenExpiredError as e:
         max_retries = 3
         success = try_refresh(user, e)
+        print(success)
+        print(retries)
 
         if not success:
             raise Exception
         else:
             if (retries > max_retries):
                 raise Exception
-            update_data(retries=retries+1)
+            return update_data(retries=retries+1)
 
 def try_refresh(user, e):
     print(f"An unexpected error occurred: {e}")
