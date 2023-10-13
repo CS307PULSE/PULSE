@@ -12,6 +12,9 @@ const themeColors = Colors(0); //Obtain color values
 // Access the CSS variable
 const root = document.documentElement;
 
+document.documentElement.style.setProperty("--graph-text-size", "10px");
+document.documentElement.style.setProperty("--title-text-size", "10px");
+
 // Modify the CSS variable
 if (true) {
   root.style.setProperty("--container-background", "#f5f5f5");

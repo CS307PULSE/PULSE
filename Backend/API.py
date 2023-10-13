@@ -18,6 +18,7 @@ from PIL import Image
 import random
 import io
 import time
+from werkzeug.utils import secure_filename
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -738,26 +739,32 @@ def songrec():
         user_data = session['user']
         user = User.from_json(user_data)
         try:
-            suggested_tracks = user.get_recommendations(seed_tracks=track)
+            found = user.search_for_items(max_items=1, query=track)
+            found = found[0]
+            suggested_tracks = user.get_recommendations(seed_tracks=found)
         except Exception as e:
             if (try_refresh(user, e)):
-                suggested_tracks = user.get_recommendations(seed_tracks=track)
+                suggested_tracks = user.get_recommendations(seed_tracks=found)
             else:
                 return "Failed to reauthenticate token"
     
         response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
+    return jsonify(user.stringify(response_data))
 
 @app.route('/profile/upload', methods=['POST'])
 def upload_image():
     if 'user' in session:
         data = request.get_json()
-        image_og = data.get('image_path')
+        image_og = request.files['file_to_upload']
         user_data = session['user']
         user = User.from_json(user_data)
         #open image named uncompressed_image.jpg
+        image_og = secure_filename(image_og.filename)
+        if image_og.lower().endswith(('.png')) :
+            im = Image.open("image_path")
+            im.convert('RGB').save("image_name.jpg","JPEG") #this converts png image as jpeg
         storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
         os.rename(image_og, storage_loc)
         #save image locally
@@ -771,7 +778,7 @@ def get_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
+        storage_loc = os.getcwd().removesuffix('Backend\\') + "\\Icons\\" + user.spotify_id + ".jpeg"
         response_data = storage_loc
     else:
         response_data = 'User session not found. Please log in again.'
