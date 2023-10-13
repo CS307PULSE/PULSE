@@ -759,13 +759,11 @@ def songrec():
 def upload_image():
     if 'user' in session:
         data = request.get_json()
-        newname = data.get('filepath')
-        # newname = newname.title()
+        newImage = data.get('filepath')
         user_data = session['user']
         user = User.from_json(user_data)
-        user.display_name = newname
         with DatabaseConnector(db_config) as conn:
-            conn.update_display_name(user.spotify_id, user.display_name)
+            conn.update_icon(user.spotify_id, newImage)
         response_data = 'username updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -795,11 +793,21 @@ def get_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        storage_loc = os.getcwd().removesuffix('Backend\\') + "\\Icons\\" + user.spotify_id + ".jpeg"
-        response_data = storage_loc
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_icon_from_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
+
+# def get_image():
+#     if 'user' in session:
+#         user_data = session['user']
+#         user = User.from_json(user_data)
+#         storage_loc = os.getcwd().removesuffix('Backend\\') + "\\Icons\\" + user.spotify_id + ".jpeg"
+#         response_data =  #storage_loc
+#     else:
+#         response_data = 'User session not found. Please log in again.'
+#     return jsonify(response_data)
 
 @app.route('/profile/change_displayname', methods=['POST'])
 def change_displayname():
