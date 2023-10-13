@@ -701,7 +701,7 @@ def songrec():
         response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
+    return jsonify(user.stringify(response_data))
 
 @app.route('/profile/upload', methods=['POST'])
 def upload_image():
