@@ -1,16 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from "react-router-dom";
+
+import TextSize from "../theme/TextSize";
+import Colors from "../theme/Colors"; 
+const textSizes = TextSize(1); //Obtain text size values
+const themeColors = Colors(0); //Obtain color values
+
 // Styled components
 const CardContainer = styled.div`
-  border: 1px solid #FFF;
+  border: 1px solid ${themeColors.white};
   overflow: hidden;
   width: 500px;
   height: 650px;
 `;
 
 const Header = styled.div`
-  background-color: #6EEB4D; // Set background color to green
+  background-color: ${themeColors.green}; // Set background color to green
   color: black; // Set text color to green
   font-family: 'Poppins', sans-serif;
   font-size: 14px;
@@ -21,7 +27,7 @@ const Header = styled.div`
 `;
 
 const Content = styled.div`
-color: #FFF;
+color: ${themeColors.white};
 font-family: Rhodium Libre;
 font-size: 14px;
 font-style: normal;

@@ -1,4 +1,3 @@
-from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
 from array import array
@@ -90,15 +89,6 @@ class User:
             self.spotify_id = response['id']
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
-        
-    def update_followers(self):
-        try:
-            userinfo = self.spotify_user.currentuser()
-            followers = userinfo['followers']['total']
-            self.stats.follower_number = followers
-            now = datetime.now()
-        except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
 
     # Updates list of recent songs with at most 50 objects of type PlayHistory
     def update_recent_history(self):
@@ -218,6 +208,62 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
+    # Updates list of saved albums with at most max_albums number of objects of type Album
+    def update_saved_albums(self, max_albums=200):
+        try:
+            saved_albums = []
+
+            offset = 0
+            limit = min(50, max_albums)
+
+            while len(saved_albums) < max_albums:
+                response = self.spotify_user.current_user_saved_albums(limit=limit, offset=offset)
+                
+                if (
+                    response is None
+                    or response.get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                saved_albums.extend(response['items'])
+
+                if (len(response['items']) < limit):
+                    break
+
+            self.stats.saved_albums = saved_albums
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+
+     # Updates list of saved playlist with at most max_playlists number of objects of type Playlist
+    def update_saved_playlists(self, max_playlists=200):
+        try:
+            saved_playlists = []
+
+            offset = 0
+            limit = min(50, max_playlists)
+
+            while len(saved_playlists) < max_playlists:
+                response = self.spotify_user.current_user_playlists(limit=limit, offset=offset)
+                
+                if (
+                    response is None
+                    or response.get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                saved_playlists.extend(response['items'])
+
+                if (len(response['items']) < limit):
+                    break
+
+            self.stats.saved_playlists = saved_playlists
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+
     # Searches for item of type items_type with query query and at most max_items number of items
     def search_for_items(self, max_items=20, items_type="tracks", query=""):
         try:
@@ -247,6 +293,16 @@ class User:
             ErrorHandler.handle_error(e)
             return ['' for _ in range(max_items)]
     
+    # Returns 2-item array with timestamp and follower number
+    def get_followers_with_time(self):
+        try:
+            userinfo = self.spotify_user.me()
+            followers = userinfo['followers']['total']
+            now = datetime.now()
+            return [now, followers]
+        except spotipy.exceptions.SpotifyException as e:
+          ErrorHandler.handle_error(e)
+
     # Returns array of track objects
     def get_recommendations(self, 
                             seed_tracks=[], 

@@ -1,40 +1,70 @@
 import React from 'react';
 import Navbar from './NavBar';
 import FriendsCard from './FriendsCard';
+import { Link } from "react-router-dom";
 
+import TextSize from "../theme/TextSize";
+import Colors from "../theme/Colors"; 
+const textSizes = TextSize(1); // Obtain text size values
+const themeColors = Colors("dark"); // Obtain color values
 
 const bodyStyle = {
-    backgroundColor: "black",
-    margin: 0,
-    padding: 0,
-    height: "100vh",
-  };
-  
-  const friendContainerStyle = {
-    position: "fixed", // Fixed position so it stays on the right
-    top: 100,
-    right: 0,
-    width: "20%", // Take up 20% of the viewport width
-    height: "900", // Take up the full height
-    backgroundColor: "white", // Add background color for the friend component
-  };
+  backgroundColor: themeColors.background,
+  margin: 0,
+  padding: 0,
+  height: "100vh",
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+};
+
+const friendContainerStyle = {
+  position: "fixed",
+  top: 100,
+  right: 0,
+  width: "20%",
+  height: "900",
+  backgroundColor: themeColors.background,
+};
+
+const buttonContainerStyle = {
+  position: 'fixed',
+  left: 0,
+  display: 'flex',
+  justifyContent: 'flex-start', // Align buttons horizontally
+  alignItems: 'center',
+  margin: 'auto',
+  height: '100%', // Take up the full height
+  width: '20%', // Adjust the width of the button container
+};
+
+const buttonStyle = {
+  backgroundColor: themeColors.background,
+  color: themeColors.text,
+  padding: '20px 40px', // Increase the padding for taller buttons
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  borderColor: themeColors.text,
+  borderRadius: '10px',
+  cursor: 'pointer',
+  margin: '5px',
+  width: '100%', // Adjust the width to take up the entire space available
+  textAlign: 'center', // Center the text horizontally
+};
 
 const DJMixer = () => {
-
   return (
     <div style={bodyStyle}>
-        <Navbar/>
-        <div style={friendContainerStyle}>
+      <Navbar />
+      <div style={friendContainerStyle}>
         <FriendsCard />
+      </div>
+      <div style={buttonContainerStyle}>
+        <Link to="/DJmixer/SongRecommendation" style={{ ...buttonStyle, textDecoration: 'none' }}>Song Recommendation</Link>
+        <Link to="/DJmixer/ArtistRecommendation" style={{ ...buttonStyle, textDecoration: 'none' }}>Artist Recommendation</Link>
       </div>
     </div>
   );
 };
 
 export default DJMixer;
-
-
-
-
-
-

@@ -36,7 +36,15 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const changeData = (e) => {
     const newData = e.target.value;
     setData(newData);
-    if (newData.includes("top_songs") || newData.includes("top_artists")) {
+    if (
+      newData.includes("top_songs") ||
+      newData.includes("top_artists") ||
+      newData === "recent_songs" ||
+      newData === "saved_songs" ||
+      newData === "saved_albums" ||
+      newData === "followed_artists" ||
+      newData === "saved_playlists"
+    ) {
       setNoneData(true);
       setBarData(false);
       setLineData(false);
@@ -56,6 +64,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       setBarData(false);
       setLineData(false);
       setPieData(true);
+    } else if (newData === "followers") {
+      setNoneData(false);
+      setBarData(false);
+      setLineData(true);
+      setPieData(false);
     } else {
       setNoneData(false);
       setBarData(false);
@@ -91,6 +104,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
 
     if (validName) {
       onClose();
+      console.log("This is graph:");
       console.log(formJson);
       addGraph(formJson);
     } else {
@@ -137,6 +151,12 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
                 Top Artists of last 6 months
               </option>
               <option value="top_artists_all">Top Artists of all time</option>
+              <option value="followers">Followers</option>
+              <option value="recent_songs">Recent Songs</option>
+              <option value="saved_songs">Saved Songs</option>
+              <option value="saved_albums">Saved Albums</option>
+              <option value="saved_playlists">Saved Playlists</option>
+              <option value="followed_artists">Followed Artists</option>
             </select>
           </div>
           <div>
