@@ -696,6 +696,8 @@ def change_displayname():
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
+        with DatabaseConnector(db_config) as conn:
+            conn.update_display_name(user.spotify_id, user.display_name)
         response_data = 'username updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -710,6 +712,8 @@ def change_gender():
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
+        with DatabaseConnector(db_config) as conn:
+            conn.update_gender(user.spotify_id, user.gender)
         response_data = 'gender updated.'
     else:
         response_data = 'User session not found. Please log in again.'
