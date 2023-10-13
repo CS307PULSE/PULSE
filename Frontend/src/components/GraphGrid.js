@@ -126,6 +126,7 @@ export default function GraphGrid() {
   const [savedSongs, setSavedSongs] = useState();
   const [savedAlbums, setSavedAlbums] = useState();
   const [followedArtists, setFollowedArtists] = useState();
+  const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
 
   //Remove container function
@@ -149,7 +150,7 @@ export default function GraphGrid() {
     //Try-catch to set layout to default one if recieved empty layout
     try {
       const storedLayout = localStorage.getItem(key);
-      console.log(storedLayout);
+      //console.log(storedLayout);
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
@@ -231,7 +232,6 @@ export default function GraphGrid() {
       try {
         console.log("getting");
         const data = await fetchBackendDatas();
-        console.log(data);
         try {
           const objData = {
             top_artists: JSON.parse(data.top_artists),
@@ -242,8 +242,7 @@ export default function GraphGrid() {
             followed_artists: JSON.parse(data.followed_artists),
             layout_data: JSON.parse(data.layout_data),
             follower_data: data.follower_data,
-            top_artists: JSON.parse(data.top_artists),
-            top_songs: JSON.parse(data.top_songs),
+            saved_playlists: JSON.parse(data.saved_playlists),
           };
           console.log(objData);
         } catch (e) {}
@@ -254,6 +253,7 @@ export default function GraphGrid() {
         setSavedSongs(JSON.parse(data.saved_songs));
         setSavedAlbums(JSON.parse(data.saved_albums));
         setFollowedArtists(JSON.parse(data.followed_artists));
+        setSavedPlaylists(JSON.parse(data.saved_playlists));
 
         //Followers
         if (data.follower_data === "") {
@@ -296,6 +296,7 @@ export default function GraphGrid() {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -372,6 +373,8 @@ export default function GraphGrid() {
         return savedSongs;
       case "saved_albums":
         return savedAlbums;
+      case "saved_playlists":
+        return savedPlaylists;
       case "followed_artists":
         return followedArtists;
       default:
