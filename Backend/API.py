@@ -711,9 +711,9 @@ def play_album():
 
 @app.route('/player/play_song', methods=['POST'])
 def play_song():
+    data = request.get_json()
+    song_uri = data.get('spotify_uri')
     if 'user' in session:
-        data = request.get_json()
-        song_uri = data.get('spotify_uri')
         user_data = session['user']
         user = User.from_json(user_data)
         try:
@@ -733,18 +733,20 @@ def play_song():
 
 @app.route('/djmixer/songrec', methods=['POST'])
 def songrec():
+    data = request.get_json()
+    track = data.get('track')
     if 'user' in session:
-        data = request.get_json()
-        track = data.get('track')
         user_data = session['user']
         user = User.from_json(user_data)
         try:
             found = user.search_for_items(max_items=1, query=track)
-            found = found[0]
-            suggested_tracks = user.get_recommendations(seed_tracks=found)
+            track_id = found[0]['id']
+            suggested_tracks = user.get_recommendations(seed_tracks=[track_id])
         except Exception as e:
             if (try_refresh(user, e)):
-                suggested_tracks = user.get_recommendations(seed_tracks=found)
+                found = user.search_for_items(max_items=1, query=track)
+                track_id = found[0]['id']
+                suggested_tracks = user.get_recommendations(seed_tracks=[track_id])
             else:
                 return "Failed to reauthenticate token"
     
