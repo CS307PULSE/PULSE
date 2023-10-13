@@ -254,7 +254,7 @@ def statistics():
         return make_response(jsonify({'error': error_message}), 69)
     
 @app.route('/statistics/shortened')
-def statisticsShort():
+def statistics_short():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -356,13 +356,13 @@ def update_followers():
         follower_data = user.get_followers_with_time()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
-                error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+                error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
 
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return error_message
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/games/playback', methods=['POST'])
 def playback():
@@ -707,7 +707,7 @@ def songrec():
 def upload_image():
     if 'user' in session:
         data = request.get_json()
-        image_og = data.get('image_loc')
+        image_og = data.get('image_path')
         user_data = session['user']
         user = User.from_json(user_data)
         #open image named uncompressed_image.jpg
@@ -719,7 +719,7 @@ def upload_image():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/getimage', methods=['GET'])
+@app.route('/profile/get_image', methods=['GET'])
 def get_image():
     if 'user' in session:
         user_data = session['user']
@@ -735,7 +735,7 @@ def change_displayname():
     if 'user' in session:
         data = request.get_json()
         newname = data.get('displayname')
-        newname = newname.title()
+        # newname = newname.title()
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
@@ -801,7 +801,7 @@ def get_location():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/get_displayname', methods=['GET'])
+@app.route('/profile/get_gender', methods=['GET'])
 def get_gender():
     if 'user' in session:
         user_data = session['user']
