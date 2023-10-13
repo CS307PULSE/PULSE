@@ -241,7 +241,7 @@ export default function GraphGrid() {
             saved_albums: JSON.parse(data.saved_albums),
             followed_artists: JSON.parse(data.followed_artists),
             layout_data: JSON.parse(data.layout_data),
-            //follower_data: JSON.parse(data.follower_data),
+            follower_data: data.follower_data,
             top_artists: JSON.parse(data.top_artists),
             top_songs: JSON.parse(data.top_songs),
           };
@@ -258,7 +258,7 @@ export default function GraphGrid() {
         //Followers
         if (data.follower_data === "") {
         } else {
-          setFollowers(JSON.parse(data.follower_data));
+          setFollowers(data.follower_data);
         }
 
         //Layout

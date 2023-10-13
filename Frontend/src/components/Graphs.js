@@ -410,9 +410,10 @@ export const LineGraph = (props) => {
   const fixData = () => {
     let tempData = {
       id: "Followers",
-      data: props.data.map((dataPoint) => {
-        return { x: dataPoint.date, y: dataPoint.followers };
-      }),
+      data: Object.keys(props.data).map((key) => ({
+        x: key,
+        y: props.data[key],
+      })),
     };
     console.log(tempData);
     return [tempData];
