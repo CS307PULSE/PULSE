@@ -6,7 +6,7 @@ import ProfileIcon from "../../src/assets/ProfileIcon.png";
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
 const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors(1); //Obtain color values
+const themeColors = Colors("light"); //Obtain color values
 
 const navbarStyle = {
   display: 'flex',

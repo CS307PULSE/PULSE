@@ -2,24 +2,26 @@ import React, { useEffect, useState } from "react";
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
 
-import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
-var textSizes, themeColors;
+import TextSize from "../theme/TextSize";
+
+var textSizeSetting, themeSetting;
 try {
     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
-    var textSizeSetting = textSizeResponse.data[0][0];
-    console.log("Text Size Setting: " + textSizeSetting);
-    textSizes = TextSize(textSizeSetting); //Obtain text size values
+    textSizeSetting = textSizeResponse.data;
+    console.log("Song Player Text Size Setting: " + textSizeSetting);
 
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    var themeSetting = themeResponse.data[0][0];
-    console.log("Theme Setting: " + textSizeSetting);
-    themeColors = Colors(themeSetting); //Obtain color values
+    console.log(themeResponse.data[0]);
+    themeSetting = themeResponse.data;
+    console.log("Song Player Theme Setting: " + textSizeSetting);    
 } catch (e) {
-    console.log(e);
-    textSizes = TextSize(1);
-    themeColors = Colors(0);
+    console.log("Formatting settings fetch failed: " + e);
+    textSizeSetting = 1;
+    themeSetting = 0;
 }
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const images = {
     playButton: "https://cdn-icons-png.flaticon.com/512/3318/3318660.png",

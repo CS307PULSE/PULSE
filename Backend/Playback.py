@@ -11,7 +11,7 @@ class Playback:
         self.devices = ""
         self.playback = ""
         self.current_track = ""
-        self.shuffle = False
+        self.shuffle = ""
         self.repeat = ""
         self.current_device = ""
         self.progress = ""
@@ -44,6 +44,7 @@ class Playback:
        try:
         while True:
             self.currentlyplaying = self.check_playback()
+            #self.print_player()
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
@@ -53,6 +54,7 @@ class Playback:
         checker.start()
 
     def set_shuffle(self):
+        print(self.shuffle)
         try:
           if self.shuffle:
             self.user.spotify_user.shuffle(False)
@@ -62,6 +64,8 @@ class Playback:
           ErrorHandler.handle_error(e)
 
     def set_repeat(self):
+       print("it works")
+       self.print_player()
        try: 
         if self.repeat == "off":
           self.user.spotify_user.repeat('context')

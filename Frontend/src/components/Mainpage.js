@@ -14,7 +14,8 @@ const bodyStyle = {
   backgroundColor: themeColors.background,
   margin: 0,
   padding: 0,
-  height: '100vh'
+  height: '100vh',
+  overflow: 'auto'
 };
 
 const cardContainerStyle = {
@@ -115,6 +116,7 @@ function Mainpage() {
           <p style={cardContent}>ENTER LOCAL FILE PATH:</p>
         </Card>
       </div>
+      <div style={{ padding: '50px' }} />
      {/* Define routes for each game */}
       <div style={friendContainerStyle}>
         <FriendsCard/>
