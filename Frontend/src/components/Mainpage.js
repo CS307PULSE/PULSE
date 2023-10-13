@@ -4,12 +4,26 @@ import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
-import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors";
+
+import { pulseColors } from "../theme/Colors";
 import axios from "axios";
 
-const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors(0); //Obtain color values
+import Colors from "../theme/Colors"; 
+import TextSize from "../theme/TextSize";
+
+var textSizeSetting, themeSetting;
+try {
+    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
+    textSizeSetting = textSizeResponse.data;
+    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
+    themeSetting = themeResponse.data;
+} catch (e) {
+    console.log("Formatting settings fetch failed: " + e);
+    textSizeSetting = 1;
+    themeSetting = 0;
+}
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,
@@ -80,6 +94,17 @@ const searchInputStyle = {
   width: "50%",
 };
 
+//Update follower data
+async function updateFollowers() {
+  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log("Followers response:");
+  console.log(response);
+  return data;
+}
+
 function Mainpage() {
   function StatsCardComp() {
     //Data to display on stats card
@@ -88,6 +113,7 @@ function Mainpage() {
     const [followers, setFollowers] = useState();
     const [statsDone, setStatsDone] = useState(false);
     useEffect(() => {
+      updateFollowers();
       const fetchData = async () => {
         const response = await axios.get(
           "http://127.0.0.1:5000/statistics/shortened",
@@ -155,7 +181,7 @@ function Mainpage() {
       </div>
       <div style={cardContainerStyle}>
         <Card headerText="STATISTICS" style={cardStyle}>
-          {StatsCardComp()}
+          {/* {StatsCardComp()} */}
         </Card>
         <Card headerText="DJ MIXER" style={cardStyle}>
           <p style={cardContent}>This is the content of Card 2.</p>

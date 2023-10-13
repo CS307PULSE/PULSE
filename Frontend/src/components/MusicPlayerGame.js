@@ -65,7 +65,12 @@ const ScoreStyle = {
   lineHeight: "normal",
   textTransform: "uppercase",
 };
-const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedArtist }) => {
+const MusicPlayerGame = ({
+  numberOfPlayers,
+  numberOfRounds,
+  gameCode,
+  selectedArtist,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [players, setPlayers] = useState([]);
   const [currentNumberOfRounds, setCurrentNumberOfRounds] =
@@ -95,7 +100,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedAr
   const handlePlayButtonClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .post("http://127.0.0.1:8080/games/playback", { artist: selectedArtist })
+      .post("http://127.0.0.1:5000/games/playback", { artist: selectedArtist })
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("Playback initiated successfully:", response.data);
@@ -124,7 +129,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedAr
   const handleEveryoneWrongClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("http://127.0.0.1:8080/player/pause")
+      .get("http://127.0.0.1:5000/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -141,9 +146,9 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedAr
   };
 
   const handlePlayersSelectedRightClick = () => {
-
-    const axiosInstance = axios.create({withCredentials: true});
-    axiosInstance.get("http://127.0.0.1:8080/player/pause")
+    const axiosInstance = axios.create({ withCredentials: true });
+    axiosInstance
+      .get("http://127.0.0.1:5000/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -169,7 +174,6 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedAr
       return player;
     });
 
-    
     setPlayers(updatedPlayers);
     checkIfShowScores();
   };
@@ -179,7 +183,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedAr
   const checkIfShowScores = () => {
     setCurrentNumberOfRounds((prevRounds) => prevRounds - 1);
   };
-  
+
   useEffect(() => {
     if (currentNumberOfRounds === 0) {
       setShowScores(true);
@@ -190,7 +194,7 @@ const MusicPlayerGame = ({ numberOfPlayers, numberOfRounds, gameCode, selectedAr
   // Function to send player data to the backend
   const sendPlayerDataToBackend = () => {
     // Assuming your backend API endpoint is 'your-backend-api-endpoint'
-    const backendEndpoint = "http://127.0.0.1:8080/games/store_scores";
+    const backendEndpoint = "http://127.0.0.1:5000/games/store_scores";
 
     // Extract player scores as an array of integers
     const playerScores = players.map((player) => player.score);
