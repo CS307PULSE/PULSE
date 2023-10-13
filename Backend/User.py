@@ -1,4 +1,3 @@
-from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
 from array import array
@@ -234,6 +233,34 @@ class User:
                     break
 
             self.stats.saved_albums = saved_albums
+        except spotipy.exceptions.SpotifyException as e:
+            ErrorHandler.handle_error(e)
+
+     # Updates list of saved playlist with at most max_playlists number of objects of type Playlist
+    def update_saved_playlists(self, max_playlists=200):
+        try:
+            saved_playlists = []
+
+            offset = 0
+            limit = min(50, max_playlists)
+
+            while len(saved_playlists) < max_playlists:
+                response = self.spotify_user.current_user_playlists(limit=limit, offset=offset)
+                
+                if (
+                    response is None
+                    or response.get('items') is None
+                ):
+                    break
+
+                offset += limit
+
+                saved_playlists.extend(response['items'])
+
+                if (len(response['items']) < limit):
+                    break
+
+            self.stats.saved_playlists = saved_playlists
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 

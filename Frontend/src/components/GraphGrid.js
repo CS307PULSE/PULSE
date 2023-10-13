@@ -229,27 +229,36 @@ export default function GraphGrid() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("getting");
         const data = await fetchBackendDatas();
-        const objData = {
-          top_artists: JSON.parse(data.top_artists),
-          top_songs: JSON.parse(data.top_songs),
-          recent_history: JSON.parse(data.recent_history),
-          saved_songs: JSON.parse(data.saved_songs),
-          followed_artists: JSON.parse(data.followed_artists),
-          layout_data: JSON.parse(data.layout_data),
-        };
-        console.log(objData);
+        console.log(data);
+        try {
+          const objData = {
+            top_artists: JSON.parse(data.top_artists),
+            top_songs: JSON.parse(data.top_songs),
+            recent_history: JSON.parse(data.recent_history),
+            saved_songs: JSON.parse(data.saved_songs),
+            saved_albums: JSON.parse(data.saved_albums),
+            followed_artists: JSON.parse(data.followed_artists),
+            layout_data: JSON.parse(data.layout_data),
+            follower_data: data.follower_data,
+            top_artists: JSON.parse(data.top_artists),
+            top_songs: JSON.parse(data.top_songs),
+          };
+          console.log(objData);
+        } catch (e) {}
+
         setTopArtists(JSON.parse(data.top_artists));
         setTopSongs(JSON.parse(data.top_songs));
         setRecentSongs(JSON.parse(data.recent_history));
         setSavedSongs(JSON.parse(data.saved_songs));
-        //setSavedAlbums(JSON.parse(data.saved_albums));
+        setSavedAlbums(JSON.parse(data.saved_albums));
         setFollowedArtists(JSON.parse(data.followed_artists));
 
         //Followers
         if (data.follower_data === "") {
         } else {
-          setFollowers(JSON.parse(data.follower_data));
+          setFollowers(data.follower_data);
         }
 
         //Layout
@@ -378,7 +387,7 @@ export default function GraphGrid() {
     <React.Fragment>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
-        breakpoints={{ lg: 700, xs: 300, xxs: 0 }}
+        breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
         cols={{ lg: 5, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={"100%"}
