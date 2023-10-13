@@ -12,7 +12,6 @@ try {
     console.log("Song Player Text Size Setting: " + textSizeSetting);
 
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    console.log(themeResponse.data[0]);
     themeSetting = themeResponse.data;
     console.log("Song Player Theme Setting: " + textSizeSetting);    
 } catch (e) {
@@ -186,9 +185,23 @@ function SongPlayer() {
         setShuffleState(false);
     }, [shuffleState]);
 
+    async function saveVolume(volumeParameter) { //Set volume
+        console.log("Attempting volume post with value " + volumeParameter);
+        setVolumeLevel(volumeParameter);
+        const axiosInstance = axios.create({
+            withCredentials: true,
+        });
+        const response = await axiosInstance.post(
+            "http://127.0.0.1:5000/player/volume",
+            {
+                volume: volumeParameter
+            }
+        );
+        const data = response.data;
+        return data;
+    }
 
     return(
-        
         <div className="player" style={songPlayerStyle}>
             <img id="prevButton" style={songPlayerButtonStyle} src={images.prevButton} onClick={() => {setPrevState(true)}} alt="Previous Song"></img>
             <img id="playButton" style={songPlayerButtonStyle} src={images.playButton} onClick={() => {setPlayState(!playState)}} alt="Play Song"></img>
@@ -212,8 +225,8 @@ function SongPlayer() {
                     <option value="option2">Option 2</option>
                     <option value="option3">Option 3</option>
                 </select>
-            </div>
-            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={e => setVolumeLevel(e.target.value)}></input>  */}
+            </div> */}
+            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={e => saveVolume(e.target.value)}></input>
                 
         </div>
     );

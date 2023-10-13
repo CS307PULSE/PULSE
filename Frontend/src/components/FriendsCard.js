@@ -15,7 +15,6 @@ try {
     console.log("Profile Text Size Setting: " + textSizeSetting);
 
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    console.log(themeResponse.data[0]);
     themeSetting = themeResponse.data;
     console.log("Profile Theme Setting: " + textSizeSetting);
 } catch (e) {

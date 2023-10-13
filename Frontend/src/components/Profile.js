@@ -15,7 +15,6 @@ try {
     console.log("Profile Text Size Setting: " + textSizeSetting);
 
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    console.log(themeResponse.data[0]);
     themeSetting = themeResponse.data;
     console.log("Profile Theme Setting: " + textSizeSetting);
 } catch (e) {
@@ -99,6 +98,18 @@ const iconPictureStyle = {
     borderRadius: "10px"
 }
 
+var storedUsername, storedGender, storedLocation;
+try {
+    storedUsername = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true}).data;
+    storedGender = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true}).data;
+    storedLocation = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true}).data;
+} catch (e) {
+    console.log("User info fetch failed: " + e);
+    storedUsername = "undefined";
+    storedGender = "undefined";
+    storedLocation = "undefined";
+}
+
 async function saveTheme(themeParameter) {
     const axiosInstance = axios.create({
         withCredentials: true,
@@ -179,9 +190,9 @@ async function saveUserInfo(username, gender, location) {
 
 function Profile({testParameter}){
 
-    const [username, setUsername] = useState("");
-    const [gender, setGender] = useState('');
-    const [location, setLocation] = useState('');
+    const [username, setUsername] = useState(storedUsername);
+    const [gender, setGender] = useState(storedGender);
+    const [location, setLocation] = useState(storedLocation);
 
     return(
     <div style={bodyStyle}>
@@ -195,13 +206,13 @@ function Profile({testParameter}){
             </div> <br></br>
 
             <label style={profileText} for="username">Username: </label>
-            <input id="username" type="text" style={textFieldStyle} value={username} onChange={(e) => {setUsername(e.target.value)}}></input> <br></br>
+            <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input> <br></br>
             
             <label style={profileText} for="gender">Gender: </label>
-            <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={(e) => {setGender(e.target.value)}}></input> <br></br>
+            <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input> <br></br>
 
             <label style={profileText} for="location">Location: </label>
-            <input id="location" type="text" style={textFieldStyle} value={location} onChange={(e) => {setLocation(e.target.value)}}></input> <br></br>
+            <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
 
             <div style={buttonContainerStyle}>
                 <button onClick={() => {saveUserInfo(username, gender, location)}} style={buttonStyle}><p>Save Profile</p></button>
