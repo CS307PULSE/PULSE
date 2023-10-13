@@ -14,11 +14,8 @@ var textSizeSetting, themeSetting;
 try {
     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
     textSizeSetting = textSizeResponse.data;
-    console.log("Profile Text Size Setting: " + textSizeSetting);
-
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
     themeSetting = themeResponse.data;
-    console.log("Profile Theme Setting: " + textSizeSetting);
 } catch (e) {
     console.log("Formatting settings fetch failed: " + e);
     textSizeSetting = 1;

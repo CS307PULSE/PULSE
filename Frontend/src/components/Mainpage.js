@@ -4,9 +4,6 @@ import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
-import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors";
-import axios from "axios";
 
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
@@ -18,11 +15,8 @@ var textSizeSetting, themeSetting;
 try {
     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
     textSizeSetting = textSizeResponse.data;
-    console.log("Profile Text Size Setting: " + textSizeSetting);
-
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
     themeSetting = themeResponse.data;
-    console.log("Profile Theme Setting: " + textSizeSetting);
 } catch (e) {
     console.log("Formatting settings fetch failed: " + e);
     textSizeSetting = 1;
@@ -175,7 +169,7 @@ function Mainpage() {
       </div>
       <div style={cardContainerStyle}>
         <Card headerText="STATISTICS" style={cardStyle}>
-          {StatsCardComp()}
+          {/* {StatsCardComp()} */}
         </Card>
         <Card headerText="DJ MIXER" style={cardStyle}>
           <p style={cardContent}>This is the content of Card 2.</p>

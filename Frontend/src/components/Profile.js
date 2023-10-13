@@ -12,11 +12,8 @@ var textSizeSetting, themeSetting;
 try {
     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
     textSizeSetting = textSizeResponse.data;
-    console.log("Profile Text Size Setting: " + textSizeSetting);
-
     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
     themeSetting = themeResponse.data;
-    console.log("Profile Theme Setting: " + textSizeSetting);
 } catch (e) {
     console.log("Formatting settings fetch failed: " + e);
     textSizeSetting = 1;
@@ -98,16 +95,23 @@ const iconPictureStyle = {
     borderRadius: "10px"
 }
 
-var storedUsername, storedGender, storedLocation;
+var storedUsername, storedGender, storedLocation, storedImagePath;
 try {
-    storedUsername = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true}).data;
-    storedGender = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true}).data;
-    storedLocation = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true}).data;
+    var usernameResponse = await axios.get("http://127.0.0.1:5000/profile/get_displayname", {withCredentials: true});
+    storedUsername = usernameResponse.data;
+    var genderResponse = await axios.get("http://127.0.0.1:5000/profile/get_gender", {withCredentials: true});
+    storedGender = genderResponse.data;
+    var locationResponse = await axios.get("http://127.0.0.1:5000/profile/get_location", {withCredentials: true});
+    storedLocation = locationResponse.data;
+    var imageResponse = await axios.get("http://127.0.0.1:5000/profile/get_image", {withCredentials: true});
+    storedImagePath = imageResponse.data;
+    console.log(storedImagePath);
 } catch (e) {
     console.log("User info fetch failed: " + e);
     storedUsername = "undefined";
     storedGender = "undefined";
     storedLocation = "undefined";
+    storedImagePath = "undefined";
 }
 
 async function saveTheme(themeParameter) {
@@ -182,18 +186,35 @@ async function saveLocation(locationParameter) {
       const data = response.data;
       return data;
 }
-async function saveUserInfo(username, gender, location) {
+async function saveImagePath(imagePathParameter) {
+    console.log("Attempting location post with value " + imagePathParameter);
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/profile/upload",
+        {
+          image_path: imagePathParameter
+        }
+      );
+      const data = response.data;
+      return data;
+}
+async function saveUserInfo(username, gender, location, imagePath) {
     saveUsername(username);
     saveGender(gender);
     saveLocation(location);
+    saveImagePath(imagePath);
+    window.location.reload();
 }
 
 function Profile({testParameter}){
 
+    const [imagePath, setImagePath] = useState(storedImagePath);
     const [username, setUsername] = useState(storedUsername);
     const [gender, setGender] = useState(storedGender);
     const [location, setLocation] = useState(storedLocation);
-
+    
     return(
     <div style={bodyStyle}>
         <Navbar />
@@ -201,21 +222,21 @@ function Profile({testParameter}){
             <p style={profileHeader}>Profile</p>
                 
             <div style={iconContainerStyle}>
-                <img style={iconPictureStyle} src={TestIcon}/>
-                <input id="file" accept="image/jpeg,image/png" name="fileToUpload" type="file"/>
+                <img style={iconPictureStyle} src={imagePath}/>
+                <input id="file" accept="image/jpeg,image/png" type="file" onChange={e => {setImagePath(e.target.value)}}/>
             </div> <br></br>
 
-            <label style={profileText} for="username">Username: </label>
+            <label style={profileText}>Username: </label>
             <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input> <br></br>
             
-            <label style={profileText} for="gender">Gender: </label>
+            <label style={profileText}>Gender: </label>
             <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input> <br></br>
 
-            <label style={profileText} for="location">Location: </label>
+            <label style={profileText}>Location: </label>
             <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
 
             <div style={buttonContainerStyle}>
-                <button onClick={() => {saveUserInfo(username, gender, location)}} style={buttonStyle}><p>Save Profile</p></button>
+                <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>
             </div>
 
             <p style={profileHeader}>Settings</p>
