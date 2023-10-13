@@ -80,6 +80,17 @@ const searchInputStyle = {
   width: "50%",
 };
 
+//Update follower data
+async function updateFollowers() {
+  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log("Followers response:");
+  console.log(response);
+  return data;
+}
+
 function Mainpage() {
   function StatsCardComp() {
     //Data to display on stats card
@@ -88,6 +99,7 @@ function Mainpage() {
     const [followers, setFollowers] = useState();
     const [statsDone, setStatsDone] = useState(false);
     useEffect(() => {
+      updateFollowers();
       const fetchData = async () => {
         const response = await axios.get(
           "http://127.0.0.1:5000/statistics/shortened",

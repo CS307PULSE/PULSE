@@ -23,7 +23,7 @@ import SongRecommendations from "./components/SongRecommendation";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
-  const response = await axios.get("http://127.0.0.1:8080/", {
+  const response = await axios.get("http://127.0.0.1:5000/", {
     withCredentials: true,
   });
   const data = response.data;
@@ -48,7 +48,7 @@ function App() {
   const handleLoginClick = () => {
     // Perform any login logic here if needed
     // For now, just set the state to true to indicate the button is clicked
-    
+
     setLoginClicked(true);
   };
   return (
@@ -71,9 +71,12 @@ function App() {
         <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
         <Route path="/Statistics" element={<StatisticsPage />} />
         <Route path="/games" element={<Games />} />
-        <Route path="/DJmixer" element={<DJMixer/>} />
-        <Route path= "/DJmixer/SongRecommendation" element={<SongRecommendations/>} />
-       
+        <Route path="/DJmixer" element={<DJMixer />} />
+        <Route
+          path="/DJmixer/SongRecommendation"
+          element={<SongRecommendations />}
+        />
+
         <Route path="friends" />
       </Routes>
     </Router>
