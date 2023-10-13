@@ -11,7 +11,7 @@ function TextSize(textSizeSetting) {
         text_sizes.header2 = "45px";
         text_sizes.header3 = "30px";
         text_sizes.body = "20px";
-        text_sizes.small = "15px";
+        text_sizes.small = "13px";
     } else if (textSizeSetting === 1) {
         text_sizes.header1 = "45px";
         text_sizes.header2 = "35px";
