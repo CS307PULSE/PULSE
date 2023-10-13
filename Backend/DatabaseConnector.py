@@ -177,7 +177,7 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_theme_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return int(self.resultset[0])
-    
+
     # Returns a newly created user object recreated from the user database given spotify_id
     def get_user_from_user_DB(self, spotify_id):
         sql_get_full_user_query = """SELECT * from pulse.users where spotify_id = %s"""
@@ -329,11 +329,11 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
-    # Update theme (expected Theme Enum) in user DB. Returns 1 if successful, 0 if not.
+    # Update theme (expected int) in user DB. Returns 1 if successful, 0 if not.
     def update_theme(self, spotify_id, new_theme):
         try:
             sql_update_theme_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_theme_query, (int(new_theme.value), spotify_id,))
+            self.db_cursor.execute(sql_update_theme_query, (new_theme, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.

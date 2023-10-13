@@ -1,4 +1,4 @@
-const pulseColors = {
+export const pulseColors = {
     green: "#6EEB4D",
     black: "#000",
     white: "#FFFFFF",
@@ -17,13 +17,13 @@ function Colors(colorSetting) {
         black: pulseColors.black,
         white: pulseColors.white
     }
-    if (colorSetting === "dark") {
+    if (colorSetting === 0) {
         themeColors.background = pulseColors.black;
         themeColors.text = pulseColors.white;
         themeColors.border = pulseColors.white;
         themeColors.buttons = pulseColors.white;
         themeColors.background2 = pulseColors.darkOffGrey;
-    } else if (colorSetting === "light") {
+    } else if (colorSetting === 1) {
         themeColors.background = pulseColors.white;
         themeColors.text = pulseColors.black;
         themeColors.border = pulseColors.black;

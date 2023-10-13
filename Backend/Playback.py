@@ -54,6 +54,7 @@ class Playback:
         checker.start()
 
     def set_shuffle(self):
+        print(self.shuffle)
         try:
           self.playback = self.user.spotify_user.current_playback()
           if self.playback != None:
@@ -66,6 +67,8 @@ class Playback:
           ErrorHandler.handle_error(e)
 
     def set_repeat(self):
+       print("it works")
+       self.print_player()
        try: 
         self.playback = self.user.spotify_user.current_playback()
         if self.playback != None:
