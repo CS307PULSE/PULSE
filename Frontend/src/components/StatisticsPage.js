@@ -1,7 +1,9 @@
 import React from "react";
-import "./Stats.css";
 import GraphGrid from "./GraphGrid";
 import Navbar from "./NavBar";
+import SongPlayer from "./SongPlayer";
+
+import "./Stats.css";
 
 export default function StatisticsPage() {
   return (
@@ -9,6 +11,7 @@ export default function StatisticsPage() {
       <Navbar />
       <div style={{ padding: "20px" }} />
       <GraphGrid />
+      <SongPlayer />
     </div>
   );
 }

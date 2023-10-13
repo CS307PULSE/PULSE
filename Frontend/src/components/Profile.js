@@ -18,7 +18,6 @@ try {
     console.log(themeResponse.data[0]);
     themeSetting = themeResponse.data;
     console.log("Profile Theme Setting: " + textSizeSetting);
-
 } catch (e) {
     console.log("Formatting settings fetch failed: " + e);
     textSizeSetting = 1;
