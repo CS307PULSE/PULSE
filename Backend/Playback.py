@@ -11,7 +11,7 @@ class Playback:
         self.devices = ""
         self.playback = ""
         self.current_track = ""
-        self.shuffle = ""
+        self.shuffle = False
         self.repeat = ""
         self.current_device = ""
         self.progress = ""
@@ -25,11 +25,12 @@ class Playback:
         try:
             self.devices = self.user.spotify_user.devices()
             self.playback = self.user.spotify_user.current_playback()
-            self.is_playing = self.playback['is_playing']
-            self.volume_support = self.playback['device']['supports_volume']
-            self.shuffle = self.playback['shuffle_state']
-            self.repeat = self.playback['repeat_state']
-            self.current_device = self.playback['device']
+            if self.playback != None:
+              self.is_playing = self.playback['is_playing']
+              self.volume_support = self.playback['device']['supports_volume']
+              self.shuffle = self.playback['shuffle_state']
+              self.repeat = self.playback['repeat_state']
+              self.current_device = self.playback['device']
             if self.volume_support :
               self.volume = self.playback['device']['volume_percent']
             if self.is_playing : 
@@ -53,7 +54,7 @@ class Playback:
 
     def set_shuffle(self):
         try:
-          if self.shuffle :
+          if self.shuffle:
             self.user.spotify_user.shuffle(False)
           else :
             self.user.spotify_user.shuffle(True)
@@ -65,10 +66,10 @@ class Playback:
         if self.repeat == "off":
           self.user.spotify_user.repeat('context')
           self.repeat == "context"
-        elif self.state == "context":
+        elif self.repeat == "context":
           self.user.spotify_user.repeat('track')
           self.repeat == "track"
-        elif self.state == "track":
+        elif self.repeat == "track":
           self.user.spotify_user.repeat('off')
           self.repeat == "off"
        except spotipy.exceptions.SpotifyException as e:

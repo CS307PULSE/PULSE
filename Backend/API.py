@@ -462,7 +462,7 @@ def shuffle():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.shuffle()
+        player.set_shuffle()
         response_data = 'Music changing shuffle.'
     else:
         response_data = 'User session not found. Please log in again.'
