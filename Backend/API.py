@@ -759,7 +759,43 @@ def change_location():
         user_data = session['user']
         user = User.from_json(user_data)
         user.location = location
+        with DatabaseConnector(db_config) as conn:
+            conn.update_location(user.spotify_id, user.location)
         response_data = 'location updated.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_displayname', methods=['GET'])
+def get_displayname():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_display_name_from_user_DB(user.spotify_id)
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_location', methods=['GET'])
+def get_location():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_location_from_user_DB(user.spotify_id)
+       
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_displayname', methods=['GET'])
+def get_gender():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_gender_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
