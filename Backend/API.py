@@ -362,7 +362,7 @@ def update_followers():
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return error_message
 
 @app.route('/games/playback', methods=['POST'])
 def playback():
