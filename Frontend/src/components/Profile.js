@@ -1,19 +1,33 @@
 import TestIcon from "../test_icon.jpg"
-import React from "react";
+import { React, useEffect, useState } from "react";
 import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
-//import { pulseColors } from "../theme/Colors";
+import { pulseColors } from "../theme/Colors";
+import axios from "axios";
 
 import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
-const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors("dark"); //Obtain color values
+
+var textSizeSetting, themeSetting;
+try {
+    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
+    textSizeSetting = textSizeResponse.data;
+    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
+    themeSetting = themeResponse.data;
+} catch (e) {
+    console.log("Formatting settings fetch failed: " + e);
+    textSizeSetting = 1;
+    themeSetting = 0;
+}
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const bodyStyle = {
     backgroundColor: themeColors.background,
     margin: 0,
     padding: 0,
-    height: '100vh',
+    maxHeight: '100vh',
+    overflow: "auto"
 };
 const profileContainerStyle = {
     padding: "20px",
@@ -54,15 +68,16 @@ const buttonStyle = {
     cursor: 'pointer',
     margin: '5px', // Small space between buttons
     width: '100%',
-    height: "50px"
+    height: "50px",
+    fontSize: textSizes.body
 };
 
 const textFieldStyle = {
-    backgroundColor: "#222",
+    backgroundColor: themeColors.background,
     borderRadius: "10px",
     height: "20px",
     width: "300px",
-    color:"#FFFFFF",
+    color: themeColors.text,
     padding: "10px",
     margin:"10px"
 };
@@ -80,49 +95,165 @@ const iconPictureStyle = {
     borderRadius: "10px"
 }
 
+var storedUsername, storedGender, storedLocation, storedImagePath;
+try {
+    var usernameResponse = await axios.get("http://127.0.0.1:5000/profile/get_displayname", {withCredentials: true});
+    storedUsername = usernameResponse.data;
+    var genderResponse = await axios.get("http://127.0.0.1:5000/profile/get_gender", {withCredentials: true});
+    storedGender = genderResponse.data;
+    var locationResponse = await axios.get("http://127.0.0.1:5000/profile/get_location", {withCredentials: true});
+    storedLocation = locationResponse.data;
+    var imageResponse = await axios.get("http://127.0.0.1:5000/profile/get_image", {withCredentials: true});
+    storedImagePath = imageResponse.data;
+    console.log(storedImagePath);
+} catch (e) {
+    console.log("User info fetch failed: " + e);
+    storedUsername = "undefined";
+    storedGender = "undefined";
+    storedLocation = "undefined";
+    storedImagePath = "undefined";
+}
+
+async function saveTheme(themeParameter) {
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/set_theme",
+        {
+          theme: themeParameter
+        }
+      );
+      const data = response.data;
+      console.log("Attempted post with value " + themeParameter);
+      window.location.reload();
+      return data;
+}
+async function saveTextSize(textSizeParameter) {
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/set_text_size",
+        {
+          text_size: textSizeParameter
+        }
+      );
+      const data = response.data;
+      console.log("Attempted post with value " + textSizeParameter);
+      window.location.reload();
+      return data;
+}
+async function saveUsername(usernameParameter) {
+    console.log("Attempting username post with value " + usernameParameter);
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/profile/change_displayname",
+        {
+          displayname: usernameParameter
+        }
+      );
+      const data = response.data;
+      return data;
+}
+async function saveGender(genderParameter) {
+    console.log("Attempting gender post with value " + genderParameter);
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/profile/change_gender",
+        {
+          gender: genderParameter
+        }
+      );
+      const data = response.data;
+      return data;
+}
+async function saveLocation(locationParameter) {
+    console.log("Attempting location post with value " + locationParameter);
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/profile/change_location",
+        {
+          location: locationParameter
+        }
+      );
+      const data = response.data;
+      return data;
+}
+async function saveImagePath(imagePathParameter) {
+    console.log("Attempting location post with value " + imagePathParameter);
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/profile/upload",
+        {
+          image_path: imagePathParameter
+        }
+      );
+      const data = response.data;
+      return data;
+}
+async function saveUserInfo(username, gender, location, imagePath) {
+    saveUsername(username);
+    saveGender(gender);
+    saveLocation(location);
+    saveImagePath(imagePath);
+    window.location.reload();
+}
+
 function Profile({testParameter}){
 
+    const [imagePath, setImagePath] = useState(storedImagePath);
+    const [username, setUsername] = useState(storedUsername);
+    const [gender, setGender] = useState(storedGender);
+    const [location, setLocation] = useState(storedLocation);
+    
     return(
     <div style={bodyStyle}>
         <Navbar />
         <div className="profile" style={profileContainerStyle}>
             <p style={profileHeader}>Profile</p>
-            <form action="fileupload.php" enctype="multipart/form-data" method="post">
                 
-                <div style={iconContainerStyle}>
-                    <img style={iconPictureStyle} src={TestIcon}/>
-                    <input id="file" accept="image/jpeg,image/png" name="fileToUpload" type="file"/>
-                </div> <br></br>
+            <div style={iconContainerStyle}>
+                <img style={iconPictureStyle} src={imagePath}/>
+                <input id="file" accept="image/jpeg,image/png" type="file" onChange={e => {setImagePath(e.target.value)}}/>
+            </div> <br></br>
 
-                <label style={profileText} for="username">Username: </label>
-                <input id="username" type="text" style={textFieldStyle}></input> <br></br>
-                
-                <label style={profileText} for="gender">Gender: </label>
-                <input id="gender" type="text" style={textFieldStyle}></input> <br></br>
+            <label style={profileText}>Username: </label>
+            <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input> <br></br>
+            
+            <label style={profileText}>Gender: </label>
+            <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input> <br></br>
 
-                <label style={profileText} for="location">Location: </label>
-                <input id="location" type="text" style={textFieldStyle}></input> <br></br>
+            <label style={profileText}>Location: </label>
+            <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
 
-                <div style={buttonContainerStyle}>
-                    <button style={buttonStyle} name="submit" type="submit" onsubmit="">Save Changes</button>
-                </div>
-            </form>
+            <div style={buttonContainerStyle}>
+                <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>
+            </div>
 
             <p style={profileHeader}>Settings</p>
-
             <p style={profileText}>Text Size: </p>
             <div style={buttonContainerStyle}>
-                <button onclick={TextSize(1)} style={buttonStyle}><p>Small</p></button>
-                <button onclick={TextSize(1)} style={buttonStyle}><p>Medium</p></button>
-                <button onclick={TextSize(1)} style={buttonStyle}><p>Large</p></button>
+                <button onClick={() => {saveTextSize(0)}} style={buttonStyle}><p>Small</p></button>
+                <button onClick={() => {saveTextSize(1)}} style={buttonStyle}><p>Medium</p></button>
+                <button onClick={() => {saveTextSize(2)}} style={buttonStyle}><p>Large</p></button>
             </div>
 
             <p style={profileText}>Theme: </p>
             <div style={buttonContainerStyle}>
-                <button onclick={Colors("light")} style={buttonStyle}><p>Light</p></button>
-                <button onclick={Colors("darK")} style={buttonStyle}><p>Dark</p></button>
+                <button onClick={() => {saveTheme(0)}} style={buttonStyle}><p>Dark</p></button>
+                <button onClick={() => {saveTheme(1)}} style={buttonStyle}><p>Light</p></button>
             </div>
         </div>
+        <div style={{padding: "60px"}}></div>
         <SongPlayer />
     </div>
     );

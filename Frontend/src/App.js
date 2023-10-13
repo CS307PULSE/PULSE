@@ -19,6 +19,7 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 import DJMixer from "./components/DJMixer";
+import SongRecommendations from "./components/SongRecommendation";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
@@ -47,7 +48,7 @@ function App() {
   const handleLoginClick = () => {
     // Perform any login logic here if needed
     // For now, just set the state to true to indicate the button is clicked
-    
+
     setLoginClicked(true);
   };
   return (
@@ -71,6 +72,11 @@ function App() {
         <Route path="/Statistics" element={<StatisticsPage />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
+        <Route
+          path="/DJmixer/SongRecommendation"
+          element={<SongRecommendations />}
+        />
+
         <Route path="friends" />
       </Routes>
     </Router>

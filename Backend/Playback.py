@@ -19,17 +19,18 @@ class Playback:
         self.volume = ""
         self.volume_support = ""
         self.current_image = ""
-        self.start_thread()
+        self.check_playback()
 
     def check_playback(self):
         try:
             self.devices = self.user.spotify_user.devices()
             self.playback = self.user.spotify_user.current_playback()
-            self.is_playing = self.playback['is_playing']
-            self.volume_support = self.playback['device']['supports_volume']
-            self.shuffle = self.playback['shuffle_state']
-            self.repeat = self.playback['repeat_state']
-            self.current_device = self.playback['device']
+            if self.playback != None:
+              self.is_playing = self.playback['is_playing']
+              self.volume_support = self.playback['device']['supports_volume']
+              self.shuffle = self.playback['shuffle_state']
+              self.repeat = self.playback['repeat_state']
+              self.current_device = self.playback['device']
             if self.volume_support :
               self.volume = self.playback['device']['volume_percent']
             if self.is_playing : 
@@ -43,6 +44,7 @@ class Playback:
        try:
         while True:
             self.currentlyplaying = self.check_playback()
+            "self.print_player()"
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
@@ -52,7 +54,11 @@ class Playback:
         checker.start()
 
     def set_shuffle(self):
+        print(self.shuffle)
         try:
+          self.playback = self.user.spotify_user.current_playback()
+          if self.playback != None:
+            self.shuffle = self.playback['shuffle_state']
           if self.shuffle :
             self.user.spotify_user.shuffle(False)
           else :
@@ -61,14 +67,19 @@ class Playback:
           ErrorHandler.handle_error(e)
 
     def set_repeat(self):
+       print("it works")
+       self.print_player()
        try: 
+        self.playback = self.user.spotify_user.current_playback()
+        if self.playback != None:
+          self.repeat = self.playback['repeat_state']
         if self.repeat == "off":
           self.user.spotify_user.repeat('context')
           self.repeat == "context"
-        elif self.state == "context":
+        elif self.repeat == "context":
           self.user.spotify_user.repeat('track')
           self.repeat == "track"
-        elif self.state == "track":
+        elif self.repeat == "track":
           self.user.spotify_user.repeat('off')
           self.repeat == "off"
        except spotipy.exceptions.SpotifyException as e:
@@ -97,7 +108,7 @@ class Playback:
         self.user.spotify_user.pause_playback()
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-       
+
     def get_queue(self):
        try:
         self.user.spotify_user.queue()
@@ -153,14 +164,28 @@ class Playback:
         ErrorHandler.handle_error(e)
 
     def play_playlist(self, playlist_uri):
-      playlist = self.user.spotify_user.playlist(playlist_uri)
-      playlist_first_song = playlist['tracks']['items']['track']['TrackObject']
-      self.select_song(playlist_uri, playlist_first_song)
+      try:
+        "playlist = self.user.spotify_user.playlist(=playlist_uri)"
+        "playlist_first_song = playlist['tracks']['items']['track']['TrackObject']"
+        self.select_song(playlist_uri, None)
+      except spotipy.exceptions.SpotifyException as e:
+        ErrorHandler.handle_error(e)
 
     def play_artist(self, artist_uri):
-      artist_tracks = self.user.spotify_user.artist_top_tracks(artist_uri)
-      artist_first_song = artist_tracks[1]
-      self.select_song(artist_uri, artist_first_song)
+      try:
+        "artist_tracks = self.user.spotify_user.artist_top_tracks(artist_uri)"
+        "artist_first_song = artist_tracks[1]"
+        self.select_song(artist_uri, None)
+      except spotipy.exceptions.SpotifyException as e:
+        ErrorHandler.handle_error(e)
+
+    def play_album(self, album_uri):
+      try:
+        "album = self.user.spotify_user.album(album_uri)"
+        "album_first_song = album['tracks']['items'][1]['uri']"
+        self.select_song(album_uri, None)
+      except spotipy.exceptions.SpotifyException as e:
+        ErrorHandler.handle_error(e)
 
     def open_playlist(self, playlist_uri):
       playlist = self.user.spotify_user.playlist(playlist_uri)
@@ -173,8 +198,8 @@ class Playback:
       webbrowser.open(song_link) 
 
     def open_artist(self, artist_uri):
-      artist_tracks = self.user.spotify_user.artist(artist_uri)
-      artist_link = artist['external_urls']['spotify']
+      artists = self.user.spotify_user.artist(artist_uri)
+      artist_link = artists['external_urls']['spotify']
       webbrowser.open(artist_link)
     
     """

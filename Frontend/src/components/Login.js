@@ -5,7 +5,7 @@ import Logo from "../../src/assets/LogoLogin.png";
 import axios from "axios";
 
 import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors"; 
+import Colors from "../theme/Colors";
 const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("light"); //Obtain color values
 

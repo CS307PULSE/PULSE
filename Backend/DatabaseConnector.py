@@ -109,6 +109,40 @@ class DatabaseConnector(object):
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
     
+
+    # Returns the display name from DB as a string.
+    def get_display_name_from_user_DB(self, spotify_id, data = None):
+        sql = "SELECT display_name from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+
+    # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
+    def get_followers_from_DB(self, spotify_id):
+        sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
+        results = self.db_cursor.fetchone()
+        if (results[0] is None or results is [] or results is "[]"):
+            return None
+        self.resultset = json.load(results[0])
+        if (self.resultset == []) or (self.resultset is None):
+            return None
+        return self.resultset
+    
+    # Returns game settings array from DB in the form of a 5x5 array.
+    def get_game_settings_from_DB(self, spotify_id):
+        sql_get_game_settings_query = "SELECT game_settings from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_game_settings_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return game_settings_string_to_array(self.resultset[0])
+    
+    # Returns the gender from DB as a string.
+    def get_gender_from_user_DB(self, spotify_id, data = None):
+        sql = "SELECT gender from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    
     # Returns icon from DB. Returns None if no icon exists, and a BLOB if it does
     def get_icon_from_DB(self, spotify_id, storage_loc):
         sql_fetch_blob_query = """SELECT icon from pulse.users where spotify_id = %s"""
@@ -130,34 +164,41 @@ class DatabaseConnector(object):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results is [] or results == "[]"):
             return None
-        self.resultset = json.load(results[0])
+        self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
-    
+
     # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
     def get_layout_from_DB(self, spotify_id):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results is [(None,)] or results is "" or results[0] is None):
+        if (results is [(None,)] or results == "" or results[0] is None):
             return None
         self.resultset = results[0]
-        if (self.resultset is None or self.resultset is ""):
+        if (self.resultset is None or self.resultset == ""):
             return None
         
         return self.resultset
+    
+    # Returns the location from DB as a string.
+    def get_location_from_user_DB(self, spotify_id, data = None):
+        sql = "SELECT location from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
 
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   
     def get_row_from_user_DB(self, spotify_id, data = None):
         sql = "SELECT from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
+        self.resultset = self.db_cursor.fetchone()
         return self.resultset
     
-    #Returns score array from DB in the form of a 5x10x10 array.
+    # Returns score array from DB in the form of a 5x10x10 array.
     def get_scores_from_DB(self, spotify_id):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
@@ -168,16 +209,16 @@ class DatabaseConnector(object):
     def get_text_size_from_DB(self,spotify_id):
         sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_text_size_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
-        return int(self.resultset)
+        self.resultset = self.db_cursor.fetchone()
+        return int(self.resultset[0])
     
     # Returns theme from DB when given spotify_id. Returns 0, or 1.          
     def get_theme_from_DB(self, spotify_id):
         sql_get_theme_query = "SELECT theme from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_theme_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
-        return self.resultset
-    
+        self.resultset = self.db_cursor.fetchone()
+        return int(self.resultset[0])
+
     # Returns a newly created user object recreated from the user database given spotify_id
     def get_user_from_user_DB(self, spotify_id):
         sql_get_full_user_query = """SELECT * from pulse.users where spotify_id = %s"""
@@ -201,8 +242,8 @@ class DatabaseConnector(object):
     # Updates display_name (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_display_name(self, spotify_id, new_display_name):
         try:
-            sql_update_token_query = """UPDATE pulse.users SET display_name = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_token_query, (new_display_name, spotify_id,))
+            sql_update_display_name_query = """UPDATE pulse.users SET display_name = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_display_name_query, (new_display_name, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -210,16 +251,16 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating display name:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
     # Updates followers (expected dictionary) in user DB. Returns 1 if sucessful, 0 if not
     def update_followers(self, spotify_id, new_date, new_count):
-        master_followers_dict = self.get_followers_from_DB
+        master_followers_dict = self.get_followers_from_DB(spotify_id)
         try:
             sql_update_followers = """UPDATE pulse.base_stats SET followers = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_followers, (json.dumps(update_followers_dictionary(master_followers_dict)), spotify_id,))
+            self.db_cursor.execute(sql_update_followers, (json.dumps(update_followers_dictionary(master_followers_dict, new_date, new_count)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -227,7 +268,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating layout:", str(e))
+            print("Error updating followers:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
@@ -243,7 +284,23 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating friends:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+    
+    # Update gender (expected string) in user DB. Returns 1 if successful, 0 if not.
+    def update_gender(self, spotify_id, new_gender):
+        try:
+            sql_update_gender_query = """UPDATE pulse.users SET gender = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_gender_query, (new_gender, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating gender:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
@@ -259,7 +316,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating icon:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
@@ -279,6 +336,23 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
+    # Update layout (expected string) in user DB. Returns 1 if successful, 0 if not.
+    def update_location(self, spotify_id, new_location):
+        try:
+            sql_update_location_query = """UPDATE pulse.users SET location = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_location_query, (new_location, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating location:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
+
     # Update recommendation (expected array) in user DB. Returns 1 if successful, 0 if not.
     def update_recommendation_params(self, spotify_id, new_rec_params):
         try:
@@ -296,12 +370,12 @@ class DatabaseConnector(object):
             return 0  # Indicate that the update failed        
     
     # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
-    def update_scores(self, spotify_id, score_array, game):
+    def update_scores(self, spotify_id, new_score_array, game):
         
         master_scores = self.get_scores_from_DB(spotify_id)
         try:
             sql_update_scores_query = """UPDATE pulse.users SET high_scores = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_scores_query, (score_array_to_string(update_new_score_and_delete_oldest(master_scores,score_array,game)), spotify_id,))
+            self.db_cursor.execute(sql_update_scores_query, (score_array_to_string(update_new_score_and_delete_oldest(master_scores,new_score_array,game)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -312,7 +386,25 @@ class DatabaseConnector(object):
             print("Error updating scores:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed   
+        # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     
+    # Updates game settings (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
+    def update_game_settings(self, spotify_id, new_settings_array, game):
+        
+        master_game_settings = self.get_game_settings_from_DB(spotify_id)
+        try:
+            sql_update_game_settings_query = """UPDATE pulse.users SET game_settings = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_game_settings_query, (game_settings_array_to_string(edit_game_settings(master_game_settings,new_settings_array,game)), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating game_settings:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed   
     # Update text_size (expected int) in user DB. Returns 1 if successful, 0 if not.
     def update_text_size(self, spotify_id, new_text_size):
         try:
@@ -325,15 +417,15 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating text size:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
-    # Update theme (expected Theme Enum) in user DB. Returns 1 if successful, 0 if not.
+    # Update theme (expected int) in user DB. Returns 1 if successful, 0 if not.
     def update_theme(self, spotify_id, new_theme):
         try:
             sql_update_theme_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_theme_query, (int(new_theme.value), spotify_id,))
+            self.db_cursor.execute(sql_update_theme_query, (new_theme, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -341,7 +433,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating theme:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
         
@@ -408,14 +500,37 @@ def create_rec_params_from_DB(rec_input_string):
     recommendation_params = [float(x) for x in rec_input_string.split(',')]
     return recommendation_params
 
-def score_array_to_string(arr):
-    # Convert the 3D array to a string by flattening it
-    flattened = [str(item) for sublist1 in arr for sublist2 in sublist1 for item in sublist2]
+def game_settings_array_to_string(game_settings_input_array):
+    # Convert the 2D array to a string by flattening it
+    flattened = [str(item) for sublist1 in game_settings_input_array for item in sublist1]
     return ' '.join(flattened)
 
-def score_string_to_array(s):
+def game_settings_string_to_array(game_settings_input_string):
+    # Convert the string back to a 2D array
+    elements = game_settings_input_string.split()
+    flat_list = [int(element) for element in elements]
+    
+    # Create a 3D array from the flattened
+    arr = []
+    index = 0
+    for dim1 in range(5):
+        sublist1 = []
+        for dim2 in range(5):
+            sublist1.append(flat_list[index])
+            index += 1
+        arr.append(sublist1)
+    return arr
+
+
+
+def score_array_to_string(score_input_array):
+    # Convert the 3D array to a string by flattening it
+    flattened = [str(item) for sublist1 in score_input_array for sublist2 in sublist1 for item in sublist2]
+    return ' '.join(flattened)
+
+def score_string_to_array(score_input_string):
     # Convert the string back to a 3D array
-    elements = s.split()
+    elements = score_input_string.split()
     flat_list = [int(element) for element in elements]
     
     # Create a 3D array from the flattened
@@ -434,8 +549,13 @@ def score_string_to_array(s):
     return arr
 
 def update_followers_dictionary(followers_dict, new_date, new_count):
-    followers_dict[new_date] = new_count
-    return followers_dict
+    if (followers_dict is None):
+        master_dict = {}
+    else:
+        master_dict = followers_dict
+    date_string = new_date.strftime("%Y-%m-%d %H:%M:%S")
+    master_dict[date_string] = new_count
+    return master_dict
 
 #game = 0, 1, 2, 3, or 4 
 def update_new_score_and_delete_oldest(arr_3d, new_array, game):
@@ -444,6 +564,14 @@ def update_new_score_and_delete_oldest(arr_3d, new_array, game):
     # Remove the last array
     arr_3d[game].pop()
     return  arr_3d
+
+#game = 0, 1, 2, 3, or 4 
+def edit_game_settings(arr_2d, new_array, game):
+    # Update the first array with the new 2D array
+    arr_2d.insert(game, new_array)
+    # Remove the last array
+    arr_2d.pop()
+    return  arr_2d
 
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
