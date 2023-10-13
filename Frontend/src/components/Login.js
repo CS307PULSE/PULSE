@@ -5,7 +5,7 @@ import Logo from "../../src/assets/LogoLogin.png";
 import axios from "axios";
 
 import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors"; 
+import Colors from "../theme/Colors";
 const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("light"); //Obtain color values
 
@@ -77,6 +77,16 @@ async function fetchDataLogin() {
   return data;
 }
 
+//Update follower data
+async function updateFollowers() {
+  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
 function Login({ onLoginClick }) {
   const [isLoginURL, setIsLoginURL] = useState(" ");
   //check if rthe user is logged in
@@ -87,6 +97,7 @@ function Login({ onLoginClick }) {
     fetchDataLogin().then((data) => {
       if (data !== null && data !== undefined) {
         setIsLoginURL(data);
+        updateFollowers();
       }
     });
   }, []);

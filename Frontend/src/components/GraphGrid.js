@@ -20,69 +20,111 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 //Default layout so that page does not look empty
 const defaultLayout = [
   {
-    i: "bar1",
-    graphType: "Bar",
-    data: "bar1",
-    graphSettings: {
-      graphKeys: ["degrees"],
-      graphIndexBy: "day",
-      graphTheme: "accent",
-    },
+    h: 1,
+    i: "Top songs of last 4 weeks",
+    w: 2,
     x: 0,
     y: 0,
-    w: 1,
-    h: 1,
+    data: "top_songs_4week",
+    graphType: "TopGraph",
+    graphSettings: {},
   },
   {
-    i: "bar2",
-    graphType: "Bar",
-    data: "bar1",
-    graphSettings: {
-      graphKeys: ["degrees"],
-      graphIndexBy: "day",
-      graphTheme: "accent",
-    },
-    x: 1,
-    y: 0,
-    w: 1,
     h: 1,
+    i: "Top Artists of last 4 weeks",
+    w: 2,
+    x: 0,
+    y: 3,
+    data: "top_artists_4week",
+    graphType: "TopGraph",
+    graphSettings: {},
   },
   {
-    i: "pie1",
-    graphType: "Pie",
-    data: "pie1",
-    graphSettings: { graphTheme: "accent" },
+    h: 1,
+    i: "Recent songs",
+    w: 3,
     x: 2,
     y: 0,
-    w: 1,
-    h: 1,
+    data: "recent_songs",
+    graphType: "TopGraph",
+    graphSettings: {},
   },
   {
-    i: "line1",
-    graphType: "Line",
-    data: "line1",
-    graphSettings: {
-      xName: "transportation",
-      yName: "Count",
-      graphTheme: "accent",
-    },
+    h: 1,
+    i: "Saved Songs",
+    w: 1,
+    x: 4,
+    y: 1,
+    data: "saved_songs",
+    graphType: "TopGraph",
+    graphSettings: {},
+  },
+  {
+    h: 1,
+    i: "Followed Artists",
+    w: 2,
+    x: 2,
+    y: 1,
+    data: "followed_artists",
+    graphType: "TopGraph",
+    graphSettings: {},
+  },
+  {
+    h: 1,
+    i: "Saved Albums",
+    w: 2,
+    x: 0,
+    y: 2,
+    data: "saved_albums",
+    graphType: "TopGraph",
+    graphSettings: {},
+  },
+  {
+    i: "Sample Pie",
+    graphType: "Pie",
+    data: "pie1",
+    graphSettings: { graphTheme: "category10" },
     x: 3,
-    y: 0,
+    y: 2,
     w: 1,
     h: 1,
   },
   {
-    i: "line2",
-    graphType: "Line",
-    data: "line1",
+    i: "Sample Bar",
+    graphType: "Bar",
+    data: "bar1",
     graphSettings: {
-      xName: "transportation",
-      yName: "Count",
-      graphTheme: "accent",
+      graphKeys: ["degrees"],
+      graphIndexBy: "day",
+      graphTheme: "category10",
     },
+    x: 2,
+    y: 2,
+    w: 1,
+    h: 1,
+  },
+  {
+    i: "Followers",
+    graphType: "Line",
+    data: "followers",
+    graphSettings: {
+      xName: "date",
+      yName: "Followers",
+      graphTheme: "spectral",
+    },
+    x: 4,
+    y: 2,
+    w: 1,
+    h: 1,
+  },
+  {
+    i: "Saved Playlists",
+    graphType: "TopGraph",
+    data: "saved_playlists",
+    graphSettings: {},
     x: 0,
     y: 1,
-    w: 1,
+    w: 2,
     h: 1,
   },
 ];
@@ -126,6 +168,7 @@ export default function GraphGrid() {
   const [savedSongs, setSavedSongs] = useState();
   const [savedAlbums, setSavedAlbums] = useState();
   const [followedArtists, setFollowedArtists] = useState();
+  const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
 
   //Remove container function
@@ -149,7 +192,7 @@ export default function GraphGrid() {
     //Try-catch to set layout to default one if recieved empty layout
     try {
       const storedLayout = localStorage.getItem(key);
-      console.log(storedLayout);
+      //console.log(storedLayout);
       const newLayout = JSON.parse(storedLayout);
       if (newLayout == null) {
         throw new Error("null layout");
@@ -186,6 +229,7 @@ export default function GraphGrid() {
   //Function for save button
   const handleSaveButtonClick = () => {
     saveToLS(layoutNumber, layout);
+    console.log(layout);
     sendLayouts(getAllFromLS(), defaultLayoutNum);
   };
 
@@ -229,31 +273,76 @@ export default function GraphGrid() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("getting");
         const data = await fetchBackendDatas();
-        const objData = {
-          top_artists: JSON.parse(data.top_artists),
-          top_songs: JSON.parse(data.top_songs),
-          recent_history: JSON.parse(data.recent_history),
-          saved_songs: JSON.parse(data.saved_songs),
-          followed_artists: JSON.parse(data.followed_artists),
-          layout_data: JSON.parse(data.layout_data),
-        };
-        console.log(objData);
-        setTopArtists(JSON.parse(data.top_artists));
-        setTopSongs(JSON.parse(data.top_songs));
-        setRecentSongs(JSON.parse(data.recent_history));
-        setSavedSongs(JSON.parse(data.saved_songs));
-        //setSavedAlbums(JSON.parse(data.saved_albums));
-        setFollowedArtists(JSON.parse(data.followed_artists));
+
+        //Log data in console to view
+        try {
+          const objData = {
+            top_artists: JSON.parse(data.top_artists),
+            top_songs: JSON.parse(data.top_songs),
+            recent_history: JSON.parse(data.recent_history),
+            saved_songs: JSON.parse(data.saved_songs),
+            saved_albums: JSON.parse(data.saved_albums),
+            followed_artists: JSON.parse(data.followed_artists),
+            layout_data: JSON.parse(data.layout_data),
+            follower_data: data.follower_data,
+            saved_playlists: JSON.parse(data.saved_playlists),
+          };
+          console.log(objData);
+        } catch (e) {}
+
+        //Try catch for each data for parsing failure when data field empty
+        try {
+          setTopArtists(JSON.parse(data.top_artists));
+        } catch (e) {
+          console.log("Top Artist empty");
+        }
+        try {
+          setTopSongs(JSON.parse(data.top_songs));
+        } catch (e) {
+          console.log("Top Song empty");
+        }
+        try {
+          setRecentSongs(JSON.parse(data.recent_history));
+        } catch (e) {
+          console.log("Recent songs empty");
+        }
+
+        try {
+          setSavedSongs(JSON.parse(data.saved_songs));
+        } catch (e) {
+          console.log("Saved Songs empty");
+        }
+
+        try {
+          setSavedAlbums(JSON.parse(data.saved_albums));
+        } catch (e) {
+          console.log("Saved Albums empty");
+        }
+
+        try {
+          setSavedPlaylists(JSON.parse(data.saved_playlists));
+        } catch (e) {
+          console.log("Saved Playlists empty");
+        }
+
+        try {
+          setFollowedArtists(JSON.parse(data.followed_artists));
+        } catch (e) {
+          console.log("Followed Artists empty");
+        }
 
         //Followers
         if (data.follower_data === "") {
+          console.log("Followers empty");
         } else {
-          setFollowers(JSON.parse(data.follower_data));
+          setFollowers(data.follower_data);
         }
 
         //Layout
         if (data.layout_data === "") {
+          console.log("Layout empty");
         } else {
           console.log("Getting databse layouts");
           //Set local storage of layouts
@@ -287,6 +376,7 @@ export default function GraphGrid() {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -363,6 +453,8 @@ export default function GraphGrid() {
         return savedSongs;
       case "saved_albums":
         return savedAlbums;
+      case "saved_playlists":
+        return savedPlaylists;
       case "followed_artists":
         return followedArtists;
       default:
@@ -378,7 +470,7 @@ export default function GraphGrid() {
     <React.Fragment>
       <ResponsiveGridLayout
         layouts={{ lg: layout }}
-        breakpoints={{ lg: 700, xs: 300, xxs: 0 }}
+        breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
         cols={{ lg: 5, xs: 2, xxs: 1 }}
         rowHeight={300}
         width={"100%"}

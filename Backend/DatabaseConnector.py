@@ -159,6 +159,17 @@ class DatabaseConnector(object):
             #file.write(image)
             return icon[0]
 
+    # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
+    def get_followers_from_DB(self, spotify_id):
+        sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
+        results = self.db_cursor.fetchone()
+        if (results[0] is None or results is [] or results is "[]"):
+            return None
+        self.resultset = json.loads(results[0])
+        if (self.resultset == []) or (self.resultset is None):
+            return None
+        return self.resultset
 
     # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
     def get_layout_from_DB(self, spotify_id):
@@ -246,7 +257,7 @@ class DatabaseConnector(object):
     
     # Updates followers (expected dictionary) in user DB. Returns 1 if sucessful, 0 if not
     def update_followers(self, spotify_id, new_date, new_count):
-        master_followers_dict = self.get_followers_from_DB
+        master_followers_dict = self.get_followers_from_DB(spotify_id)
         try:
             sql_update_followers = """UPDATE pulse.base_stats SET followers = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_followers, (json.dumps(update_followers_dictionary(master_followers_dict, new_date, new_count)), spotify_id,))
@@ -537,8 +548,13 @@ def score_string_to_array(score_input_string):
     return arr
 
 def update_followers_dictionary(followers_dict, new_date, new_count):
-    followers_dict[new_date] = new_count
-    return followers_dict
+    if (followers_dict is None):
+        master_dict = {}
+    else:
+        master_dict = followers_dict
+    date_string = new_date.strftime("%Y-%m-%d %H:%M:%S")
+    master_dict[date_string] = new_count
+    return master_dict
 
 #game = 0, 1, 2, 3, or 4 
 def update_new_score_and_delete_oldest(arr_3d, new_array, game):
