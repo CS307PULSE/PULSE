@@ -226,6 +226,7 @@ def statistics():
         try:
             update_data(user)
         except Exception as e:
+            print(e)
             return jsonify(data)
         
         with DatabaseConnector(db_config) as conn:
@@ -267,8 +268,9 @@ def statistics_short():
         try:
             update_data(user)
         except Exception as e:
+            print(e)
             return jsonify(data)
-        
+        print("updated data var")
         with DatabaseConnector(db_config) as conn:
             followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -947,8 +949,9 @@ def update_data(user,
 
         if (update_saved_playlists):
             user.update_saved_playlists()
-
+        print("Updated!")
         return "Updated Data!"
+        
 
     except Exceptions.TokenExpiredError as e:
         max_retries = 3
