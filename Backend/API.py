@@ -707,24 +707,38 @@ def songrec():
 
 @app.route('/profile/upload', methods=['POST'])
 def upload_image():
-    print("IN PROFILE/UPLOAD")
     if 'user' in session:
         data = request.get_json()
-        image_og = request.files['file_to_upload']
+        newname = data.get('filepath')
+        # newname = newname.title()
         user_data = session['user']
         user = User.from_json(user_data)
-        #open image named uncompressed_image.jpg
-        image_og = secure_filename(image_og.filename)
-        if image_og.lower().endswith(('.png')) :
-            im = Image.open("image_path")
-            im.convert('RGB').save("image_name.jpg","JPEG") #this converts png image as jpeg
-        storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
-        os.rename(image_og, storage_loc)
-        #save image locally
-        response_data = 'Found and uploaded profile.'
+        user.display_name = newname
+        with DatabaseConnector(db_config) as conn:
+            conn.update_display_name(user.spotify_id, user.display_name)
+        response_data = 'username updated.'
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
+# def upload_image():
+#     print("IN PROFILE/UPLOAD")
+#     if 'user' in session:
+#         data = request.get_json()
+#         image_og = data['filepath']
+#         user_data = session['user']
+#         user = User.from_json(user_data)
+#         #open image named uncompressed_image.jpg
+#         # image_og = secure_filename(image_og.filename)
+#         # if image_og.lower().endswith(('.png')) :
+#         #     im = Image.open(image_og)
+#         #     im.convert('RGB').save("image_name.jpg","JPEG") #this converts png image as jpeg
+#         storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
+#         os.rename(image_og, storage_loc)
+#         #save image locally
+#         response_data = 'Found and uploaded profile.'
+#     else:
+#         response_data = 'User session not found. Please log in again.'
+#     return jsonify(response_data)
 
 @app.route('/profile/get_image', methods=['GET'])
 def get_image():

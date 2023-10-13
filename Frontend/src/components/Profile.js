@@ -183,39 +183,40 @@ async function saveLocation(locationParameter) {
       const data = response.data;
       return data;
 }
-// async function saveImagePath(imagePathParameter) {
-//     console.log("Attempting location post with value " + imagePathParameter);
-//     const axiosInstance = axios.create({
-//         withCredentials: true,
-//       });
-//       const response = await axiosInstance.post(
-//         "http://127.0.0.1:5000/profile/upload",
-//         {
-//           image_path: imagePathParameter
-//         }
-//       );
-//       const data = response.data;
-//       return data;
-// }
+async function saveImagePath(imagePathParameter) {
+    console.log("Attempting location post with value " + imagePathParameter);
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/profile/upload",
+        {
+          filepath: imagePathParameter
+        }
+      );
+      const data = response.data;
+      return data;
+}
 
 async function handleImageSelect(event) {
     const file = event.target.files[0]; // Get the first selected file
     if (file) {
+        console.log(file);
         const axiosInstance = axios.create({
-            withCredentials: true,
+            withCredentials: true
         });
         const response = await axiosInstance.post(
             "http://127.0.0.1:5000/profile/upload",
             {
                 file_to_upload: file
-            }
+            },
         );
         const data = response.data;
         return data;
     }
 }
 
-async function saveUserInfo(username, gender, location) {
+async function saveUserInfo(username, gender, location, imagePath) {
     saveUsername(username);
     saveGender(gender);
     saveLocation(location);
@@ -225,7 +226,7 @@ async function saveUserInfo(username, gender, location) {
 
 function Profile({testParameter}){
 
-    // const [imagePath, setImagePath] = useState(storedImagePath);
+    const [imagePath, setImagePath] = useState(storedImagePath);
     const [username, setUsername] = useState(storedUsername);
     const [gender, setGender] = useState(storedGender);
     const [location, setLocation] = useState(storedLocation);
@@ -238,8 +239,12 @@ function Profile({testParameter}){
                 
             <div style={iconContainerStyle}>
                 <img style={iconPictureStyle} src={storedImagePath}/>
-                <input id="file" accept="image/jpeg,image/png" type="file" onChange={handleImageSelect}/>
+                
+                {/* <input id="file" accept="image/jpeg,image/png" type="file" onChange={handleImageSelect}/> */}
             </div> <br></br>
+            
+            {/* <label style={profileText}>Icon Link: </label>
+            <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input> <br></br> */}
 
             <label style={profileText}>Username: </label>
             <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input> <br></br>
@@ -251,7 +256,7 @@ function Profile({testParameter}){
             <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
 
             <div style={buttonContainerStyle}>
-                <button onClick={() => {saveUserInfo(username, gender, location)}} style={buttonStyle}><p>Save Profile</p></button>
+                <button onClick={() => {saveUserInfo(username, gender, location, "imagePath")}} style={buttonStyle}><p>Save Profile</p></button>
             </div>
 
             <p style={profileHeader}>Settings</p>
