@@ -3,6 +3,8 @@
   --graph-text-fill: #333333;
   --tooltip-container-background: #ffffff;
   --light-dark-scheme: auto;
+  --graph-text-size: 20px;
+  --title-text-size: 20px;
 }
 
 .GraphCloseButton {

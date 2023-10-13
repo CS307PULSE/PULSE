@@ -480,7 +480,9 @@ export default function GraphGrid() {
         {layout.map((container) => (
           <div className="graphContainer" key={container.i}>
             <div>
-              <div>{container.i}</div>
+              <div style={{ fontSize: "var(--title-text-size)" }}>
+                {container.i}
+              </div>
               <button
                 className="GraphCloseButton custom-draggable-cancel"
                 onClick={() => RemoveContainer(container.i)}
