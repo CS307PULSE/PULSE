@@ -186,9 +186,6 @@ const SongRecommendation = () => {
       </div>
       {songRecs(recievedSearchData)}
 
-      <div style={friendContainerStyle}>
-        <FriendsCard />
-      </div>
     </div>
   );
 };
