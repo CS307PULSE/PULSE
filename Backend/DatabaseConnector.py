@@ -219,7 +219,7 @@ class DatabaseConnector(object):
         master_followers_dict = self.get_followers_from_DB
         try:
             sql_update_followers = """UPDATE pulse.base_stats SET followers = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_followers, (json.dumps(update_followers_dictionary(master_followers_dict)), spotify_id,))
+            self.db_cursor.execute(sql_update_followers, (json.dumps(update_followers_dictionary(master_followers_dict, new_date, new_count)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
