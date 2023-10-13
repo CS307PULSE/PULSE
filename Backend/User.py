@@ -1,4 +1,3 @@
-from Playlist import Playlist
 from Stats import Stats
 from enum import Enum
 from array import array

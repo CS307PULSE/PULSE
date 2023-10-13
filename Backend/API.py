@@ -23,7 +23,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
 run_connected = True
-spoof_songs = True
+spoof_songs = False
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
@@ -109,7 +109,18 @@ def index():
             user_exists = conn.does_user_exist_in_user_DB(user_id)
             if user_exists:
                 user = conn.get_user_from_user_DB(spotify_id=user_id)
+                sp_oauth = SpotifyOAuth(client_id=client_id, 
+                            client_secret=client_secret, 
+                            redirect_uri=redirect_uri, 
+                            scope=scope)
+                user.refresh_access_token(sp_oauth)
+                if not sp_oauth.is_token_expired(user.login_token):
+                    if (conn.update_token(user.spotify_id, user.login_token) == 0):
+                        return "F"
+
+                user = conn.get_user_from_user_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
+
                 #return jsonify(message='Login successful! Welcome to your Flask app.')
                 if run_connected:
                     return "T"
@@ -562,7 +573,7 @@ def upload_image():
         response_data = 'Found and uploaded profile.'
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(storage_loc)
+    return jsonify(response_data)
 
 @app.route('/profile/getimage', methods=['GET'])
 def get_image():
@@ -573,7 +584,7 @@ def get_image():
         response_data = storage_loc
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(storage_loc)
+    return jsonify(response_data)
 
 @app.route('/profile/change_displayname', methods=['POST'])
 def change_displayname():
@@ -761,6 +772,7 @@ def run_tests(testUser):
     saved_tracks_test = True
     saved_albums_test = True
     followers_test = True
+    playlists_test = True
     guess_the_song_game = False
 
     try:
@@ -825,6 +837,12 @@ def run_tests(testUser):
         
         if (followers_test):
             printString += "FOLLOWER INFO:\n" + '\n'
+            result = testUser.get_followers_with_time()
+            printString += str(result[1]) + " at " + str(result[0])
+            printString += '\n\n'
+
+        if (playlists_test):
+            printString += "PLAYLISTS\n" + '\n'
             result = testUser.get_followers_with_time()
             printString += str(result[1]) + " at " + str(result[0])
             printString += '\n\n'
