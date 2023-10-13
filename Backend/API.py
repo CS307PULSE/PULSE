@@ -578,7 +578,7 @@ def repeat():
 def volume_change():
     if 'user' in session:
         data = request.get_json()
-        volume = data.get('volume')
+        volume = int(data.get('volume'))
         user_data = session['user']
         user = User.from_json(user_data)
         try:
@@ -701,13 +701,15 @@ def songrec():
         response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
-    return jsonify(user.stringify(response_data))
+    return jsonify(response_data)
 
 @app.route('/profile/upload', methods=['POST'])
 def upload_image():
+    print("IN PROFILE/UPLOAD")
     if 'user' in session:
         data = request.get_json()
         image_og = data.get('image_path')
+        print(image_og)
         user_data = session['user']
         user = User.from_json(user_data)
         #open image named uncompressed_image.jpg

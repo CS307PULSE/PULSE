@@ -145,7 +145,6 @@ async function saveTextSize(textSizeParameter) {
       return data;
 }
 async function saveUsername(usernameParameter) {
-    console.log("Attempting username post with value " + usernameParameter);
     const axiosInstance = axios.create({
         withCredentials: true,
       });
@@ -159,7 +158,6 @@ async function saveUsername(usernameParameter) {
       return data;
 }
 async function saveGender(genderParameter) {
-    console.log("Attempting gender post with value " + genderParameter);
     const axiosInstance = axios.create({
         withCredentials: true,
       });
@@ -173,7 +171,6 @@ async function saveGender(genderParameter) {
       return data;
 }
 async function saveLocation(locationParameter) {
-    console.log("Attempting location post with value " + locationParameter);
     const axiosInstance = axios.create({
         withCredentials: true,
       });
@@ -186,31 +183,49 @@ async function saveLocation(locationParameter) {
       const data = response.data;
       return data;
 }
-async function saveImagePath(imagePathParameter) {
-    console.log("Attempting location post with value " + imagePathParameter);
-    const axiosInstance = axios.create({
-        withCredentials: true,
-      });
-      const response = await axiosInstance.post(
-        "http://127.0.0.1:5000/profile/upload",
-        {
-          image_path: imagePathParameter
-        }
-      );
-      const data = response.data;
-      return data;
+// async function saveImagePath(imagePathParameter) {
+//     console.log("Attempting location post with value " + imagePathParameter);
+//     const axiosInstance = axios.create({
+//         withCredentials: true,
+//       });
+//       const response = await axiosInstance.post(
+//         "http://127.0.0.1:5000/profile/upload",
+//         {
+//           image_path: imagePathParameter
+//         }
+//       );
+//       const data = response.data;
+//       return data;
+// }
+
+async function handleImageSelect(event) {
+    const file = event.target.files[0]; // Get the first selected file
+    if (file) {
+        const axiosInstance = axios.create({
+            withCredentials: true,
+        });
+        const response = await axiosInstance.post(
+            "http://127.0.0.1:5000/profile/upload",
+            {
+                file_to_upload: file
+            }
+        );
+        const data = response.data;
+        return data;
+    }
 }
-async function saveUserInfo(username, gender, location, imagePath) {
+
+async function saveUserInfo(username, gender, location) {
     saveUsername(username);
     saveGender(gender);
     saveLocation(location);
-    saveImagePath(imagePath);
-    window.location.reload();
+    // saveImagePath(imagePath);
+    // window.location.reload();
 }
 
 function Profile({testParameter}){
 
-    const [imagePath, setImagePath] = useState(storedImagePath);
+    // const [imagePath, setImagePath] = useState(storedImagePath);
     const [username, setUsername] = useState(storedUsername);
     const [gender, setGender] = useState(storedGender);
     const [location, setLocation] = useState(storedLocation);
@@ -222,8 +237,8 @@ function Profile({testParameter}){
             <p style={profileHeader}>Profile</p>
                 
             <div style={iconContainerStyle}>
-                <img style={iconPictureStyle} src={imagePath}/>
-                <input id="file" accept="image/jpeg,image/png" type="file" onChange={e => {setImagePath(e.target.value)}}/>
+                <img style={iconPictureStyle} src={storedImagePath}/>
+                <input id="file" accept="image/jpeg,image/png" type="file" onChange={handleImageSelect}/>
             </div> <br></br>
 
             <label style={profileText}>Username: </label>
@@ -236,7 +251,7 @@ function Profile({testParameter}){
             <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
 
             <div style={buttonContainerStyle}>
-                <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>
+                <button onClick={() => {saveUserInfo(username, gender, location)}} style={buttonStyle}><p>Save Profile</p></button>
             </div>
 
             <p style={profileHeader}>Settings</p>
