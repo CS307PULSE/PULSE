@@ -27,7 +27,7 @@ document.documentElement.style.setProperty("--graph-text-size", textSizes.small)
 document.documentElement.style.setProperty("--title-text-size", textSizes.small);
 
 // Modify the CSS variable
-if (themeSetting === 0) {
+if (themeSetting === 1) {
   root.style.setProperty("--container-background", "#f5f5f5");
   root.style.setProperty("--graph-text-fill", "#333333");
   root.style.setProperty("--tooltip-container-background", "#ffffff");
