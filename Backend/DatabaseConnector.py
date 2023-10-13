@@ -144,7 +144,7 @@ class DatabaseConnector(object):
         return self.resultset[0]
     
     # Returns icon string from DB. Returns None if no icon exists, and a string if it does
-    def get_icon_from_DB(self, spotify_id, storage_loc):
+    def get_icon_from_DB(self, spotify_id):
         sql_fetch_icon_string_query = """SELECT icon from pulse.users where spotify_id = %s"""
         self.db_cursor.execute(sql_fetch_icon_string_query, (spotify_id,))
         icon = self.db_cursor.fetchone()
