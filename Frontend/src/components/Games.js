@@ -12,11 +12,11 @@ import TextSize from "../theme/TextSize";
 var textSizeSetting, themeSetting;
 try {
   var textSizeResponse = await axios.get(
-    "http://127.0.0.1:8080/get_text_size",
+    "http://127.0.0.1:5000/get_text_size",
     { withCredentials: true }
   );
   textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:8080/get_theme", {
+  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
     withCredentials: true,
   });
   themeSetting = themeResponse.data;
@@ -127,7 +127,7 @@ function transposeMatrix(matrix) {
 }
 
 async function fetchDataScores() {
-  const response = await axios.get("http://127.0.0.1:8080/games/get_scores", {
+  const response = await axios.get("http://127.0.0.1:5000/games/get_scores", {
     withCredentials: true,
   });
   const data = response.data;
