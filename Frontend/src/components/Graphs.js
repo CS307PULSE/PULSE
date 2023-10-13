@@ -407,6 +407,7 @@ export const BarGraph = (props) => {
 //Line Graph
 export const LineGraph = (props) => {
   const [data, setData] = useState();
+  const [xScale, setXScale] = useState({ type: "point" });
   const fixData = () => {
     let tempData = {
       id: "Followers",
@@ -415,13 +416,18 @@ export const LineGraph = (props) => {
         y: props.data[key],
       })),
     };
-    console.log(tempData);
+    //console.log(tempData);
     return [tempData];
   };
 
   useEffect(() => {
     try {
       if (props.dataName === "followers") {
+        setXScale({
+          type: "time",
+          format: "%Y-%m-%d %H:%M:%S",
+          precision: "millisecond",
+        });
         setData(fixData());
       } else {
         setData(props.data);
@@ -429,6 +435,7 @@ export const LineGraph = (props) => {
     } catch (e) {
       setData("Bad Data");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (data === undefined) {
@@ -436,6 +443,9 @@ export const LineGraph = (props) => {
   } else if (data === "Bad Data") {
     return <p>Your data is empty!</p>;
   }
+
+  const xAxisTicks = xScale.type === "time" ? [] : "auto";
+
   try {
     return (
       <ResponsiveLine
@@ -443,7 +453,7 @@ export const LineGraph = (props) => {
         data={data}
         colors={{ scheme: props.graphTheme }}
         margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
-        xScale={{ type: "point" }}
+        xScale={xScale}
         yScale={{
           type: "linear",
           min: "auto",
@@ -456,6 +466,7 @@ export const LineGraph = (props) => {
         axisRight={null}
         axisBottom={{
           orient: "bottom",
+          tickValues: { xAxisTicks },
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
@@ -603,6 +614,7 @@ export const TopGraph = (props) => {
             <a
               href={artist.external_urls.spotify}
               target="_blank"
+              rel="noreferrer"
               data-tooltip-id="my-tooltip"
               data-tooltip-content={artist.name}
               key={artist.id + index}
@@ -688,6 +700,24 @@ export const TopGraph = (props) => {
               <img
                 src={album.album.images[0].url}
                 alt={album.album.name}
+                className="TopGraphImage"
+              />
+            </span>
+          ))
+        ) : props.dataName.includes("saved_playlists") ? (
+          props.data.map((playlist, index) => (
+            <span
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={
+                playlist.name + " created by " + playlist.owner.display_name
+              }
+              onClick={() => sendPlaylistRequest(playlist.uri)}
+              style={{ cursor: "pointer" }}
+              key={playlist.id + index}
+            >
+              <img
+                src={playlist.images[0].url}
+                alt={playlist.name}
                 className="TopGraphImage"
               />
             </span>
