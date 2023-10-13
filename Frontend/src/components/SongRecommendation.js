@@ -61,10 +61,6 @@ const buttonStyle = {
 };
 
 const searchContainerStyle = {
-  position: "fixed",
-  top: 100,
-  left: 0,
-  maxWidth: 1000,
   display: "flex",
   marginLeft: "30px",
   // justifyContent: 'center',
@@ -90,26 +86,54 @@ async function sendAndFetchSongReqs(sentTrack) {
   return data;
 }
 
+async function sendSearchAndReturn(sendSerach) {
+  const axiosInstance = axios.create({
+    withCredentials: true,
+  });
+  const response = await axiosInstance.post(
+    "http://127.0.0.1:5000/search_bar",
+    { query: sendSerach }
+  );
+  const data = response.data;
+  console.log("Got");
+  console.log(response);
+  return data;
+}
+
 const SongRecommendation = () => {
-  const [recievedData, setRecievedData] = useState();
+  const [recievedSearchData, setRecievedSearchData] = useState();
+  const [recievedRecData, setRecievedRecData] = useState();
   const [searchValue, setSearchValue] = useState();
+  const [searchRecVal, setSearchRecVal] = useState();
 
   function songRecs(recievedSongs) {
+    console.log(recievedSongs);
     if (recievedSongs !== undefined) {
-      return <p>Send me search query</p>;
+      return <TopGraph data={recievedSongs} dataName={"top_song"} />;
     } else {
-      return (
-        <TopGraph data={recievedSongs} dataName={"song_recommendations"} />
-      );
+      return <p>Send me search query</p>;
     }
   }
 
-  const getRecommendations = async () => {
+  const getSearch = async () => {
     if (searchValue !== null && searchValue !== undefined) {
       console.log("searching for " + searchValue);
-      sendAndFetchSongReqs(searchValue).then((data) => {
+      sendSearchAndReturn(searchValue).then((data) => {
         if (data !== null && data !== undefined) {
-          setRecievedData(data);
+          setRecievedSearchData(data);
+        }
+      });
+    } else {
+      alert("Please enter value in search bar before getting recommendations!");
+    }
+  };
+
+  const getRecommendations = async () => {
+    if (searchRecVal !== null && searchRecVal !== undefined) {
+      console.log("searching for " + searchRecVal);
+      sendAndFetchSongReqs(searchRecVal).then((data) => {
+        if (data !== null && data !== undefined) {
+          setRecievedRecData(data);
         }
       });
     } else {
@@ -121,9 +145,30 @@ const SongRecommendation = () => {
     setSearchValue(e.target.value);
   };
 
+  const changeRecVal = (e) => {
+    setSearchRecVal(e.target.value);
+  };
+
   return (
     <div style={bodyStyle}>
       <Navbar />
+      <div style={searchContainerStyle}>
+        <input
+          type="text"
+          placeholder="Search..."
+          style={searchInputStyle}
+          value={searchRecVal}
+          onChange={changeRecVal}
+        />
+        <button
+          style={{ ...buttonStyle, textDecoration: "none" }}
+          onClick={() => getRecommendations()}
+        >
+          Get Recommendations
+        </button>
+      </div>
+      {songRecs(recievedRecData)}
+
       <div style={searchContainerStyle}>
         <input
           type="text"
@@ -134,15 +179,16 @@ const SongRecommendation = () => {
         />
         <button
           style={{ ...buttonStyle, textDecoration: "none" }}
-          onClick={() => getRecommendations()}
+          onClick={() => getSearch()}
         >
-          Get Recommendations
+          Search
         </button>
       </div>
+      {songRecs(recievedSearchData)}
+
       <div style={friendContainerStyle}>
         <FriendsCard />
       </div>
-      {songRecs(recievedData)}
     </div>
   );
 };
