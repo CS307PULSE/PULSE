@@ -696,6 +696,8 @@ def change_displayname():
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
+        with DatabaseConnector(db_config) as conn:
+            conn.update_display_name(user.spotify_id, user.display_name)
         response_data = 'username updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -710,6 +712,8 @@ def change_gender():
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
+        with DatabaseConnector(db_config) as conn:
+            conn.update_gender(user.spotify_id, user.gender)
         response_data = 'gender updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -725,39 +729,6 @@ def change_location():
         user = User.from_json(user_data)
         user.location = location
         response_data = 'location updated.'
-    else:
-        response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
-
-@app.route('/profile/get_displayname', methods=['GET'])
-def get_displayname():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        name = user.display_name
-        response_data = name
-    else:
-        response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
-
-@app.route('/profile/get_gender', methods=['GET'])
-def get_gender():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        gender = user.gender
-        response_data = gender
-    else:
-        response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
-
-@app.route('/profile/get_location', methods=['GET'])
-def get_location():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        location = user.location
-        response_data = location
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
