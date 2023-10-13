@@ -299,6 +299,20 @@ def set_layout():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
+@app.route('/search_bar', methods=['POST'])
+def search_bar():
+    data = request.get_json()
+    query = data.get('query')
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        results = user.search_for_items(max_items=5, items_type="tracks", query=query)
+        return jsonify(results)
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
 @app.route('/set_theme', methods=['POST'])
 def set_theme():
     data = request.get_json()
@@ -455,7 +469,40 @@ def get_scores():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    
+@app.route('/games/get_settings')
+def get_settings():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
 
+        with DatabaseConnector(db_config) as conn:
+            scores = conn.get_game_settings_from_DB(user.spotify_id)
+        
+        return jsonify(scores)
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/games/set_settings', methods=['POST'])
+def set_settings():
+    data = request.get_json()
+    game_code = data.get('gameCode')
+    settings = data.get('settings')
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_game_settings(user.spotify_id, settings, game_code) == 0):
+                error_message = "The settings have not been stored! Please try logging in and playing again to save the scores!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/player/play')
 def play():
