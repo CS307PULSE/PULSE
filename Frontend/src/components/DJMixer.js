@@ -3,10 +3,25 @@ import Navbar from './NavBar';
 import FriendsCard from './FriendsCard';
 import { Link } from "react-router-dom";
 
-import TextSize from "../theme/TextSize";
+import { pulseColors } from "../theme/Colors";
+import axios from "axios";
+
 import Colors from "../theme/Colors"; 
-const textSizes = TextSize(1); // Obtain text size values
-const themeColors = Colors(0); // Obtain color values
+import TextSize from "../theme/TextSize";
+
+var textSizeSetting, themeSetting;
+try {
+    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
+    textSizeSetting = textSizeResponse.data;
+    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
+    themeSetting = themeResponse.data;
+} catch (e) {
+    console.log("Formatting settings fetch failed: " + e);
+    textSizeSetting = 1;
+    themeSetting = 0;
+}
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,

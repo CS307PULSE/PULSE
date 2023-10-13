@@ -252,6 +252,37 @@ def statistics():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    
+@app.route('/statistics/shortened')
+def statistics_short():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = {'status' : 'Not updated',
+                'top_songs' : '',
+                'top_artists' : '',
+                'follower_data' : ''}
+
+        try:
+            update_data(user)
+        except Exception as e:
+            return jsonify(data)
+        
+        with DatabaseConnector(db_config) as conn:
+            followers = conn.get_followers_from_DB(user.spotify_id)
+
+        data['status'] = 'Success'
+        data['top_songs'] = user.stringify(user.stats.top_songs)
+        data['top_artists'] = user.stringify(user.stats.top_artists)
+
+        if followers is not None:
+            data['follower_data'] = followers
+
+        return jsonify(data)
+        
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/statistics/set_layout', methods=['POST'])
 def set_layout():
@@ -325,7 +356,7 @@ def update_followers():
         follower_data = user.get_followers_with_time()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
-                error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+                error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
 
         return jsonify("Success!")
@@ -676,7 +707,7 @@ def songrec():
 def upload_image():
     if 'user' in session:
         data = request.get_json()
-        image_og = data.get('image_loc')
+        image_og = data.get('image_path')
         user_data = session['user']
         user = User.from_json(user_data)
         #open image named uncompressed_image.jpg
@@ -688,7 +719,7 @@ def upload_image():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
-@app.route('/profile/getimage', methods=['GET'])
+@app.route('/profile/get_image', methods=['GET'])
 def get_image():
     if 'user' in session:
         user_data = session['user']
@@ -704,10 +735,12 @@ def change_displayname():
     if 'user' in session:
         data = request.get_json()
         newname = data.get('displayname')
-        newname = newname.title()
+        # newname = newname.title()
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
+        with DatabaseConnector(db_config) as conn:
+            conn.update_display_name(user.spotify_id, user.display_name)
         response_data = 'username updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -722,6 +755,8 @@ def change_gender():
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
+        with DatabaseConnector(db_config) as conn:
+            conn.update_gender(user.spotify_id, user.gender)
         response_data = 'gender updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -736,6 +771,8 @@ def change_location():
         user_data = session['user']
         user = User.from_json(user_data)
         user.location = location
+        with DatabaseConnector(db_config) as conn:
+            conn.update_location(user.spotify_id, user.location)
         response_data = 'location updated.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -745,20 +782,9 @@ def change_location():
 def get_displayname():
     if 'user' in session:
         user_data = session['user']
-        user = User.from_json(user_data)
-        name = user.display_name
-        response_data = name
-    else:
-        response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
-
-@app.route('/profile/get_gender', methods=['GET'])
-def get_gender():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        gender = user.gender
-        response_data = gender
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_display_name_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -767,9 +793,21 @@ def get_gender():
 def get_location():
     if 'user' in session:
         user_data = session['user']
-        user = User.from_json(user_data)
-        location = user.location
-        response_data = location
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_location_from_user_DB(user.spotify_id)
+       
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_gender', methods=['GET'])
+def get_gender():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_gender_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
