@@ -164,7 +164,7 @@ class DatabaseConnector(object):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results is [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
@@ -176,10 +176,10 @@ class DatabaseConnector(object):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results is [(None,)] or results is "" or results[0] is None):
+        if (results is [(None,)] or results == "" or results[0] is None):
             return None
         self.resultset = results[0]
-        if (self.resultset is None or self.resultset is ""):
+        if (self.resultset is None or self.resultset == ""):
             return None
         
         return self.resultset
