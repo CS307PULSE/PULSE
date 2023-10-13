@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
 const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors("dark"); //Obtain color values
+const themeColors = Colors(0); //Obtain color values
 
 // Styled components
 const CardContainer = styled.div`
