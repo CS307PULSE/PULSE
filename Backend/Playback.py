@@ -19,7 +19,7 @@ class Playback:
         self.volume = ""
         self.volume_support = ""
         self.current_image = ""
-        self.start_thread()
+        self.check_playback()
 
     def check_playback(self):
         try:
@@ -44,6 +44,7 @@ class Playback:
        try:
         while True:
             self.currentlyplaying = self.check_playback()
+            "self.print_player()"
             time.sleep(1)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
@@ -54,6 +55,9 @@ class Playback:
 
     def set_shuffle(self):
         try:
+          self.playback = self.user.spotify_user.current_playback()
+          if self.playback != None:
+            self.shuffle = self.playback['shuffle_state']
           if self.shuffle :
             self.user.spotify_user.shuffle(False)
           else :
@@ -65,6 +69,9 @@ class Playback:
 
     def set_repeat(self):
        try: 
+        self.playback = self.user.spotify_user.current_playback()
+        if self.playback != None:
+          self.repeat = self.playback['repeat_state']
         if self.repeat == "off":
           self.user.spotify_user.repeat('context')
           self.repeat == "context"
