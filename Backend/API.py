@@ -693,6 +693,7 @@ def songrec():
         user = User.from_json(user_data)
         try:
             found = user.search_for_items(max_items=1, query=track)
+            found = found['items'][1]
             suggested_tracks = user.get_recommendations(seed_tracks=found)
         except Exception as e:
             if (try_refresh(user, e)):
