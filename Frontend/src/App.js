@@ -19,10 +19,11 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 import DJMixer from "./components/DJMixer";
+import SongRecommendations from "./components/SongRecommendation";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
-  const response = await axios.get("http://127.0.0.1:5000/", {
+  const response = await axios.get("http://127.0.0.1:8080/", {
     withCredentials: true,
   });
   const data = response.data;
@@ -70,7 +71,9 @@ function App() {
         <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
         <Route path="/Statistics" element={<StatisticsPage />} />
         <Route path="/games" element={<Games />} />
-        <Route path="/DJmixer" element={<DJMixer />} />
+        <Route path="/DJmixer" element={<DJMixer/>} />
+        <Route path= "/DJmixer/SongRecommendation" element={<SongRecommendations/>} />
+       
         <Route path="friends" />
       </Routes>
     </Router>

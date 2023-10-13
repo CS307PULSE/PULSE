@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors"; 
 const textSizes = TextSize(1); // Obtain text size values
-const themeColors = Colors("dark"); // Obtain color values
+const themeColors = Colors(0); // Obtain color values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,
@@ -31,11 +31,14 @@ const buttonContainerStyle = {
   position: 'fixed',
   left: 0,
   display: 'flex',
-  justifyContent: 'flex-start', // Align buttons horizontally
+  paddingTop:"270px",
+  flexDirection: 'column',
+  justifyContent: 'flex-start', 
   alignItems: 'center',
   margin: 'auto',
-  height: '100%', // Take up the full height
-  width: '20%', // Adjust the width of the button container
+  marginTop:'100px',
+  height: 'auto', // Take up the full height
+  width: '70%', // Adjust the width of the button container
 };
 
 const buttonStyle = {
@@ -48,7 +51,7 @@ const buttonStyle = {
   borderRadius: '10px',
   cursor: 'pointer',
   margin: '5px',
-  width: '100%', // Adjust the width to take up the entire space available
+  width: '70%', // Adjust the width to take up the entire space available
   textAlign: 'center', // Center the text horizontally
 };
 
