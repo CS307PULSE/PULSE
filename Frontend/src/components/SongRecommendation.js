@@ -1,21 +1,40 @@
-import React from 'react';
-import Navbar from './NavBar';
-import FriendsCard from './FriendsCard';
+import React, { useState } from "react";
+import Navbar from "./NavBar";
+import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { TopGraph } from "./Graphs.js";
 
+import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors"; 
-const textSizes = TextSize(1); // Obtain text size values
-const themeColors = Colors("dark"); // Obtain color values
+
+var textSizeSetting, themeSetting;
+try {
+  var textSizeResponse = await axios.get(
+    "http://127.0.0.1:5000/get_text_size",
+    { withCredentials: true }
+  );
+  textSizeSetting = textSizeResponse.data;
+  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
+    withCredentials: true,
+  });
+  themeSetting = themeResponse.data;
+} catch (e) {
+  console.log("Formatting settings fetch failed: " + e);
+  textSizeSetting = 1;
+  themeSetting = 0;
+}
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,
   margin: 0,
   padding: 0,
   height: "100vh",
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
 };
 
 const friendContainerStyle = {
@@ -27,42 +46,103 @@ const friendContainerStyle = {
   backgroundColor: themeColors.background,
 };
 
-const buttonContainerStyle = {
-  position: 'fixed',
-  left: 0,
-  display: 'flex',
-  justifyContent: 'flex-start', // Align buttons horizontally
-  alignItems: 'center',
-  margin: 'auto',
-  height: '100%', // Take up the full height
-  width: '20%', // Adjust the width of the button container
-};
-
 const buttonStyle = {
   backgroundColor: themeColors.background,
   color: themeColors.text,
-  padding: '20px 40px', // Increase the padding for taller buttons
-  borderWidth: '1px',
-  borderStyle: 'solid',
+  padding: "20px 40px", // Increase the padding for taller buttons
+  borderWidth: "1px",
+  borderStyle: "solid",
   borderColor: themeColors.text,
-  borderRadius: '10px',
-  cursor: 'pointer',
-  margin: '5px',
-  width: '100%', // Adjust the width to take up the entire space available
-  textAlign: 'center', // Center the text horizontally
+  borderRadius: "10px",
+  cursor: "pointer",
+  margin: "5px",
+  width: "100%", // Adjust the width to take up the entire space available
+  textAlign: "center", // Center the text horizontally
 };
 
+const searchContainerStyle = {
+  position: "fixed",
+  top: 100,
+  left: 0,
+  maxWidth: 1000,
+  display: "flex",
+  marginLeft: "30px",
+  // justifyContent: 'center',
+  marginBottom: "20px",
+};
+
+const searchInputStyle = {
+  padding: "8px",
+  width: "75%",
+  display: "flex-grow",
+};
+
+async function sendAndFetchSongReqs(sentTrack) {
+  const axiosInstance = axios.create({
+    withCredentials: true,
+  });
+  const response = await axiosInstance.post(
+    "http://127.0.0.1:5000/djmixer/songrec",
+    { track: sentTrack }
+  );
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
 const SongRecommendation = () => {
+  const [recievedData, setRecievedData] = useState();
+  const [searchValue, setSearchValue] = useState();
+
+  function songRecs(recievedSongs) {
+    if (recievedSongs !== undefined) {
+      return <p>Send me search query</p>;
+    } else {
+      return (
+        <TopGraph data={recievedSongs} dataName={"song_recommendations"} />
+      );
+    }
+  }
+
+  const getRecommendations = async () => {
+    if (searchValue !== null && searchValue !== undefined) {
+      console.log("searching for " + searchValue);
+      sendAndFetchSongReqs(searchValue).then((data) => {
+        if (data !== null && data !== undefined) {
+          setRecievedData(data);
+        }
+      });
+    } else {
+      alert("Please enter value in search bar before getting recommendations!");
+    }
+  };
+
+  const changeSearchValue = (e) => {
+    setSearchValue(e.target.value);
+  };
+
   return (
     <div style={bodyStyle}>
       <Navbar />
+      <div style={searchContainerStyle}>
+        <input
+          type="text"
+          placeholder="Search..."
+          style={searchInputStyle}
+          value={searchValue}
+          onChange={changeSearchValue}
+        />
+        <button
+          style={{ ...buttonStyle, textDecoration: "none" }}
+          onClick={() => getRecommendations()}
+        >
+          Get Recommendations
+        </button>
+      </div>
       <div style={friendContainerStyle}>
         <FriendsCard />
       </div>
-      <div style={buttonContainerStyle}>
-        <Link to="/DJmixer/SongRecommendation" style={{ ...buttonStyle, textDecoration: 'none' }}>Song Recommendation</Link>
-        <Link to="/DJmixer/ArtistRecommendation" style={{ ...buttonStyle, textDecoration: 'none' }}>Artist Recommendation</Link>
-      </div>
+      {songRecs(recievedData)}
     </div>
   );
 };
