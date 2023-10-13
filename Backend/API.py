@@ -208,10 +208,6 @@ def statistics():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        result = update_data(user)
-        retries = 0
-        max_retries = 3
-
         data = {'status' : 'Not updated',
                 'recent_history' : '',
                 'top_songs' : '',
@@ -223,17 +219,10 @@ def statistics():
                 'follower_data' : '',
                 'layout_data' : ''}
 
-        while (result <= 0):
-            if (result == -1):
-                error_message = "Unexpected token error"
-                return make_response(jsonify({'error': error_message}), 420)
-            else:
-                # Token expired but was successfully refreshed, trying again
-                result = update_data(user)
-                retries += 1
-                if (retries > max_retries):
-                    error_message = "Unexpected token error, expired a lot!"
-                    return make_response(jsonify({'error': error_message}), 420420)
+        try:
+            update_data(user)
+        except Exception as e:
+            return jsonify(data)
         
         with DatabaseConnector(db_config) as conn:
             layout = conn.get_layout_from_DB(user.spotify_id)
@@ -381,7 +370,6 @@ def playback():
         else:
             track_uri = random_track['track']['uri']
         user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
-        result = f'Playing URI {track_uri}'
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -414,7 +402,14 @@ def play():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.play()
+        try:
+            player.play()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.play()
+            else:
+                return "Failed to reauthenticate token"
+        
         response_data = 'Music Playing started.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -426,7 +421,14 @@ def pause():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.pause()
+        try:
+            player.pause()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.pause()
+            else:
+                return "Failed to reauthenticate token"
+            
         response_data = 'Music player paused.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -438,7 +440,14 @@ def skip():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.skip_forwards()
+        try:
+            player.skip_forwards()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.skip_forwards()
+            else:
+                return "Failed to reauthenticate token"
+            
         response_data = 'Music skipping.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -452,9 +461,11 @@ def prev():
         player = Playback(user)
         try:
             player.skip_backwards()
-            response_data = 'Music skipping prev.'
-        except spotipy.exceptions.SpotifyException as e:
-            response_data = 'prev failed'
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.skip_backwards()
+            else:
+                return "Failed to reauthenticate token"
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -465,7 +476,14 @@ def shuffle():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.shuffle()
+        try:
+            player.shuffle()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.shuffle()
+            else:
+                return "Failed to reauthenticate token"
+            
         response_data = 'Music changing shuffle.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -477,7 +495,14 @@ def repeat():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.set_repeat()
+        try:
+            player.set_repeat()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.set_repeat()
+            else:
+                return "Failed to reauthenticate token"
+            
         response_data = 'Music changing repeat.'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -491,8 +516,15 @@ def volume_change():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.volume_change(volume)
-        response_data = 'volume changed to ' + volume
+        try:
+            player.volume_change(volume)
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.volume_change(volume)
+            else:
+                return "Failed to reauthenticate token"
+            
+        response_data = 'volume changed to ' + str(volume)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -505,7 +537,15 @@ def play_playlist():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.play_artist(playlist_uri)
+        try:
+            player.play_playlist(playlist_uri)
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.play_playlist(playlist_uri)
+            else:
+                return "Failed to reauthenticate token"
+    
+        response_data = 'Artist played with URL ' + str(playlist_uri)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -519,6 +559,14 @@ def play_artist():
         user = User.from_json(user_data)
         player = Playback(user)
         player.play_artist(artist_uri)
+        try:
+            player.play_artist(artist_uri)
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.play_artist(artist_uri)
+            else:
+                return "Failed to reauthenticate token"
+        
         response_data = 'Song playing'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -532,7 +580,14 @@ def play_album():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.play_album(album_uri)
+        try:
+            player.play_album(album_uri)
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.play_album(album_uri)
+            else:
+                return "Failed to reauthenticate token"
+        response_data = 'Album playing'
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -545,7 +600,14 @@ def play_song():
         user_data = session['user']
         user = User.from_json(user_data)
         player = Playback(user)
-        player.select_song(song=[song_uri])
+        try:
+            player.select_song(song=[song_uri])
+        except Exception as e:
+            if (try_refresh(user, e)):
+                player.select_song(song=[song_uri])
+            else:
+                return "Failed to reauthenticate token"
+
         response_data = 'Song playing'
     else:
         response_data = 'User session not found. Please log in again.'
@@ -558,7 +620,14 @@ def songrec():
         track = data.get('track')
         user_data = session['user']
         user = User.from_json(user_data)
-        suggested_tracks = user.get_recommendations(seed_tracks=track)
+        try:
+            suggested_tracks = user.get_recommendations(seed_tracks=track)
+        except Exception as e:
+            if (try_refresh(user, e)):
+                suggested_tracks = user.get_recommendations(seed_tracks=track)
+            else:
+                return "Failed to reauthenticate token"
+    
         response_data = suggested_tracks
     else:
         response_data = 'User session not found. Please log in again.'
@@ -675,7 +744,9 @@ def test():
     else:
         return 'User session not found. Please log in again.'
 
-def update_data(user, update_recent_history=True,
+def update_data(user,
+                retries=0,
+                update_recent_history=True,
                 update_top_songs=True,
                 update_top_artists=True,
                 update_followed_artists=True,
@@ -721,38 +792,48 @@ def update_data(user, update_recent_history=True,
         if (update_saved_playlists):
             user.update_saved_playlists()
 
-        print("Updated data")
-        return 1
+        return "Updated Data!"
 
     except Exceptions.TokenExpiredError as e:
-        print(f"An unexpected error occurred: {e}")
-        try_count = 0
-        max_try_count = 5
-        while try_count < max_try_count:
-            try:
-                sp_oauth = SpotifyOAuth(client_id=client_id, 
-                            client_secret=client_secret, 
-                            redirect_uri=redirect_uri, 
-                            scope=scope)
+        max_retries = 3
+        success = try_refresh(user, e)
 
-                user.refresh_access_token(sp_oauth)
+        if not success:
+            raise Exception
+        else:
+            if (retries > max_retries):
+                raise Exception
+            update_data(retries=retries+1)
 
-                if not sp_oauth.is_token_expired(user.login_token):
-                    #Update token
-                    with DatabaseConnector(db_config) as conn:
-                        if (conn.update_token(user.spotify_id, user.login_token) == 0):
-                            raise Exceptions.UserNotFoundError
-                    session["user"] = user.to_json()
-                    print("Token successfully refreshed!")
-                    return 0
-                
-            except Exception as ex:
-                print(f"An unexpected error occurred: {ex}")
+def try_refresh(user, e):
+    print(f"An unexpected error occurred: {e}")
+    try_count = 0
+    max_try_count = 5
+    while try_count < max_try_count:
+        try:
+            sp_oauth = SpotifyOAuth(client_id=client_id, 
+                        client_secret=client_secret, 
+                        redirect_uri=redirect_uri, 
+                        scope=scope)
 
-            try_count += 1
+            user.refresh_access_token(sp_oauth)
 
-        print("Couldn't refresh token")
-        return -1
+            if not sp_oauth.is_token_expired(user.login_token):
+                #Update token
+                with DatabaseConnector(db_config) as conn:
+                    if (conn.update_token(user.spotify_id, user.login_token) == 0):
+                        raise Exceptions.UserNotFoundError
+                session["user"] = user.to_json()
+                print("Token successfully refreshed!")
+                return True
+            
+        except Exception as ex:
+            print(f"An unexpected error occurred: {ex}")
+
+        try_count += 1
+
+    print("Couldn't refresh token")
+    return False
 
 def run_tests(testUser):
     print("Starting Tests!")
