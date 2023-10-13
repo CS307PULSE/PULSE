@@ -254,7 +254,7 @@ def statistics():
         return make_response(jsonify({'error': error_message}), 69)
     
 @app.route('/statistics/shortened')
-def statisticsShort():
+def statistics_short():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -356,13 +356,13 @@ def update_followers():
         follower_data = user.get_followers_with_time()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
-                error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
+                error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
 
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return error_message
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/games/playback', methods=['POST'])
 def playback():
