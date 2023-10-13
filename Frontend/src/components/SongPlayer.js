@@ -195,7 +195,7 @@ function SongPlayer() {
             <img id="nextButton" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
             <img id="repeatButton" style={songPlayerButtonStyle} src={images.repeatButton} onClick={() => {setRepeatState(true)}} alt="Repeat"></img>
             <img id="shuffleButton" style={songPlayerButtonStyle} src={images.shuffleButton} onClick={() => {setShuffleState(true)}} alt="Shuffle"></img>
-            <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Album Image"></img>
+            {/* <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Album Image"></img>
             <div style={infoContainerStyle}>
                 <p style={songNameTextStyle}>lol</p>
                 <p style={artistNameTextStyle}>asdsadasj daskldj askopasdsad</p>
@@ -213,7 +213,7 @@ function SongPlayer() {
                     <option value="option3">Option 3</option>
                 </select>
             </div>
-            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={e => setVolumeLevel(e.target.value)}></input> 
+            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={e => setVolumeLevel(e.target.value)}></input>  */}
                 
         </div>
     );

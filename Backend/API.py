@@ -477,10 +477,10 @@ def shuffle():
         user = User.from_json(user_data)
         player = Playback(user)
         try:
-            player.shuffle()
+            player.set_shuffle()
         except Exception as e:
             if (try_refresh(user, e)):
-                player.shuffle()
+                player.set_shuffle()
             else:
                 return "Failed to reauthenticate token"
             

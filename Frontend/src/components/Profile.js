@@ -104,21 +104,31 @@ async function setTheme(themeParameter) {
         withCredentials: true,
       });
       const response = await axiosInstance.post(
-        "http://127.0.0.1:5000/player/play_song",
+        "http://127.0.0.1:5000/set_theme",
         {
-          theme: themeParameter,
+          theme: themeParameter
         }
       );
       const data = response.data;
-      console.log("Attempted post with value " +themeParameter);
+      console.log("Attempted post with value " + themeParameter);
+      return data;
+}
+async function setTextSize(textSizeParameter) {
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/set_text_size",
+        {
+          text_size: textSizeParameter
+        }
+      );
+      const data = response.data;
+      console.log("Attempted post with value " + textSizeParameter);
       return data;
 }
 
 function Profile({testParameter}){
-    const [themeState, setThemeState] = useState(themeColors);
-    useEffect(() => { //Set theme state
-        setTheme(themeState);
-    }, [themeState]);
 
     return(
     <div style={bodyStyle}>
@@ -142,7 +152,7 @@ function Profile({testParameter}){
                 <input id="location" type="text" style={textFieldStyle}></input> <br></br>
 
                 <div style={buttonContainerStyle}>
-                    <button style={buttonStyle} name="submit" type="submit" onsubmit="">Save Changes</button>
+                    <button style={buttonStyle} name="submit" type="submit" onSubmit="">Save Changes</button>
                 </div>
             </form>
 
@@ -150,15 +160,15 @@ function Profile({testParameter}){
 
             <p style={profileText}>Text Size: </p>
             <div style={buttonContainerStyle}>
-                <button onClick={TextSize(1)} style={buttonStyle}><p>Small</p></button>
-                <button onClick={TextSize(1)} style={buttonStyle}><p>Medium</p></button>
-                <button onClick={TextSize(1)} style={buttonStyle}><p>Large</p></button>
+                <button onClick={() => {setTextSize(0)}} style={buttonStyle}><p>Small</p></button>
+                <button onClick={() => {setTextSize(1)}} style={buttonStyle}><p>Medium</p></button>
+                <button onClick={() => {setTextSize(2)}} style={buttonStyle}><p>Large</p></button>
             </div>
 
             <p style={profileText}>Theme: </p>
             <div style={buttonContainerStyle}>
-                <button onClick={() => {setThemeState(0)}} style={buttonStyle}><p>Dark</p></button>
-                <button onClick={() => {setThemeState(1)}} style={buttonStyle}><p>Light</p></button>
+                <button onClick={() => {setTheme(0)}} style={buttonStyle}><p>Dark</p></button>
+                <button onClick={() => {setTheme(1)}} style={buttonStyle}><p>Light</p></button>
             </div>
         </div>
         <div style={{padding: "60px"}}></div>
