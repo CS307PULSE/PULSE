@@ -265,7 +265,7 @@ class User:
             ErrorHandler.handle_error(e)
 
     # Searches for item of type items_type with query query and at most max_items number of items
-    def search_for_items(self, max_items=20, items_type="tracks", query=""):
+    def search_for_items(self, max_items=20, items_type="track", query=""):
         try:
             items = []
             offset = 0
