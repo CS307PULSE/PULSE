@@ -8,6 +8,7 @@ import axios from "axios";
 
 import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
+import SongPlayer from './SongPlayer';
 
 var textSizeSetting, themeSetting;
 try {
@@ -81,6 +82,7 @@ const DJMixer = () => {
         <Link to="/DJmixer/SongRecommendation" style={{ ...buttonStyle, textDecoration: 'none' }}>Song Recommendation</Link>
         <Link to="/DJmixer/ArtistRecommendation" style={{ ...buttonStyle, textDecoration: 'none' }}>Artist Recommendation</Link>
       </div>
+      <SongPlayer />
     </div>
   );
 };
