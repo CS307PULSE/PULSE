@@ -772,7 +772,7 @@ def get_displayname():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_display_name_from_DB(user.spotify_id)
+            response_data = conn.get_display_name_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
@@ -783,7 +783,7 @@ def get_location():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_location_from_DB(user.spotify_id)
+            response_data = conn.get_location_from_user_DB(user.spotify_id)
        
     else:
         response_data = 'User session not found. Please log in again.'
@@ -795,7 +795,7 @@ def get_gender():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_gender_from_DB(user.spotify_id)
+            response_data = conn.get_gender_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
