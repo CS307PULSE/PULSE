@@ -1,19 +1,38 @@
 import TestIcon from "../test_icon.jpg"
-import React from "react";
+import { React, useEffect, useState } from "react";
 import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
-//import { pulseColors } from "../theme/Colors";
+import { pulseColors } from "../theme/Colors";
+import axios from "axios";
 
 import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
-const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors("dark"); //Obtain color values
+
+var textSizeSetting, themeSetting;
+try {
+    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
+    textSizeSetting = textSizeResponse.data;
+    console.log("Profile Text Size Setting: " + textSizeSetting);
+
+    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
+    console.log(themeResponse.data[0]);
+    themeSetting = themeResponse.data;
+    console.log("Profile Theme Setting: " + textSizeSetting);
+
+} catch (e) {
+    console.log("Formatting settings fetch failed: " + e);
+    textSizeSetting = 1;
+    themeSetting = 0;
+}
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const bodyStyle = {
     backgroundColor: themeColors.background,
     margin: 0,
     padding: 0,
-    height: '100vh',
+    maxHeight: '100vh',
+    overflow: "auto"
 };
 const profileContainerStyle = {
     padding: "20px",
@@ -80,6 +99,35 @@ const iconPictureStyle = {
     borderRadius: "10px"
 }
 
+async function setTheme(themeParameter) {
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/set_theme",
+        {
+          theme: themeParameter
+        }
+      );
+      const data = response.data;
+      console.log("Attempted post with value " + themeParameter);
+      return data;
+}
+async function setTextSize(textSizeParameter) {
+    const axiosInstance = axios.create({
+        withCredentials: true,
+      });
+      const response = await axiosInstance.post(
+        "http://127.0.0.1:5000/set_text_size",
+        {
+          text_size: textSizeParameter
+        }
+      );
+      const data = response.data;
+      console.log("Attempted post with value " + textSizeParameter);
+      return data;
+}
+
 function Profile({testParameter}){
 
     return(
@@ -104,7 +152,7 @@ function Profile({testParameter}){
                 <input id="location" type="text" style={textFieldStyle}></input> <br></br>
 
                 <div style={buttonContainerStyle}>
-                    <button style={buttonStyle} name="submit" type="submit" onsubmit="">Save Changes</button>
+                    <button style={buttonStyle} name="submit" type="submit" onSubmit="">Save Changes</button>
                 </div>
             </form>
 
@@ -112,17 +160,18 @@ function Profile({testParameter}){
 
             <p style={profileText}>Text Size: </p>
             <div style={buttonContainerStyle}>
-                <button onclick={TextSize(1)} style={buttonStyle}><p>Small</p></button>
-                <button onclick={TextSize(1)} style={buttonStyle}><p>Medium</p></button>
-                <button onclick={TextSize(1)} style={buttonStyle}><p>Large</p></button>
+                <button onClick={() => {setTextSize(0)}} style={buttonStyle}><p>Small</p></button>
+                <button onClick={() => {setTextSize(1)}} style={buttonStyle}><p>Medium</p></button>
+                <button onClick={() => {setTextSize(2)}} style={buttonStyle}><p>Large</p></button>
             </div>
 
             <p style={profileText}>Theme: </p>
             <div style={buttonContainerStyle}>
-                <button onclick={Colors("light")} style={buttonStyle}><p>Light</p></button>
-                <button onclick={Colors("darK")} style={buttonStyle}><p>Dark</p></button>
+                <button onClick={() => {setTheme(0)}} style={buttonStyle}><p>Dark</p></button>
+                <button onClick={() => {setTheme(1)}} style={buttonStyle}><p>Light</p></button>
             </div>
         </div>
+        <div style={{padding: "60px"}}></div>
         <SongPlayer />
     </div>
     );
