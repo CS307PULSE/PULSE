@@ -11,6 +11,7 @@ import Games from "./components/Games";
 import Mainpage from "./components/Mainpage";
 import StatisticsPage from "./components/StatisticsPage";
 import Uploader from "./components/Uploader";
+import Friends from "./components/Friends";
 
 import {
   Navigate,
@@ -79,7 +80,7 @@ function App() {
         />
         <Route path="/uploader" element={<Uploader />} />
 
-        <Route path="friends" />
+        <Route path="/friends" element={<Friends />} />
       </Routes>
     </Router>
   );

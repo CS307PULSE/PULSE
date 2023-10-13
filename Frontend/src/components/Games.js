@@ -143,7 +143,7 @@ const Games = () => {
     fetchDataScores()
       .then((data) => setScores(data.scores))
       .catch((error) => console.error("Error fetching data:", error));
-  },[]); // <-- Add 'scores' as a dependency
+  }, []); // <-- Add 'scores' as a dependency
 
   const getGameData = () => {
     if (!scores || scores.length < 2 || !scores[0] || !scores[1]) {
@@ -154,7 +154,12 @@ const Games = () => {
       <div>
         {scores.map((gameType, index1) => (
           <>
-            <p> <b><u>Game {index1 + 1}</u></b></p>
+            <p>
+              {" "}
+              <b>
+                <u>Game {index1 + 1}</u>
+              </b>
+            </p>
             <p>
               {gameType.map((gameRound, index2) => (
                 <p>
@@ -239,7 +244,7 @@ const Games = () => {
 
       <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
       <h2 style={gamesSubTitleStyle}>
-        0: Guess the song, 1: Guess the Artist, 2: Guess the next lyric
+        1: Guess the song, 2: Guess the Artist, 4: Guess the next lyric
       </h2>
       <div style={{ color: "white", whiteSpace: "pre", marginLeft: "500px" }}>
         {getGameData()}
