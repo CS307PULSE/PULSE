@@ -168,8 +168,8 @@ class DatabaseConnector(object):
     def get_text_size_from_DB(self,spotify_id):
         sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_text_size_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchall()
-        return int(self.resultset)
+        self.resultset = self.db_cursor.fetchone()
+        return int(self.resultset[0])
     
     # Returns theme from DB when given spotify_id. Returns 0, or 1.          
     def get_theme_from_DB(self, spotify_id):
