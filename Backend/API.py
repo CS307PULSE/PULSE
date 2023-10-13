@@ -692,10 +692,11 @@ def songrec():
         user_data = session['user']
         user = User.from_json(user_data)
         try:
-            suggested_tracks = user.get_recommendations(seed_tracks=track)
+            found = user.search_for_items(max_items=1, query=track)
+            suggested_tracks = user.get_recommendations(seed_tracks=found)
         except Exception as e:
             if (try_refresh(user, e)):
-                suggested_tracks = user.get_recommendations(seed_tracks=track)
+                suggested_tracks = user.get_recommendations(seed_tracks=found)
             else:
                 return "Failed to reauthenticate token"
     
