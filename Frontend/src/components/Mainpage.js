@@ -176,12 +176,9 @@ function Mainpage() {
     <div style={bodyStyle}>
       <Navbar />
       <div style={{ padding: "5px" }} />
-      <div style={searchContainerStyle}>
-        <input type="text" placeholder="Search..." style={searchInputStyle} />
-      </div>
       <div style={cardContainerStyle}>
         <Card headerText="STATISTICS" style={cardStyle}>
-          {/* {StatsCardComp()} */}
+          {StatsCardComp()}
         </Card>
         <Card headerText="DJ MIXER" style={cardStyle}>
           <p style={cardContent}>This is the content of Card 2.</p>
