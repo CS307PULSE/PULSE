@@ -143,9 +143,14 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
-    # Returns icon from DB. Returns None if no icon exists, and a BLOB if it does
+    # Returns icon string from DB. Returns None if no icon exists, and a string if it does
     def get_icon_from_DB(self, spotify_id, storage_loc):
-        sql_fetch_blob_query = """SELECT icon from pulse.users where spotify_id = %s"""
+        sql_fetch_icon_string_query = """SELECT icon from pulse.users where spotify_id = %s"""
+        self.db_cursor.execute(sql_fetch_icon_string_query, (spotify_id,))
+        icon = self.db_cursor.fetchone()
+        return icon[0]
+        """
+        sql_fetch_blob_query = SELECT icon from pulse.users where spotify_id = %s
         self.db_cursor.execute(sql_fetch_blob_query, (spotify_id,))
         icon = self.db_cursor.fetchall()
         if (icon[0] is None):
@@ -158,7 +163,7 @@ class DatabaseConnector(object):
             #with open(storage_loc, 'wb') as file:
             #file.write(image)
             return icon[0]
-
+        """
     # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
     def get_followers_from_DB(self, spotify_id):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
@@ -304,7 +309,7 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
-    # Updates icon (expected BLOB) in user DB. Returns 1 if successful, 0 if not.
+    # Updates icon (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_icon(self, spotify_id, new_icon):
         try:
             sql_update_icon_query = """UPDATE pulse.users SET icon = %s WHERE spotify_id = %s"""

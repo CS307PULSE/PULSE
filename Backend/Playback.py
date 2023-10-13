@@ -54,7 +54,6 @@ class Playback:
         checker.start()
 
     def set_shuffle(self):
-        print(self.shuffle)
         try:
           self.playback = self.user.spotify_user.current_playback()
           if self.playback != None:
@@ -67,8 +66,6 @@ class Playback:
           ErrorHandler.handle_error(e)
 
     def set_repeat(self):
-       print("it works")
-       self.print_player()
        try: 
         self.playback = self.user.spotify_user.current_playback()
         if self.playback != None:
@@ -120,8 +117,9 @@ class Playback:
         self.user.spotify_user.add_to_queue(song)
        except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
-    
+  
     def volume_change(self, percent):
+       print("Volume change received for " + str(percent) + "%")
        try:
         #volume will be implemented as front end slider volume only changes when slider is moved
         self.user.spotify_user.volume(percent)
