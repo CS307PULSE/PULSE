@@ -8,19 +8,24 @@ import SongPlayer from "./SongPlayer";
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
 
-import Colors from "../theme/Colors"; 
+import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 
 var textSizeSetting, themeSetting;
 try {
-    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
-    textSizeSetting = textSizeResponse.data;
-    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    themeSetting = themeResponse.data;
+  var textSizeResponse = await axios.get(
+    "http://127.0.0.1:5000/get_text_size",
+    { withCredentials: true }
+  );
+  textSizeSetting = textSizeResponse.data;
+  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
+    withCredentials: true,
+  });
+  themeSetting = themeResponse.data;
 } catch (e) {
-    console.log("Formatting settings fetch failed: " + e);
-    textSizeSetting = 1;
-    themeSetting = 0;
+  console.log("Formatting settings fetch failed: " + e);
+  textSizeSetting = 1;
+  themeSetting = 0;
 }
 const themeColors = Colors(themeSetting); //Obtain color values
 const textSizes = TextSize(textSizeSetting); //Obtain text size values
@@ -158,15 +163,15 @@ function Mainpage() {
     return (
       <>
         <p style={cardContent}>
-          Favorite artist of all time: {topArtists[0][0].name}
+          Favorite artist of all time: {topArtists[2][0].name}
         </p>
         <p style={cardContent}>
-          Favorite artist recently: {topArtists[2][0].name}
+          Favorite artist recently: {topArtists[0][0].name}
         </p>
         <p style={cardContent}>
-          Favorite song of all time: {topSongs[0][0].name}
+          Favorite song of all time: {topSongs[2][0].name}
         </p>
-        <p style={cardContent}>Favorite song recently: {topSongs[2][0].name}</p>
+        <p style={cardContent}>Favorite song recently: {topSongs[0][0].name}</p>
         <p style={cardContent}>You have {followers} followers</p>
       </>
     );
@@ -181,7 +186,7 @@ function Mainpage() {
       </div>
       <div style={cardContainerStyle}>
         <Card headerText="STATISTICS" style={cardStyle}>
-          {/* {StatsCardComp()} */}
+          {StatsCardComp()}
         </Card>
         <Card headerText="DJ MIXER" style={cardStyle}>
           <p style={cardContent}>This is the content of Card 2.</p>
