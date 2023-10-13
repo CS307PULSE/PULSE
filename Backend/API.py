@@ -317,7 +317,7 @@ def get_text_size():
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            return jsonify(conn.get_text_size(user.spotify_id))
+            return jsonify(conn.get_text_size_from_DB(user.spotify_id))
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

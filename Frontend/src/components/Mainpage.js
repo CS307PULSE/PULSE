@@ -8,7 +8,7 @@ import TextSize from "../theme/TextSize";
 import Colors from "../theme/Colors";
 
 const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors("dark"); //Obtain color values
+const themeColors = Colors(0); //Obtain color values
 
 const bodyStyle = {
   backgroundColor: themeColors.background,
