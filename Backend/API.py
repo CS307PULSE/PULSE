@@ -109,16 +109,6 @@ def index():
             user_exists = conn.does_user_exist_in_user_DB(user_id)
             if user_exists:
                 user = conn.get_user_from_user_DB(spotify_id=user_id)
-                sp_oauth = SpotifyOAuth(client_id=client_id, 
-                            client_secret=client_secret, 
-                            redirect_uri=redirect_uri, 
-                            scope=scope)
-                user.refresh_access_token(sp_oauth)
-                if not sp_oauth.is_token_expired(user.login_token):
-                    if (conn.update_token(user.spotify_id, user.login_token) == 0):
-                        return "F"
-
-                user = conn.get_user_from_user_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
 
                 #return jsonify(message='Login successful! Welcome to your Flask app.')
@@ -229,6 +219,7 @@ def statistics():
                 'followed_artists' : '',
                 'saved_songs' : '',
                 'saved_albums' : '',
+                'saved_playlists': '',
                 'follower_data' : '',
                 'layout_data' : ''}
 
@@ -256,6 +247,7 @@ def statistics():
         data['followed_artists'] = user.stringify(user.stats.followed_artists)
         data['saved_songs'] = user.stringify(user.stats.saved_songs)
         data['saved_albums'] = user.stringify(user.stats.saved_albums)
+        data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
 
         if layout is not None:
             data['layout_data'] = layout
@@ -688,7 +680,8 @@ def update_data(user, update_recent_history=True,
                 update_top_artists=True,
                 update_followed_artists=True,
                 update_saved_tracks=True,
-                update_saved_albums=True):
+                update_saved_albums=True,
+                update_saved_playlists=True):
 
     print("Updating Data")
     import time
@@ -724,6 +717,9 @@ def update_data(user, update_recent_history=True,
 
         if (update_saved_albums):
             user.update_saved_albums()
+
+        if (update_saved_playlists):
+            user.update_saved_playlists()
 
         print("Updated data")
         return 1
@@ -785,7 +781,7 @@ def run_tests(testUser):
     saved_tracks_test = True
     saved_albums_test = True
     followers_test = True
-    playlists_test = True
+    saved_playlists_test = True
     guess_the_song_game = False
 
     try:
@@ -834,7 +830,7 @@ def run_tests(testUser):
 
         if (saved_tracks_test):
             printString += "SAVED TRACKS:\n" + '\n'
-            testUser.update_saved_songs(max_tracks=10000)
+            testUser.update_saved_songs(max_tracks=100)
             saved_songs = testUser.stats.saved_songs
             for track in saved_songs:
                 printString += (f"{track['track']['name']} by {track['track']['artists'][0]['name']}") + '\n'
@@ -842,20 +838,22 @@ def run_tests(testUser):
         
         if (saved_albums_test):
             printString += "SAVED ABLUMS:\n" + '\n'
-            testUser.update_saved_albums(max_albums=10000)
+            testUser.update_saved_albums(max_albums=100)
             saved_albums = testUser.stats.saved_albums
             for album in saved_albums:
                 printString += (f"{album['album']['name']}") + '\n'
             printString += '\n\n'
         
+        if (saved_playlists_test):
+            printString += "PLAYLISTS\n" + '\n'
+            testUser.update_saved_playlists(max_playlists=100)
+            saved_playlists = testUser.stats.saved_playlists
+            for playlist in saved_playlists:
+                printString += (f"{playlist['name']}") + '\n'
+            printString += '\n\n'
+        
         if (followers_test):
             printString += "FOLLOWER INFO:\n" + '\n'
-            result = testUser.get_followers_with_time()
-            printString += str(result[1]) + " at " + str(result[0])
-            printString += '\n\n'
-
-        if (playlists_test):
-            printString += "PLAYLISTS\n" + '\n'
             result = testUser.get_followers_with_time()
             printString += str(result[1]) + " at " + str(result[0])
             printString += '\n\n'
