@@ -11,7 +11,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
 
   //Use states to selectively disable choices depending on data type
   const [noneData, setNoneData] = useState(false);
-  const [barData, setBarData] = useState(false);
+  const [barData, setBarData] = useState(true);
   const [lineData, setLineData] = useState(false);
   const [pieData, setPieData] = useState(false);
 

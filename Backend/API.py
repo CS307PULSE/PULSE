@@ -252,6 +252,37 @@ def statistics():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    
+@app.route('/statistics/shortened')
+def statisticsShort():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = {'status' : 'Not updated',
+                'top_songs' : '',
+                'top_artists' : '',
+                'follower_data' : ''}
+
+        try:
+            update_data(user)
+        except Exception as e:
+            return jsonify(data)
+        
+        with DatabaseConnector(db_config) as conn:
+            followers = conn.get_followers_from_DB(user.spotify_id)
+
+        data['status'] = 'Success'
+        data['top_songs'] = user.stringify(user.stats.top_songs)
+        data['top_artists'] = user.stringify(user.stats.top_artists)
+
+        if followers is not None:
+            data['follower_data'] = followers
+
+        return jsonify(data)
+        
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/statistics/set_layout', methods=['POST'])
 def set_layout():
@@ -728,7 +759,43 @@ def change_location():
         user_data = session['user']
         user = User.from_json(user_data)
         user.location = location
+        with DatabaseConnector(db_config) as conn:
+            conn.update_location(user.spotify_id, user.location)
         response_data = 'location updated.'
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_displayname', methods=['GET'])
+def get_displayname():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_display_name_from_user_DB(user.spotify_id)
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_location', methods=['GET'])
+def get_location():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_location_from_user_DB(user.spotify_id)
+       
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+@app.route('/profile/get_displayname', methods=['GET'])
+def get_gender():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_gender_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
