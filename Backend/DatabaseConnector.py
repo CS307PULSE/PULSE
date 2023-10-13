@@ -388,12 +388,13 @@ class DatabaseConnector(object):
             return 0  # Indicate that the update failed   
         # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     
+    # Updates game settings (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     def update_game_settings(self, spotify_id, new_settings_array, game):
         
         master_game_settings = self.get_game_settings_from_DB(spotify_id)
         try:
             sql_update_game_settings_query = """UPDATE pulse.users SET game_settings = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_game_settings_query, (game_settings_array_to_string(game), spotify_id,))
+            self.db_cursor.execute(sql_update_game_settings_query, (game_settings_array_to_string(edit_game_settings(master_game_settings,new_settings_array,game)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -401,7 +402,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating scores:", str(e))
+            print("Error updating game_settings:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed   
     # Update text_size (expected int) in user DB. Returns 1 if successful, 0 if not.
@@ -567,7 +568,7 @@ def update_new_score_and_delete_oldest(arr_3d, new_array, game):
 #game = 0, 1, 2, 3, or 4 
 def edit_game_settings(arr_2d, new_array, game):
     # Update the first array with the new 2D array
-    arr_2d.insert(0, new_array)
+    arr_2d.insert(game, new_array)
     # Remove the last array
     arr_2d.pop()
     return  arr_2d
