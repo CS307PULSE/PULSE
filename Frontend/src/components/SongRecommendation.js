@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
@@ -106,12 +106,16 @@ const SongRecommendation = () => {
   const [searchValue, setSearchValue] = useState();
   const [searchRecVal, setSearchRecVal] = useState();
 
+  useEffect(() => {
+    document.title = "PULSE - Song Recommendations";
+  }, []);
+
   function songRecs(recievedSongs) {
     console.log(recievedSongs);
     if (recievedSongs !== undefined) {
       return <TopGraph data={recievedSongs} dataName={"top_song"} />;
     } else {
-      return <p>Send me search query</p>;
+      return <p></p>;
     }
   }
 
@@ -185,7 +189,6 @@ const SongRecommendation = () => {
         </button>
       </div>
       {songRecs(recievedSearchData)}
-
     </div>
   );
 };

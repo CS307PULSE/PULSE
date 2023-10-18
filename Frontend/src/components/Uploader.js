@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "./NavBar";
 import FriendsCard from "./FriendsCard";
 import Colors from "../theme/Colors";
@@ -44,6 +44,9 @@ const friendContainerStyle = {
 };
 
 const Uploader = () => {
+  useEffect(() => {
+    document.title = "PULSE - Uploader";
+  }, []);
   return (
     <div style={bodyStyle}>
       <Navbar />

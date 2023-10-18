@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "./NavBar";
 import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
@@ -34,6 +34,10 @@ const bodyStyle = {
 };
 
 const Friends = () => {
+  useEffect(() => {
+    document.title = "PULSE - Friends";
+  }, []);
+
   return (
     <div style={bodyStyle}>
       <Navbar />

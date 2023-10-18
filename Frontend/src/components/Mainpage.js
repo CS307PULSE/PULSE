@@ -184,6 +184,10 @@ function Mainpage() {
     }
   }
 
+  useEffect(() => {
+    document.title = "PULSE - Dashboard";
+  }, []);
+
   return (
     <div style={bodyStyle}>
       <Navbar />
