@@ -893,6 +893,55 @@ def get_gender():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
+@app.route('/get_advanced_stats')
+def get_advanced_stats():
+    user = User()
+    filepath = request.args.get('filepath')
+    if filepath:
+        response_data = user.stats.advanced_stats_import(filepath)
+        return print_data(response_data)
+    else:
+        return "Filepath not provided."
+    
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
+def print_data(data):
+    # Convert the JSON data back to a Python dictionary
+    parsed_data = json.loads(data)
+
+    sorted_songs = sorted(parsed_data["songs"].items(), key=lambda x: x[1]["ms_played"], reverse=True)
+
+    # Create an HTML table to display all the data fields
+    table = "<table border='1'><tr><th>Track Name</th><th>Artist</th><th>Album</th><th>Play Time (minutes)</th><th>Start Reason</th><th>End Reason</th><th>Country</th><th>Timestamp</th><th>Platform</th><th>Shuffle</th><th>Skip</th><th>URI</th><th>Episode Name</th><th>Show Name</th><th>Episode URI</th></tr>"
+
+    for track_name, details in sorted_songs:
+        artist_name = details["artist_name"]
+        album_name = details["album_name"]
+        play_time_minutes = details["ms_played"] / 1000 / 60  # Convert milliseconds to minutes
+        reason_start = details["reason_start"]
+        reason_end = details["reason_end"]
+        country = details["country"]
+        time_stamp = details["time_stamp"]
+        platform = details["platform"]
+        did_shuffle = details["did_shuffle"]
+        did_skip = details["did_skip"]
+        uri = details["track_uri"]
+        episode_name = details["episode_name"]
+        show_name = details["show_name"]
+        episode_uri = details["episode_uri"]
+
+        row = f"<tr><td>{track_name}</td><td>{artist_name}</td><td>{album_name}</td><td>{play_time_minutes:.2f}</td><td>{reason_start}</td><td>{reason_end}</td><td>{country}</td><td>{time_stamp}</td><td>{platform}</td><td>{did_shuffle}</td><td>{did_skip}</td><td>{uri}</td><td>{episode_name}</td><td>{show_name}</td><td>{episode_uri}</td></tr>"
+        table += row
+
+    table += "</table>"
+
+    return table
+
 @app.route('/test')
 def test():
     if 'user' in session:
@@ -913,21 +962,6 @@ def update_data(user,
                 update_saved_playlists=True):
 
     print("Updating Data")
-    import time
-    timestamp = (time.time())
-    import datetime
-    import pytz
-
-    # Create a datetime object from the Unix timestamp in UTC
-    utc_datetime = datetime.datetime.utcfromtimestamp(timestamp)
-
-    # Set the timezone to Eastern Time (US/Eastern)
-    eastern_timezone = pytz.timezone('US/Eastern')
-    est_datetime = utc_datetime.replace(tzinfo=pytz.utc).astimezone(eastern_timezone)
-
-    # Print the datetime in EDT format
-    time_string = (est_datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')) + '\n'
-
     try:
         if (update_recent_history):
             user.update_recent_history()
