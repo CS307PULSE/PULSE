@@ -189,6 +189,7 @@ const MusicPlayerGame = ({
       setShowScores(true);
       sendPlayerDataToBackend();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentNumberOfRounds]);
 
   // Function to send player data to the backend

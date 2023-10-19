@@ -97,13 +97,15 @@ const deviceDropdownStyle = {
 function SongPlayer() {
   const [volumeLevel, setVolumeLevel] = useState("");
   const [timestamp, setTimestamp] = useState("");
-  const [playState, setPlayState] = useState(false);
+  const [playState, setPlayState] = useState();
   const [nextState, setNextState] = useState(false);
   const [prevState, setPrevState] = useState(false);
   const [repeatState, setRepeatState] = useState(false);
   const [shuffleState, setShuffleState] = useState(false);
+
   useEffect(() => {
-    if (playState) {
+    if (playState === undefined) {
+    } else if (playState) {
       //Play and pause
       axios
         .get("http://127.0.0.1:5000/player/play", { withCredentials: true })
@@ -145,6 +147,7 @@ function SongPlayer() {
     }
     setNextState(false);
   }, [nextState]);
+
   useEffect(() => {
     //Preving
     if (prevState) {
@@ -161,6 +164,7 @@ function SongPlayer() {
     }
     setPrevState(false);
   }, [prevState]);
+
   useEffect(() => {
     //Repeat
     if (repeatState) {
@@ -176,6 +180,7 @@ function SongPlayer() {
     }
     setRepeatState(false);
   }, [repeatState]);
+
   useEffect(() => {
     //Shuffle
     if (shuffleState) {
@@ -225,7 +230,11 @@ function SongPlayer() {
         style={songPlayerButtonStyle}
         src={images.playButton}
         onClick={() => {
-          setPlayState(!playState);
+          if (playState === undefined) {
+            setPlayState(true);
+          } else {
+            setPlayState(!playState);
+          }
         }}
         alt="Play Song"
       ></img>
