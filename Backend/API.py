@@ -370,7 +370,11 @@ def update_followers():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        follower_data = user.get_followers_with_time()
+        try:
+            follower_data = user.get_followers_with_time()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                follower_data = user.get_followers_with_time()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
