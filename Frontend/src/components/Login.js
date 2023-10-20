@@ -84,6 +84,7 @@ function Login({ onLoginClick }) {
 
   //get the link for loggin through Spotify
   useEffect(() => {
+    document.title = "PULSE - Login";
     fetchDataLogin().then((data) => {
       if (data !== null && data !== undefined) {
         setIsLoginURL(data);

@@ -226,6 +226,7 @@ def statistics():
         try:
             update_data(user)
         except Exception as e:
+            print(e)
             return jsonify(data)
         
         with DatabaseConnector(db_config) as conn:
@@ -267,8 +268,9 @@ def statistics_short():
         try:
             update_data(user)
         except Exception as e:
+            print(e)
             return jsonify(data)
-        
+        print("updated data var")
         with DatabaseConnector(db_config) as conn:
             followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -368,7 +370,11 @@ def update_followers():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        follower_data = user.get_followers_with_time()
+        try:
+            follower_data = user.get_followers_with_time()
+        except Exception as e:
+            if (try_refresh(user, e)):
+                follower_data = user.get_followers_with_time()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
@@ -947,8 +953,9 @@ def update_data(user,
 
         if (update_saved_playlists):
             user.update_saved_playlists()
-
+        print("Updated!")
         return "Updated Data!"
+        
 
     except Exceptions.TokenExpiredError as e:
         max_retries = 3

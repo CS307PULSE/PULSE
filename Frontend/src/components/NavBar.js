@@ -1,19 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // If using React Router for navigation
+import React from "react";
+import { Link } from "react-router-dom"; // If using React Router for navigation
 import LogoPNG from "../../src/assets/LogoPNG.png";
 import ProfileIcon from "../../src/assets/ProfileIcon.png";
 
 import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors"; 
+import Colors from "../theme/Colors";
 const textSizes = TextSize(1); //Obtain text size values
 const themeColors = Colors("light"); //Obtain color values
 
 const navbarStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
   backgroundColor: themeColors.green,
-  padding: '0 1rem',
+  padding: "0 1rem",
   color: themeColors.white,
   /*position: "fixed",
   top: "0",
@@ -22,31 +22,31 @@ const navbarStyle = {
 };
 
 const logoStyle = {
-  fontSize: '1.5rem',
+  fontSize: "1.5rem",
   height: 60,
 };
 
 const linkContainerStyle = {
-  display: 'flex',
+  display: "flex",
 };
 
 const linkStyle = {
   color: themeColors.white,
   fontWeight: 500,
-  textTransform: 'uppercase',
+  textTransform: "uppercase",
   fontFamily: "'Poppins', sans-serif",
-  textDecoration: 'none', 
-  margin: '0 1rem',
-  padding: '0.5rem 1rem',
+  textDecoration: "none",
+  margin: "0 1rem",
+  padding: "0.5rem 1rem",
   borderRadius: 20,
   backgroundColor: themeColors.black,
 };
 
 const profileIconStyle = {
-  width: '30px',
-  height: '30px',
-  borderRadius: '50%',
-  cursor: 'pointer',
+  width: "30px",
+  height: "30px",
+  borderRadius: "50%",
+  cursor: "pointer",
 };
 
 const Navbar = () => {
@@ -58,16 +58,24 @@ const Navbar = () => {
 
       <div style={linkContainerStyle}>
         <div style={linkStyle}>
-          <Link to="/statistics" style={linkStyle}>Statistics</Link>
+          <Link to="/statistics" style={linkStyle}>
+            Statistics
+          </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/DJmixer" style={linkStyle}>DJ Mixer</Link>
+          <Link to="/DJmixer" style={linkStyle}>
+            DJ Mixer
+          </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/games" style={linkStyle}>Games</Link>
+          <Link to="/games" style={linkStyle}>
+            Games
+          </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/uploader" style={linkStyle}>Uploader</Link>
+          <Link to="/uploader" style={linkStyle}>
+            Uploader
+          </Link>
         </div>
       </div>
 
@@ -78,6 +86,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;
