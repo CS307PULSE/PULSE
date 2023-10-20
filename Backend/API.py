@@ -896,7 +896,7 @@ def get_gender():
 @app.route('/get_advanced_stats')
 def get_advanced_stats():
     user = User()
-    filepath = request.args.get('filepath')
+    filepath = request.args.get('filepath', user.spotify_user)
     if filepath:
         response_data = user.stats.advanced_stats_import(filepath)
         return print_data(response_data)
