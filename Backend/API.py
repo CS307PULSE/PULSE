@@ -895,20 +895,27 @@ def get_gender():
 
 @app.route('/get_advanced_stats')
 def get_advanced_stats():
-    user = User()
-    filepath = request.args.get('filepath', user.spotify_user)
-    if filepath:
-        response_data = user.stats.advanced_stats_import(filepath)
-        return print_data(response_data)
-    else:
-        return "Filepath not provided."
-    
     if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_user_DB("0ajzwwwmv2hwa3k1bj2z19obr")
+            if user_exists:
+                user = conn.get_user_from_user_DB(spotify_id="0ajzwwwmv2hwa3k1bj2z19obr")
+                session['user'] = user.to_json()
+        filepath = request.args.get('filepath')
+        if filepath:
+            if (try_refresh(user)):
+                response_data = user.stats.advanced_stats_import(filepath, "0ajzwwwmv2hwa3k1bj2z19obr")
+            else:
+                return "Failed to reauthenticate token"
+            #json_data = json.dumps(response_data, indent=4)
+            response = Response(response_data, mimetype='application/json')
+        else:
+            response = "Filepath not provided."
+
     else:
-        response_data = 'User session not found. Please log in again.'
-    return jsonify(response_data)
+        response = 'User session not found. Please log in again.'
+    
+    return response
 
 def print_data(data):
     # Convert the JSON data back to a Python dictionary
@@ -1000,8 +1007,8 @@ def update_data(user,
                 raise Exception
             return update_data(retries=retries+1)
 
-def try_refresh(user, e):
-    print(f"An unexpected error occurred: {e}")
+def try_refresh(user, e=None):
+    if (e is not None): print(f"An unexpected error occurred: {e}")
     try_count = 0
     max_try_count = 5
     while try_count < max_try_count:
