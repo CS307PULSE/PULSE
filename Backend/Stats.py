@@ -94,29 +94,44 @@ class Stats:
                             "album_name"                        :   "",
                             "album_link"                        :   ""
                         }
+                        
+                        try:
+                            # Get track information
+                            track_data = sp.track(track_uri)
 
-                        #GET TRACK INFO WITH API
-                        ms_track_length = 60000*5
-                        track_link = ""
-                        artists = [["", "", ""], ["", "", ""]]
-                        album_uri = ""
-                        album_name = ""
-                        album_link = ""
+                            ms_track_length = track_data['duration_ms']
+                            track_link = track_data['external_urls']['spotify']
 
-                        SONGS_TO_API_DATA_MAP["ms_track_length"] = ms_track_length
-                        SONGS_TO_API_DATA_MAP["track_link"] = track_link
-                        SONGS_TO_API_DATA_MAP["artists"] = artists
-                        SONGS_TO_API_DATA_MAP["album_uri"] = album_uri
-                        SONGS_TO_API_DATA_MAP["album_name"] = album_name
-                        SONGS_TO_API_DATA_MAP["album_link"] = album_link
+                            artists = []
+                            for artist in track_data['artists']:
+                                artist_uri = artist['uri']
+                                artist_name = artist['name']
+                                artist_link = artist['external_urls']['spotify']
+                                artists.append([artist_uri, artist_name, artist_link])
+
+                            album_uri = track_data['album']['uri']
+                            album_name = track_data['album']['name']
+                            album_link = track_data['album']['external_urls']['spotify']
+
+                            SONGS_TO_API_DATA_MAP[track_uri]["ms_track_length"] = ms_track_length
+                            SONGS_TO_API_DATA_MAP[track_uri]["track_link"] = track_link
+                            SONGS_TO_API_DATA_MAP[track_uri]["artists"] = artists
+                            SONGS_TO_API_DATA_MAP[track_uri]["album_uri"] = album_uri
+                            SONGS_TO_API_DATA_MAP[track_uri]["album_name"] = album_name
+                            SONGS_TO_API_DATA_MAP[track_uri]["album_link"] = album_link
+                        except Exception as ex:
+                            pass
 
                     
-                    ms_track_length = SONGS_TO_API_DATA_MAP["ms_track_length"]
-                    track_link = SONGS_TO_API_DATA_MAP["track_link"]
-                    artists = SONGS_TO_API_DATA_MAP["artists"]
-                    album_uri = SONGS_TO_API_DATA_MAP["album_uri"]
-                    album_name = SONGS_TO_API_DATA_MAP["album_name"]
-                    album_link = SONGS_TO_API_DATA_MAP["album_link"]
+                    ms_track_length = SONGS_TO_API_DATA_MAP[track_uri]["ms_track_length"]
+                    track_link = SONGS_TO_API_DATA_MAP[track_uri]["track_link"]
+                    artists = SONGS_TO_API_DATA_MAP[track_uri]["artists"]
+                    album_uri = SONGS_TO_API_DATA_MAP[track_uri]["album_uri"]
+                    album_name = SONGS_TO_API_DATA_MAP[track_uri]["album_name"]
+                    album_link = SONGS_TO_API_DATA_MAP[track_uri]["album_link"]
+
+                    if ms_played > ms_track_length:
+                        ms_played = ms_track_length # Weird glitch with stats
 
                     time_of_day_index = self.get_time_of_day_index(time_stamp, timecode)
                     month = self.get_month(time_stamp)
@@ -125,8 +140,8 @@ class Stats:
 
                     # UPDATE ALL TIME
                     if is_stream: 
+                        ADVANCED_STATS_DATA["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Number of Streams"] + 1)
                         ADVANCED_STATS_DATA["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Average Percentage of Streams"] += ms_played / ms_track_length
                     ADVANCED_STATS_DATA["Number of Minutes"] += (ms_played / 1000) / 60
                     ADVANCED_STATS_DATA["Time of Day Breakdown"][time_of_day_index] += ms_played
 
@@ -144,9 +159,9 @@ class Stats:
                     if did_skip:
                          ADVANCED_STATS_DATA["Tracks"][track_uri]["Skips"] += 1
 
-                    if is_stream: 
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Tracks"][track_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Tracks"][track_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] + 1)
                         ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Tracks"][track_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
                     
                     ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
@@ -163,8 +178,8 @@ class Stats:
                             }
 
                         if is_stream: 
+                            ADVANCED_STATS_DATA["Artists"][artist_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Artists"][artist_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] + 1)
                             ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] += 1
-                            ADVANCED_STATS_DATA["Artists"][artist_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
                         
                         ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
@@ -178,11 +193,11 @@ class Stats:
                             "Link"                              :   album_link
                         }
 
-                    if is_stream: 
-                        ADVANCED_STATS_DATA["Albums"][artist_uri]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Albums"][artist_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Albums"][album_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Albums"][album_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Albums"][album_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Albums"][album_uri]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Albums"][album_uri]["Number of Streams"] += 1
                     
-                    ADVANCED_STATS_DATA["Albums"][artist_uri]["Number of Minutes"] += (ms_played / 1000) / 60
+                    ADVANCED_STATS_DATA["Albums"][album_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
 
 
@@ -201,9 +216,9 @@ class Stats:
                             "Monthly"                           :   self.initialize_monthly()
                         }
 
-                    if is_stream: 
-                        ADVANCED_STATS_DATA["Yearly"][year]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Yearly"][year]["Average Percentage of Streams"] += ms_played / ms_track_length
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Number of Streams"] += 1 
                     ADVANCED_STATS_DATA["Yearly"][year]["Number of Minutes"] += (ms_played / 1000) / 60
                     ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][time_of_day_index] += ms_played
 
@@ -221,10 +236,10 @@ class Stats:
                     if did_skip:
                          ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Skips"] += 1
 
-                    if is_stream: 
-                        ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
-                    
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] += 1 
+
                     ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
                     # Update Artists
@@ -240,8 +255,8 @@ class Stats:
                             }
 
                         if is_stream: 
-                            ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] += 1
-                            ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
+                            ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] + 1)
+                            ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] += 1 
                         
                         ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
@@ -256,10 +271,10 @@ class Stats:
                         }
 
                     if is_stream: 
-                        ADVANCED_STATS_DATA["Yearly"][year]["Albums"][artist_uri]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Yearly"][year]["Albums"][artist_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
+                        ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Number of Streams"] += 1 
                     
-                    ADVANCED_STATS_DATA["Yearly"][year]["Albums"][artist_uri]["Number of Minutes"] += (ms_played / 1000) / 60
+                    ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
 
 
@@ -267,8 +282,8 @@ class Stats:
 
                     # UPDATE MONTHLY
                     if is_stream: 
-                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Average Percentage of Streams"] += ms_played / ms_track_length
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Streams"] += 1 
                     ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Minutes"] += (ms_played / 1000) / 60
                     ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][time_of_day_index] += ms_played
 
@@ -287,8 +302,8 @@ class Stats:
                          ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Skips"] += 1
 
                     if is_stream: 
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] + 1)
                         ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
                     
                     ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
@@ -304,9 +319,9 @@ class Stats:
                                 "Link"                              :   artist_link
                             }
 
-                        if is_stream: 
-                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] += 1
-                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
+                        if is_stream:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] + 1)
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] += 1 
                         
                         ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
@@ -320,21 +335,17 @@ class Stats:
                             "Link"                              :   album_link
                         }
 
-                    if is_stream: 
-                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][artist_uri]["Number of Streams"] += 1
-                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][artist_uri]["Average Percentage of Streams"] += ms_played / ms_track_length
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Number of Streams"] += 1
                     
-                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][artist_uri]["Number of Minutes"] += (ms_played / 1000) / 60
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
                     
                 except json.JSONDecodeError:
                     pass
 
-        # Normalize Average Percentage of Streams to be an average and Time of Day Breakdown to be percentages relative to each other
-        num_streams = ADVANCED_STATS_DATA["Number of Streams"]
-        if (num_streams == 0): num_streams = 1
-        ADVANCED_STATS_DATA["Average Percentage of Streams"] /= num_streams
-
+        # Normalize Time of Day Breakdown to be percentages relative to each other
         sum_of_breakdowns = ADVANCED_STATS_DATA["Time of Day Breakdown"][0] + ADVANCED_STATS_DATA["Time of Day Breakdown"][1] + ADVANCED_STATS_DATA["Time of Day Breakdown"][2] + ADVANCED_STATS_DATA["Time of Day Breakdown"][3]
         if (sum_of_breakdowns == 0): sum_of_breakdowns = 1
         ADVANCED_STATS_DATA["Time of Day Breakdown"][0] *= (100 / sum_of_breakdowns)
@@ -343,10 +354,6 @@ class Stats:
         ADVANCED_STATS_DATA["Time of Day Breakdown"][3] *= (100 / sum_of_breakdowns)
     
         for year in ADVANCED_STATS_DATA["Yearly"]:
-            num_streams = ADVANCED_STATS_DATA["Yearly"][year]["Number of Streams"]
-            if (num_streams == 0): num_streams = 1
-            ADVANCED_STATS_DATA["Yearly"][year]["Average Percentage of Streams"] /= num_streams
-            
             sum_of_breakdowns = ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][0] + ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][1] + ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][2] + ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][3]
             if (sum_of_breakdowns == 0): sum_of_breakdowns = 1
             ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][0] *= (100 / sum_of_breakdowns)
@@ -355,10 +362,6 @@ class Stats:
             ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][3] *= (100 / sum_of_breakdowns)
 
             for month in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"]:
-                num_streams = ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Streams"]
-                if (num_streams == 0): num_streams = 1
-                ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Average Percentage of Streams"] /= num_streams
-                
                 sum_of_breakdowns = ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][0] + ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][1] + ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][2] + ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][3]
                 if (sum_of_breakdowns == 0): sum_of_breakdowns = 1
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][0] *= (100 / sum_of_breakdowns)
@@ -401,6 +404,9 @@ class Stats:
         return str(timestamp_datetime.year)
     
     def is_full_stream(self, ms_played, ms_track_length):
+        if ms_track_length == 0:
+            return False
+        
         if ms_played / ms_track_length > 0.5:
             return True         # Listened to over half the song/podcast
         

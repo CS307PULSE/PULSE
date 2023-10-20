@@ -908,9 +908,9 @@ def get_advanced_stats():
         filepath = request.args.get('filepath')
         if filepath:
             if (try_refresh(user)):
-                response_data = user.stats.advanced_stats_import(filepath, "0ajzwwwmv2hwa3k1bj2z19obr")
+                response_data = user.stats.advanced_stats_import(filepath, user.spotify_user)
             else:
-                return "Failed to reauthenticate token"
+                response_data = user.stats.advanced_stats_import(filepath, user.spotify_user)
             #json_data = json.dumps(response_data, indent=4)
             response = Response(response_data, mimetype='application/json')
         else:
