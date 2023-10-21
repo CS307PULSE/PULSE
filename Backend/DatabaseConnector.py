@@ -109,11 +109,22 @@ class DatabaseConnector(object):
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
     
+    # Returns a user's advanced stats from DB as a JSON object
+    def get_advanced_stats_from_DB(self, spotify_id):
+        sql_get_advanced_stats_query = "SELECT advanced_stats from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        results = self.db_cursor.fetchone()
+        if (results[0] is None or results is [] or results is "[]"):
+            return None
+        self.resultset = json.loads(results[0])
+        if (self.resultset == []) or (self.resultset is None):
+            return None
+        return self.resultset
 
     # Returns the display name from DB as a string.
     def get_display_name_from_user_DB(self, spotify_id, data = None):
-        sql = "SELECT display_name from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
+        sql_get_display_name_query = "SELECT display_name from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_display_name_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
 
@@ -128,6 +139,13 @@ class DatabaseConnector(object):
         if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
+    
+    # Returns friends array from DB in the form of an array.
+    def get_friends_from_DB(self, spotify_id):
+        sql_get_friends_query = "SELECT friends from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_friends_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return create_friends_array_from_DB(self.resultset[0])
     
     # Returns game settings array from DB in the form of a 5x5 array.
     def get_game_settings_from_DB(self, spotify_id):
@@ -164,17 +182,7 @@ class DatabaseConnector(object):
             #file.write(image)
             return icon[0]
         """
-    # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
-    def get_followers_from_DB(self, spotify_id):
-        sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
-        results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results == "[]"):
-            return None
-        self.resultset = json.loads(results[0])
-        if (self.resultset == []) or (self.resultset is None):
-            return None
-        return self.resultset
+        
 
     # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
     def get_layout_from_DB(self, spotify_id):
@@ -244,6 +252,22 @@ class DatabaseConnector(object):
     #--------------------------------------------------------------------------------------------------------
     # Database storage/update 
 
+    # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, 0 if not.
+    def update_advanced_stats(self, spotify_id, new_advanced_stats):
+        try:
+            sql_update_advanced_stats_query = """UPDATE pulse.base_stats SET advanced_stats = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
     # Updates display_name (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_display_name(self, spotify_id, new_display_name):
         try:
@@ -277,11 +301,12 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
-    # Updates friends (expected array) in user DB. Returns 1 if successful, 0 if not.
-    def update_friends(self, spotify_id, new_friends):
+    # Updates friends in user DB. Expects spotify id and new friend spotify id to be added Returns 1 if successful, 0 if not.
+    def update_friends(self, spotify_id, new_friend_spotify_id):
+        master_friends_array_dict = self.get_friends_from_DB()
         try:
-            sql_update_token_query = """UPDATE pulse.users SET friends = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_token_query, (create_friends_string_for_DB(new_friends), spotify_id,))
+            sql_update_friends_query = """UPDATE pulse.users SET friends = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_friends_query, (create_friends_string_for_DB(update_friends(master_friends_array_dict, new_friend_spotify_id)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -561,6 +586,14 @@ def update_followers_dictionary(followers_dict, new_date, new_count):
     date_string = new_date.strftime("%Y-%m-%d %H:%M:%S")
     master_dict[date_string] = new_count
     return master_dict
+
+def update_friends(friends, new_friend):
+    if (friends is None):
+        master_friends = []
+    else:
+        master_friends = friends
+    master_friends.append(new_friend)
+    return master_friends
 
 #game = 0, 1, 2, 3, or 4 
 def update_new_score_and_delete_oldest(arr_3d, new_array, game):
