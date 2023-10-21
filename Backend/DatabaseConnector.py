@@ -162,7 +162,7 @@ class DatabaseConnector(object):
         return self.resultset[0]
     
     # Returns icon string from DB. Returns None if no icon exists, and a string if it does
-    def get_icon_from_DB(self, spotify_id, storage_loc):
+    def get_icon_from_DB(self, spotify_id):
         sql_fetch_icon_string_query = """SELECT icon from pulse.users where spotify_id = %s"""
         self.db_cursor.execute(sql_fetch_icon_string_query, (spotify_id,))
         icon = self.db_cursor.fetchone()
@@ -182,17 +182,17 @@ class DatabaseConnector(object):
             #file.write(image)
             return icon[0]
         """
-
+        
 
     # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
     def get_layout_from_DB(self, spotify_id):
         sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results is [(None,)] or results is "" or results[0] is None):
+        if (results is [(None,)] or results == "" or results[0] is None):
             return None
         self.resultset = results[0]
-        if (self.resultset is None or self.resultset is ""):
+        if (self.resultset is None or self.resultset == ""):
             return None
         
         return self.resultset

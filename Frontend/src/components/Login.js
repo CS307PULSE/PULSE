@@ -77,16 +77,6 @@ async function fetchDataLogin() {
   return data;
 }
 
-//Update follower data
-async function updateFollowers() {
-  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
-    withCredentials: true,
-  });
-  const data = response.data;
-  console.log(response);
-  return data;
-}
-
 function Login({ onLoginClick }) {
   const [isLoginURL, setIsLoginURL] = useState(" ");
   //check if rthe user is logged in
@@ -94,10 +84,10 @@ function Login({ onLoginClick }) {
 
   //get the link for loggin through Spotify
   useEffect(() => {
+    document.title = "PULSE - Login";
     fetchDataLogin().then((data) => {
       if (data !== null && data !== undefined) {
         setIsLoginURL(data);
-        updateFollowers();
       }
     });
   }, []);

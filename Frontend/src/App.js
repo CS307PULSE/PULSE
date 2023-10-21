@@ -10,6 +10,8 @@ import GuessTheLyric from "./components/GuessTheLyric";
 import Games from "./components/Games";
 import Mainpage from "./components/Mainpage";
 import StatisticsPage from "./components/StatisticsPage";
+import Uploader from "./components/Uploader";
+import Friends from "./components/Friends";
 
 import {
   Navigate,
@@ -19,6 +21,7 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 import DJMixer from "./components/DJMixer";
+import SongRecommendations from "./components/SongRecommendation";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
@@ -47,7 +50,7 @@ function App() {
   const handleLoginClick = () => {
     // Perform any login logic here if needed
     // For now, just set the state to true to indicate the button is clicked
-    
+
     setLoginClicked(true);
   };
   return (
@@ -71,7 +74,13 @@ function App() {
         <Route path="/Statistics" element={<StatisticsPage />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
-        <Route path="friends" />
+        <Route
+          path="/DJmixer/SongRecommendation"
+          element={<SongRecommendations />}
+        />
+        <Route path="/uploader" element={<Uploader />} />
+
+        <Route path="/friends" element={<Friends />} />
       </Routes>
     </Router>
   );
