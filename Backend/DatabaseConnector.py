@@ -147,6 +147,13 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return create_friends_array_from_DB(self.resultset[0])
     
+    # Returns friend requests array from DB in the form of an array.
+    def get_friend_requests_from_DB(self, spotify_id):
+        sql_get_friend_requests_query = "SELECT friend_requests from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_friend_requests_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return create_friends_array_from_DB(self.resultset[0])
+    
     # Returns game settings array from DB in the form of a 5x5 array.
     def get_game_settings_from_DB(self, spotify_id):
         sql_get_game_settings_query = "SELECT game_settings from pulse.users WHERE spotify_id = %s"
@@ -303,7 +310,7 @@ class DatabaseConnector(object):
     
     # Updates friends in user DB. Expects spotify id and new friend spotify id to be added Returns 1 if successful, 0 if not.
     def update_friends(self, spotify_id, new_friend_spotify_id):
-        master_friends_array_dict = self.get_friends_from_DB()
+        master_friends_array_dict = self.get_friends_from_DB(spotify_id)
         try:
             sql_update_friends_query = """UPDATE pulse.users SET friends = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_friends_query, (create_friends_string_for_DB(update_friends(master_friends_array_dict, new_friend_spotify_id)), spotify_id,))
@@ -315,6 +322,23 @@ class DatabaseConnector(object):
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating friends:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    # Updates friend requests in user DB. Expects spotify id and new friend request spotify id to be added Returns 1 if successful, 0 if not.
+    def update_friend_requests(self, spotify_id, new_friend_request_spotify_id):
+        master_friend_requests_array_dict = self.get_friend_requests_from_DB(spotify_id)
+        try:
+            sql_update_friend_requests_query = """UPDATE pulse.users SET friend_requests = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_friend_requests_query, (create_friends_string_for_DB(update_friends(master_friend_requests_array_dict, new_friend_request_spotify_id)), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating friend requests:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
