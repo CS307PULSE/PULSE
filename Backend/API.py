@@ -920,9 +920,10 @@ def get_gender():
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
     if 'user' in session:
+        data = request.get_json()
+        filepath = data.get('filepath')
         user_data = session['user']
         user = User.from_json(user_data) 
-        filepath = request.args.get('filepath')
         if filepath:
             if (try_refresh(user)):
                 try: 
