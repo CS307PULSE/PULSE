@@ -5,6 +5,7 @@ import User
 import json
 from Exceptions import ErrorHandler
 from datetime import datetime
+import requests
 import pytz
 
 class Stats:
@@ -23,6 +24,8 @@ class Stats:
         self.saved_songs = saved_songs                  # Array of type Track
         self.saved_albums = saved_albums                # Array of type Album
         self.saved_playlists = saved_playlists          # Array of type Playlists
+        
+        self.hit_rate_limit = False
     
 
     # A mapping of Spotify country codes to time zones
@@ -267,9 +270,24 @@ class Stats:
         'ZW': 'Africa/Harare',
     }
 
-    def advanced_stats_import(self, filepath, sp):
+    def advanced_stats_import(self, filepath, token, more_data=False):
+        SONG_URIS = []
+        EPISODE_URIS = []
 
-        SONGS_TO_API_DATA_MAP = {}
+        with open(filepath, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+                
+            for stream in data:
+                try:
+                    song_uri = stream.get("spotify_track_uri", "")                          
+                    episode_uri = stream.get("spotify_episode_uri", "")
+                    SONG_URIS.append(song_uri)
+                    EPISODE_URIS.append(episode_uri)
+                except Exception as e:
+                    print(f"Exception {e}")
+    
+        SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_URIS)), token=token, more_data=more_data)
+        EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_URIS)), token=token, more_data=more_data)
 
         ADVANCED_STATS_DATA = {
             "Number of Streams"                 :   0,
@@ -305,12 +323,11 @@ class Stats:
 
                     if song_uri is not None:
                         track_uri = song_uri
+                        track_data = SONGS_TO_API_DATA_MAP.get(track_uri, {})
                         track_name = song_name
-                    else:
-                        if track_uri is not None:
-                            track_uri = episode_uri
-                        else:
-                            track_uri = "Unknown"
+                    elif episode_uri is not None:
+                        track_uri = episode_uri
+                        track_data = EPISODES_TO_API_DATA_MAP.get(track_uri, {})
                         if show_name is not None and episode_name is not None:
                             track_name = f"{show_name}:{episode_name}"
                         elif show_name is not None:
@@ -319,51 +336,17 @@ class Stats:
                             track_name = episode_name
                         else:
                             track_name = "Unknown"
+                    else:
+                        track_uri = "Unknown"
+                        track_data = SONGS_TO_API_DATA_MAP.get(track_uri, {})
+                        track_name = "Unknown"
 
-                    if track_uri not in SONGS_TO_API_DATA_MAP:
-                        SONGS_TO_API_DATA_MAP[track_uri] = {
-                            "ms_track_length"                   :   0,
-                            "track_link"                        :   "",
-                            "artists"                           :   [],
-                            "album_uri"                         :   "",
-                            "album_name"                        :   "",
-                            "album_link"                        :   ""
-                        }
-                        
-                        try:
-                            # Get track information
-                            track_data = sp.track(track_uri)
-
-                            ms_track_length = track_data['duration_ms']
-                            track_link = track_data['external_urls']['spotify']
-
-                            artists = []
-                            for artist in track_data['artists']:
-                                artist_uri = artist['uri']
-                                artist_name = artist['name']
-                                artist_link = artist['external_urls']['spotify']
-                                artists.append([artist_uri, artist_name, artist_link])
-
-                            album_uri = track_data['album']['uri']
-                            album_name = track_data['album']['name']
-                            album_link = track_data['album']['external_urls']['spotify']
-
-                            SONGS_TO_API_DATA_MAP[track_uri]["ms_track_length"] = ms_track_length
-                            SONGS_TO_API_DATA_MAP[track_uri]["track_link"] = track_link
-                            SONGS_TO_API_DATA_MAP[track_uri]["artists"] = artists
-                            SONGS_TO_API_DATA_MAP[track_uri]["album_uri"] = album_uri
-                            SONGS_TO_API_DATA_MAP[track_uri]["album_name"] = album_name
-                            SONGS_TO_API_DATA_MAP[track_uri]["album_link"] = album_link
-                        except Exception as ex:
-                            pass
-
-                    
-                    ms_track_length = SONGS_TO_API_DATA_MAP[track_uri]["ms_track_length"]
-                    track_link = SONGS_TO_API_DATA_MAP[track_uri]["track_link"]
-                    artists = SONGS_TO_API_DATA_MAP[track_uri]["artists"]
-                    album_uri = SONGS_TO_API_DATA_MAP[track_uri]["album_uri"]
-                    album_name = SONGS_TO_API_DATA_MAP[track_uri]["album_name"]
-                    album_link = SONGS_TO_API_DATA_MAP[track_uri]["album_link"]
+                    ms_track_length = track_data.get("ms_track_length", 300000)
+                    track_link = track_data.get("track_link", "")
+                    artists = track_data.get("artists", [["","",""]])
+                    album_uri = track_data.get("album_uri", "")
+                    album_name = track_data.get("album_name", "")
+                    album_link = track_data.get("album_link", "")
 
                     if ms_played > ms_track_length:
                         ms_played = ms_track_length # Weird glitch with stats
@@ -604,7 +587,7 @@ class Stats:
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][2] *= (100 / sum_of_breakdowns)
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][3] *= (100 / sum_of_breakdowns)
 
-        return json.dumps(ADVANCED_STATS_DATA, indent=4)  # Return a nicely formatted JSON string
+        return ADVANCED_STATS_DATA
 
     def get_time_of_day_index(self, time_stamp, timecode):
         country = self.country_timezone_mapping.get(timecode, "America/New York")
@@ -764,73 +747,140 @@ class Stats:
                 "Albums"                            :   {}
             }
         }
+    
+    def populate_song_data_map(self, uris, token, more_data):
+        SONGS_TO_API_DATA_MAP = {}
 
-    def advanced_stats_import_test(self, filepath):
-        song_data = {}  # Dictionary to store song data
+        if not more_data:
+            return SONGS_TO_API_DATA_MAP
+        
+        chunk_size = 50
+        uri_chunks = [uris[i:i + chunk_size] for i in range(0, len(uris), chunk_size)]
 
-        with open(filepath, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-                
-            for stream in data:
-                try:
-                    track_name = stream.get("master_metadata_track_name", "")               # Name of track
-                    artist_name = stream.get("master_metadata_album_artist_name", "")       # Name of artist
-                    album_name = stream.get("master_metadata_album_album_name", "")         # Name of album
-                    track_uri = stream.get("spotify_track_uri", "")                         # A Spotify URI, uniquely identifying the track in the form of “spotify:track:<base-62 string>”
-                    ms_played = stream.get("ms_played", 0)                                  # Millisonds stream was played
-                    #No longer use: reason_start = stream.get("reason_start", "")                           # "trackend" reason song was started
-                    #No longer use: reason_end = stream.get("reason_end", "")                               # "endplay" reason song was ended
-                    country = stream.get("conn_country", "")                                # "SE" country code where user played stream
-                    time_stamp = stream.get("ts", "")                                       # "YYY-MM-DD 13:30:30" military time with UTC timestamp
-                    #No longer use: platform = stream.get("platform", "")                                   # "Android OS", "Google Chromecast"
-                    #No longer use: did_shuffle = stream.get("shuffle", False)                              # Boolean for if shuffle was on while streaming
-                    did_skip = stream.get("skipped", False)                                 # Boolean indicating if user skipped to next track
-                    episode_name = stream.get("episode_name", "")                           # Name of episode of podcast
-                    show_name = stream.get("episode_show_name", "")                         # Name of show of podcast
-                    episode_uri = stream.get("spotify_episode_uri", "")                     # A Spotify Episode URI, uniquely identifying the podcast episode in the form of “spotify:episode:<base-62 string>”
+        for chunk in uri_chunks:
+            try:
+                song_data = self.get_song_data(chunk, token)
 
-                    if track_name is not None:
-                        if track_name not in song_data:
-                            song_data[track_name] = {
-                                "artist_name": artist_name,
-                                "album_name": album_name,
-                                "track_uri": track_uri,
-                                "ms_played": ms_played,
-                                "country": country,
-                                "time_stamp": time_stamp,
-                                "did_skip": did_skip,
-                                "episode_name": episode_name,
-                                "show_name": show_name,
-                                "episode_uri": episode_uri
-                            }
-                        else:
-                            song_data[track_name]["ms_played"] += ms_played
-                    else:
-                        if episode_name not in song_data:
-                            song_data[episode_name] = {
-                                "artist_name": artist_name,
-                                "album_name": album_name,
-                                "track_uri": track_uri,
-                                "ms_played": ms_played,
-                                "country": country,
-                                "time_stamp": time_stamp,
-                                "did_skip": did_skip,
-                                "episode_name": episode_name,
-                                "show_name": show_name,
-                                "episode_uri": episode_uri
-                            }
-                        else:
-                            song_data[episode_name]["ms_played"] += ms_played
-                except json.JSONDecodeError:
-                    pass
+                for song in song_data:
+                    uri = song.get('uri', "Unknown")
+                    if uri not in SONGS_TO_API_DATA_MAP:
+                        SONGS_TO_API_DATA_MAP[uri] = {
+                            "ms_track_length"                   :   300000,
+                            "track_link"                        :   "",
+                            "artists"                           :   [["","",""]],
+                            "album_uri"                         :   "",
+                            "album_name"                        :   "",
+                            "album_link"                        :   ""
+                        }
 
-        # Prepare the JSON response
-        response_data = {
-            "total_songs": len(song_data),
-            "songs": song_data
+                    ms_track_length = song.get('duration_ms', 300000)
+                    track_link = song.get('external_urls', {}).get('spotify', "")
+
+                    artists = []
+                    for artist in song.get('artists', [{}]):
+                        artist_uri = artist.get('uri', "")
+                        artist_name = artist.get('name', "")
+                        artist_link = artist.get('external_urls', {}).get('spotify', "")
+                        artists.append([artist_uri, artist_name, artist_link])
+
+                    album_uri = song.get('album', {}).get('uri', "")
+                    album_name = song.get('album', {}).get('name', "")
+                    album_link = song.get('album', {}).get('external_urls', {}).get('spotify', "")
+
+                    SONGS_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length
+                    SONGS_TO_API_DATA_MAP[uri]["track_link"] = track_link
+                    SONGS_TO_API_DATA_MAP[uri]["artists"] = artists
+                    SONGS_TO_API_DATA_MAP[uri]["album_uri"] = album_uri
+                    SONGS_TO_API_DATA_MAP[uri]["album_name"] = album_name
+                    SONGS_TO_API_DATA_MAP[uri]["album_link"] = album_link
+            except Exception as ex:
+                print(f"Exception {ex}")
+                pass
+        
+        return SONGS_TO_API_DATA_MAP
+
+    def populate_episode_data_map(self, uris, token, more_data):
+        EPISODES_TO_API_DATA_MAP = {}
+
+        if not more_data:
+            return EPISODES_TO_API_DATA_MAP
+        
+        chunk_size = 50
+        uri_chunks = [uris[i:i + chunk_size] for i in range(0, len(uris), chunk_size)]
+
+        for chunk in uri_chunks:
+            try:
+                episode_data = self.get_episode_data(chunk, token)
+
+                for episode in episode_data:
+                    uri = episode.get('uri', "Unknown")
+                    if uri not in EPISODES_TO_API_DATA_MAP:
+                        EPISODES_TO_API_DATA_MAP[uri] = {
+                            "ms_track_length"                   :   300000,
+                            "track_link"                        :   "",
+                            "artists"                           :   [["","",""]],
+                            "album_uri"                         :   "",
+                            "album_name"                        :   "",
+                            "album_link"                        :   ""
+                        }
+
+                    ms_track_length = episode.get('audio_preview_url', 60000*60)
+                    track_link = episode.get('external_urls', {}).get('spotify', "")
+
+
+                    EPISODES_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length
+                    EPISODES_TO_API_DATA_MAP[uri]["track_link"] = track_link
+            except Exception as ex:
+                print(f"Exception {ex}")
+                pass
+        
+        return EPISODES_TO_API_DATA_MAP
+
+    def get_song_data(self, chunk, access_token):
+        ids_param = ",".join(chunk)
+        url = f'https://api.spotify.com/v1/tracks?ids={ids_param}'
+        
+        headers = {
+            'Authorization': f'Bearer {access_token}'
         }
 
-        return json.dumps(response_data, indent=4)  # Return a nicely formatted JSON string
+        return self.get_track_info_with_retry(url, headers)
+
+    def get_episode_data(self, chunk, access_token):
+        ids_param = ",".join(chunk)
+        url = f'https://api.spotify.com/v1/episodes?ids={ids_param}'
+        
+        headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        return self.get_track_info_with_retry(url, headers)
+
+    def get_track_info_with_retry(self, url, headers, max_retries=3):
+        if self.hit_rate_limit:
+            return {}
+
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(url, headers=headers)
+                response.raise_for_status()  # Check for HTTP errors
+                track_data = response.json()
+                return track_data
+            except requests.exceptions.RequestException as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                if response.status_code == 429:
+                    # If rate-limited, wait and retry
+                    retry_after = int(response.headers.get('Retry-After', 1))
+                    if retry_after > 30:
+                        print(f"{retry_after} seconds is too long! Giving up!")
+                        self.hit_rate_limit = True
+                    print(f"Waiting {retry_after} seconds!")
+                    time.sleep(retry_after)
+                else:
+                    break
+
+        print("Max retries reached. Could not fetch track data.")
+        return None
 
 
 

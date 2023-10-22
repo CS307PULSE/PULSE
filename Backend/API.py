@@ -920,15 +920,18 @@ def get_gender():
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
     if 'user' in session:
-        data = request.get_json()
-        filepath = data.get('filepath')
+        #data = request.get_json()
+        #filepath = data.get('filepath')
+        filepath = "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json"
         user_data = session['user']
         user = User.from_json(user_data) 
         if filepath:
             if (try_refresh(user)):
                 try: 
-                    response_data = user.stats.advanced_stats_import(filepath, user.spotify_user)
+                    response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=False)
+                    #return jsonify(json.loads(json.dumps(response_data)))
                 except Exception as e:
+                    print(e)
                     error_message = "Invalid file information!"
                     return make_response(jsonify({'error': error_message}), 6969)
                 with DatabaseConnector(db_config) as conn:
@@ -973,9 +976,12 @@ def api_import_advanced_stats_one_file():
         filepath = request.args.get('filepath')
         if filepath:
             if (try_refresh(user)):
-                response_data = user.stats.advanced_stats_import(filepath, user.spotify_user)
+                user = User.from_json(session['user'])
+                response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
+                response_data = json.dumps(response_data, indent=4)
             else:
-                response_data = user.stats.advanced_stats_import(filepath, user.spotify_user)
+                response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
+                response_data = json.dumps(response_data, indent=4)
             #json_data = json.dumps(response_data, indent=4)
             response = Response(response_data, mimetype='application/json')
         else:
@@ -1078,7 +1084,7 @@ def update_data(user,
         else:
             if (retries > max_retries):
                 raise Exception
-            return update_data(retries=retries+1)
+            return update_data(user, retries=retries+1)
 
 def try_refresh(user, e=None):
     if (e is not None): print(f"An unexpected error occurred: {e}")
@@ -1090,6 +1096,8 @@ def try_refresh(user, e=None):
                         client_secret=client_secret, 
                         redirect_uri=redirect_uri, 
                         scope=scope)
+            
+            if not sp_oauth.is_token_expired(user.login_token): return True
 
             user.refresh_access_token(sp_oauth)
 
