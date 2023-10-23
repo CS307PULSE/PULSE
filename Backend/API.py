@@ -928,8 +928,7 @@ def import_advanced_stats():
         if filepath:
             if (try_refresh(user)):
                 try: 
-                    response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=False)
-                    #return jsonify(json.loads(json.dumps(response_data)))
+                    response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
                 except Exception as e:
                     print(e)
                     error_message = "Invalid file information!"

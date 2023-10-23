@@ -271,8 +271,8 @@ class Stats:
     }
 
     def advanced_stats_import(self, filepath, token, more_data=False):
-        SONG_URIS = []
-        EPISODE_URIS = []
+        SONG_IDS = []
+        EPISODE_IDS = []
 
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -281,13 +281,15 @@ class Stats:
                 try:
                     song_uri = stream.get("spotify_track_uri", "")                          
                     episode_uri = stream.get("spotify_episode_uri", "")
-                    SONG_URIS.append(song_uri)
-                    EPISODE_URIS.append(episode_uri)
+                    if song_uri is not None:
+                        SONG_IDS.append(song_uri.split(":")[-1])
+                    if episode_uri is not None:
+                        EPISODE_IDS.append(episode_uri.split(":")[-1])
                 except Exception as e:
                     print(f"Exception {e}")
     
-        SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_URIS)), token=token, more_data=more_data)
-        EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_URIS)), token=token, more_data=more_data)
+        SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_IDS)), token=token, more_data=more_data)
+        EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_IDS)), token=token, more_data=more_data)
 
         ADVANCED_STATS_DATA = {
             "Number of Streams"                 :   0,
@@ -759,9 +761,10 @@ class Stats:
 
         for chunk in uri_chunks:
             try:
-                song_data = self.get_song_data(chunk, token)
+                song_data = self.get_song_data(chunk, token).get('tracks', {})
 
                 for song in song_data:
+                    if song is None: song = {}
                     uri = song.get('uri', "Unknown")
                     if uri not in SONGS_TO_API_DATA_MAP:
                         SONGS_TO_API_DATA_MAP[uri] = {
@@ -772,7 +775,7 @@ class Stats:
                             "album_name"                        :   "",
                             "album_link"                        :   ""
                         }
-
+                    
                     ms_track_length = song.get('duration_ms', 300000)
                     track_link = song.get('external_urls', {}).get('spotify', "")
 
@@ -787,14 +790,20 @@ class Stats:
                     album_name = song.get('album', {}).get('name', "")
                     album_link = song.get('album', {}).get('external_urls', {}).get('spotify', "")
 
-                    SONGS_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length
+                    try:
+                        ms_track_length_int = int(ms_track_length)
+                        SONGS_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length_int
+                    except Exception as e:
+                        print(e)
+
                     SONGS_TO_API_DATA_MAP[uri]["track_link"] = track_link
                     SONGS_TO_API_DATA_MAP[uri]["artists"] = artists
                     SONGS_TO_API_DATA_MAP[uri]["album_uri"] = album_uri
                     SONGS_TO_API_DATA_MAP[uri]["album_name"] = album_name
                     SONGS_TO_API_DATA_MAP[uri]["album_link"] = album_link
+                    
             except Exception as ex:
-                print(f"Exception {ex}")
+                print(f"Exception in populating song map: {ex}")
                 pass
         
         return SONGS_TO_API_DATA_MAP
@@ -810,13 +819,14 @@ class Stats:
 
         for chunk in uri_chunks:
             try:
-                episode_data = self.get_episode_data(chunk, token)
+                episode_data = self.get_episode_data(chunk, token).get('episodes', {})
 
                 for episode in episode_data:
+                    if episode is None: episode = {}
                     uri = episode.get('uri', "Unknown")
                     if uri not in EPISODES_TO_API_DATA_MAP:
                         EPISODES_TO_API_DATA_MAP[uri] = {
-                            "ms_track_length"                   :   300000,
+                            "ms_track_length"                   :   60000*60,
                             "track_link"                        :   "",
                             "artists"                           :   [["","",""]],
                             "album_uri"                         :   "",
@@ -824,14 +834,18 @@ class Stats:
                             "album_link"                        :   ""
                         }
 
-                    ms_track_length = episode.get('audio_preview_url', 60000*60)
+                    ms_track_length = episode.get('duration_ms', 60000*60)
                     track_link = episode.get('external_urls', {}).get('spotify', "")
 
+                    try:
+                        ms_track_length_int = int(ms_track_length)
+                        EPISODES_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length_int
+                    except Exception as e:
+                        print(e)
 
-                    EPISODES_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length
                     EPISODES_TO_API_DATA_MAP[uri]["track_link"] = track_link
             except Exception as ex:
-                print(f"Exception {ex}")
+                print(f"Exception in populating episode map: {ex}")
                 pass
         
         return EPISODES_TO_API_DATA_MAP
@@ -844,7 +858,11 @@ class Stats:
             'Authorization': f'Bearer {access_token}'
         }
 
-        return self.get_track_info_with_retry(url, headers)
+        data = self.get_track_info_with_retry(url, headers)
+        if data is not None:
+            return data
+        
+        return {'tracks' : [{'uri': key} for key in chunk]}
 
     def get_episode_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
@@ -854,11 +872,15 @@ class Stats:
             'Authorization': f'Bearer {access_token}'
         }
 
-        return self.get_track_info_with_retry(url, headers)
+        data = self.get_track_info_with_retry(url, headers)
+        if data is not None:
+            return data
+    
+        return {'episodes' : [{'uri': key} for key in chunk]}
 
     def get_track_info_with_retry(self, url, headers, max_retries=3):
         if self.hit_rate_limit:
-            return {}
+            return None
 
         for attempt in range(max_retries):
             try:
@@ -872,8 +894,9 @@ class Stats:
                     # If rate-limited, wait and retry
                     retry_after = int(response.headers.get('Retry-After', 1))
                     if retry_after > 30:
-                        print(f"{retry_after} seconds is too long! Giving up!")
+                        print(f"{retry_after/60} minutes is too long! Giving up!")
                         self.hit_rate_limit = True
+                        return None
                     print(f"Waiting {retry_after} seconds!")
                     time.sleep(retry_after)
                 else:
