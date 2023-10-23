@@ -5,7 +5,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   //Use states for data to be read from when generating new graph container
   const [graphName, setGraphName] = useState("");
   const [data, setData] = useState("bar1");
-  const [graphType, setGraph] = useState("bar");
+  const [graphType, setGraph] = useState("Bar");
   const [theme, setTheme] = useState("dark");
   const [validName, setValidName] = useState(false);
 
@@ -79,7 +79,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   };
 
   const changeGraph = (e) => {
-    setGraph("TopGraph");
+    setGraph(e.target.value);
   };
 
   const changeTheme = (e) => {
@@ -133,6 +133,15 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             />
           </div>
           <div>
+            Graph Type:{" "}
+            <select name="graphType" value={graphType} onChange={changeGraph}>
+              <option value="TopGraph"> Images</option>
+              <option value="Bar">Bar</option>
+              <option value="Line">Line</option>
+              <option value="Pie">Pie</option>
+            </select>
+          </div>
+          <div>
             Data:{" "}
             <select name="data" value={data} onChange={changeData}>
               <option value="bar1">Bar1</option>
@@ -160,21 +169,6 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             </select>
           </div>
           <div>
-            Graph Type:{" "}
-            <select name="graphType" value={graphType} onChange={changeGraph}>
-              <option value="TopGraph" disabled={!noneData}></option>
-              <option value="Bar" disabled={!barData}>
-                Bar
-              </option>
-              <option value="Line" disabled={!lineData}>
-                Line
-              </option>
-              <option value="Pie" disabled={!pieData}>
-                Pie
-              </option>
-            </select>
-          </div>
-          <div>
             Theme:{" "}
             <select
               name="graphTheme"
@@ -186,6 +180,17 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               <option value="dark2">Dark2</option>
               <option value="spectral">Spectral</option>
               <option value="category10">Category10</option>
+            </select>
+          </div>
+          <div>
+            Legend Enabled:
+            <input name="legendEnabled" type="checkbox" disabled={noneData} />
+          </div>
+          <div>
+            Link Click Action:{" "}
+            <select name="clickAction" disabled={!noneData}>
+              <option value="playMusic">Play Music</option>
+              <option value="spotifyPage">Link to Spotify Page</option>
             </select>
           </div>
           <div>
