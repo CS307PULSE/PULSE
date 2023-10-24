@@ -991,41 +991,9 @@ def api_import_advanced_stats_one_file():
     
     return response
 
-@app.route('/api_only/advanced_stats_test')
+@app.route('/advanced_stats_test')
 def api_advanced_stats_test():
     return
-
-def print_data(data):
-    # Convert the JSON data back to a Python dictionary
-    parsed_data = json.loads(data)
-
-    sorted_songs = sorted(parsed_data["songs"].items(), key=lambda x: x[1]["ms_played"], reverse=True)
-
-    # Create an HTML table to display all the data fields
-    table = "<table border='1'><tr><th>Track Name</th><th>Artist</th><th>Album</th><th>Play Time (minutes)</th><th>Start Reason</th><th>End Reason</th><th>Country</th><th>Timestamp</th><th>Platform</th><th>Shuffle</th><th>Skip</th><th>URI</th><th>Episode Name</th><th>Show Name</th><th>Episode URI</th></tr>"
-
-    for track_name, details in sorted_songs:
-        artist_name = details["artist_name"]
-        album_name = details["album_name"]
-        play_time_minutes = details["ms_played"] / 1000 / 60  # Convert milliseconds to minutes
-        reason_start = details["reason_start"]
-        reason_end = details["reason_end"]
-        country = details["country"]
-        time_stamp = details["time_stamp"]
-        platform = details["platform"]
-        did_shuffle = details["did_shuffle"]
-        did_skip = details["did_skip"]
-        uri = details["track_uri"]
-        episode_name = details["episode_name"]
-        show_name = details["show_name"]
-        episode_uri = details["episode_uri"]
-
-        row = f"<tr><td>{track_name}</td><td>{artist_name}</td><td>{album_name}</td><td>{play_time_minutes:.2f}</td><td>{reason_start}</td><td>{reason_end}</td><td>{country}</td><td>{time_stamp}</td><td>{platform}</td><td>{did_shuffle}</td><td>{did_skip}</td><td>{uri}</td><td>{episode_name}</td><td>{show_name}</td><td>{episode_uri}</td></tr>"
-        table += row
-
-    table += "</table>"
-
-    return table
 
 @app.route('/test')
 def test():
