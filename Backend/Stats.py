@@ -298,6 +298,8 @@ class Stats:
                     "Dates Covered"                 :   {},
                     "Files"                         :   {}
                 },
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
@@ -745,6 +747,11 @@ class Stats:
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][2] *= (100 / sum_of_breakdowns)
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][3] *= (100 / sum_of_breakdowns)
 
+        # Update number of unique tracks and artists
+        ADVANCED_STATS_DATA["Number of Unique Tracks"] = len(ADVANCED_STATS_DATA["Tracks"].keys())
+        ADVANCED_STATS_DATA["Number of Unique Artists"] = len(ADVANCED_STATS_DATA["Artists"].keys())
+
+        # Update metadata
         ADVANCED_STATS_DATA['Metadata'] = self.update_metadata(ADVANCED_STATS_DATA['Metadata'], max_stamp_curr=max_stamp, min_stamp_curr=min_stamp)
         return ADVANCED_STATS_DATA
 
