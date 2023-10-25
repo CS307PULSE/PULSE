@@ -309,6 +309,28 @@ class Stats:
                 "Eras"                              :   {},
                 "Yearly"                            :   {}
             }
+        
+        else:
+            # De-normalize Time of Day Breakdown to be in units of ms
+            ms_weight = ADVANCED_STATS_DATA["Number of Minutes"] * 60 * 1000 / 100
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][0] *= ms_weight
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][1] *= ms_weight
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][2] *= ms_weight
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][3] *= ms_weight
+        
+            for year in ADVANCED_STATS_DATA["Yearly"]:
+                ms_weight = ADVANCED_STATS_DATA["Yearly"][year]["Number of Minutes"] * 60 * 1000 / 100
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][0] *= ms_weight
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][1] *= ms_weight
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][2] *= ms_weight
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][3] *= ms_weight
+
+                for month in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"]:
+                    ms_weight = ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Minutes"] * 60 * 1000 / 100
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][0] *= ms_weight
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][1] *= ms_weight
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][2] *= ms_weight
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][3] *= ms_weight
 
         try:
             ADVANCED_STATS_DATA["Metadata"] = self.populate_metadata(filepath=filepath, DATA=ADVANCED_STATS_DATA["Metadata"])

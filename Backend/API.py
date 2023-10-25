@@ -919,33 +919,77 @@ def get_gender():
 
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
+    from datetime import datetime, timedelta
+    start_time = datetime.now()
     if 'user' in session:
         #data = request.get_json()
         #filepath = data.get('filepath')
-        filepath = "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json"
+        filepaths = ["C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_15.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_14.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2022-2023_13.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2022_12.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2022_11.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021-2022_10.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021_9.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021_8.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021_7.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020-2021_6.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_5.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_4.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_3.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019-2020_2.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019_1.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2018-2019_0.json",
+                     ]
         user_data = session['user']
-        user = User.from_json(user_data) 
-        if filepath:
-            if (try_refresh(user)):
+        user = User.from_json(user_data)
+    
+        # Refresh token
+        if not try_refresh(user):
+            error_message = "Failed to reauthenticate token"
+            return make_response(jsonify({'error': error_message}), 10)
+    
+        # Get data from DB
+        # with DatabaseConnector(db_config) as conn:
+        #  DATA = conn.get_advanced_stats_from_DB(user.spotify_id)
+        DATA = None
+
+        for filepath in filepaths: 
+            if filepath:
                 try: 
-                    response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
+                    DATA = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True, ADVANCED_STATS_DATA=DATA)
                 except Exception as e:
                     print(e)
-                    error_message = "Invalid file information!"
-                    return make_response(jsonify({'error': error_message}), 6969)
-                with DatabaseConnector(db_config) as conn:
-                    if (conn.update_advanced_stats(user.spotify_id, response_data) == 0):
-                        error_message = "Advanced stats has not been stored!"
-                        return make_response(jsonify({'error': error_message}), 6969)
-                response_data = "File imported!"
+                    error_message = f"Invalid file information for file {filepath}!"
+                    return make_response(jsonify({'error': error_message}), 6969)        
             else:
-                response_data = "Failed to reauthenticate token"         
-        else:
-            error_message = "Invalid filepath argument!"
-            return make_response(jsonify({'error': error_message}), 40)
+                error_message = f"Invalid filepath for filepath: {filepath}!"
+                return make_response(jsonify({'error': error_message}), 40)
+            time.sleep(5)
+    
+        # Store in DB
+        end_time = datetime.now()
+        time_elapsed = end_time - start_time
+        minutes = time_elapsed.total_seconds() / 60
+        DATA["TIME"] = minutes
+        # Open a file for writing
+        with open("advanced_stats_output.json", "w") as json_file:
+            json.dump(DATA, json_file, indent=4)
+
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_advanced_stats(user.spotify_id, DATA) == 0):
+                error_message = "Advanced stats has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        end_time = datetime.now()
+        time_elapsed = end_time - start_time
+        minutes = time_elapsed.total_seconds() / 60
+        response_data = f"File imported in {minutes} minutes!"
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+
     return jsonify(response_data)
 
 @app.route('/get_advanced_stats')
@@ -960,12 +1004,24 @@ def get_advanced_stats():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/api_only/get_advanced_stats_db')
+def api_only_get_advanced_stats():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return Response(json.dumps(response_data, indent=4), mimetype='application/json')
+
 @app.route('/api_only/import_advanced_stats_multiple_files')
 def api_import_advanced_stats_multiple_files():
     return
 
-@app.route('/api_only/import_advanced_stats_one_file')
-def api_import_advanced_stats_one_file():
+@app.route('/api_only/get_advanced_stats')
+def api_import_get_advanced_stats():
     if 'user' in session:
         with DatabaseConnector(db_config) as conn:
             user_exists = conn.does_user_exist_in_user_DB("0ajzwwwmv2hwa3k1bj2z19obr")
