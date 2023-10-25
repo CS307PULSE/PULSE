@@ -298,11 +298,11 @@ class Stats:
                     "Dates Covered"                 :   {},
                     "Files"                         :   {}
                 },
-                "Number of Unique Tracks"           :   0,
-                "Number of Unique Artists"          :   0,
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -517,6 +517,8 @@ class Stats:
                             "Number of Streams"                 :   0,
                             "Number of Minutes"                 :   0,
                             "Average Percentage of Streams"     :   0,
+                            "Number of Unique Tracks"           :   0,
+                            "Number of Unique Artists"          :   0,
                             "Time of Day Breakdown"             :   [0, 0, 0, 0],
                             "Tracks"                            :   {},
                             "Artists"                           :   {},
@@ -750,6 +752,12 @@ class Stats:
         # Update number of unique tracks and artists
         ADVANCED_STATS_DATA["Number of Unique Tracks"] = len(ADVANCED_STATS_DATA["Tracks"].keys())
         ADVANCED_STATS_DATA["Number of Unique Artists"] = len(ADVANCED_STATS_DATA["Artists"].keys())
+        for year in ADVANCED_STATS_DATA["Yearly"]:
+            ADVANCED_STATS_DATA["Yearly"][year]["Number of Unique Tracks"] = len(ADVANCED_STATS_DATA["Yearly"][year]["Tracks"].keys())
+            ADVANCED_STATS_DATA["Yearly"][year]["Number of Unique Artists"] = len(ADVANCED_STATS_DATA["Yearly"][year]["Artists"].keys())
+            for month in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"]:
+                ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Unique Tracks"] = len(ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"].keys())
+                ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Unique Artists"] = len(ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"].keys())
 
         # Update metadata
         ADVANCED_STATS_DATA['Metadata'] = self.update_metadata(ADVANCED_STATS_DATA['Metadata'], max_stamp_curr=max_stamp, min_stamp_curr=min_stamp)
@@ -892,6 +900,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -903,6 +913,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -914,6 +926,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -925,6 +939,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -936,6 +952,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -947,6 +965,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -958,6 +978,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -969,6 +991,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -980,6 +1004,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -991,6 +1017,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -1002,6 +1030,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -1013,6 +1043,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
