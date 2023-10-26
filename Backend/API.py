@@ -955,10 +955,16 @@ def import_advanced_stats():
         #  DATA = conn.get_advanced_stats_from_DB(user.spotify_id)
         DATA = None
 
+        time.sleep(30)
         for filepath in filepaths: 
+            time.sleep(5)
             if filepath:
                 try: 
-                    DATA = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True, ADVANCED_STATS_DATA=DATA)
+                    DATA = user.stats.advanced_stats_import(filepath=filepath, 
+                                                            token=user.login_token['access_token'], 
+                                                            more_data=True, 
+                                                            ADVANCED_STATS_DATA=DATA,
+                                                            include_podcasts=True)
                 except Exception as e:
                     print(e)
                     error_message = f"Invalid file information for file {filepath}!"
@@ -966,7 +972,6 @@ def import_advanced_stats():
             else:
                 error_message = f"Invalid filepath for filepath: {filepath}!"
                 return make_response(jsonify({'error': error_message}), 40)
-            time.sleep(5)
     
         # Store in DB
         end_time = datetime.now()
@@ -1049,7 +1054,135 @@ def api_import_get_advanced_stats():
 
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
-    return
+    if 'user' in session:
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_user_DB("0ajzwwwmv2hwa3k1bj2z19obr")
+            if user_exists:
+                user = conn.get_user_from_user_DB(spotify_id="0ajzwwwmv2hwa3k1bj2z19obr")
+                session['user'] = user.to_json()
+        if (try_refresh(user)):
+                user = User.from_json(session['user'])
+
+        song_ids = ['4RvWPyQ5RL0ao9LPZeSouE', '70LcF31zb1H0PyJoS1Sx1r', '7w87IxuO7BDcJ3YUqCyMTT', '5ghIJDpPoe3CfHMGu71E6T', '58ge6dfP91o9oXMzq3XkIS', '7hQJA50XrCWABAu5v6QZ4i', '7H0ya83CMmgFcOhw0UB6ow', '63T7DJ1AFDD6Bn8VzG6JE8', '2QjOHCTQ1Jl3zawyYOpxh6', '5FVd6KXrgO9B3JPmC8OPst', '5UWwZ5lm5PKu6eKsHAGxOk', '0d28khcov6AiegSCpG5TuT', '6K4t31amVTZDgR3sKmwUJJ', '003vvx7Niy0yvhvHt4a68B', '0pqnGHJpmpxLKifKRmU6WP', '5XeFesFbtLpXzIVDNQP22n', '086myS9r57YsLbJpU0TgK9', '3USxtqRwSYz57Ewm6wWRMp', '2tznHmp70DxMyr2XhWLOW0', '40riOy7x9W7GXjyGp4pjAv', '6SpLc7EXZIPpy0sVko0aoU', '4bHsxqR3GMrXTxEPLuK5ue', '1CS7Sd1u5tWkstBhpssyjP', '7snQQk1zcKl8gZ92AnueZW', '2K7xn816oNHJZ0aVqdQsha', '3dPQuX8Gs42Y7b454ybpMR', '4BP3uh0hFLFRb5cjsgLqDh', '2374M0fQpWi3dLnB54qaLX', '2TfSHkHiFO4gRztVIkggkE', '57bgtoPSgt236HzfBOd8kj', '3JvrhDOgAt6p7K8mDyZwRd', '5e9TFTbltYBg2xThimr0rU', '6GG73Jik4jUlQCkKg9JuGO', '2LawezPeJhN4AWuSB0GtAU', '3VqHuw0wFlIHcIPWkhIbdQ', '4kbj5MwxO1bq9wjT5g9HaA', '3d8y0t70g7hw2FOWl9Z4Fm', '6me7F0aaZjwDo6RJ5MrfBD', '2m1hi0nfMR9vdGC8UcrnwU', '0ofHAoxe9vBkTCp2UQIavz', '3d9DChrdc6BOeFsbrZ3Is0', '5E30LdtzQTGqRvNd7l6kG5', '20OFwXhEXf12DzwXmaV7fj', '5TgEJ62DOzBpGxZ7WRsrqb', '5ihS6UUlyQAfmp48eSkxuQ', '7zwn1eykZtZ5LODrf7c0tS', '4h9wh7iOZ0GGn8QVp4RAOB', '0qRR9d89hIS0MHRkQ0ejxX', '3yrSvpt2l1xhsV9Em88Pul', '4yugZvBYaoREkJKtbG08Qr']
+        song_data = user.stats.get_song_data(song_ids, user.login_token['access_token']).get('tracks', {})
+        country_codes = [
+            'AD', 'AR', 'AU', 'AT', 'BE', 'BO', 'BR', 'BG', 'CL', 'CO', 'CR', 'CY', 'CZ',
+            'DK', 'DO', 'EC', 'SV', 'EE', 'FI', 'FR', 'DE', 'GR', 'GT', 'HN', 'HK', 'HU', 'IS',
+            'IE', 'IT', 'LV', 'LI', 'LT', 'LU', 'MY', 'MT', 'MX', 'MC', 'NL', 'NZ', 'NI', 'NO',
+            'PA', 'PY', 'PE', 'PH', 'PL', 'PT', 'SG', 'SK', 'ES', 'SE', 'CH', 'TW', 'TR', 'GB', 'UY', 'US'
+        ]
+        import random
+        from datetime import datetime, timedelta
+        start_date = datetime(2023, 2, 1)
+        end_date = datetime(2023, 2, 28)
+        time_span = (end_date - start_date).total_seconds()
+        num_streams = random.randint(0, 1000)
+        EXPECTED_VALS = {
+            "Number of Streams"                 :   0,
+            "Number of Minutes"                 :   0,
+            "Average Percentage of Streams"     :   0,
+            "Tracks"                            :   {}
+        }
+    
+        jsons = []
+        for stream_num in range(num_streams):
+            song_index = random.randint(0, len(song_ids)-1)
+            timecode = country_codes[random.randint(0, len(country_codes)-1)]
+            song_id = song_ids[song_index]
+            random_seconds = random.uniform(0, time_span)
+            time_stamp = start_date + timedelta(seconds=random_seconds)
+            skipped = False if random.randint(0, 1) == 0 else True
+            ms_track_length = song_data[song_index].get('duration_ms', 300000)
+            ms_played = random.randint(0, ms_track_length)
+            is_stream = user.stats.is_full_stream(ms_played, ms_track_length)
+            
+            write_json = {
+                "ts":time_stamp.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                "ms_played":ms_played,
+                "conn_country":timecode,
+                "spotify_track_uri":f"spotify:track:{song_id}",
+                "skipped":skipped
+            }
+            jsons.append(write_json)
+
+            if is_stream:
+                EXPECTED_VALS["Average Percentage of Streams"] = (EXPECTED_VALS["Average Percentage of Streams"] * EXPECTED_VALS["Number of Streams"] + ms_played / ms_track_length) / (EXPECTED_VALS["Number of Streams"] + 1)
+                EXPECTED_VALS["Number of Streams"] += 1
+            EXPECTED_VALS["Number of Minutes"] += (ms_played / 1000) / 60
+
+            if f"spotify:track:{song_id}" not in EXPECTED_VALS["Tracks"]:
+                EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"] = {
+                    "Number of Streams"                 :   0,
+                    "Number of Minutes"                 :   0,
+                    "Average Percentage of Streams"     :   0
+                }
+
+            if is_stream:
+                EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"]["Average Percentage of Streams"] = (EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"]["Average Percentage of Streams"] * EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"]["Number of Streams"] + ms_played / ms_track_length) / (EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"]["Number of Streams"] + 1)
+                EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"]["Number of Streams"] += 1
+            EXPECTED_VALS["Tracks"][f"spotify:track:{song_id}"]["Number of Minutes"] += (ms_played / 1000) / 60
+        
+        with open("advanced_stats_test.json", 'w') as json_file:
+            json.dump(jsons, json_file)
+        
+        filepath = "C:\\Users\\noahs\\Desktop\\CODINGPRIME\\Spotify PULSE\\PULSE\Backend\\advanced_stats_test.json"
+        RECEIVED_VALS = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
+        
+        overall_status = "Not Tested"
+        num_streams_status = "Not Tested"
+        num_mins_status = "Not Tested"
+        percentage_status = "Not Tested"
+        track_data_status = "Not Tested"
+
+        overall_bool = False
+        num_streams_bool = False
+        num_mins_bool = False
+        percentage_bool = False
+        track_data_bool = False
+        eps = 1e-10
+        if RECEIVED_VALS["Number of Streams"] == EXPECTED_VALS["Number of Streams"]:
+            num_streams_bool = True
+        if abs(RECEIVED_VALS["Number of Minutes"] - EXPECTED_VALS["Number of Minutes"]) < eps:
+            num_mins_bool = True
+        if abs(RECEIVED_VALS["Average Percentage of Streams"] - EXPECTED_VALS["Average Percentage of Streams"]) < eps:
+            percentage_bool = True
+        
+        track_data_bool = True
+        for track_id in EXPECTED_VALS["Tracks"]:
+            if track_id not in RECEIVED_VALS["Tracks"]:
+                track_data_bool = False
+                break
+            passed =            EXPECTED_VALS["Tracks"][track_id]["Number of Streams"] == RECEIVED_VALS["Tracks"][track_id]["Number of Streams"] and \
+                                abs(EXPECTED_VALS["Tracks"][track_id]["Number of Minutes"]  - RECEIVED_VALS["Tracks"][track_id]["Number of Minutes"]) < eps  and \
+                                abs(EXPECTED_VALS["Tracks"][track_id]["Average Percentage of Streams"] - RECEIVED_VALS["Tracks"][track_id]["Average Percentage of Streams"]) < eps
+            if not passed: print(track_id)
+            track_data_bool = track_data_bool and passed
+        
+        overall_bool = num_streams_bool and num_mins_bool and percentage_bool and track_data_bool
+
+
+        overall_status = "Passed" if overall_bool else "Failed"
+        num_streams_status = "Passed" if num_streams_bool else "Failed"
+        num_mins_status = "Passed" if num_mins_bool else "Failed"
+        percentage_status = "Passed" if percentage_bool else "Failed"
+        track_data_status = "Passed" if track_data_bool else "Failed"
+        TEST_RESULTS = {
+            "OVERALL TEST STATUS"           : overall_status,
+            "Num Streams Test Status"       : num_streams_status,
+            "Num Mins Test Status"          : num_mins_status,
+            "Percentage Test Status"        : percentage_status,
+            "Track Data Status"             : track_data_status,
+            "More Details"                  : {
+                "Expected" : EXPECTED_VALS,
+                "Received" : RECEIVED_VALS
+            }
+        }
+
+        response = Response(json.dumps(TEST_RESULTS, indent=4), mimetype='application/json')
+        return response
+            
+    else:
+        return 'User session not found. Please log in again.'
 
 @app.route('/test')
 def test():
