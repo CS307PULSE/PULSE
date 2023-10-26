@@ -807,7 +807,7 @@ class Stats:
         return DATA
 
     def get_time_of_day_index(self, time_stamp, timecode):
-        country = self.country_timezone_mapping.get(timecode, "America/New York")
+        country = self.country_timezone_mapping.get(timecode, "America/New_York")
 
         # Define the timezone for the specified country
         country_timezone = pytz.timezone(country)
@@ -1212,6 +1212,7 @@ class Stats:
     def get_song_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
         url = f'https://api.spotify.com/v1/tracks?ids={ids_param}'
+        if url == 'https://api.spotify.com/v1/tracks?ids=': return {'tracks' : []}
         
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -1226,6 +1227,7 @@ class Stats:
     def get_artist_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
         url = f'https://api.spotify.com/v1/artists?ids={ids_param}'
+        if url == 'https://api.spotify.com/v1/artists?ids=': return {'artists' : []}
         
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -1240,6 +1242,7 @@ class Stats:
     def get_episode_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
         url = f'https://api.spotify.com/v1/episodes?ids={ids_param}'
+        if url == 'https://api.spotify.com/v1/episodes?ids=': return {'episodes' : []}
         
         headers = {
             'Authorization': f'Bearer {access_token}'
