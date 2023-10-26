@@ -955,10 +955,16 @@ def import_advanced_stats():
         #  DATA = conn.get_advanced_stats_from_DB(user.spotify_id)
         DATA = None
 
+        time.sleep(30)
         for filepath in filepaths: 
+            time.sleep(5)
             if filepath:
                 try: 
-                    DATA = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True, ADVANCED_STATS_DATA=DATA)
+                    DATA = user.stats.advanced_stats_import(filepath=filepath, 
+                                                            token=user.login_token['access_token'], 
+                                                            more_data=True, 
+                                                            ADVANCED_STATS_DATA=DATA,
+                                                            include_podcasts=True)
                 except Exception as e:
                     print(e)
                     error_message = f"Invalid file information for file {filepath}!"
@@ -966,7 +972,6 @@ def import_advanced_stats():
             else:
                 error_message = f"Invalid filepath for filepath: {filepath}!"
                 return make_response(jsonify({'error': error_message}), 40)
-            time.sleep(5)
     
         # Store in DB
         end_time = datetime.now()
