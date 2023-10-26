@@ -130,6 +130,23 @@ const Friends = () => {
     },
     // Add more friend data as needed
   ];
+  
+  async function removeFriend(spotify_id) {
+    console.log("Friend removed: " + spotify_id)
+    alert("Friend removed!");
+    return
+    /* const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    const response = await axiosInstance.post(
+      "http://127.0.0.1:5000/friends/friend_removal",
+      { removal: sentRemoval }
+    );
+    const data = response.data;
+    console.log("Friend removed: " + sentRemoval);
+    return data;
+    */
+  }
 
   const renderFriendRows = () => {
     const rows = [];
@@ -138,18 +155,39 @@ const Friends = () => {
       rows.push(
         <div key={i} style={friendRowStyle}>
           {friendsInRow.map((friend, index) => (
+            <span
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={
+                friend.name
+              }
+              onClick={() => {removeFriend(friend.spotify_id);
+                window.location.reload();}}
+              style={{ cursor: "pointer" }}
+              key={friend.name + index}
+            >
             <Friend
-              key={index}
               name={friend.name}
               photoFilename={friend.photoUri}
               favoriteSong={friend.favoriteSong}
             />
-          ))}
+        </span>
+      ))}
         </div>
       );
     }
     return rows;
   };
+
+  const noFriendsMessage = (
+    <div style={{ textAlign: "center", marginTop: "20px" }}>
+      <p>You have no friends ;-; Click "add friends" to add friends</p>
+    </div>
+  );
+  const removeFriendsMessage = (
+    <div style={{ textAlign: "center", marginTop: "20px" }}>
+      <p>Click on a friend to remove them as a friend</p>
+    </div>
+  );
 
   return (
     <div style={bodyStyle}>
@@ -159,7 +197,8 @@ const Friends = () => {
           <Link to="/Friends/addFriends" style={{ ...buttonStyle, textDecoration: 'none' }}>Add Friends</Link>
           <Link to="/Friends/friendRequests" style={{ ...buttonStyle, textDecoration: 'none' }}>Friend Requests</Link>
         </div>
-        {renderFriendRows()}
+        {removeFriendsMessage}
+        {friendData ? (friendData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
       </div>
     </div>
   );
