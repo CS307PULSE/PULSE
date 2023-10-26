@@ -21,14 +21,18 @@ try {
     themeSetting = 0;
 }
 
+/*  UNCOMMENT FOR CONNECTING TO BACKEND
 try {
-  var friendsResponse = await axios.get("http://127.0.0.1:5000/get_friends", {withCredentials: true});
-  friends = friendsResponse.data;
-
+  var friendResponse = await axios.get(
+    "http://127.0.0.1:5000/friends/get_friends",
+    { withCredentials: true }
+  );
+  friendData = friendResponse.data;
 } catch (e) {
   console.log("Friends fetch failed: " + e);
-  friends = [];
+  friendData = [[]];
 }
+*/
 
 const themeColors = Colors(themeSetting); //Obtain color values
 const textSizes = TextSize(textSizeSetting); //Obtain text size values
