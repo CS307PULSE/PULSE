@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Friend from './Friend';
 import Navbar from "./NavBar";
 import Colors from "../theme/Colors";
@@ -83,58 +83,89 @@ const friendRowStyle = {
   marginBottom: "16px", // Add vertical space between rows
 };
 
+const tempData = [
+  {
+    name: 'John Doe',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Bohemian Rhapsody',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  // Add more friend data as needed
+];
+
 const Friends = () => {
-  //DELETE WHEN CONNECTING TO BACKEND
-  const friendData = [
-    {
-      name: 'John Doe',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Bohemian Rhapsody',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    // Add more friend data as needed
-  ];
-  
+  const [friendsData, setFriendsData] = useState(tempData); 
+
+  //Delete first 3 statements and uncomment the rest when connecting to backend
   async function removeFriend(spotify_id) {
     console.log("Friend removed: " + spotify_id)
-    alert("Friend removed!");
-    return
+    return [
+      {
+        name: 'John Doe',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Bohemian Rhapsody',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      }, ];
     /* const axiosInstance = axios.create({
       withCredentials: true,
     });
@@ -150,27 +181,23 @@ const Friends = () => {
 
   const renderFriendRows = () => {
     const rows = [];
-    for (let i = 0; i < friendData.length; i += 5) {
-      const friendsInRow = friendData.slice(i, i + 5);
+    for (let i = 0; i < friendsData.length; i += 5) {
+      const friendsInRow = friendsData.slice(i, i + 5);
       rows.push(
         <div key={i} style={friendRowStyle}>
           {friendsInRow.map((friend, index) => (
-            <span
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={
-                friend.name
-              }
-              onClick={() => {removeFriend(friend.spotify_id);
-                window.location.reload();}}
-              style={{ cursor: "pointer" }}
-              key={friend.name + index}
-            >
-            <Friend
-              name={friend.name}
-              photoFilename={friend.photoUri}
-              favoriteSong={friend.favoriteSong}
-            />
-        </span>
+            <div key={friend.name + index}>
+              <Friend
+                name={friend.name}
+                photoFilename={friend.photoUri}
+                favoriteSong={friend.favoriteSong}
+              />
+              <div class = "center">
+                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
+                  Remove Friend
+                </button>
+              </div>
+            </div>
       ))}
         </div>
       );
@@ -198,7 +225,7 @@ const Friends = () => {
           <Link to="/Friends/friendRequests" style={{ ...buttonStyle, textDecoration: 'none' }}>Friend Requests</Link>
         </div>
         {removeFriendsMessage}
-        {friendData ? (friendData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
+        {friendsData ? (friendsData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
       </div>
     </div>
   );

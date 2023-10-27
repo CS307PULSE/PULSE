@@ -37,6 +37,21 @@ const bodyStyle = {
   justifyContent: "space-between",
 };
 
+const contentStyle = {
+  flex: 1, // Ensure content takes available space
+  padding: "16px",
+  overflow: "auto",
+};
+
+const friendRowStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // Adjust column width as needed
+  gap: "10vw", // Adjust the gap between friends
+  marginBottom: "16px", // Add vertical space between rows
+  alignItems: "center", // Align items vertically in the center
+  textAlign: "center", // Center text horizontally
+};
+
 const friendContainerStyle = {
   position: "fixed",
   top: 100,
@@ -172,25 +187,24 @@ const AddFriends = () => {
   function userSearch(recievedUsers) {
     console.log(recievedUsers);
     if (recievedUsers !== undefined) {
-      return recievedUsers.map((friend, index) => (
-        <span
-          data-tooltip-id="my-tooltip"
-          data-tooltip-content={
-            friend.name
-          }
-          onClick={() => sendFriendRequest(friend.spotify_id)}
-          style={{ cursor: "pointer" }}
-          key={friend.name + index}
-        >
+      return <div  style={friendRowStyle}>
+        {recievedUsers.map((friend, index) => (
+          <div key={friend.name + index}>
             <Friend
               name={friend.name}
               photoFilename={friend.photoUri}
               favoriteSong={friend.favoriteSong}
             />
-        </span>
-      ))
+            <div class = "center">
+              <button style={{ ...buttonStyle, textDecoration: 'none' }}   onClick={() => sendFriendRequest(friend.spotify_id)}>
+                Send Friend Request
+              </button>
+            </div>
+          </div>
+        ))}
+        </div>
     } else {
-      return <p>Search for a user! </p>;
+      return 
     }
   }
 
@@ -216,26 +230,28 @@ const AddFriends = () => {
   return (
     <div style={bodyStyle}>
       <Navbar />
-      <div style={buttonContainerStyle}>
-          <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
+      <div style ={contentStyle}>
+        <div style={buttonContainerStyle}>
+            <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
+        </div>
+        <div style={searchContainerStyle}>
+          <input
+            type="text"
+            placeholder="Search for users..."
+            style={searchInputStyle}
+            value={searchUserValue}
+            onChange={changeSearchUserValue}
+          />
+          <button
+            style={{ ...buttonStyle, textDecoration: "none" }}
+            onClick={() => getUserSearch()}
+          >
+            Search
+          </button>
+          
+        </div>
+        {userSearch(recievedRelevantUsers)}
       </div>
-      <div style={searchContainerStyle}>
-        <input
-          type="text"
-          placeholder="Search for users..."
-          style={searchInputStyle}
-          value={searchUserValue}
-          onChange={changeSearchUserValue}
-        />
-        <button
-          style={{ ...buttonStyle, textDecoration: "none" }}
-          onClick={() => getUserSearch()}
-        >
-          Search
-        </button>
-        
-      </div>
-      {userSearch(recievedRelevantUsers)}
     </div>
   );
 };

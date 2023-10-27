@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Friend from './Friend';
 import Navbar from "./NavBar";
@@ -17,6 +17,13 @@ try {
     withCredentials: true,
   });
   themeSetting = themeResponse.data;
+  
+  /* UNCOMMENT WHEN CONNECTING TO BACKEND
+  var requestsResponse = await axios.get("http://127.0.0.1:5000/get_requests", {
+    withCredentials: true,
+  });
+  requestsData = requestsResponse.data;
+  */
 } catch (e) {
   console.log("Formatting settings fetch failed: " + e);
   textSizeSetting = 1;
@@ -71,80 +78,102 @@ const buttonContainerStyle = {
   marginBottom: "16px",
 };
 
-const FriendRequests = () => {
-    //DELETE WHEN CONNECTING TO BACKEND
-  const requestsData = [
-    {
-      name: 'John Doe',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Bohemian Rhapsody',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    // Add more friend data as needed
-  ];
-  async function friendRequestDenied(spotify_id) {
-    console.log("Friend request denied: " + spotify_id)
-    alert("Friend request denied!");
-    return
-    /* const axiosInstance = axios.create({
-      withCredentials: true,
-    });
-    const response = await axiosInstance.post(
-      "http://127.0.0.1:5000/friends/friend_request_denied",
-      { denial: sentDential }
-    );
-    const data = response.data;
-    console.log("Friend request denied: " + sentDenial);
-    return data;
-    */
-  }
 
-  async function friendRequestAccepted(spotify_id) {
+
+//DELETE WHEN CONNECTING TO BACKEND
+const tempData = [
+  {
+    name: 'John Doe',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Bohemian Rhapsody',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  {
+    name: 'Jane Smith',
+    spotify_id: 'test',
+    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+    favoriteSong: 'Hotel California',
+  },
+  // Add more friend data as needed
+];
+
+const FriendRequests = () => {
+  // should be useState(requestsData) when connecting to backend
+  const [requestsData, setRequestsData] = useState(tempData)  
+  
+
+  //Delete first 3 statements and uncomment the rest when connecting to backend
+  async function friendRequestChoice(spotify_id, choice) {
     console.log("Friend request accepted: " + spotify_id)
-    alert("Friend request accepted!");
-    return
+
+    return [
+      {
+        name: 'John Doe',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Bohemian Rhapsody',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      },
+      {
+        name: 'Jane Smith',
+        spotify_id: 'test',
+        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
+        favoriteSong: 'Hotel California',
+      }, ];
     /* const axiosInstance = axios.create({
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "http://127.0.0.1:5000/friends/friend_request_accepted",
-      { acceptance: sentAcceptance }
+      "http://127.0.0.1:5000/friends/friend_request_choice",
+      { spotify_id: spotify_id,
+        accepted: choice}
     );
     const data = response.data;
     console.log("Friend request accepted: " + sentAcceptance);
@@ -166,10 +195,10 @@ const FriendRequests = () => {
                 favoriteSong={friend.favoriteSong}
               />
               <div class = "center">
-                <button onClick={() => friendRequestDenied(friend.spotify_id)}>
+                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => friendRequestChoice(friend.spotify_id, false).then(data => setRequestsData(data))}>
                   Deny
                 </button>
-                <button onClick={() => friendRequestAccepted(friend.spotify_id)}>
+                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => friendRequestChoice(friend.spotify_id, true).then(data => setRequestsData(data))}>
                   Accept
                 </button>
               </div>
@@ -190,10 +219,12 @@ const FriendRequests = () => {
   return (
     <div style={bodyStyle}>
       <Navbar />
-      <div style={buttonContainerStyle}>
-          <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
-      </div>
+      <div style ={contentStyle}>
+        <div style={buttonContainerStyle}>
+            <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
+        </div>
       {requestsData ? (requestsData.length > 0 ? renderRequestRows() : noRequestsMessage) : noRequestsMessage}
+      </div>
     </div>
   );
 };
