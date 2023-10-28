@@ -270,7 +270,7 @@ class Stats:
         'ZW': 'Africa/Harare',
     }
 
-    def advanced_stats_import(self, filepath, token, more_data=False):
+    def advanced_stats_import(self, filepath, token, more_data=False, ADVANCED_STATS_DATA=None, OVERRIDE=False, include_podcasts=True):
         SONG_IDS = []
         EPISODE_IDS = []
 
@@ -291,19 +291,58 @@ class Stats:
         SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_IDS)), token=token, more_data=more_data)
         EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_IDS)), token=token, more_data=more_data)
 
-        ADVANCED_STATS_DATA = {
-            "Number of Streams"                 :   0,
-            "Number of Minutes"                 :   0,
-            "Average Percentage of Streams"     :   0,
-            "Time of Day Breakdown"             :   [0, 0, 0, 0],
-            "Tracks"                            :   {},
-            "Artists"                           :   {},
-            "Albums"                            :   {},
-            "Genres"                            :   {},
-            "Eras"                              :   {},
-            "Yearly"                            :   {}
-        }
+        if (ADVANCED_STATS_DATA is None):
+            ADVANCED_STATS_DATA = {
+                "Metadata"                          :   {
+                    "Number of Files"               :   0,
+                    "Dates Covered"                 :   {},
+                    "Files"                         :   {}
+                },
+                "Number of Streams"                 :   0,
+                "Number of Minutes"                 :   0,
+                "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
+                "Time of Day Breakdown"             :   [0, 0, 0, 0],
+                "Tracks"                            :   {},
+                "Artists"                           :   {},
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {},
+                "Yearly"                            :   {}
+            }
+        
+        else:
+            # De-normalize Time of Day Breakdown to be in units of ms
+            ms_weight = ADVANCED_STATS_DATA["Number of Minutes"] * 60 * 1000 / 100
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][0] *= ms_weight
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][1] *= ms_weight
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][2] *= ms_weight
+            ADVANCED_STATS_DATA["Time of Day Breakdown"][3] *= ms_weight
+        
+            for year in ADVANCED_STATS_DATA["Yearly"]:
+                ms_weight = ADVANCED_STATS_DATA["Yearly"][year]["Number of Minutes"] * 60 * 1000 / 100
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][0] *= ms_weight
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][1] *= ms_weight
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][2] *= ms_weight
+                ADVANCED_STATS_DATA["Yearly"][year]["Time of Day Breakdown"][3] *= ms_weight
 
+                for month in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"]:
+                    ms_weight = ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Minutes"] * 60 * 1000 / 100
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][0] *= ms_weight
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][1] *= ms_weight
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][2] *= ms_weight
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][3] *= ms_weight
+
+        try:
+            ADVANCED_STATS_DATA["Metadata"] = self.populate_metadata(filepath=filepath, DATA=ADVANCED_STATS_DATA["Metadata"])
+        except Exception as e:
+            print(f"{e}")
+            print("Overlapping coverage! Please override if you wish to proceed!")
+            return ADVANCED_STATS_DATA
+
+        min_stamp = None
+        max_stamp = None
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.load(file)
                 
@@ -325,11 +364,22 @@ class Stats:
                     show_name = stream.get("episode_show_name", "")                         # Name of show of podcast
                     episode_uri = stream.get("spotify_episode_uri", "")                     # A Spotify Episode URI, uniquely identifying the podcast episode in the form of “spotify:episode:<base-62 string>”
 
+                    stamp = datetime.strptime(time_stamp, '%Y-%m-%dT%H:%M:%SZ')
+                    if min_stamp is None:
+                        min_stamp = stamp
+                    elif min_stamp > stamp:
+                        min_stamp = stamp
+                    if max_stamp is None:
+                        max_stamp = stamp
+                    elif max_stamp < stamp:
+                        max_stamp = stamp
+
                     if song_uri is not None:
                         track_uri = song_uri
                         track_data = SONGS_TO_API_DATA_MAP.get(track_uri, {})
                         track_name = song_name
                     elif episode_uri is not None:
+                        if not include_podcasts: continue
                         track_uri = episode_uri
                         track_data = EPISODES_TO_API_DATA_MAP.get(track_uri, {})
                         if show_name is not None and episode_name is not None:
@@ -341,6 +391,7 @@ class Stats:
                         else:
                             track_name = "Unknown"
                     else:
+                        if not include_podcasts: continue
                         track_uri = "Unknown"
                         track_data = SONGS_TO_API_DATA_MAP.get(track_uri, {})
                         track_name = "Unknown"
@@ -385,6 +436,8 @@ class Stats:
                          ADVANCED_STATS_DATA["Tracks"][track_uri]["Skips"] += 1
 
                     if is_stream:
+                        if ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] == 0:
+                            ADVANCED_STATS_DATA["Number of Unique Tracks"] += 1
                         ADVANCED_STATS_DATA["Tracks"][track_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Tracks"][track_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] + 1)
                         ADVANCED_STATS_DATA["Tracks"][track_uri]["Number of Streams"] += 1
                     
@@ -403,6 +456,8 @@ class Stats:
                             }
 
                         if is_stream: 
+                            if ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] == 0:
+                                ADVANCED_STATS_DATA["Number of Unique Artists"] += 1
                             ADVANCED_STATS_DATA["Artists"][artist_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Artists"][artist_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] + 1)
                             ADVANCED_STATS_DATA["Artists"][artist_uri]["Number of Streams"] += 1
                         
@@ -468,6 +523,8 @@ class Stats:
                             "Number of Streams"                 :   0,
                             "Number of Minutes"                 :   0,
                             "Average Percentage of Streams"     :   0,
+                            "Number of Unique Tracks"           :   0,
+                            "Number of Unique Artists"          :   0,
                             "Time of Day Breakdown"             :   [0, 0, 0, 0],
                             "Tracks"                            :   {},
                             "Artists"                           :   {},
@@ -498,6 +555,8 @@ class Stats:
                          ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Skips"] += 1
 
                     if is_stream:
+                        if ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] == 0:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Number of Unique Tracks"] += 1
                         ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] + 1)
                         ADVANCED_STATS_DATA["Yearly"][year]["Tracks"][track_uri]["Number of Streams"] += 1 
 
@@ -516,6 +575,8 @@ class Stats:
                             }
 
                         if is_stream: 
+                            if ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] == 0:
+                                ADVANCED_STATS_DATA["Yearly"][year]["Number of Unique Artists"] += 1
                             ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] + 1)
                             ADVANCED_STATS_DATA["Yearly"][year]["Artists"][artist_uri]["Number of Streams"] += 1 
                         
@@ -596,7 +657,9 @@ class Stats:
                     if did_skip:
                          ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Skips"] += 1
 
-                    if is_stream: 
+                    if is_stream:
+                        if ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] == 0:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Unique Tracks"] += 1
                         ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] + 1)
                         ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Tracks"][track_uri]["Number of Streams"] += 1
                     
@@ -615,6 +678,8 @@ class Stats:
                             }
 
                         if is_stream:
+                            if ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] == 0:
+                                ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Number of Unique Artists"] += 1
                             ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] + 1)
                             ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Artists"][artist_uri]["Number of Streams"] += 1 
                         
@@ -698,10 +763,51 @@ class Stats:
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][2] *= (100 / sum_of_breakdowns)
                 ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Time of Day Breakdown"][3] *= (100 / sum_of_breakdowns)
 
+        # Update metadata
+        ADVANCED_STATS_DATA['Metadata'] = self.update_metadata(ADVANCED_STATS_DATA['Metadata'], max_stamp_curr=max_stamp, min_stamp_curr=min_stamp)
         return ADVANCED_STATS_DATA
 
+    def populate_metadata(self, filepath, DATA):
+        import os
+        DATA["Number of Files"] += 1
+        num_files = DATA["Number of Files"]
+        filename = os.path.basename(filepath)
+        
+        DATA["Files"][num_files] = {
+            "Import Timestamp"          :   datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "File Name"                 :   filename,
+            "Start Timestamp"           :   "",
+            "End Timestamp"             :   ""
+        }
+
+        return DATA
+    
+    def update_metadata(self, DATA, max_stamp_curr, min_stamp_curr):
+        DATA["Files"][DATA["Number of Files"]]["Start Timestamp"] = min_stamp_curr.strftime('%Y-%m-%dT%H:%M:%SZ')
+        DATA["Files"][DATA["Number of Files"]]["End Timestamp"] = max_stamp_curr.strftime('%Y-%m-%dT%H:%M:%SZ')
+        min_stamp = None
+        max_stamp = None
+        for file in DATA["Files"].keys():
+            curr_start = DATA["Files"][file]["Start Timestamp"]
+            curr_end = DATA["Files"][file]["End Timestamp"]
+            if min_stamp is None:
+                min_stamp = curr_start
+            elif min_stamp > curr_start:
+                min_stamp = curr_start
+            if max_stamp is None:
+                max_stamp = curr_end
+            elif max_stamp < curr_end:
+                max_stamp = curr_end
+        
+        DATA["Dates Covered"] = {
+            "Start Timestamp"           : min_stamp, 
+            "End Timestamp"             : max_stamp
+        }
+
+        return DATA
+
     def get_time_of_day_index(self, time_stamp, timecode):
-        country = self.country_timezone_mapping.get(timecode, "America/New York")
+        country = self.country_timezone_mapping.get(timecode, "America/New_York")
 
         # Define the timezone for the specified country
         country_timezone = pytz.timezone(country)
@@ -769,8 +875,14 @@ class Stats:
             return "Early Romantic Music"
         elif year < 1920:
             return "Late Romantic Music"
+        elif year < 1930:
+            return "1920's"
+        elif year < 1940:
+            return "1930's"
+        elif year < 1950:
+            return "'40's"
         elif year < 1960:
-            return "20th Century Music"
+            return "'50's"
         elif year < 1970:
             return "'60's"
         elif year < 1980:
@@ -779,8 +891,12 @@ class Stats:
             return "'80's"
         elif year < 2000:
             return "'90's"
+        elif year < 10000:
+            decade = int(year) // 10 * 10
+            decade_str = str(decade)
+            return f"{decade_str[:-1]}0's"
         else:
-            return "Contemporary Music"
+            return "No way it's the year 10k"
 
     def initialize_monthly(self):
         return {
@@ -788,6 +904,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -799,6 +917,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -810,6 +930,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -821,6 +943,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -832,6 +956,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -843,6 +969,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -854,6 +982,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -865,6 +995,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -876,6 +1008,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -887,6 +1021,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -898,6 +1034,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -909,6 +1047,8 @@ class Stats:
                 "Number of Streams"                 :   0,
                 "Number of Minutes"                 :   0,
                 "Average Percentage of Streams"     :   0,
+                "Number of Unique Tracks"           :   0,
+                "Number of Unique Artists"          :   0,
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
@@ -1072,6 +1212,7 @@ class Stats:
     def get_song_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
         url = f'https://api.spotify.com/v1/tracks?ids={ids_param}'
+        if url == 'https://api.spotify.com/v1/tracks?ids=': return {'tracks' : []}
         
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -1086,6 +1227,7 @@ class Stats:
     def get_artist_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
         url = f'https://api.spotify.com/v1/artists?ids={ids_param}'
+        if url == 'https://api.spotify.com/v1/artists?ids=': return {'artists' : []}
         
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -1100,6 +1242,7 @@ class Stats:
     def get_episode_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
         url = f'https://api.spotify.com/v1/episodes?ids={ids_param}'
+        if url == 'https://api.spotify.com/v1/episodes?ids=': return {'episodes' : []}
         
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -1126,7 +1269,7 @@ class Stats:
                 if response.status_code == 429:
                     # If rate-limited, wait and retry
                     retry_after = int(response.headers.get('Retry-After', 1))
-                    if retry_after > 30:
+                    if retry_after > 10:
                         print(f"{retry_after/60} minutes is too long! Giving up!")
                         self.hit_rate_limit = True
                         return None
