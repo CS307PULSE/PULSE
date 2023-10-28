@@ -271,8 +271,8 @@ class Stats:
     }
 
     def advanced_stats_import(self, filepath, token, more_data=False):
-        SONG_URIS = []
-        EPISODE_URIS = []
+        SONG_IDS = []
+        EPISODE_IDS = []
 
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -281,13 +281,15 @@ class Stats:
                 try:
                     song_uri = stream.get("spotify_track_uri", "")                          
                     episode_uri = stream.get("spotify_episode_uri", "")
-                    SONG_URIS.append(song_uri)
-                    EPISODE_URIS.append(episode_uri)
+                    if song_uri is not None:
+                        SONG_IDS.append(song_uri.split(":")[-1])
+                    if episode_uri is not None:
+                        EPISODE_IDS.append(episode_uri.split(":")[-1])
                 except Exception as e:
                     print(f"Exception {e}")
     
-        SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_URIS)), token=token, more_data=more_data)
-        EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_URIS)), token=token, more_data=more_data)
+        SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_IDS)), token=token, more_data=more_data)
+        EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_IDS)), token=token, more_data=more_data)
 
         ADVANCED_STATS_DATA = {
             "Number of Streams"                 :   0,
@@ -297,6 +299,8 @@ class Stats:
             "Tracks"                            :   {},
             "Artists"                           :   {},
             "Albums"                            :   {},
+            "Genres"                            :   {},
+            "Eras"                              :   {},
             "Yearly"                            :   {}
         }
 
@@ -344,9 +348,11 @@ class Stats:
                     ms_track_length = track_data.get("ms_track_length", 300000)
                     track_link = track_data.get("track_link", "")
                     artists = track_data.get("artists", [["","",""]])
+                    genres = track_data.get("genres", [""])
                     album_uri = track_data.get("album_uri", "")
                     album_name = track_data.get("album_name", "")
                     album_link = track_data.get("album_link", "")
+                    release_date = track_data.get("release_date", "")
 
                     if ms_played > ms_track_length:
                         ms_played = ms_track_length # Weird glitch with stats
@@ -355,6 +361,7 @@ class Stats:
                     month = self.get_month(time_stamp)
                     year = self.get_year(time_stamp)
                     is_stream = self.is_full_stream(ms_played, ms_track_length)
+                    era = self.get_era(release_date)
 
                     # UPDATE ALL TIME
                     if is_stream: 
@@ -416,7 +423,41 @@ class Stats:
                         ADVANCED_STATS_DATA["Albums"][album_uri]["Number of Streams"] += 1
                     
                     ADVANCED_STATS_DATA["Albums"][album_uri]["Number of Minutes"] += (ms_played / 1000) / 60
+                    
+                    # Update Genres
+                    for genre in genres:
+                        if genre not in ADVANCED_STATS_DATA["Genres"]:
+                            ADVANCED_STATS_DATA["Genres"][genre] = {
+                                "Number of Streams"                 :   0,
+                                "Number of Minutes"                 :   0,
+                                "Average Percentage of Streams"     :   0,
+                                "Tracks"                            :   []
+                            }
 
+                        if is_stream: 
+                            ADVANCED_STATS_DATA["Genres"][genre]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Genres"][genre]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Genres"][genre]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Genres"][genre]["Number of Streams"] + 1)
+                            ADVANCED_STATS_DATA["Genres"][genre]["Number of Streams"] += 1
+                        
+                        ADVANCED_STATS_DATA["Genres"][genre]["Number of Minutes"] += (ms_played / 1000) / 60
+                        if track_name not in ADVANCED_STATS_DATA["Genres"][genre]["Tracks"]: 
+                            ADVANCED_STATS_DATA["Genres"][genre]["Tracks"].append(track_name)
+
+                    # Update Eras
+                    if era not in ADVANCED_STATS_DATA["Eras"]:
+                        ADVANCED_STATS_DATA["Eras"][era] = {
+                            "Number of Streams"                 :   0,
+                            "Number of Minutes"                 :   0,
+                            "Average Percentage of Streams"     :   0,
+                            "Tracks"                            :   []
+                        }
+
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Eras"][era]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Eras"][era]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Eras"][era]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Eras"][era]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Eras"][era]["Number of Streams"] += 1
+                    
+                    ADVANCED_STATS_DATA["Eras"][era]["Number of Minutes"] += (ms_played / 1000) / 60
+                    if track_name not in ADVANCED_STATS_DATA["Eras"][era]["Tracks"]:
+                        ADVANCED_STATS_DATA["Eras"][era]["Tracks"].append(track_name)
 
 
 
@@ -431,6 +472,8 @@ class Stats:
                             "Tracks"                            :   {},
                             "Artists"                           :   {},
                             "Albums"                            :   {},
+                            "Genres"                            :   {},
+                            "Eras"                              :   {},
                             "Monthly"                           :   self.initialize_monthly()
                         }
 
@@ -494,6 +537,40 @@ class Stats:
                     
                     ADVANCED_STATS_DATA["Yearly"][year]["Albums"][album_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
+                    # Update Genres
+                    for genre in genres:
+                        if genre not in ADVANCED_STATS_DATA["Yearly"][year]["Genres"]:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre] = {
+                                "Number of Streams"                 :   0,
+                                "Number of Minutes"                 :   0,
+                                "Average Percentage of Streams"     :   0,
+                                "Tracks"                            :   []
+                            }
+
+                        if is_stream: 
+                            ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Number of Streams"] + 1)
+                            ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Number of Streams"] += 1
+                        
+                        ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Number of Minutes"] += (ms_played / 1000) / 60
+                        if track_name not in ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Tracks"]:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Genres"][genre]["Tracks"].append(track_name)
+
+                    # Update Eras
+                    if era not in ADVANCED_STATS_DATA["Yearly"][year]["Eras"]:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era] = {
+                            "Number of Streams"                 :   0,
+                            "Number of Minutes"                 :   0,
+                            "Average Percentage of Streams"     :   0,
+                            "Tracks"                            :   []
+                        }
+
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Number of Streams"] += 1
+                    
+                    ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Number of Minutes"] += (ms_played / 1000) / 60
+                    if track_name not in ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Tracks"]:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Eras"][era]["Tracks"].append(track_name)
 
 
 
@@ -559,7 +636,41 @@ class Stats:
                     
                     ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Albums"][album_uri]["Number of Minutes"] += (ms_played / 1000) / 60
 
+                    # Update Genres
+                    for genre in genres:
+                        if genre not in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"]:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre] = {
+                                "Number of Streams"                 :   0,
+                                "Number of Minutes"                 :   0,
+                                "Average Percentage of Streams"     :   0,
+                                "Tracks"                            :   []
+                            }
+
+                        if is_stream: 
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Number of Streams"] + 1)
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Number of Streams"] += 1
+                        
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Number of Minutes"] += (ms_played / 1000) / 60
+                        if track_name not in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Tracks"]:
+                            ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Genres"][genre]["Tracks"].append(track_name)
+
+                    # Update Eras
+                    if era not in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"]:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era] = {
+                            "Number of Streams"                 :   0,
+                            "Number of Minutes"                 :   0,
+                            "Average Percentage of Streams"     :   0,
+                            "Tracks"                            :   []
+                        }
+
+                    if is_stream:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Average Percentage of Streams"] = (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Average Percentage of Streams"] * ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Number of Streams"] + ms_played / ms_track_length) / (ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Number of Streams"] + 1)
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Number of Streams"] += 1
                     
+                    ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Number of Minutes"] += (ms_played / 1000) / 60
+                    if track_name not in ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Tracks"]:
+                        ADVANCED_STATS_DATA["Yearly"][year]["Monthly"][month]["Eras"][era]["Tracks"].append(track_name)
+
                 except json.JSONDecodeError as e:
                     raise e
 
@@ -636,6 +747,41 @@ class Stats:
         
         return False
 
+    def get_era(self, release_date):
+        try:
+            year = int(release_date.split('-')[0])
+        except ValueError:
+            return ''
+        
+        if year < 500:
+            return "Ancient Music"
+        elif year < 1150:
+            return "Pre-Medieval Music"
+        elif year < 1400:
+            return "Medieval Music"
+        elif year < 1600:
+            return "Renaissance Music"
+        elif year < 1750:
+            return "Baroque Music"
+        elif year < 1830:
+            return "Classical Music"
+        elif year < 1860:
+            return "Early Romantic Music"
+        elif year < 1920:
+            return "Late Romantic Music"
+        elif year < 1960:
+            return "20th Century Music"
+        elif year < 1970:
+            return "'60's"
+        elif year < 1980:
+            return "'70's"
+        elif year < 1990:
+            return "'80's"
+        elif year < 2000:
+            return "'90's"
+        else:
+            return "Contemporary Music"
+
     def initialize_monthly(self):
         return {
             "JANUARY" : {
@@ -645,7 +791,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "FEBRUARY" : {
                 "Number of Streams"                 :   0,
@@ -654,7 +802,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "MARCH" : {
                 "Number of Streams"                 :   0,
@@ -663,7 +813,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "APRIL" : {
                 "Number of Streams"                 :   0,
@@ -672,7 +824,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "MAY" : {
                 "Number of Streams"                 :   0,
@@ -681,7 +835,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "JUNE" : {
                 "Number of Streams"                 :   0,
@@ -690,7 +846,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "JULY" : {
                 "Number of Streams"                 :   0,
@@ -699,7 +857,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "AUGUST" : {
                 "Number of Streams"                 :   0,
@@ -708,7 +868,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "SEPTEMBER" : {
                 "Number of Streams"                 :   0,
@@ -717,7 +879,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "OCTOBER" : {
                 "Number of Streams"                 :   0,
@@ -726,7 +890,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "NOVEMBER" : {
                 "Number of Streams"                 :   0,
@@ -735,7 +901,9 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             },
             "DECEMBER" : {
                 "Number of Streams"                 :   0,
@@ -744,12 +912,15 @@ class Stats:
                 "Time of Day Breakdown"             :   [0, 0, 0, 0],
                 "Tracks"                            :   {},
                 "Artists"                           :   {},
-                "Albums"                            :   {}
+                "Albums"                            :   {},
+                "Genres"                            :   {},
+                "Eras"                              :   {}
             }
         }
     
     def populate_song_data_map(self, uris, token, more_data):
         SONGS_TO_API_DATA_MAP = {}
+        artists_to_songs_map = {}
 
         if not more_data:
             return SONGS_TO_API_DATA_MAP
@@ -759,20 +930,23 @@ class Stats:
 
         for chunk in uri_chunks:
             try:
-                song_data = self.get_song_data(chunk, token)
+                song_data = self.get_song_data(chunk, token).get('tracks', {})
 
                 for song in song_data:
+                    if song is None: song = {}
                     uri = song.get('uri', "Unknown")
                     if uri not in SONGS_TO_API_DATA_MAP:
                         SONGS_TO_API_DATA_MAP[uri] = {
                             "ms_track_length"                   :   300000,
                             "track_link"                        :   "",
                             "artists"                           :   [["","",""]],
+                            "genres"                            :   [],
                             "album_uri"                         :   "",
                             "album_name"                        :   "",
-                            "album_link"                        :   ""
+                            "album_link"                        :   "",
+                            "release_date"                      :   ""
                         }
-
+                    
                     ms_track_length = song.get('duration_ms', 300000)
                     track_link = song.get('external_urls', {}).get('spotify', "")
 
@@ -786,18 +960,70 @@ class Stats:
                     album_uri = song.get('album', {}).get('uri', "")
                     album_name = song.get('album', {}).get('name', "")
                     album_link = song.get('album', {}).get('external_urls', {}).get('spotify', "")
+                    release_date = song.get('album', {}).get('release_date', "")
 
-                    SONGS_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length
+                    try:
+                        ms_track_length_int = int(ms_track_length)
+                        SONGS_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length_int
+                    except Exception as e:
+                        print(e)
+
                     SONGS_TO_API_DATA_MAP[uri]["track_link"] = track_link
                     SONGS_TO_API_DATA_MAP[uri]["artists"] = artists
                     SONGS_TO_API_DATA_MAP[uri]["album_uri"] = album_uri
                     SONGS_TO_API_DATA_MAP[uri]["album_name"] = album_name
                     SONGS_TO_API_DATA_MAP[uri]["album_link"] = album_link
+                    SONGS_TO_API_DATA_MAP[uri]["release_date"] = release_date
+
+                    try:
+                        artist_id = artist_uri.split(":")[-1]
+                    except Exception as e:
+                        return
+
+                    if artist_id not in artists_to_songs_map:
+                        artists_to_songs_map[artist_id] = {
+                            "tracks"                            :   [uri],
+                            "genres"                            :   []
+                        }
+                    else:
+                         artists_to_songs_map[artist_id]["tracks"].append(uri)
+                    
             except Exception as ex:
-                print(f"Exception {ex}")
+                print(f"Exception in populating song map: {ex}")
                 pass
         
+        artists_to_songs_map = self.populate_artists_data_map(artists_to_songs_map, token, more_data)
+
+        for artist_id in artists_to_songs_map.keys():
+            for uri in artists_to_songs_map[artist_id]['tracks']:
+                SONGS_TO_API_DATA_MAP[uri]['genres'].extend(artists_to_songs_map[artist_id]['genres'])
+
         return SONGS_TO_API_DATA_MAP
+
+    def populate_artists_data_map(self, map, token, more_data):
+        if not more_data:
+            return map
+        
+        uris = list(map.keys())
+        chunk_size = 50
+        uri_chunks = [uris[i:i + chunk_size] for i in range(0, len(uris), chunk_size)]
+
+        for chunk in uri_chunks:
+            try:
+                artist_data = self.get_artist_data(chunk, token).get('artists', {})
+
+                for artist in artist_data:
+                    if artist is None: artist = {}
+                    uri = artist.get('uri', "Unknown:").split(":")[-1]
+                    genres = artist.get('genres', "Unknown")
+                    
+                    map[uri]["genres"] = genres       
+                    
+            except Exception as ex:
+                print(f"Exception in populating artist map: {ex}")
+                pass
+        
+        return map
 
     def populate_episode_data_map(self, uris, token, more_data):
         EPISODES_TO_API_DATA_MAP = {}
@@ -810,28 +1036,35 @@ class Stats:
 
         for chunk in uri_chunks:
             try:
-                episode_data = self.get_episode_data(chunk, token)
+                episode_data = self.get_episode_data(chunk, token).get('episodes', {})
 
                 for episode in episode_data:
+                    if episode is None: episode = {}
                     uri = episode.get('uri', "Unknown")
                     if uri not in EPISODES_TO_API_DATA_MAP:
                         EPISODES_TO_API_DATA_MAP[uri] = {
-                            "ms_track_length"                   :   300000,
+                            "ms_track_length"                   :   60000*60,
                             "track_link"                        :   "",
                             "artists"                           :   [["","",""]],
+                            "genres"                            :   [""],
                             "album_uri"                         :   "",
                             "album_name"                        :   "",
-                            "album_link"                        :   ""
+                            "album_link"                        :   "",
+                            "release_date"                      :   ""
                         }
 
-                    ms_track_length = episode.get('audio_preview_url', 60000*60)
+                    ms_track_length = episode.get('duration_ms', 60000*60)
                     track_link = episode.get('external_urls', {}).get('spotify', "")
 
+                    try:
+                        ms_track_length_int = int(ms_track_length)
+                        EPISODES_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length_int
+                    except Exception as e:
+                        print(e)
 
-                    EPISODES_TO_API_DATA_MAP[uri]["ms_track_length"] = ms_track_length
                     EPISODES_TO_API_DATA_MAP[uri]["track_link"] = track_link
             except Exception as ex:
-                print(f"Exception {ex}")
+                print(f"Exception in populating episode map: {ex}")
                 pass
         
         return EPISODES_TO_API_DATA_MAP
@@ -844,7 +1077,25 @@ class Stats:
             'Authorization': f'Bearer {access_token}'
         }
 
-        return self.get_track_info_with_retry(url, headers)
+        data = self.get_data_info_with_retry(url, headers)
+        if data is not None:
+            return data
+        
+        return {'tracks' : [{'uri': key} for key in chunk]}
+
+    def get_artist_data(self, chunk, access_token):
+        ids_param = ",".join(chunk)
+        url = f'https://api.spotify.com/v1/artists?ids={ids_param}'
+        
+        headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        data = self.get_data_info_with_retry(url, headers)
+        if data is not None:
+            return data
+    
+        return {'artists' : [{'uri': key} for key in chunk]}
 
     def get_episode_data(self, chunk, access_token):
         ids_param = ",".join(chunk)
@@ -854,11 +1105,15 @@ class Stats:
             'Authorization': f'Bearer {access_token}'
         }
 
-        return self.get_track_info_with_retry(url, headers)
+        data = self.get_data_info_with_retry(url, headers)
+        if data is not None:
+            return data
+    
+        return {'episodes' : [{'uri': key} for key in chunk]}
 
-    def get_track_info_with_retry(self, url, headers, max_retries=3):
+    def get_data_info_with_retry(self, url, headers, max_retries=3):
         if self.hit_rate_limit:
-            return {}
+            return None
 
         for attempt in range(max_retries):
             try:
@@ -872,8 +1127,9 @@ class Stats:
                     # If rate-limited, wait and retry
                     retry_after = int(response.headers.get('Retry-After', 1))
                     if retry_after > 30:
-                        print(f"{retry_after} seconds is too long! Giving up!")
+                        print(f"{retry_after/60} minutes is too long! Giving up!")
                         self.hit_rate_limit = True
+                        return None
                     print(f"Waiting {retry_after} seconds!")
                     time.sleep(retry_after)
                 else:
