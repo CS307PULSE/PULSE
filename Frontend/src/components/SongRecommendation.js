@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
-import FriendsCard from "./FriendsCard";
-import { Link } from "react-router-dom";
+//import FriendsCard from "./FriendsCard";
+//import { Link } from "react-router-dom";
 import axios from "axios";
 import { ImageGraph } from "./Graphs.js";
 
@@ -25,6 +25,7 @@ try {
   themeSetting = 0;
 }
 const themeColors = Colors(themeSetting); //Obtain color values
+// eslint-disable-next-line no-unused-vars
 const textSizes = TextSize(textSizeSetting); //Obtain text size values
 
 const bodyStyle = {
@@ -37,14 +38,14 @@ const bodyStyle = {
   justifyContent: "space-between",
 };
 
-const friendContainerStyle = {
+/*const friendContainerStyle = {
   position: "fixed",
   top: 100,
   right: 0,
   width: "20%",
   height: "900",
   backgroundColor: themeColors.background,
-};
+};*/
 
 const buttonStyle = {
   backgroundColor: themeColors.background,
