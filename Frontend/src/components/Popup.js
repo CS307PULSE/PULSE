@@ -1,30 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 //Popup passing through open and close functions
 export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
-  //Use states for data to be read from when generating new graph container
+  //Use states for data to be controlled
   const [graphName, setGraphName] = useState("");
-  const [data, setData] = useState(["top_songs_4week"]);
+  const [hortAxisTitle, setHortAxisTitle] = useState("");
+  const [vertAxisTitle, setVertAxisTitle] = useState("");
   const [graphType, setGraph] = useState("ImageGraph");
-  const [theme, setTheme] = useState("dark");
   const [validName, setValidName] = useState(false);
-  const [hortAxisTitle, changeHortAxisTitle] = useState("");
-  const [vertAxisTitle, changeVertAxisTitle] = useState("");
 
   //Use states to selectively disable choices depending on data type
-  const [imageGraph, setimageGraph] = useState(true);
-  const [barData, setBarData] = useState(false);
-  const [lineData, setLineData] = useState(false);
-  const [pieData, setPieData] = useState(false);
-  const [multiData, setMultiData] = useState(false);
+  const [imageGraph, setImageGraph] = useState(true);
+  const [timesDataEN, setTimesDataEN] = useState(false);
+  const [multiDataEN, setMultiDataEN] = useState(false);
+  const [axisTitlesEN, setAxisTitlesEN] = useState(false);
+  const [legendEN, setLegendEN] = useState(false);
 
   //Data variables
   const [dataOptions, setDataOptions] = useState([
-    { value: "bar1", label: "Sample Bar1", visible: true },
-    { value: "line1", label: "Sample Line1", visible: true },
-    { value: "pie1", label: "Sample pie1", visible: true },
-    { value: "pie2", label: "Sample pie2", visible: true },
+    { value: "bar1", label: "Sample Bar1", visible: false },
+    { value: "line1", label: "Sample Line1", visible: false },
+    { value: "pie1", label: "Sample pie1", visible: false },
+    { value: "pie2", label: "Sample pie2", visible: false },
+    {
+      value: "numMinutes",
+      label: "Number of minutes listened to",
+      visible: timesDataEN,
+    },
+    { value: "percentTimes", label: "% of music listened to", visible: true },
+    {
+      value: "numTimesPeriod",
+      label: "Times listened to per time period",
+      visible: timesDataEN,
+    },
+    {
+      value: "numTimesSkipped",
+      label: "Times listened to or skipped or repeated",
+      visible: timesDataEN,
+    },
     { value: "followers", label: "Followers", visible: true },
+    {
+      value: "emotion",
+      label: "Emotion of music listened to",
+      visible: timesDataEN,
+    },
     {
       value: "top_songs_4week",
       label: "Top Songs of last 4 weeks",
@@ -66,6 +85,35 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     },
   ]);
 
+  //Update data choices when state changes
+  useEffect(() => {
+    // Update visibility based on timesDataEN state
+    setDataOptions((prevOptions) =>
+      prevOptions.map((option) =>
+        option.value === "numMinutes" ||
+        option.value === "numTimesPeriod" ||
+        option.value === "numTimesSkipped" ||
+        option.value === "emotion"
+          ? { ...option, visible: timesDataEN }
+          : option
+      )
+    );
+  }, [timesDataEN]);
+
+  useEffect(() => {
+    // Update visibility based on imageGraph state
+    setDataOptions((prevOptions) =>
+      prevOptions.map((option) =>
+        option.value.includes("top_") ||
+        option.value.includes("recent_") ||
+        option.value.includes("saved_") ||
+        option.value === "followed_artists"
+          ? { ...option, visible: imageGraph }
+          : option
+      )
+    );
+  }, [imageGraph]);
+
   if (!isOpen) return null; //Don't do anything when not open
 
   //Functions to change data vars from input fields
@@ -84,27 +132,54 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setGraphName(regexName);
   };
 
+  const changeHortAxisTitle = (e) => {
+    //Replace special characters w/ null
+    const regexName = e.target.value.replace(/[^\w\s]/gi, "");
+    setHortAxisTitle(regexName);
+  };
+
+  const changeVertAxisTitle = (e) => {
+    //Replace special characters w/ null
+    const regexName = e.target.value.replace(/[^\w\s]/gi, "");
+    setVertAxisTitle(regexName);
+  };
+
   const changeGraph = (e) => {
-    if (e.target.value === "ImageGraph") {
-      setimageGraph(true);
-    } else {
-      setimageGraph(false);
+    setImageGraph(false);
+    setTimesDataEN(false);
+    setMultiDataEN(false);
+    setAxisTitlesEN(false);
+    setLegendEN(false);
+    switch (e.target.value) {
+      case "ImageGraph":
+        setImageGraph(true);
+        break;
+      case "VertBar":
+      case "HortBar":
+      case "Line":
+      case "Scatter":
+        setMultiDataEN(true);
+        setAxisTitlesEN(true);
+        setLegendEN(true);
+        setTimesDataEN(true);
+        break;
+      case "RadBar":
+        setMultiDataEN(true);
+        setLegendEN(true);
+        break;
+      case "Pie":
+        setLegendEN(true);
+        break;
+      case "Bump":
+        setAxisTitlesEN(true);
+        break;
+      case "Radar":
+        break;
+      case "Text":
+        break;
+      default:
     }
     setGraph(e.target.value);
-  };
-
-  const changeData = (e) => {
-    const newData = e.target.value;
-    setData(newData);
-    setGraph("");
-  };
-
-  const changeTheme = (e) => {
-    if (data.includes("top_songs") || data.includes("top_artists")) {
-      setTheme("None");
-    } else {
-      setTheme(e.target.value);
-    }
   };
 
   function handleSubmit(e) {
@@ -153,9 +228,9 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             Graph Type:{" "}
             <select name="graphType" value={graphType} onChange={changeGraph}>
               <option value="ImageGraph">Images</option>
-              <option value="vertBar">Vertical Bar</option>
-              <option value="hortBar">Horizontal Bar</option>
-              <option value="radBar">Radial Bar</option>
+              <option value="VertBar">Vertical Bar</option>
+              <option value="HortBar">Horizontal Bar</option>
+              <option value="RadBar">Radial Bar</option>
               <option value="Line">Line</option>
               <option value="Pie">Pie</option>
               <option value="Bump">Bump</option>
@@ -166,12 +241,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Data:{" "}
-            <select
-              name="data"
-              value={data}
-              onChange={changeData}
-              multiple={multiData}
-            >
+            <select name="data" multiple={multiDataEN}>
               {dataOptions.map((option) =>
                 option.visible ? (
                   <option key={option.value} value={option.value}>
@@ -183,12 +253,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Theme:{" "}
-            <select
-              name="graphTheme"
-              value={theme}
-              onChange={changeTheme}
-              disabled={imageGraph}
-            >
+            <select name="graphTheme" disabled={imageGraph}>
               <option value="accent">Accent</option>
               <option value="dark2">Dark2</option>
               <option value="spectral">Spectral</option>
@@ -206,7 +271,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               value={hortAxisTitle}
               onChange={changeHortAxisTitle}
               placeholder="Horizontal Axis Name"
-              disabled={imageGraph}
+              disabled={!axisTitlesEN}
             />
           </div>
           <div>
@@ -220,12 +285,12 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               value={vertAxisTitle}
               onChange={changeVertAxisTitle}
               placeholder="Vertical Axis Name"
-              disabled={imageGraph}
+              disabled={!axisTitlesEN}
             />
           </div>
           <div>
             Legend Enabled:
-            <input name="legendEnabled" type="checkbox" disabled={imageGraph} />
+            <input name="legendEnabled" type="checkbox" disabled={!legendEN} />
           </div>
           <div>
             Link Click Action:{" "}
