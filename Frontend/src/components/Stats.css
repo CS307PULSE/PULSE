@@ -72,7 +72,7 @@
   background: var(--container-background);
 }
 
-.TopGraph {
+.ImageGraph {
   max-height: 90%;
   overflow-y: hidden;
   overflow-x: scroll;
@@ -81,7 +81,7 @@
   height: inherit;
 }
 
-.TopGraphImage {
+.ImageGraphImage {
   max-width: 70%;
   max-height: 100%;
   width: auto;

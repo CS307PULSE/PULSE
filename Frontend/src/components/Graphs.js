@@ -624,11 +624,11 @@ async function sendAlbumRequest(spotify_uri) {
   return data;
 }
 
-export const TopGraph = (props) => {
+export const ImageGraph = (props) => {
   try {
     return (
       <div
-        className="TopGraph custom-draggable-cancel"
+        className="ImageGraph custom-draggable-cancel"
         onWheel={(e) => {
           if (e.deltaY === 0) return;
           e.preventDefault();
@@ -652,7 +652,7 @@ export const TopGraph = (props) => {
               <img
                 src={artist.images[0].url}
                 alt={artist.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </a>
           ))
@@ -668,7 +668,7 @@ export const TopGraph = (props) => {
               <img
                 src={track.album.images[0].url}
                 alt={track.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </span>
           ))
@@ -690,7 +690,7 @@ export const TopGraph = (props) => {
               <img
                 src={trackObj.track.album.images[0].url}
                 alt={trackObj.track.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </span>
           ))
@@ -712,7 +712,7 @@ export const TopGraph = (props) => {
               <img
                 src={trackObj.track.album.images[0].url}
                 alt={trackObj.track.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </span>
           ))
@@ -730,7 +730,7 @@ export const TopGraph = (props) => {
               <img
                 src={album.album.images[0].url}
                 alt={album.album.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </span>
           ))
@@ -748,7 +748,7 @@ export const TopGraph = (props) => {
               <img
                 src={playlist.images[0].url}
                 alt={playlist.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </span>
           ))
@@ -766,7 +766,7 @@ export const TopGraph = (props) => {
               <img
                 src={trackObj.track.album.images[0].url}
                 alt={trackObj.track.name}
-                className="TopGraphImage"
+                className="ImageGraphImage"
               />
             </span>
           ))

@@ -3,7 +3,7 @@ import Navbar from "./NavBar";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { TopGraph } from "./Graphs.js";
+import { ImageGraph } from "./Graphs.js";
 
 import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
@@ -113,7 +113,7 @@ const SongRecommendation = () => {
   function songRecs(recievedSongs) {
     console.log(recievedSongs);
     if (recievedSongs !== undefined) {
-      return <TopGraph data={recievedSongs} dataName={"top_song"} />;
+      return <ImageGraph data={recievedSongs} dataName={"top_song"} />;
     } else {
       return <p></p>;
     }

@@ -4,7 +4,7 @@ import {
   BarGraph,
   LineGraph,
   PieGraph,
-  TopGraph,
+  ImageGraph,
   line1,
   bar1,
   pie1,
@@ -26,7 +26,7 @@ const defaultLayout = [
     x: 0,
     y: 0,
     data: "top_songs_4week",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     graphSettings: {},
   },
   {
@@ -36,7 +36,7 @@ const defaultLayout = [
     x: 0,
     y: 3,
     data: "top_artists_4week",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     graphSettings: {},
   },
   {
@@ -46,7 +46,7 @@ const defaultLayout = [
     x: 2,
     y: 0,
     data: "recent_songs",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     graphSettings: {},
   },
   {
@@ -56,7 +56,7 @@ const defaultLayout = [
     x: 4,
     y: 1,
     data: "saved_songs",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     graphSettings: {},
   },
   {
@@ -66,7 +66,7 @@ const defaultLayout = [
     x: 2,
     y: 1,
     data: "followed_artists",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     graphSettings: {},
   },
   {
@@ -76,7 +76,7 @@ const defaultLayout = [
     x: 0,
     y: 2,
     data: "saved_albums",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     graphSettings: {},
   },
   {
@@ -119,7 +119,7 @@ const defaultLayout = [
   },
   {
     i: "Saved Playlists",
-    graphType: "TopGraph",
+    graphType: "ImageGraph",
     data: "saved_playlists",
     graphSettings: {},
     x: 0,
@@ -517,8 +517,8 @@ export default function GraphGrid() {
                 dataName={container.data}
                 graphTheme={container.graphSettings.graphTheme}
               />
-            ) : container.graphType === "TopGraph" ? (
-              <TopGraph
+            ) : container.graphType === "ImageGraph" ? (
+              <ImageGraph
                 data={getData(container.data)}
                 dataName={container.data}
               />

@@ -4,16 +4,67 @@ import React, { useState } from "react";
 export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   //Use states for data to be read from when generating new graph container
   const [graphName, setGraphName] = useState("");
-  const [data, setData] = useState("bar1");
-  const [graphType, setGraph] = useState("Bar");
+  const [data, setData] = useState(["top_songs_4week"]);
+  const [graphType, setGraph] = useState("ImageGraph");
   const [theme, setTheme] = useState("dark");
   const [validName, setValidName] = useState(false);
+  const [hortAxisTitle, changeHortAxisTitle] = useState("");
+  const [vertAxisTitle, changeVertAxisTitle] = useState("");
 
   //Use states to selectively disable choices depending on data type
-  const [noneData, setNoneData] = useState(false);
-  const [barData, setBarData] = useState(true);
+  const [imageGraph, setimageGraph] = useState(true);
+  const [barData, setBarData] = useState(false);
   const [lineData, setLineData] = useState(false);
   const [pieData, setPieData] = useState(false);
+  const [multiData, setMultiData] = useState(false);
+
+  //Data variables
+  const [dataOptions, setDataOptions] = useState([
+    { value: "bar1", label: "Sample Bar1", visible: true },
+    { value: "line1", label: "Sample Line1", visible: true },
+    { value: "pie1", label: "Sample pie1", visible: true },
+    { value: "pie2", label: "Sample pie2", visible: true },
+    { value: "followers", label: "Followers", visible: true },
+    {
+      value: "top_songs_4week",
+      label: "Top Songs of last 4 weeks",
+      visible: imageGraph,
+    },
+    {
+      value: "top_songs_6month",
+      label: "Top Songs of last 6 months",
+      visible: imageGraph,
+    },
+    {
+      value: "top_songs_all",
+      label: "Top Songs of all time",
+      visible: imageGraph,
+    },
+    {
+      value: "top_artists_4week",
+      label: "Top Artists of last 4 weeks",
+      visible: imageGraph,
+    },
+    {
+      value: "top_artists_6month",
+      label: "Top Artists of last 6 months",
+      visible: imageGraph,
+    },
+    {
+      value: "top_artists_all",
+      label: "Top Artists of all time",
+      visible: imageGraph,
+    },
+    { value: "recent_songs", label: "Recent Songs", visible: imageGraph },
+    { value: "saved_songs", label: "Saved Songs", visible: imageGraph },
+    { value: "saved_albums", label: "Saved Albums", visible: imageGraph },
+    { value: "saved_playlists", label: "Saved Playlists", visible: imageGraph },
+    {
+      value: "followed_artists",
+      label: "Followed Artists",
+      visible: imageGraph,
+    },
+  ]);
 
   if (!isOpen) return null; //Don't do anything when not open
 
@@ -33,53 +84,19 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setGraphName(regexName);
   };
 
+  const changeGraph = (e) => {
+    if (e.target.value === "ImageGraph") {
+      setimageGraph(true);
+    } else {
+      setimageGraph(false);
+    }
+    setGraph(e.target.value);
+  };
+
   const changeData = (e) => {
     const newData = e.target.value;
     setData(newData);
-    if (
-      newData.includes("top_songs") ||
-      newData.includes("top_artists") ||
-      newData === "recent_songs" ||
-      newData === "saved_songs" ||
-      newData === "saved_albums" ||
-      newData === "followed_artists" ||
-      newData === "saved_playlists"
-    ) {
-      setNoneData(true);
-      setBarData(false);
-      setLineData(false);
-      setPieData(false);
-    } else if (newData === "bar1") {
-      setNoneData(false);
-      setBarData(true);
-      setLineData(false);
-      setPieData(false);
-    } else if (newData === "line1") {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(true);
-      setPieData(false);
-    } else if (newData === "pie1" || newData === "pie2") {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(false);
-      setPieData(true);
-    } else if (newData === "followers") {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(true);
-      setPieData(false);
-    } else {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(false);
-      setPieData(false);
-    }
     setGraph("");
-  };
-
-  const changeGraph = (e) => {
-    setGraph(e.target.value);
   };
 
   const changeTheme = (e) => {
@@ -135,37 +152,33 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           <div>
             Graph Type:{" "}
             <select name="graphType" value={graphType} onChange={changeGraph}>
-              <option value="TopGraph"> Images</option>
-              <option value="Bar">Bar</option>
+              <option value="ImageGraph">Images</option>
+              <option value="vertBar">Vertical Bar</option>
+              <option value="hortBar">Horizontal Bar</option>
+              <option value="radBar">Radial Bar</option>
               <option value="Line">Line</option>
               <option value="Pie">Pie</option>
+              <option value="Bump">Bump</option>
+              <option value="Radar">Radar</option>
+              <option value="Scatter">Scatter</option>
+              <option value="Text">Text</option>
             </select>
           </div>
           <div>
             Data:{" "}
-            <select name="data" value={data} onChange={changeData}>
-              <option value="bar1">Bar1</option>
-              <option value="line1">Line1</option>
-              <option value="pie1">Pie1</option>
-              <option value="pie2">Pie2</option>
-              <option value="top_songs_4week">Top Songs of last 4 weeks</option>
-              <option value="top_songs_6month">
-                Top Songs of last 6 months
-              </option>
-              <option value="top_songs_all">Top Songs of all time</option>
-              <option value="top_artists_4week">
-                Top Artists of last 4 weeks
-              </option>
-              <option value="top_artists_6month">
-                Top Artists of last 6 months
-              </option>
-              <option value="top_artists_all">Top Artists of all time</option>
-              <option value="followers">Followers</option>
-              <option value="recent_songs">Recent Songs</option>
-              <option value="saved_songs">Saved Songs</option>
-              <option value="saved_albums">Saved Albums</option>
-              <option value="saved_playlists">Saved Playlists</option>
-              <option value="followed_artists">Followed Artists</option>
+            <select
+              name="data"
+              value={data}
+              onChange={changeData}
+              multiple={multiData}
+            >
+              {dataOptions.map((option) =>
+                option.visible ? (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ) : null
+              )}
             </select>
           </div>
           <div>
@@ -174,7 +187,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               name="graphTheme"
               value={theme}
               onChange={changeTheme}
-              disabled={noneData}
+              disabled={imageGraph}
             >
               <option value="accent">Accent</option>
               <option value="dark2">Dark2</option>
@@ -183,12 +196,40 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             </select>
           </div>
           <div>
+            Horizontal Axis Title:
+            <input
+              name="hortAxisTitle"
+              type="input"
+              rows={1}
+              cols={20}
+              className="nameField"
+              value={hortAxisTitle}
+              onChange={changeHortAxisTitle}
+              placeholder="Horizontal Axis Name"
+              disabled={imageGraph}
+            />
+          </div>
+          <div>
+            Vertical Axis Title:
+            <input
+              name="vertAxisTitle"
+              type="input"
+              rows={1}
+              cols={20}
+              className="nameField"
+              value={vertAxisTitle}
+              onChange={changeVertAxisTitle}
+              placeholder="Vertical Axis Name"
+              disabled={imageGraph}
+            />
+          </div>
+          <div>
             Legend Enabled:
-            <input name="legendEnabled" type="checkbox" disabled={noneData} />
+            <input name="legendEnabled" type="checkbox" disabled={imageGraph} />
           </div>
           <div>
             Link Click Action:{" "}
-            <select name="clickAction" disabled={!noneData}>
+            <select name="clickAction" disabled={!imageGraph}>
               <option value="playMusic">Play Music</option>
               <option value="spotifyPage">Link to Spotify Page</option>
             </select>
