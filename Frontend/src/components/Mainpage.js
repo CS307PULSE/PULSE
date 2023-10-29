@@ -100,17 +100,6 @@ const searchInputStyle = {
   width: "50%",
 };
 
-//Update follower data
-async function updateFollowers() {
-  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
-    withCredentials: true,
-  });
-  const data = response.data;
-  console.log("Followers response:");
-  console.log(response);
-  return data;
-}
-
 function Mainpage() {
   useEffect(() => {
     document.title = "PULSE - Dashboard";

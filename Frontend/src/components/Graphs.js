@@ -625,6 +625,22 @@ async function sendAlbumRequest(spotify_uri) {
 }
 
 export const ImageGraph = (props) => {
+  function onClickAction(uri) {
+    if (props.clickAction === "playMusic") {
+      if (props.dataName.includes("song")) {
+        sendSongRequest(uri);
+      } else if (props.dataName.includes("album")) {
+        sendAlbumRequest(uri);
+      } else if (props.dataName.includes("playlist")) {
+        sendPlaylistRequest(uri);
+      }
+    } else {
+      const uriParts = uri.split(":");
+      const url = `http://open.spotify.com/${uriParts[1]}/${uriParts[2]}`;
+      window.open(url, "_blank");
+    }
+  }
+
   try {
     return (
       <div
@@ -641,12 +657,11 @@ export const ImageGraph = (props) => {
         {props.dataName.includes("top_artist") ||
         props.dataName.includes("followed_artists") ? (
           props.data.map((artist, index) => (
-            <a
-              href={artist.external_urls.spotify}
-              target="_blank"
-              rel="noreferrer"
+            <span
               data-tooltip-id="my-tooltip"
               data-tooltip-content={artist.name}
+              onClick={() => onClickAction(artist.uri)}
+              style={{ cursor: "pointer" }}
               key={artist.id + index}
             >
               <img
@@ -654,14 +669,14 @@ export const ImageGraph = (props) => {
                 alt={artist.name}
                 className="ImageGraphImage"
               />
-            </a>
+            </span>
           ))
         ) : props.dataName.includes("top_song") ? (
           props.data.map((track, index) => (
             <span
               data-tooltip-id="my-tooltip"
               data-tooltip-content={track.name + " by " + track.artists[0].name}
-              onClick={() => sendSongRequest(track.uri)}
+              onClick={() => onClickAction(track.uri)}
               style={{ cursor: "pointer" }}
               key={track.id + index}
             >
@@ -672,7 +687,8 @@ export const ImageGraph = (props) => {
               />
             </span>
           ))
-        ) : props.dataName.includes("recent_songs") ? (
+        ) : props.dataName.includes("recent_songs") ||
+          props.dataName.includes("saved_songs") ? (
           props.data.map((trackObj, index) => (
             <span
               data-tooltip-id="my-tooltip"
@@ -681,31 +697,11 @@ export const ImageGraph = (props) => {
                 " by " +
                 trackObj.track.artists[0].name +
                 " played at " +
-                trackObj.played_at
+                (props.dataName.includes("recent")
+                  ? trackObj.played_at
+                  : trackObj.added_at)
               }
-              onClick={() => sendSongRequest(trackObj.track.uri)}
-              style={{ cursor: "pointer" }}
-              key={trackObj.track.id + index}
-            >
-              <img
-                src={trackObj.track.album.images[0].url}
-                alt={trackObj.track.name}
-                className="ImageGraphImage"
-              />
-            </span>
-          ))
-        ) : props.dataName.includes("saved_songs") ? (
-          props.data.map((trackObj, index) => (
-            <span
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={
-                trackObj.track.name +
-                " by " +
-                trackObj.track.artists[0].name +
-                " added at " +
-                trackObj.added_at
-              }
-              onClick={() => sendSongRequest(trackObj.track.uri)}
+              onClick={() => onClickAction(trackObj.track.uri)}
               style={{ cursor: "pointer" }}
               key={trackObj.track.id + index}
             >
@@ -723,7 +719,7 @@ export const ImageGraph = (props) => {
               data-tooltip-content={
                 album.album.name + " by " + album.album.artists[0].name
               }
-              onClick={() => sendAlbumRequest(album.album.uri)}
+              onClick={() => onClickAction(album.album.uri)}
               style={{ cursor: "pointer" }}
               key={album.album.id + index}
             >
@@ -741,7 +737,7 @@ export const ImageGraph = (props) => {
               data-tooltip-content={
                 playlist.name + " created by " + playlist.owner.display_name
               }
-              onClick={() => sendPlaylistRequest(playlist.uri)}
+              onClick={() => onClickAction(playlist.uri)}
               style={{ cursor: "pointer" }}
               key={playlist.id + index}
             >
@@ -759,7 +755,7 @@ export const ImageGraph = (props) => {
               data-tooltip-content={
                 trackObj.track.name + " by " + trackObj.track.artists[0].name
               }
-              onClick={() => sendSongRequest(trackObj.track.uri)}
+              onClick={() => onClickAction(trackObj.track.uri)}
               style={{ cursor: "pointer" }}
               key={trackObj.track.id + index}
             >

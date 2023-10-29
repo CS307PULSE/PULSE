@@ -529,6 +529,7 @@ export default function GraphGrid() {
               <ImageGraph
                 data={getData(container.data)}
                 dataName={container.data}
+                clickAction={container.graphSettings.clickAction}
               />
             ) : (
               <p> Hi</p>

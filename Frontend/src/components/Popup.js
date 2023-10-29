@@ -27,7 +27,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       label: "Number of minutes listened to",
       visible: timesDataEN,
     },
-    { value: "percentTimes", label: "% of music listened to", visible: true },
+    {
+      value: "percentTimes",
+      label: "% of music listened to",
+      visible: timesDataEN,
+    },
     {
       value: "numTimesPeriod",
       label: "Times listened to per time period",
@@ -38,7 +42,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       label: "Times listened to or skipped or repeated",
       visible: timesDataEN,
     },
-    { value: "followers", label: "Followers", visible: true },
+    { value: "followers", label: "Followers", visible: timesDataEN },
     {
       value: "emotion",
       label: "Emotion of music listened to",
