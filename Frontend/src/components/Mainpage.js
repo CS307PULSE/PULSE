@@ -6,6 +6,7 @@ import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
 import StatsCard from "./StatsCard";
 
+import ChatbotButton from "./ChatBotButton";
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
 
@@ -101,6 +102,9 @@ const searchInputStyle = {
 };
 
 function Mainpage() {
+  const handleChatbotClick = () => {
+    alert("Chatbot clicked!");
+  };
   useEffect(() => {
     document.title = "PULSE - Dashboard";
   }, []);
@@ -181,6 +185,7 @@ function Mainpage() {
         </Card>
       </div>
       {/* Define routes for each game */}
+      <ChatbotButton />
       <div style={friendContainerStyle}>
         <FriendsCard />
       </div>
