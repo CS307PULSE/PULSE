@@ -658,7 +658,7 @@ export const ImageGraph = (props) => {
         props.dataName.includes("followed_artists") ? (
           props.data.map((artist, index) => (
             <span
-              data-tooltip-id="my-tooltip"
+              data-tooltip-id="body-tooltip"
               data-tooltip-content={artist.name}
               onClick={() => onClickAction(artist.uri)}
               style={{ cursor: "pointer" }}
@@ -674,7 +674,7 @@ export const ImageGraph = (props) => {
         ) : props.dataName.includes("top_song") ? (
           props.data.map((track, index) => (
             <span
-              data-tooltip-id="my-tooltip"
+              data-tooltip-id="body-tooltip"
               data-tooltip-content={track.name + " by " + track.artists[0].name}
               onClick={() => onClickAction(track.uri)}
               style={{ cursor: "pointer" }}
@@ -691,7 +691,7 @@ export const ImageGraph = (props) => {
           props.dataName.includes("saved_songs") ? (
           props.data.map((trackObj, index) => (
             <span
-              data-tooltip-id="my-tooltip"
+              data-tooltip-id="body-tooltip"
               data-tooltip-content={
                 trackObj.track.name +
                 " by " +
@@ -715,7 +715,7 @@ export const ImageGraph = (props) => {
         ) : props.dataName.includes("saved_albums") ? (
           props.data.map((album, index) => (
             <span
-              data-tooltip-id="my-tooltip"
+              data-tooltip-id="body-tooltip"
               data-tooltip-content={
                 album.album.name + " by " + album.album.artists[0].name
               }
@@ -733,7 +733,7 @@ export const ImageGraph = (props) => {
         ) : props.dataName.includes("saved_playlists") ? (
           props.data.map((playlist, index) => (
             <span
-              data-tooltip-id="my-tooltip"
+              data-tooltip-id="body-tooltip"
               data-tooltip-content={
                 playlist.name + " created by " + playlist.owner.display_name
               }
@@ -751,7 +751,7 @@ export const ImageGraph = (props) => {
         ) : props.dataName.includes("song_recommendations") ? (
           props.data.map((trackObj, index) => (
             <span
-              data-tooltip-id="my-tooltip"
+              data-tooltip-id="body-tooltip"
               data-tooltip-content={
                 trackObj.track.name + " by " + trackObj.track.artists[0].name
               }
@@ -769,7 +769,8 @@ export const ImageGraph = (props) => {
         ) : (
           <p>Bad data name</p>
         )}
-        <Tooltip id="my-tooltip" />
+
+        <Tooltip id="body-tooltip" />
       </div>
     );
   } catch (e) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { Tooltip } from "react-tooltip";
 import {
   BarGraph,
   LineGraph,
@@ -492,8 +493,14 @@ export default function GraphGrid() {
       >
         {layout.map((container) => (
           <div className="graphContainer" key={container.i}>
-            <div>
-              <div style={{ fontSize: "var(--title-text-size)" }}>
+            <div style={{ marginBottom: "10px" }}>
+              <div
+                style={{ fontSize: "var(--title-text-size)" }}
+                data-tooltip-id="title-tooltip"
+                data-tooltip-content={
+                  container.graphType + " of " + container.data
+                }
+              >
                 {container.i}
               </div>
               <button
@@ -502,6 +509,7 @@ export default function GraphGrid() {
               >
                 X
               </button>
+              <Tooltip id="title-tooltip" />
             </div>
             {container.graphType === "Bar" ? (
               <BarGraph
