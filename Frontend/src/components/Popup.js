@@ -12,6 +12,8 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   //Use states to selectively disable choices depending on data type
   const [imageGraph, setImageGraph] = useState(true);
   const [timesDataEN, setTimesDataEN] = useState(false);
+  const [radarData, setRadarData] = useState(false);
+  const [followerData, setFollowerData] = useState(false);
   const [multiDataEN, setMultiDataEN] = useState(false);
   const [axisTitlesEN, setAxisTitlesEN] = useState(false);
   const [legendEN, setLegendEN] = useState(false);
@@ -42,12 +44,12 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       label: "Times listened to or skipped or repeated",
       visible: timesDataEN,
     },
-    { value: "followers", label: "Followers", visible: timesDataEN },
     {
       value: "emotion",
       label: "Emotion of music listened to",
-      visible: timesDataEN,
+      visible: radarData,
     },
+    { value: "followers", label: "Followers", visible: followerData },
     {
       value: "top_songs_4week",
       label: "Top Songs of last 4 weeks",
@@ -105,6 +107,26 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   }, [timesDataEN]);
 
   useEffect(() => {
+    // Update visibility based on followerData state
+    setDataOptions((prevOptions) =>
+      prevOptions.map((option) =>
+        option.value === "followers"
+          ? { ...option, visible: followerData }
+          : option
+      )
+    );
+  }, [followerData]);
+
+  useEffect(() => {
+    // Update visibility based on radarData state
+    setDataOptions((prevOptions) =>
+      prevOptions.map((option) =>
+        option.value === "emotion" ? { ...option, visible: radarData } : option
+      )
+    );
+  }, [radarData]);
+
+  useEffect(() => {
     // Update visibility based on imageGraph state
     setDataOptions((prevOptions) =>
       prevOptions.map((option) =>
@@ -154,6 +176,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setMultiDataEN(false);
     setAxisTitlesEN(false);
     setLegendEN(false);
+    setRadarData(false);
     switch (e.target.value) {
       case "ImageGraph":
         setImageGraph(true);
@@ -166,6 +189,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         setAxisTitlesEN(true);
         setLegendEN(true);
         setTimesDataEN(true);
+        setFollowerData(true);
         break;
       case "RadBar":
         setMultiDataEN(true);
@@ -178,6 +202,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         setAxisTitlesEN(true);
         break;
       case "Radar":
+        setRadarData(true);
         break;
       case "Text":
         break;
@@ -264,6 +289,15 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
                   </option>
                 ) : null
               )}
+            </select>
+          </div>
+          <div>
+            Type of Data:{" "}
+            <select name="dataVariation" disabled={imageGraph}>
+              <option value="songs">Songs</option>
+              <option value="artists">Artists</option>
+              <option value="genres">Genres</option>
+              <option value="eras">Eras</option>
             </select>
           </div>
           <div>
