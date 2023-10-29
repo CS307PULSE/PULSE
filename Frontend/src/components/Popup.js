@@ -18,9 +18,9 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
 
   //Data variables
   const [dataOptions, setDataOptions] = useState([
-    { value: "bar1", label: "Sample Bar1", visible: false },
-    { value: "line1", label: "Sample Line1", visible: false },
-    { value: "pie1", label: "Sample pie1", visible: false },
+    { value: "bar1", label: "Sample Bar1", visible: true },
+    { value: "line1", label: "Sample Line1", visible: true },
+    { value: "pie1", label: "Sample pie1", visible: true },
     { value: "pie2", label: "Sample pie2", visible: false },
     {
       value: "numMinutes",

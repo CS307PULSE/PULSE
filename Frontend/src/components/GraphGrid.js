@@ -408,7 +408,7 @@ export default function GraphGrid() {
       h: 1,
     };
 
-    if (newGraph.graphType === "Bar") {
+    if (newGraph.graphType === "VertBar") {
       newGraph.graphSettings = Object.assign(
         { graphKeys: ["degrees"], graphIndexBy: "day" },
         newGraph.graphSettings
@@ -511,27 +511,32 @@ export default function GraphGrid() {
               </button>
               <Tooltip id="title-tooltip" />
             </div>
-            {container.graphType === "Bar" ? (
+            {container.graphType === "VertBar" ? (
               <BarGraph
                 data={getData(container.data)}
                 dataName={container.data}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
                 graphTheme={container.graphSettings.graphTheme}
+                hortAxisTitle={container.graphSettings.hortAxisTitle}
+                vertAxisTitle={container.graphSettings.vertAxisTitle}
+                legendEnabled={container.graphSettings.legendEnabled}
               />
             ) : container.graphType === "Line" ? (
               <LineGraph
                 data={getData(container.data)}
                 dataName={container.data}
-                xName={container.graphSettings.xName}
-                yName={container.graphSettings.yName}
                 graphTheme={container.graphSettings.graphTheme}
+                hortAxisTitle={container.graphSettings.hortAxisTitle}
+                vertAxisTitle={container.graphSettings.vertAxisTitle}
+                legendEnabled={container.graphSettings.legendEnabled}
               />
             ) : container.graphType === "Pie" ? (
               <PieGraph
                 data={getData(container.data)}
                 dataName={container.data}
                 graphTheme={container.graphSettings.graphTheme}
+                legendEnabled={container.graphSettings.legendEnabled}
               />
             ) : container.graphType === "ImageGraph" ? (
               <ImageGraph
@@ -540,7 +545,7 @@ export default function GraphGrid() {
                 clickAction={container.graphSettings.clickAction}
               />
             ) : (
-              <p> Hi</p>
+              <p> Invalid Graph Type</p>
             )}
           </div>
         ))}

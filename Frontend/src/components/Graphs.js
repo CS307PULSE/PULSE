@@ -412,13 +412,19 @@ const graphThemes = {
 
 //Bar Graph
 export const BarGraph = (props) => {
+  console.log(props);
   return (
     <ResponsiveBar
       theme={graphThemes}
       data={props.data}
       keys={props.graphKeys}
       indexBy={props.graphIndexBy}
-      margin={{ top: 30, right: 50, bottom: 50, left: 60 }}
+      margin={{
+        top: 30,
+        right: props.legendEnabled ? 110 : 50,
+        bottom: 70,
+        left: 60,
+      }}
       padding={0.4}
       valueScale={{ type: "linear" }}
       colors={{ scheme: props.graphTheme }}
@@ -430,10 +436,49 @@ export const BarGraph = (props) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: props.graphKeys,
+        legend: props.vertAxisTitle,
         legendPosition: "middle",
         legendOffset: -40,
       }}
+      axisBottom={{
+        orient: "bottom",
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+        legend: props.hortAxisTitle,
+        legendOffset: 36,
+        legendPosition: "middle",
+      }}
+      legends={
+        props.legendEnabled
+          ? [
+              {
+                anchor: "bottom-right",
+                direction: "column",
+                justify: false,
+                translateX: 100,
+                translateY: 0,
+                itemsSpacing: 0,
+                itemDirection: "left-to-right",
+                itemWidth: 80,
+                itemHeight: 20,
+                itemOpacity: 0.75,
+                symbolSize: 12,
+                symbolShape: "circle",
+                symbolBorderColor: "rgba(0, 0, 0, .5)",
+                effects: [
+                  {
+                    on: "hover",
+                    style: {
+                      itemBackground: "rgba(0, 0, 0, .03)",
+                      itemOpacity: 1,
+                    },
+                  },
+                ],
+              },
+            ]
+          : undefined
+      }
     />
   );
 };
@@ -486,7 +531,12 @@ export const LineGraph = (props) => {
         theme={graphThemes}
         data={data}
         colors={{ scheme: props.graphTheme }}
-        margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
+        margin={{
+          top: 30,
+          right: props.legendEnabled ? 110 : 50,
+          bottom: 70,
+          left: 60,
+        }}
         xScale={xScale}
         yScale={{
           type: "linear",
@@ -504,7 +554,7 @@ export const LineGraph = (props) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: props.xName,
+          legend: props.hortAxisTitle,
           legendOffset: 36,
           legendPosition: "middle",
         }}
@@ -513,7 +563,7 @@ export const LineGraph = (props) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: props.yName,
+          legend: props.vertAxisTitle,
           legendOffset: -40,
           legendPosition: "middle",
         }}
@@ -523,32 +573,36 @@ export const LineGraph = (props) => {
         pointBorderColor={{ from: "serieColor" }}
         pointLabelYOffset={-12}
         useMesh={true}
-        legends={[
-          {
-            anchor: "bottom-right",
-            direction: "column",
-            justify: false,
-            translateX: 100,
-            translateY: 0,
-            itemsSpacing: 0,
-            itemDirection: "left-to-right",
-            itemWidth: 80,
-            itemHeight: 20,
-            itemOpacity: 0.75,
-            symbolSize: 12,
-            symbolShape: "circle",
-            symbolBorderColor: "rgba(0, 0, 0, .5)",
-            effects: [
-              {
-                on: "hover",
-                style: {
-                  itemBackground: "rgba(0, 0, 0, .03)",
-                  itemOpacity: 1,
+        legends={
+          props.legendEnabled
+            ? [
+                {
+                  anchor: "bottom-right",
+                  direction: "column",
+                  justify: false,
+                  translateX: 100,
+                  translateY: 0,
+                  itemsSpacing: 0,
+                  itemDirection: "left-to-right",
+                  itemWidth: 80,
+                  itemHeight: 20,
+                  itemOpacity: 0.75,
+                  symbolSize: 12,
+                  symbolShape: "circle",
+                  symbolBorderColor: "rgba(0, 0, 0, .5)",
+                  effects: [
+                    {
+                      on: "hover",
+                      style: {
+                        itemBackground: "rgba(0, 0, 0, .03)",
+                        itemOpacity: 1,
+                      },
+                    },
+                  ],
                 },
-              },
-            ],
-          },
-        ]}
+              ]
+            : undefined
+        }
       />
     );
   } catch (e) {
@@ -565,7 +619,12 @@ export const PieGraph = (props) => {
         theme={graphThemes}
         data={props.data}
         colors={{ scheme: props.graphTheme }}
-        margin={{ top: 40, right: 40, bottom: 80, left: 40 }}
+        margin={{
+          top: 40,
+          right: props.legendEnabled ? 110 : 40,
+          bottom: 80,
+          left: 40,
+        }}
         innerRadius={0.5}
         padAngle={0.7}
         cornerRadius={3}
@@ -574,6 +633,36 @@ export const PieGraph = (props) => {
         borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
         enableArcLabels={false}
         enableArcLinkLabels={false}
+        legends={
+          props.legendEnabled
+            ? [
+                {
+                  anchor: "bottom-right",
+                  direction: "column",
+                  justify: false,
+                  translateX: 100,
+                  translateY: 0,
+                  itemsSpacing: 0,
+                  itemDirection: "left-to-right",
+                  itemWidth: 80,
+                  itemHeight: 20,
+                  itemOpacity: 0.75,
+                  symbolSize: 12,
+                  symbolShape: "circle",
+                  symbolBorderColor: "rgba(0, 0, 0, .5)",
+                  effects: [
+                    {
+                      on: "hover",
+                      style: {
+                        itemBackground: "rgba(0, 0, 0, .03)",
+                        itemOpacity: 1,
+                      },
+                    },
+                  ],
+                },
+              ]
+            : undefined
+        }
       />
     );
   } catch (e) {
