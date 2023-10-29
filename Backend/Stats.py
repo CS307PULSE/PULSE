@@ -1,9 +1,5 @@
-import spotipy
-import multiprocessing
 import time
-import User
 import json
-from Exceptions import ErrorHandler
 from datetime import datetime
 import requests
 import pytz
@@ -389,12 +385,12 @@ class Stats:
                         elif episode_name is not None:
                             track_name = episode_name
                         else:
-                            track_name = "Unknown"
+                            track_name = ""
                     else:
                         if not include_podcasts: continue
-                        track_uri = "Unknown"
+                        track_uri = ""
                         track_data = SONGS_TO_API_DATA_MAP.get(track_uri, {})
-                        track_name = "Unknown"
+                        track_name = ""
 
                     ms_track_length = track_data.get("ms_track_length", 300000)
                     track_link = track_data.get("track_link", "")
@@ -1074,7 +1070,7 @@ class Stats:
 
                 for song in song_data:
                     if song is None: song = {}
-                    uri = song.get('uri', "Unknown")
+                    uri = song.get('uri', "")
                     if uri not in SONGS_TO_API_DATA_MAP:
                         SONGS_TO_API_DATA_MAP[uri] = {
                             "ms_track_length"                   :   300000,
@@ -1154,8 +1150,8 @@ class Stats:
 
                 for artist in artist_data:
                     if artist is None: artist = {}
-                    uri = artist.get('uri', "Unknown:").split(":")[-1]
-                    genres = artist.get('genres', "Unknown")
+                    uri = artist.get('uri', ":").split(":")[-1]
+                    genres = artist.get('genres', "")
                     
                     map[uri]["genres"] = genres       
                     
@@ -1180,7 +1176,7 @@ class Stats:
 
                 for episode in episode_data:
                     if episode is None: episode = {}
-                    uri = episode.get('uri', "Unknown")
+                    uri = episode.get('uri', "")
                     if uri not in EPISODES_TO_API_DATA_MAP:
                         EPISODES_TO_API_DATA_MAP[uri] = {
                             "ms_track_length"                   :   60000*60,

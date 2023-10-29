@@ -923,7 +923,7 @@ def import_advanced_stats():
     start_time = datetime.now()
     if 'user' in session:
         #data = request.get_json()
-        #filepath = data.get('filepath')
+        #filepaths = data.get('filepaths')
         filepaths = ["C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_15.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_14.json",
@@ -1020,10 +1020,6 @@ def api_only_get_advanced_stats():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return Response(json.dumps(response_data, indent=4), mimetype='application/json')
-
-@app.route('/api_only/import_advanced_stats_multiple_files')
-def api_import_advanced_stats_multiple_files():
-    return
 
 @app.route('/api_only/get_advanced_stats')
 def api_import_get_advanced_stats():
@@ -1155,7 +1151,6 @@ def api_advanced_stats_test():
             passed =            EXPECTED_VALS["Tracks"][track_id]["Number of Streams"] == RECEIVED_VALS["Tracks"][track_id]["Number of Streams"] and \
                                 abs(EXPECTED_VALS["Tracks"][track_id]["Number of Minutes"]  - RECEIVED_VALS["Tracks"][track_id]["Number of Minutes"]) < eps  and \
                                 abs(EXPECTED_VALS["Tracks"][track_id]["Average Percentage of Streams"] - RECEIVED_VALS["Tracks"][track_id]["Average Percentage of Streams"]) < eps
-            if not passed: print(track_id)
             track_data_bool = track_data_bool and passed
         
         overall_bool = num_streams_bool and num_mins_bool and percentage_bool and track_data_bool
