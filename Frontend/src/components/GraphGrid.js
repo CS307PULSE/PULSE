@@ -15,123 +15,22 @@ import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
 import tempBasicData from "./TempData/BasicStats.js";
+import tempAdvancedData from "./TempData/AdvancedStats";
+import defaultLayout from "./TempData/defaultLayout";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-//Default layout so that page does not look empty
-const defaultLayout = [
-  {
-    h: 1,
-    i: "Top songs of last 4 weeks",
-    w: 2,
-    x: 0,
-    y: 0,
-    data: "top_songs_4week",
-    graphType: "ImageGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Top Artists of last 4 weeks",
-    w: 2,
-    x: 0,
-    y: 3,
-    data: "top_artists_4week",
-    graphType: "ImageGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Recent songs",
-    w: 3,
-    x: 2,
-    y: 0,
-    data: "recent_songs",
-    graphType: "ImageGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Saved Songs",
-    w: 1,
-    x: 4,
-    y: 1,
-    data: "saved_songs",
-    graphType: "ImageGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Followed Artists",
-    w: 2,
-    x: 2,
-    y: 1,
-    data: "followed_artists",
-    graphType: "ImageGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Saved Albums",
-    w: 2,
-    x: 0,
-    y: 2,
-    data: "saved_albums",
-    graphType: "ImageGraph",
-    graphSettings: {},
-  },
-  {
-    i: "Sample Pie",
-    graphType: "Pie",
-    data: "pie1",
-    graphSettings: { graphTheme: "category10" },
-    x: 3,
-    y: 2,
-    w: 1,
-    h: 1,
-  },
-  {
-    i: "Sample Bar",
-    graphType: "Bar",
-    data: "bar1",
-    graphSettings: {
-      graphKeys: ["degrees"],
-      graphIndexBy: "day",
-      graphTheme: "category10",
-    },
-    x: 2,
-    y: 2,
-    w: 1,
-    h: 1,
-  },
-  {
-    i: "Followers",
-    graphType: "Line",
-    data: "followers",
-    graphSettings: {
-      xName: "date",
-      yName: "Followers",
-      graphTheme: "spectral",
-    },
-    x: 4,
-    y: 2,
-    w: 1,
-    h: 1,
-  },
-  {
-    i: "Saved Playlists",
-    graphType: "ImageGraph",
-    data: "saved_playlists",
-    graphSettings: {},
-    x: 0,
-    y: 1,
-    w: 2,
-    h: 1,
-  },
-];
-
-async function fetchBackendDatas() {
+async function fetchBasicData() {
   const response = await axios.get("http://127.0.0.1:5000/statistics", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
+async function fetchAdvancedData() {
+  const response = await axios.get("http://127.0.0.1:5000/get_advanced_stats", {
     withCredentials: true,
   });
   const data = response.data;
@@ -218,10 +117,11 @@ export default function GraphGrid() {
   //Send layout to local storage
   const saveToLS = (key, storingLayout) => {
     try {
+      /*
       console.log(
         "Layout " + key + " (should be " + layoutNumber + " ) stored as"
       );
-      console.log(storingLayout);
+      console.log(storingLayout);*/
       localStorage.setItem(key, JSON.stringify(storingLayout));
     } catch (e) {
       alert(e);
@@ -275,11 +175,12 @@ export default function GraphGrid() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("getting");
-        const data = await fetchBackendDatas();
+        console.log("getting basic stats");
+        const data = await fetchBasicData();
 
         //Log data in console to view
         try {
+          console.log("Got below data");
           const objData = {
             top_artists: JSON.parse(data.top_artists),
             top_songs: JSON.parse(data.top_songs),
@@ -292,7 +193,9 @@ export default function GraphGrid() {
             saved_playlists: JSON.parse(data.saved_playlists),
           };
           console.log(objData);
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
 
         //Try catch for each data for parsing failure when data field empty
         try {
@@ -359,7 +262,6 @@ export default function GraphGrid() {
           if (layout_data.defaultLayout === "") {
           } else {
             setlayoutNumber(parseInt(layout_data.defaultLayout));
-            console.log(parseInt(layout_data.defaultLayout));
           }
         }
 
@@ -387,10 +289,24 @@ export default function GraphGrid() {
 
   //Get advanced data
   useEffect(() => {
-    const fetchAdvancedData = async () => {
+    const fetchData = async () => {
       try {
-      } catch {}
+        console.log("Getting advanced data");
+        const data = await fetchAdvancedData();
+        if (data === null) {
+          // Error thrown here to trigger backup advanced data
+          throw new Error("No advanced data found!");
+        } else {
+        }
+      } catch (error) {
+        alert(
+          "Page failed fetching advanced data - loading backup advanced data"
+        );
+        console.error("Error fetching advanced data:", error);
+        setFinished(true);
+      }
     };
+    fetchData();
     setFinishedAdvanced(true);
   }, []);
 

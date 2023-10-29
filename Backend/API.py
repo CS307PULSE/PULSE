@@ -1022,7 +1022,8 @@ def get_advanced_stats():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_advanced_stats_from_DB("0ajzwwwmv2hwa3k1bj2z19obr")
+            # "0ajzwwwmv2hwa3k1bj2z19obr"
+            response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
