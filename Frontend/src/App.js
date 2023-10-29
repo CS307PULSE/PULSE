@@ -23,6 +23,7 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
+import ChatBot from "./components/ChatBot";
 
 
 
@@ -74,8 +75,10 @@ function App() {
         <Route path="game/guess-the-song" element={<GuessTheSong />} />
         <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
         <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
+        <Route path="game/guess-who-listens" element={<GuessWhoListens />} />
         <Route path="/game/heads-up" element={<HeadsUp />} />
         <Route path="/Statistics" element={<StatisticsPage />} />
+        <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
         
