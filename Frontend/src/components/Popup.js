@@ -192,7 +192,17 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     // Read the form data
     const form = e.target;
     const formData = new FormData(form);
-    let formJson = Object.fromEntries(formData.entries());
+    const formJson = {};
+    for (let [name, value] of formData) {
+      if (formJson[name]) {
+        if (!Array.isArray(formJson[name])) {
+          formJson[name] = [formJson[name]]; // Convert to array if it's not already
+        }
+        formJson[name].push(value);
+      } else {
+        formJson[name] = value;
+      }
+    }
 
     if (validName) {
       onClose();
@@ -236,6 +246,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               <option value="Bump">Bump</option>
               <option value="Radar">Radar</option>
               <option value="Scatter">Scatter</option>
+              <option value="Calendar">Calendar</option>
               <option value="Text">Text</option>
             </select>
           </div>

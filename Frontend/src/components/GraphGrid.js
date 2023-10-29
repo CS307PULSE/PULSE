@@ -394,7 +394,13 @@ export default function GraphGrid() {
       i: newGraphData.graphName,
       graphType: newGraphData.graphType,
       data: newGraphData.data,
-      graphSettings: { graphTheme: newGraphData.graphTheme },
+      graphSettings: {
+        graphTheme: newGraphData.graphTheme,
+        clickAction: newGraphData.clickAction,
+        hortAxisTitle: newGraphData.hortAxisTitle,
+        vertAxisTitle: newGraphData.vertAxisTitle,
+        legendEnabled: newGraphData.legendEnabled,
+      },
       x: 0,
       y: 0,
       w: 1,
@@ -420,6 +426,8 @@ export default function GraphGrid() {
       }
     }
 
+    console.log("New Layout item added:");
+    console.log(newGraph);
     AddContainer(newGraph);
   };
 
