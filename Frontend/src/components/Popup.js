@@ -177,6 +177,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setAxisTitlesEN(false);
     setLegendEN(false);
     setRadarData(false);
+    setFollowerData(false);
     switch (e.target.value) {
       case "ImageGraph":
         setImageGraph(true);
