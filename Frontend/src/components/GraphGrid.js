@@ -14,7 +14,7 @@ import {
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
-import tempData from "./tempDataFile.js";
+import tempBasicData from "./TempData/BasicStats.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -171,6 +171,7 @@ export default function GraphGrid() {
   const [followedArtists, setFollowedArtists] = useState();
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
+  const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
   //Remove container function
   const RemoveContainer = (containerName) => {
@@ -367,10 +368,14 @@ export default function GraphGrid() {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
         // Temporary measure to keep things going
-        console.log(JSON.parse(tempData.follower_data));
-        setTopArtists(JSON.parse(tempData.top_artists));
-        setTopSongs(JSON.parse(tempData.top_songs));
-        setFollowers(JSON.parse(tempData.follower_data));
+        setTopArtists(tempBasicData.top_artists);
+        setTopSongs(tempBasicData.top_songs);
+        setFollowers(tempBasicData.follower_data);
+        setRecentSongs(tempBasicData.recent_history);
+        setSavedSongs(tempBasicData.saved_songs);
+        setSavedAlbums(JSON.parse(tempBasicData.saved_albums));
+        setFollowedArtists(tempBasicData.followed_artists);
+        setSavedPlaylists(tempBasicData.saved_playlists);
 
         setFinished(true);
       }
@@ -378,6 +383,15 @@ export default function GraphGrid() {
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  //Get advanced data
+  useEffect(() => {
+    const fetchAdvancedData = async () => {
+      try {
+      } catch {}
+    };
+    setFinishedAdvanced(true);
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -478,6 +492,8 @@ export default function GraphGrid() {
 
   if (!finishedPullingData) {
     return <>Still Loading...</>;
+  } else if (!finishedPullingAdvancedData) {
+    return <>Loading Advanced Data...</>;
   }
 
   return (
