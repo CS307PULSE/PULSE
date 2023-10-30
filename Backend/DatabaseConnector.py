@@ -714,5 +714,6 @@ db_config =  {
             'passwd':"PurdueCS307R0cks!&!",                      # password
             'db':"pulse",                                        # database
             'charset':'utf8',                                     # charset encoding
-            'connect_timeout' : '1000'
+            'connect_timeout' : '1000',
+            'pool_recycle' : '3600'
             }
