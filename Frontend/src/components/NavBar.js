@@ -14,11 +14,7 @@ const navbarStyle = {
   alignItems: "center",
   backgroundColor: themeColors.green,
   padding: "0 1rem",
-  color: themeColors.white,
-  /*position: "fixed",
-  top: "0",
-  left: 0,
-  width: "100%"*/
+  color: themeColors.white
 };
 
 const logoStyle = {

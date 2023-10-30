@@ -4,9 +4,10 @@ import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
-
+import ChatbotButton from "./ChatBotButton";
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
+
 
 import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
@@ -111,12 +112,19 @@ async function updateFollowers() {
 }
 
 function Mainpage() {
+
+  const handleChatbotClick = () => {
+    // Logic to open chatbot goes here
+    alert('Chatbot clicked!');
+};
+
   function StatsCardComp() {
     //Data to display on stats card
     const [topArtists, setTopArtists] = useState();
     const [topSongs, setTopSongs] = useState();
     const [followers, setFollowers] = useState();
     const [statsDone, setStatsDone] = useState(false);
+
     useEffect(() => {
       updateFollowers();
       const fetchData = async () => {
@@ -264,6 +272,7 @@ function Mainpage() {
         </Card>
       </div>
       {/* Define routes for each game */}
+      <ChatbotButton/>
       <div style={friendContainerStyle}>
         <FriendsCard />
       </div>
