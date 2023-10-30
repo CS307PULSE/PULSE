@@ -102,7 +102,21 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error creating new user in stats table:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    #Creates a a new row in advanced stats DB containing only the username with all other values being null. Expects spotify_id and returns None
+    def create_new_user_in_advanced_stats_DB(self, spotify_id):
+        try:
+            sql_store_new_user_query = """INSERT INTO pulse.advanced_stats (spotify_id) VALUES (%s)"""
+            self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
+            self.db_conn.commit()
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error creating new user in advanced stats table:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
