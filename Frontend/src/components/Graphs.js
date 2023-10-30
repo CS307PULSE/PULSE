@@ -559,15 +559,11 @@ export const LineGraph = (props) => {
         setSelectionGraph(true);
         setData([
           {
-            id: "Temp",
+            id: "",
             data: [
               {
-                x: "plane",
-                y: 36,
-              },
-              {
-                x: "helicopter",
-                y: 197,
+                x: "",
+                y: 0,
               },
             ],
           },
@@ -644,6 +640,24 @@ export const LineGraph = (props) => {
         console.log(tempDataArr);
         setData(tempDataArr);
       } else if (props.dataName === "numTimesSkipped") {
+        setItemsSelectable(
+          Object.keys(props.data.Tracks).map((key) => ({
+            name: props.data.Tracks[key].Name,
+            uri: key,
+          }))
+        );
+        setSelectionGraph(true);
+        setData([
+          {
+            id: "",
+            data: [
+              {
+                x: "",
+                y: 0,
+              },
+            ],
+          },
+        ]);
       } else {
         setData(props.data);
       }
@@ -662,11 +676,13 @@ export const LineGraph = (props) => {
     }
     //console.log(itemsSelected);
     if (selectionGraph) {
-      const readVal =
+      let readVal =
         props.dataName === "numMinutes"
           ? "Number of Minutes"
-          : "Average Percentage of Streams";
-      const itemType =
+          : props.dataName === "percentTimes"
+          ? "Average Percentage of Streams"
+          : "Skips";
+      let itemType =
         props.dataVariation === "songs"
           ? "Tracks"
           : props.dataVariation === "artists"
@@ -697,36 +713,44 @@ export const LineGraph = (props) => {
 
       //console.log("Main body is");
       //console.log(dataSource);
-
+      console.log(itemsSelected);
       setData(
         itemsSelected.map((item) => ({
           id:
             props.dataVariation === "songs" || props.dataVariation === "artists"
               ? props.data[itemType][item].Name
               : item,
-          data: Object.entries(dataSource)
-            .map(([timePeriod, timeItems]) => {
-              /*
+          data:
+            props.timeRange === "all"
+              ? [
+                  {
+                    x: "All",
+                    y: props.data[itemType][item][readVal],
+                  },
+                ]
+              : Object.entries(dataSource)
+                  .map(([timePeriod, timeItems]) => {
+                    /*
               console.log("Trying to find ");
               console.log(item);
               console.log("in");
               console.log(timeItems[itemType]);
               console.log(timeItems[itemType][item]);*/
-              if (timeItems[itemType][item] === undefined) {
-                return {
-                  x: timePeriod,
-                  y: 0,
-                };
-              } else {
-                return {
-                  x: timePeriod,
-                  y: timeItems[itemType][item][readVal],
-                };
-              }
-            })
-            .sort((a, b) => {
-              return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
-            }),
+                    if (timeItems[itemType][item] === undefined) {
+                      return {
+                        x: timePeriod,
+                        y: 0,
+                      };
+                    } else {
+                      return {
+                        x: timePeriod,
+                        y: timeItems[itemType][item][readVal],
+                      };
+                    }
+                  })
+                  .sort((a, b) => {
+                    return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
+                  }),
         }))
       );
       console.log(data);
@@ -832,7 +856,11 @@ export const LineGraph = (props) => {
               >
                 <div>{point.id.slice(0, -2)}</div>
                 <div>
-                  {props.dataName.includes("percent") ? "% of time" : "Minutes"}
+                  {props.dataName.includes("percent")
+                    ? "% of time"
+                    : props.dataName === "numMinutes"
+                    ? "Minutes"
+                    : "Times skipped"}
                   :{" "}
                   {point.data.yFormatted *
                     (props.dataName === "percentTimes" ? 100.0 : 1.0)}

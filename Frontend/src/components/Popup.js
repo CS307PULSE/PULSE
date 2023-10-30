@@ -214,7 +214,9 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     const form = e.target;
     const formData = new FormData(form);
     const formJson = {};
+    //Converts to JSON object
     for (let [name, value] of formData) {
+      //If item exists already - then add to array
       if (formJson[name]) {
         if (!Array.isArray(formJson[name])) {
           formJson[name] = [formJson[name]]; // Convert to array if it's not already
@@ -223,6 +225,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       } else {
         formJson[name] = value;
       }
+    }
+
+    //Set dataVariation to song if below data
+    if (formJson.data === "numTimesSkipped") {
+      formJson.dataVariation = "songs";
     }
 
     if (validName) {
