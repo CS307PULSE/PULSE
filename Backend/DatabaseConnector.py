@@ -149,7 +149,7 @@ class DatabaseConnector(object):
         results = self.db_cursor.fetchone()
         if (results[0] is None or results is [] or results is "[]"):
             return None
-        self.resultset = json.loads(results[0])
+        self.resultset = json.load(results[0])
         if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
@@ -316,24 +316,24 @@ class DatabaseConnector(object):
                                 """
             self.db_cursor.execute(sql_update_advanced_stats_query, (
                 json.dumps(new_advanced_stats),
-                            yearly_values[0],  # 2008
-                            yearly_values[1],  # 2009
-                            yearly_values[2],  # 2010
-                            yearly_values[3],  # 2011
-                            yearly_values[4],  # 2012
-                            yearly_values[5],  # 2013
-                            yearly_values[6],  # 2014
-                            yearly_values[7],  # 2015
-                            yearly_values[8],  # 2016
-                            yearly_values[9],  # 2017
-                            yearly_values[10],  # 2018
-                            yearly_values[11],  # 2019
-                            yearly_values[12],  # 2020
-                            yearly_values[13],  # 2021
-                            yearly_values[14],  # 2022
-                            yearly_values[15],  # 2023
-                            yearly_values[16],  # 2024
-                            yearly_values[17],  # 2025
+                            json.dumps(years[0]),  # 2008
+                            json.dumps(years[1]),  # 2009
+                            json.dumps(years[2]),  # 2010
+                            json.dumps(years[3]),  # 2011
+                            json.dumps(years[4]),  # 2012
+                            json.dumps(years[5]),  # 2013
+                            json.dumps(years[6]),  # 2014
+                            json.dumps(years[7]),  # 2015
+                            json.dumps(years[8]),  # 2016
+                            json.dumps(years[9]),  # 2017
+                            json.dumps(years[10]),  # 2018
+                            json.dumps(years[11]),  # 2019
+                            json.dumps(years[12]),  # 2020
+                            json.dumps(years[13]),  # 2021
+                            json.dumps(years[14]),  # 2022
+                            json.dumps(years[15]),  # 2023
+                            json.dumps(years[16]),  # 2024
+                            json.dumps(years[17]),  # 2025
                             spotify_id,))
             
             self.db_conn.commit()
