@@ -1,8 +1,9 @@
-import { React, useEffect, useState } from "react";
+import { React, useState } from "react";
 import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
-import { pulseColors } from "../theme/Colors";
+// import { pulseColors } from "../theme/Colors";
 import axios from "axios";
+import { useAppContext } from "./Context"
 
 import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
@@ -41,6 +42,8 @@ try {
 
 function Profile({testParameter}){
 
+    const { state, dispatch } = useAppContext();
+
     const [imagePath, setImagePath] = useState(storedImagePath);
     const [username, setUsername] = useState(storedUsername);
     const [gender, setGender] = useState(storedGender);
@@ -52,8 +55,11 @@ function Profile({testParameter}){
     const [backgroundImage, setBackgroundImage] = useState("https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg");
 
     const [textSizeSetting, setTextSizeSetting] = useState(storedTextSizeSetting)
+    const updateTextSize = (newSetting) => {
+        dispatch({ type: 'UPDATE_TEXT_SIZE', payload: newSetting });
+    };
     const textSizes = TextSize(textSizeSetting); //Obtain text size values
-    
+
     const bodyStyle = {
         backgroundColor: backgroundColor,
         margin: 0,
@@ -282,9 +288,9 @@ function Profile({testParameter}){
             <p style={headerStyle}>Settings</p>
             <p style={profileText}>Text Size: </p>
             <div style={buttonContainerStyle}>
-                <button onClick={e => {setTextSizeSetting(0)}} style={buttonStyle}><p>Small</p></button>
-                <button onClick={e => {setTextSizeSetting(1)}} style={buttonStyle}><p>Medium</p></button>
-                <button onClick={e => {setTextSizeSetting(2)}} style={buttonStyle}><p>Large</p></button>
+                <button onClick={updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
+                <button onClick={updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
+                <button onClick={updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
                 {/* <button onClick={() => {saveTextSize(0)}} style={buttonStyle}><p>Small</p></button>
                 <button onClick={() => {saveTextSize(1)}} style={buttonStyle}><p>Medium</p></button>
                 <button onClick={() => {saveTextSize(2)}} style={buttonStyle}><p>Large</p></button> */}
@@ -298,7 +304,7 @@ function Profile({testParameter}){
             <p style={profileText}>Custom Theme Colors: </p>
             <div style={customThemeContainerStyle}>
                 <div style={{width: "100px"}}>
-                    <label style={profileText} for="textColorPicker">Text</label><br></br>
+                    <label style={profileText}>Text</label><br></br>
                     <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {setTextColor(e.target.value)}} value={textColor}></input>
                 </div>
                 <div style={{width: "100px"}}>

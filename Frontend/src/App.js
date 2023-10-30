@@ -1,9 +1,9 @@
 import "./App.css";
 import { useState, useEffect } from "react";
+import { AppContextProvider } from "./components/Context";
+
 import Login from "./components/Login";
 import Profile from "./components/Profile";
-//import EditProfile from "./components/EditProfile";
-
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
 import GuessTheLyric from "./components/GuessTheLyric";
@@ -52,6 +52,7 @@ function App() {
     setLoginClicked(true);
   };
   return (
+    <AppContextProvider>
     <Router>
       <Routes>
         <Route
@@ -80,6 +81,7 @@ function App() {
         <Route path="friends" />
       </Routes>
     </Router>
+    </AppContextProvider>
   );
 }
 
