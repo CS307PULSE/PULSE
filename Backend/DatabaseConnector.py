@@ -125,14 +125,14 @@ class DatabaseConnector(object):
     
     # Returns a user's advanced stats from DB as a JSON object
     def get_advanced_stats_from_DB(self, spotify_id):
-        sql_get_advanced_stats_query = "SELECT advanced_stats from pulse.base_stats WHERE spotify_id = %s"
+        sql_get_advanced_stats_query = "SELECT * from pulse.advanced_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
-            return None
-        self.resultset = json.loads(results[0])
-        if (self.resultset == []) or (self.resultset is None):
-            return None
+        
+        #NOAH HERE
+        id = results[0]
+        spotify_id = results[1]
+        header = json.dumps(results[2])
         return self.resultset
 
     # Returns the display name from DB as a string.
