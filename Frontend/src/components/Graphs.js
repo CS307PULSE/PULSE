@@ -527,16 +527,27 @@ export const LineGraph = (props) => {
             break;
           case "artists":
             setItemsSelectable(
-              Object.keys(props.data.Artists).map(
-                (key) => props.data.Artists[key].Name
-              )
+              Object.keys(props.data.Artists).map((key) => ({
+                name: props.data.Artists[key].Name,
+                uri: key,
+              }))
             );
             break;
           case "genres":
-            setItemsSelectable(Object.keys(props.data.Genres));
+            setItemsSelectable(
+              Object.keys(props.data.Genres).map((key) => ({
+                name: key,
+                uri: key,
+              }))
+            );
             break;
           case "eras":
-            setItemsSelectable(Object.keys(props.data.Eras));
+            setItemsSelectable(
+              Object.keys(props.data.Eras).map((key) => ({
+                name: key,
+                uri: key,
+              }))
+            );
             break;
           default:
             throw new Error("Bad DataVariation=" + props.dataVariation);
@@ -564,6 +575,7 @@ export const LineGraph = (props) => {
       console.Error(e);
       setData("Bad Data");
     }
+    console.log(itemsSelectable);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -585,7 +597,7 @@ export const LineGraph = (props) => {
           ? "Artists"
           : props.dataVariation === "genres"
           ? "Genres"
-          : "eras";
+          : "Eras";
       const years = Object.keys(props.data.Yearly);
       const highestYear = Math.max(...years.map(Number));
       const dataSource =
@@ -612,14 +624,18 @@ export const LineGraph = (props) => {
 
       setData(
         itemsSelected.map((item) => ({
-          id: props.data[itemType][item].Name,
+          id:
+            props.dataVariation === "songs" || props.dataVariation === "artists"
+              ? props.data[itemType][item].Name
+              : item,
           data: Object.entries(dataSource)
             .map(([timePeriod, timeItems]) => {
               /*
-            console.log("Trying to find ");
-            console.log(item);
-            console.log("in");
-            console.log(timeItems);*/
+              console.log("Trying to find ");
+              console.log(item);
+              console.log("in");
+              console.log(timeItems[itemType]);
+              console.log(timeItems[itemType][item]);*/
               if (timeItems[itemType][item] === undefined) {
                 return {
                   x: timePeriod,
@@ -637,6 +653,7 @@ export const LineGraph = (props) => {
             }),
         }))
       );
+      console.log(data);
     }
   }, [itemsSelected]);
 
@@ -666,15 +683,17 @@ export const LineGraph = (props) => {
               }}
               multiple={true}
             >
-              {itemsSelectable.map((item) => (
-                <option
-                  key={item.uri}
-                  value={item.uri}
-                  selected={itemsSelected.includes(item.uri)}
-                >
-                  {item.name}
-                </option>
-              ))}
+              {itemsSelectable.map((item) => {
+                return (
+                  <option
+                    key={item.uri}
+                    value={item.uri}
+                    selected={itemsSelected.includes(item.uri)}
+                  >
+                    {item.name}
+                  </option>
+                );
+              })}
             </select>
           </div>
         ) : (
@@ -736,7 +755,11 @@ export const LineGraph = (props) => {
                 }}
               >
                 <div>{point.id.slice(0, -2)}</div>
-                <div>Minutes: {point.data.yFormatted}</div>
+                <div>
+                  {props.dataName === "numMinutes" ? "Minutes" : "% of time"}:{" "}
+                  {point.data.yFormatted *
+                    (props.dataName === "numMinutes" ? 1.0 : 100.0)}
+                </div>
               </div>
             );
           }}
