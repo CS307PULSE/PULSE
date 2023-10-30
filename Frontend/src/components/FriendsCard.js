@@ -6,19 +6,24 @@ import { Link } from "react-router-dom";
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
 
-import Colors from "../theme/Colors"; 
+import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 
 var textSizeSetting, themeSetting, friends;
 try {
-    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
-    textSizeSetting = textSizeResponse.data;
-    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    themeSetting = themeResponse.data;
+  var textSizeResponse = await axios.get(
+    "http://127.0.0.1:5000/get_text_size",
+    { withCredentials: true }
+  );
+  textSizeSetting = textSizeResponse.data;
+  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
+    withCredentials: true,
+  });
+  themeSetting = themeResponse.data;
 } catch (e) {
-    console.log("Formatting settings fetch failed: " + e);
-    textSizeSetting = 1;
-    themeSetting = 0;
+  console.log("Formatting settings fetch failed: " + e);
+  textSizeSetting = 1;
+  themeSetting = 0;
 }
 
 /*  UNCOMMENT FOR CONNECTING TO BACKEND
@@ -58,22 +63,22 @@ const Header = styled.div`
   top: 0;
   position: sticky;
   color: black; // Set text color to green
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
-  padding:10px;
+  padding: 10px;
   text-transform: uppercase;
 `;
 
 const Content = styled.div`
-color: ${themeColors.white};
-font-family: Rhodium Libre;
-font-size: 14px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
-text-transform: uppercase;
+  color: ${themeColors.white};
+  font-family: Rhodium Libre;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
   padding: 16px;
 `;
 const StyledLink = styled(Link)`

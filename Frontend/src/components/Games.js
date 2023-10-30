@@ -139,6 +139,7 @@ const Games = () => {
   const [scores, setScores] = useState([]);
 
   useEffect(() => {
+    document.title = "PULSE - Games Page";
     // Make a GET request to your Flask backend
     fetchDataScores()
       .then((data) => setScores(data.scores))

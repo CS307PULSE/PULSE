@@ -7,6 +7,7 @@ import Profile from "./components/Profile";
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
 import GuessTheLyric from "./components/GuessTheLyric";
+import GuessWhoListens from "./components/GuessWhoListens";
 import Games from "./components/Games";
 import Mainpage from "./components/Mainpage";
 import StatisticsPage from "./components/StatisticsPage";
@@ -21,9 +22,9 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import axios from "axios";
-import DJMixer from "./components/DJMixer";
-import SongRecommendations from "./components/SongRecommendation";
+import ChatBot from "./components/ChatBot";
+
+
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
@@ -73,7 +74,10 @@ function App() {
         <Route path="game/guess-the-song" element={<GuessTheSong />} />
         <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
         <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
+        <Route path="game/guess-who-listens" element={<GuessWhoListens />} />
+        <Route path="/game/heads-up" element={<HeadsUp />} />
         <Route path="/Statistics" element={<StatisticsPage />} />
+        <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
         <Route path="/DJmixer/SongRecommendation" element={<SongRecommendations />}/>
