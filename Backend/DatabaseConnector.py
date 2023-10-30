@@ -276,8 +276,47 @@ class DatabaseConnector(object):
     # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, 0 if not.
     def update_advanced_stats(self, spotify_id, new_advanced_stats):
         try:
-            sql_update_advanced_stats_query = """UPDATE pulse.base_stats SET advanced_stats = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
+            yearly = new_advanced_stats["Yearly"]
+            new_advanced_stats["Yearly"] = {}
+            years = [None] * 18
+            
+            
+            for year in yearly.keys():
+                year_int = int(year)
+                years[year_int - 2008] = yearly[str(year_int)]
+        except Exception as e:
+            print("Error while processing")
+            print(str(e))
+        
+        try:
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats
+                                        SET 
+                                        advanced_stats_header = %s,
+                                        advanced_stats_2008 = %s,
+                                        advanced_stats_2009 = %s,
+                                        advanced_stats_2010 = %s,
+                                        advanced_stats_2011 = %s,
+                                        advanced_stats_2012 = %s,
+                                        advanced_stats_2013 = %s,
+                                        advanced_stats_2014 = %s,
+                                        advanced_stats_2015 = %s,
+                                        advanced_stats_2016 = %s,
+                                        advanced_stats_2017 = %s,
+                                        advanced_stats_2018 = %s,
+                                        advanced_stats_2019 = %s,
+                                        advanced_stats_2020 = %s,
+                                        advanced_stats_2021 = %s,
+                                        advanced_stats_2022 = %s,
+                                        advanced_stats_2023 = %s,
+                                        advanced_stats_2024 = %s,
+                                        advanced_stats_2025 = %s
+                                    WHERE spotify_id = %s
+                                """
+            self.db_cursor.execute(sql_update_advanced_stats_query, (
+                json.dumps(new_advanced_stats),
+                *[json.dumps(value) for value in yearly[:18]],  # Update for the first 18 years
+                spotify_id,))
+            
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -285,7 +324,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating advanced stats:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
