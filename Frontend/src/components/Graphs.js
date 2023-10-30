@@ -572,7 +572,7 @@ export const LineGraph = (props) => {
     if (itemsSelected === undefined || itemsSelected[0] === undefined) {
       return;
     }
-    console.log(itemsSelected);
+    //console.log(itemsSelected);
     if (selectionGraph) {
       const readVal =
         props.dataName === "numMinutes"
@@ -649,7 +649,7 @@ export const LineGraph = (props) => {
   let xAxisTicks = xScale.type === "time" ? [] : "auto";
 
   try {
-    console.log(data);
+    //console.log(data);
     return (
       <>
         {selectionGraph ? (
@@ -687,7 +687,7 @@ export const LineGraph = (props) => {
           margin={{
             top: 30,
             right: props.legendEnabled ? 110 : 50,
-            bottom: selectionGraph ? 100 : 75,
+            bottom: selectionGraph ? 170 : 75,
             left: 60,
           }}
           xScale={xScale}
@@ -695,7 +695,7 @@ export const LineGraph = (props) => {
             type: "linear",
             min: "auto",
             max: "auto",
-            stacked: true,
+            stacked: false,
             reverse: false,
           }}
           yFormat=" >-.2f"
@@ -726,6 +726,20 @@ export const LineGraph = (props) => {
           pointBorderColor={{ from: "serieColor" }}
           pointLabelYOffset={-12}
           useMesh={true}
+          tooltip={({ point }) => {
+            return (
+              <div
+                style={{
+                  background: "white",
+                  padding: "9px 12px",
+                  border: "1px solid #ccc",
+                }}
+              >
+                <div>{point.id.slice(0, -2)}</div>
+                <div>Minutes: {point.data.yFormatted}</div>
+              </div>
+            );
+          }}
           legends={
             props.legendEnabled
               ? [
