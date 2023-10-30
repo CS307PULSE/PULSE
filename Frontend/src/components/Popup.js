@@ -12,6 +12,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   //Use states to selectively disable choices depending on data type
   const [imageGraph, setImageGraph] = useState(true);
   const [timesDataEN, setTimesDataEN] = useState(false);
+  const [specTimesDataEN, setSpecTimesDataSelected] = useState(false);
   const [radarData, setRadarData] = useState(false);
   const [followerData, setFollowerData] = useState(false);
   const [multiDataEN, setMultiDataEN] = useState(false);
@@ -19,6 +20,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [legendEN, setLegendEN] = useState(false);
 
   //Data variables
+  const [dataSelected, setDataSelected] = useState();
   const [dataOptions, setDataOptions] = useState([
     { value: "bar1", label: "Sample Bar1", visible: true },
     { value: "line1", label: "Sample Line1", visible: true },
@@ -71,6 +73,15 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     },
   ]);
 
+  //Update Data info
+  useEffect(() => {
+    if (dataSelected === "numMinutes" || dataSelected === "percentTimes") {
+      setSpecTimesDataSelected(true);
+    } else {
+      setSpecTimesDataSelected(false);
+    }
+  }, [dataSelected]);
+
   //Update data choices when state changes
   useEffect(() => {
     // Update visibility based on timesDataEN state
@@ -79,8 +90,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         option.value === "numMinutes" ||
         option.value === "percentTimes" ||
         option.value === "percentTimePeriod" ||
-        option.value === "numTimesSkipped" ||
-        option.value === "emotion"
+        option.value === "numTimesSkipped"
           ? { ...option, visible: timesDataEN }
           : option
       )
@@ -263,7 +273,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Data:{" "}
-            <select name="data">
+            <select
+              name="data"
+              value={dataSelected}
+              onChange={(dataName) => setDataSelected(dataName)}
+            >
               {dataOptions.map((option) =>
                 option.visible ? (
                   <option key={option.value} value={option.value}>
@@ -275,7 +289,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Type of Data:{" "}
-            <select name="dataVariation" disabled={!timesDataEN}>
+            <select name="dataVariation" disabled={!specTimesDataEN}>
               <option value="songs">Songs</option>
               <option value="artists">Artists</option>
               <option value="genres">Genres</option>
