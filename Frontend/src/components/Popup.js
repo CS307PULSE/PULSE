@@ -276,7 +276,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             <select
               name="data"
               value={dataSelected}
-              onChange={(dataName) => setDataSelected(dataName)}
+              onChange={(e) => setDataSelected(e.target.value)}
             >
               {dataOptions.map((option) =>
                 option.visible ? (
