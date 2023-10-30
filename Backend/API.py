@@ -918,6 +918,17 @@ def get_gender():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/BRUH')
+def tester():
+    spotify_id = "0ajzwwwmv2hwa3k1bj2z19obr"
+    with open('advanced_stats_output.json', 'r') as file:
+    # Load the JSON data from the file into a Python dictionary
+        DATA = json.load(file)
+    with DatabaseConnector(db_config) as conn:
+            if (conn.update_advanced_stats(spotify_id, DATA) == 0):
+                error_message = "Advanced stats has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
     from datetime import datetime, timedelta
@@ -925,7 +936,23 @@ def import_advanced_stats():
     if 'user' in session:
         #data = request.get_json()
         #filepaths = data.get('filepaths')
-        filepaths = ["C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json"
+        filepaths = ["C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_15.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_14.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2022-2023_13.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2022_12.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2022_11.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021-2022_10.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021_9.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021_8.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2021_7.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020-2021_6.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_5.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_4.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_3.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019-2020_2.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019_1.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2018-2019_0.json"
                      ]
         user_data = session['user']
         user = User.from_json(user_data)
@@ -940,7 +967,7 @@ def import_advanced_stats():
         #  DATA = conn.get_advanced_stats_from_DB(user.spotify_id)
         DATA = None
 
-        #time.sleep(30)
+        time.sleep(30)
         for filepath in filepaths: 
             time.sleep(5)
             if filepath:
