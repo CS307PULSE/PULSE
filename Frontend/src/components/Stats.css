@@ -90,14 +90,6 @@
   object-fit: contain;
 }
 
-.selectItemBoxContainer {
-  max-width: 100%;
-}
-
-.selectItemBoxContainer select {
-  max-width: 80%;
-}
-
 html {
   color-scheme: var(--light-dark-scheme) !important;
 }

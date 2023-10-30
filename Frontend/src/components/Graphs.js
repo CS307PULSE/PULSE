@@ -504,6 +504,10 @@ export const LineGraph = (props) => {
 
   //Setup Data per selected values
   useEffect(() => {
+    if (props.data === undefined || props.data === null) {
+      setData("Bad Data");
+      return;
+    }
     try {
       if (props.dataName === "followers") {
         setXScale({
@@ -568,6 +572,78 @@ export const LineGraph = (props) => {
             ],
           },
         ]);
+      } else if (props.dataName === "percentTimePeriod") {
+        let tempDataArr = [];
+        //Overall times
+        tempDataArr.push({
+          id: "Overall",
+          data: [
+            { x: "morning", y: props.data["Time of Day Breakdown"][0] },
+            { x: "afternoon", y: props.data["Time of Day Breakdown"][1] },
+            { x: "evening", y: props.data["Time of Day Breakdown"][2] },
+            { x: "night", y: props.data["Time of Day Breakdown"][3] },
+          ],
+        });
+        //Yearly -> Monthly
+        for (const year of Object.keys(props.data.Yearly)) {
+          tempDataArr.push({
+            id: year,
+            data: [
+              {
+                x: "morning",
+                y: props.data.Yearly[year]["Time of Day Breakdown"][0],
+              },
+              {
+                x: "afternoon",
+                y: props.data.Yearly[year]["Time of Day Breakdown"][1],
+              },
+              {
+                x: "evening",
+                y: props.data.Yearly[year]["Time of Day Breakdown"][2],
+              },
+              {
+                x: "night",
+                y: props.data.Yearly[year]["Time of Day Breakdown"][3],
+              },
+            ],
+          });
+
+          //Monthly data
+          for (const month of Object.keys(props.data.Yearly[year].Monthly)) {
+            tempDataArr.push({
+              id: year + " " + month,
+              data: [
+                {
+                  x: "morning",
+                  y: props.data.Yearly[year].Monthly[month][
+                    "Time of Day Breakdown"
+                  ][0],
+                },
+                {
+                  x: "afternoon",
+                  y: props.data.Yearly[year].Monthly[month][
+                    "Time of Day Breakdown"
+                  ][1],
+                },
+                {
+                  x: "evening",
+                  y: props.data.Yearly[year].Monthly[month][
+                    "Time of Day Breakdown"
+                  ][2],
+                },
+                {
+                  x: "night",
+                  y: props.data.Yearly[year].Monthly[month][
+                    "Time of Day Breakdown"
+                  ][3],
+                },
+              ],
+            });
+          }
+        }
+        console.log(tempDataArr);
+        setData(tempDataArr);
+      } else if (props.dataName === "numTimesSkipped") {
       } else {
         setData(props.data);
       }
@@ -756,9 +832,10 @@ export const LineGraph = (props) => {
               >
                 <div>{point.id.slice(0, -2)}</div>
                 <div>
-                  {props.dataName === "numMinutes" ? "Minutes" : "% of time"}:{" "}
+                  {props.dataName.includes("percent") ? "% of time" : "Minutes"}
+                  :{" "}
                   {point.data.yFormatted *
-                    (props.dataName === "numMinutes" ? 1.0 : 100.0)}
+                    (props.dataName === "percentTimes" ? 100.0 : 1.0)}
                 </div>
               </div>
             );

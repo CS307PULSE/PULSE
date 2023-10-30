@@ -400,7 +400,7 @@ export default function GraphGrid() {
           return followedArtists;
         case "numMinutes":
         case "percentTimes":
-        case "numTimesPeriod":
+        case "percentTimePeriod":
         case "numTimesSkipped":
         case "emotion":
           return advancedData;

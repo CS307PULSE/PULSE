@@ -35,7 +35,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       visible: timesDataEN,
     },
     {
-      value: "numTimesPeriod",
+      value: "percentTimePeriod",
       label: "Times listened to per time period",
       visible: timesDataEN,
     },
@@ -78,7 +78,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       prevOptions.map((option) =>
         option.value === "numMinutes" ||
         option.value === "percentTimes" ||
-        option.value === "numTimesPeriod" ||
+        option.value === "percentTimePeriod" ||
         option.value === "numTimesSkipped" ||
         option.value === "emotion"
           ? { ...option, visible: timesDataEN }
@@ -263,7 +263,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Data:{" "}
-            <select name="data" multiple={multiDataEN}>
+            <select name="data">
               {dataOptions.map((option) =>
                 option.visible ? (
                   <option key={option.value} value={option.value}>
