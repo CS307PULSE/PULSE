@@ -1184,6 +1184,40 @@ def api_advanced_stats_test():
     else:
         return 'User session not found. Please log in again.'
 
+@app.route('/friends/sendrequest', methods=['POST'])
+def sendrequest():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        friendname = data.get('friendname')
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/friends/addfriend', methods=['POST'])
+def addfriend():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        acceptname = data.get('acceptname')
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+
+@app.route('/friends/removefriend', methods=['POST'])
+def removefriend():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        removename = data.get('removename')
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
 @app.route('/test')
 def test():
     if 'user' in session:
