@@ -713,5 +713,6 @@ db_config =  {
             'user':"pulse_admin_userz",                          # username
             'passwd':"PurdueCS307R0cks!&!",                      # password
             'db':"pulse",                                        # database
-            'charset':'utf8'                                     # charset encoding
+            'charset':'utf8',                                     # charset encoding
+            'connect_timeout' : '1000'
             }
