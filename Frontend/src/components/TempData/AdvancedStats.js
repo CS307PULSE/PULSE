@@ -1,4 +1,4 @@
-const tempAdvancedData = {
+export const tempAdvancedData = {
   Albums: {
     "": {
       "Average Percentage of Streams": 0.6991930490858995,
@@ -92671,3 +92671,5 @@ const tempAdvancedData = {
     },
   },
 };
+
+export default tempAdvancedData;

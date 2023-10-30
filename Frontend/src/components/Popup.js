@@ -51,33 +51,13 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     },
     { value: "followers", label: "Followers", visible: followerData },
     {
-      value: "top_songs_4week",
-      label: "Top Songs of last 4 weeks",
+      value: "top_songs",
+      label: "Top Songs",
       visible: imageGraph,
     },
     {
-      value: "top_songs_6month",
-      label: "Top Songs of last 6 months",
-      visible: imageGraph,
-    },
-    {
-      value: "top_songs_all",
-      label: "Top Songs of all time",
-      visible: imageGraph,
-    },
-    {
-      value: "top_artists_4week",
-      label: "Top Artists of last 4 weeks",
-      visible: imageGraph,
-    },
-    {
-      value: "top_artists_6month",
-      label: "Top Artists of last 6 months",
-      visible: imageGraph,
-    },
-    {
-      value: "top_artists_all",
-      label: "Top Artists of all time",
+      value: "top_artists",
+      label: "Top Artists",
       visible: imageGraph,
     },
     { value: "recent_songs", label: "Recent Songs", visible: imageGraph },
@@ -97,6 +77,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setDataOptions((prevOptions) =>
       prevOptions.map((option) =>
         option.value === "numMinutes" ||
+        option.value === "percentTimes" ||
         option.value === "numTimesPeriod" ||
         option.value === "numTimesSkipped" ||
         option.value === "emotion"
@@ -294,11 +275,29 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Type of Data:{" "}
-            <select name="dataVariation" disabled={imageGraph}>
+            <select name="dataVariation" disabled={!timesDataEN}>
               <option value="songs">Songs</option>
               <option value="artists">Artists</option>
               <option value="genres">Genres</option>
               <option value="eras">Eras</option>
+            </select>
+          </div>
+          <div>
+            Time:{" "}
+            <select name="timeRange" disabled={!timesDataEN && !imageGraph}>
+              <option value="all">All Time</option>
+              <option value="year" disabled={!timesDataEN}>
+                Yearly
+              </option>
+              <option value="month" disabled={!timesDataEN}>
+                Monthly
+              </option>
+              <option value="6month" disabled={!imageGraph}>
+                6 Months
+              </option>
+              <option value="4week" disabled={!imageGraph}>
+                4 Weeks
+              </option>
             </select>
           </div>
           <div>

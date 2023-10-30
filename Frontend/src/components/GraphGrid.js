@@ -70,6 +70,7 @@ export default function GraphGrid() {
   const [followedArtists, setFollowedArtists] = useState();
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
+  const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
   //Remove container function
@@ -297,12 +298,14 @@ export default function GraphGrid() {
           // Error thrown here to trigger backup advanced data
           throw new Error("No advanced data found!");
         } else {
+          setAdvancedData(data);
         }
       } catch (error) {
         alert(
           "Page failed fetching advanced data - loading backup advanced data"
         );
         console.error("Error fetching advanced data:", error);
+        setAdvancedData(tempAdvancedData);
         setFinished(true);
       }
     };
@@ -325,6 +328,8 @@ export default function GraphGrid() {
       i: newGraphData.graphName,
       graphType: newGraphData.graphType,
       data: newGraphData.data,
+      timeRange: newGraphData.timeRange,
+      dataVariation: newGraphData.dataVariation,
       graphSettings: {
         graphTheme: newGraphData.graphTheme,
         clickAction: newGraphData.clickAction,
@@ -343,18 +348,6 @@ export default function GraphGrid() {
         { graphKeys: ["degrees"], graphIndexBy: "day" },
         newGraph.graphSettings
       );
-    } else if (newGraph.graphType === "Line") {
-      if (newGraph.data === "followers") {
-        newGraph.graphSettings = Object.assign(
-          { xName: "date", yName: "Followers" },
-          newGraph.graphSettings
-        );
-      } else {
-        newGraph.graphSettings = Object.assign(
-          { xName: "transportation", yName: "Count" },
-          newGraph.graphSettings
-        );
-      }
     }
 
     console.log("New Layout item added:");
@@ -362,7 +355,7 @@ export default function GraphGrid() {
     AddContainer(newGraph);
   };
 
-  function getData(dataName) {
+  function getData(dataName, dataVariation, timeRange) {
     try {
       switch (dataName) {
         case "bar1":
@@ -373,18 +366,26 @@ export default function GraphGrid() {
           return pie1;
         case "pie2":
           return pie2;
-        case "top_songs_4week":
-          return topSongs[0];
-        case "top_songs_6month":
-          return topSongs[1];
-        case "top_songs_all":
-          return topSongs[2];
-        case "top_artists_4week":
-          return topArtists[0];
-        case "top_artists_6month":
-          return topArtists[1];
-        case "top_artists_all":
-          return topArtists[2];
+        case "top_songs":
+          switch (timeRange) {
+            case "4week":
+              return topSongs[0];
+            case "6month":
+              return topSongs[1];
+            case "all":
+            default:
+              return topSongs[2];
+          }
+        case "top_artists":
+          switch (timeRange) {
+            case "4week":
+              return topArtists[0];
+            case "6month":
+              return topArtists[1];
+            case "all":
+            default:
+              return topArtists[2];
+          }
         case "followers":
           return followers;
         case "recent_songs":
@@ -397,6 +398,12 @@ export default function GraphGrid() {
           return savedPlaylists;
         case "followed_artists":
           return followedArtists;
+        case "numMinutes":
+        case "percentTimes":
+        case "numTimesPeriod":
+        case "numTimesSkipped":
+        case "emotion":
+          return advancedData;
         default:
           return null;
       }
@@ -445,8 +452,14 @@ export default function GraphGrid() {
             </div>
             {container.graphType === "VertBar" ? (
               <BarGraph
-                data={getData(container.data)}
+                data={getData(
+                  container.data,
+                  container.dataVariation,
+                  container.timeRange
+                )}
                 dataName={container.data}
+                dataVariation={container.dataVariation}
+                timeRange={container.timeRange}
                 graphKeys={container.graphSettings.graphKeys}
                 graphIndexBy={container.graphSettings.graphIndexBy}
                 graphTheme={container.graphSettings.graphTheme}
@@ -456,8 +469,14 @@ export default function GraphGrid() {
               />
             ) : container.graphType === "Line" ? (
               <LineGraph
-                data={getData(container.data)}
+                data={getData(
+                  container.data,
+                  container.dataVariation,
+                  container.timeRange
+                )}
                 dataName={container.data}
+                dataVariation={container.dataVariation}
+                timeRange={container.timeRange}
                 graphTheme={container.graphSettings.graphTheme}
                 hortAxisTitle={container.graphSettings.hortAxisTitle}
                 vertAxisTitle={container.graphSettings.vertAxisTitle}
@@ -465,15 +484,27 @@ export default function GraphGrid() {
               />
             ) : container.graphType === "Pie" ? (
               <PieGraph
-                data={getData(container.data)}
+                data={getData(
+                  container.data,
+                  container.dataVariation,
+                  container.timeRange
+                )}
                 dataName={container.data}
+                dataVariation={container.dataVariation}
+                timeRange={container.timeRange}
                 graphTheme={container.graphSettings.graphTheme}
                 legendEnabled={container.graphSettings.legendEnabled}
               />
             ) : container.graphType === "ImageGraph" ? (
               <ImageGraph
-                data={getData(container.data)}
+                data={getData(
+                  container.data,
+                  container.dataVariation,
+                  container.timeRange
+                )}
                 dataName={container.data}
+                dataVariation={container.dataVariation}
+                timeRange={container.timeRange}
                 clickAction={container.graphSettings.clickAction}
               />
             ) : (

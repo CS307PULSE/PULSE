@@ -486,8 +486,11 @@ export const BarGraph = (props) => {
 //Line Graph
 export const LineGraph = (props) => {
   const [data, setData] = useState();
+  const [itemsSelectable, setItemsSelectable] = useState([]);
+  const [itemsSelected, setItemsSelected] = useState([]);
+  const [selectionGraph, setSelectionGraph] = useState(false);
   const [xScale, setXScale] = useState({ type: "point" });
-  const fixData = () => {
+  const fixFollowerData = () => {
     let tempData = {
       id: "Followers",
       data: Object.keys(props.data).map((key) => ({
@@ -499,6 +502,7 @@ export const LineGraph = (props) => {
     return [tempData];
   };
 
+  //Setup Data per selected values
   useEffect(() => {
     try {
       if (props.dataName === "followers") {
@@ -507,15 +511,134 @@ export const LineGraph = (props) => {
           format: "%Y-%m-%d %H:%M:%S",
           precision: "millisecond",
         });
-        setData(fixData());
+        setData(fixFollowerData());
+      } else if (
+        props.dataName === "numMinutes" ||
+        props.dataName === "percentTimes"
+      ) {
+        switch (props.dataVariation) {
+          case "songs":
+            setItemsSelectable(
+              Object.keys(props.data.Tracks).map((key) => ({
+                name: props.data.Tracks[key].Name,
+                uri: key,
+              }))
+            );
+            break;
+          case "artists":
+            setItemsSelectable(
+              Object.keys(props.data.Artists).map(
+                (key) => props.data.Artists[key].Name
+              )
+            );
+            break;
+          case "genres":
+            setItemsSelectable(Object.keys(props.data.Genres));
+            break;
+          case "eras":
+            setItemsSelectable(Object.keys(props.data.Eras));
+            break;
+          default:
+            throw new Error("Bad DataVariation=" + props.dataVariation);
+        }
+        setSelectionGraph(true);
+        setData([
+          {
+            id: "Temp",
+            data: [
+              {
+                x: "plane",
+                y: 36,
+              },
+              {
+                x: "helicopter",
+                y: 197,
+              },
+            ],
+          },
+        ]);
       } else {
         setData(props.data);
       }
     } catch (e) {
+      console.Error(e);
       setData("Bad Data");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  //Set data for selected values
+  useEffect(() => {
+    if (itemsSelected === undefined || itemsSelected[0] === undefined) {
+      return;
+    }
+    console.log(itemsSelected);
+    if (selectionGraph) {
+      const readVal =
+        props.dataName === "numMinutes"
+          ? "Number of Minutes"
+          : "Average Percentage of Streams";
+      const itemType =
+        props.dataVariation === "songs"
+          ? "Tracks"
+          : props.dataVariation === "artists"
+          ? "Artists"
+          : props.dataVariation === "genres"
+          ? "Genres"
+          : "eras";
+      const years = Object.keys(props.data.Yearly);
+      const highestYear = Math.max(...years.map(Number));
+      const dataSource =
+        props.timeRange === "year"
+          ? props.data.Yearly
+          : props.data.Yearly[highestYear].Monthly;
+      const monthsOrder = [
+        "JANUARY",
+        "FEBRUARY",
+        "MARCH",
+        "APRIL",
+        "MAY",
+        "JUNE",
+        "JULY",
+        "AUGUST",
+        "SEPTEMBER",
+        "OCTOBER",
+        "NOVEMBER",
+        "DECEMBER",
+      ];
+
+      //console.log("Main body is");
+      //console.log(dataSource);
+
+      setData(
+        itemsSelected.map((item) => ({
+          id: props.data[itemType][item].Name,
+          data: Object.entries(dataSource)
+            .map(([timePeriod, timeItems]) => {
+              /*
+            console.log("Trying to find ");
+            console.log(item);
+            console.log("in");
+            console.log(timeItems);*/
+              if (timeItems[itemType][item] === undefined) {
+                return {
+                  x: timePeriod,
+                  y: 0,
+                };
+              } else {
+                return {
+                  x: timePeriod,
+                  y: timeItems[itemType][item][readVal],
+                };
+              }
+            })
+            .sort((a, b) => {
+              return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
+            }),
+        }))
+      );
+    }
+  }, [itemsSelected]);
 
   if (data === undefined) {
     return <>Still generating graph</>;
@@ -526,87 +649,118 @@ export const LineGraph = (props) => {
   let xAxisTicks = xScale.type === "time" ? [] : "auto";
 
   try {
+    console.log(data);
     return (
-      <ResponsiveLine
-        theme={graphThemes}
-        data={data}
-        colors={{ scheme: props.graphTheme }}
-        margin={{
-          top: 30,
-          right: props.legendEnabled ? 110 : 50,
-          bottom: 70,
-          left: 60,
-        }}
-        xScale={xScale}
-        yScale={{
-          type: "linear",
-          min: "auto",
-          max: "auto",
-          stacked: true,
-          reverse: false,
-        }}
-        yFormat=" >-.2f"
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-          orient: "bottom",
-          tickValues: { xAxisTicks },
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: props.hortAxisTitle,
-          legendOffset: 36,
-          legendPosition: "middle",
-        }}
-        axisLeft={{
-          orient: "left",
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: props.vertAxisTitle,
-          legendOffset: -40,
-          legendPosition: "middle",
-        }}
-        pointSize={10}
-        pointColor={{ theme: "background" }}
-        pointBorderWidth={2}
-        pointBorderColor={{ from: "serieColor" }}
-        pointLabelYOffset={-12}
-        useMesh={true}
-        legends={
-          props.legendEnabled
-            ? [
-                {
-                  anchor: "bottom-right",
-                  direction: "column",
-                  justify: false,
-                  translateX: 100,
-                  translateY: 0,
-                  itemsSpacing: 0,
-                  itemDirection: "left-to-right",
-                  itemWidth: 80,
-                  itemHeight: 20,
-                  itemOpacity: 0.75,
-                  symbolSize: 12,
-                  symbolShape: "circle",
-                  symbolBorderColor: "rgba(0, 0, 0, .5)",
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemBackground: "rgba(0, 0, 0, .03)",
-                        itemOpacity: 1,
+      <>
+        {selectionGraph ? (
+          <div className="custom-draggable-cancel">
+            <select
+              style={{ maxWidth: "90%" }}
+              name="items"
+              value={itemsSelected}
+              onChange={(e) => {
+                const selectedOptions = Array.from(
+                  e.target.selectedOptions
+                ).map((option) => option.value);
+                setItemsSelected(selectedOptions);
+              }}
+              multiple={true}
+            >
+              {itemsSelectable.map((item) => (
+                <option
+                  key={item.uri}
+                  value={item.uri}
+                  selected={itemsSelected.includes(item.uri)}
+                >
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <></>
+        )}
+        <ResponsiveLine
+          theme={graphThemes}
+          data={data}
+          colors={{ scheme: props.graphTheme }}
+          margin={{
+            top: 30,
+            right: props.legendEnabled ? 110 : 50,
+            bottom: selectionGraph ? 100 : 75,
+            left: 60,
+          }}
+          xScale={xScale}
+          yScale={{
+            type: "linear",
+            min: "auto",
+            max: "auto",
+            stacked: true,
+            reverse: false,
+          }}
+          yFormat=" >-.2f"
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            orient: "bottom",
+            tickValues: { xAxisTicks },
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: props.hortAxisTitle,
+            legendOffset: 36,
+            legendPosition: "middle",
+          }}
+          axisLeft={{
+            orient: "left",
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: props.vertAxisTitle,
+            legendOffset: -40,
+            legendPosition: "middle",
+          }}
+          pointSize={10}
+          pointColor={{ theme: "background" }}
+          pointBorderWidth={2}
+          pointBorderColor={{ from: "serieColor" }}
+          pointLabelYOffset={-12}
+          useMesh={true}
+          legends={
+            props.legendEnabled
+              ? [
+                  {
+                    anchor: "bottom-right",
+                    direction: "column",
+                    justify: false,
+                    translateX: 100,
+                    translateY: 0,
+                    itemsSpacing: 0,
+                    itemDirection: "left-to-right",
+                    itemWidth: 80,
+                    itemHeight: 20,
+                    itemOpacity: 0.75,
+                    symbolSize: 12,
+                    symbolShape: "circle",
+                    symbolBorderColor: "rgba(0, 0, 0, .5)",
+                    effects: [
+                      {
+                        on: "hover",
+                        style: {
+                          itemBackground: "rgba(0, 0, 0, .03)",
+                          itemOpacity: 1,
+                        },
                       },
-                    },
-                  ],
-                },
-              ]
-            : undefined
-        }
-      />
+                    ],
+                  },
+                ]
+              : undefined
+          }
+        />
+      </>
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return <p>Your data is empty!</p>;
   }
 };
