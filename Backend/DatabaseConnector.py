@@ -280,12 +280,10 @@ class DatabaseConnector(object):
             new_advanced_stats["Yearly"] = {}
             years = [None] * 18
             
-            
             for year in yearly.keys():
                 year_int = int(year)
                 years[year_int - 2008] = yearly[str(year_int)]
-            
-            yearly_values = [json.dumps(value) for value in yearly[:18]]
+
         except Exception as e:
             print("Error while processing")
             print(str(e))
@@ -714,5 +712,5 @@ db_config =  {
             'passwd':"PurdueCS307R0cks!&!",                      # password
             'db':"pulse",                                        # database
             'charset':'utf8',                                     # charset encoding
-            'connect_timeout' : '1000',
+            'connect_timeout' : 1000,
             }
