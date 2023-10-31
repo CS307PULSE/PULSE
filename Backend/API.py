@@ -1225,12 +1225,24 @@ def removeFriend():
         user = User.from_json(user_data) 
         data = request.get_json()
         friendid = data.get('spotify_id')
+        jsonarray = []
         with DatabaseConnector(db_config) as conn:
             conn.update_friends(user.spotify_id, friendid, False)
+            response_data = conn.get_friends_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+            if len(response_data) == 0:
+                jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return "removed friend"
+    return json.dumps(jsonarray)
 
 @app.route('/friends/friend_request_choice', methods=['POST'])
 def requestChoice():
@@ -1240,6 +1252,7 @@ def requestChoice():
         data = request.get_json()
         friendid = data.get('spotify_id')
         choice = data.get('accepted')
+        jsonarray = []
         with DatabaseConnector(db_config) as conn:
             if choice:
                 conn.update_friends(user.spotify_id, friendid, True)
@@ -1255,7 +1268,6 @@ def requestChoice():
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
-                counter = counter + 1
             if len(response_data) == 0:
                 jsonarray = []
     else:
@@ -1270,7 +1282,6 @@ def friendRequestSearch():
         data = request.get_json()
         friendname = data.get('query')
         jsonarray = []
-        counter = 0
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_spotify_id_from_display_name_from_DB(friendname)
             for item in response_data:
@@ -1281,7 +1292,6 @@ def friendRequestSearch():
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
-                counter = counter + 1
             if len(response_data) == 0:
                 jsonarray = []
     else:
@@ -1295,7 +1305,6 @@ def getFriends():
         user_data = session['user']
         user = User.from_json(user_data) 
         jsonarray = []
-        counter = 0
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_friends_from_DB(user.spotify_id)
             for item in response_data:
@@ -1306,7 +1315,6 @@ def getFriends():
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
-                counter = counter + 1
             if len(response_data) == 0:
                 jsonarray = []
     else:
@@ -1320,7 +1328,6 @@ def getrequests():
         user_data = session['user']
         user = User.from_json(user_data) 
         jsonarray = []
-        counter = 0
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_friend_requests_from_DB(user.spotify_id)
             for item in response_data:
@@ -1331,7 +1338,6 @@ def getrequests():
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
-                counter = counter + 1
             if len(response_data) == 0:
                 jsonarray = []
     else:
