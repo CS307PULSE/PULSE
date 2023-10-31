@@ -4,6 +4,7 @@ import SongPlayer from "./SongPlayer";
 import axios from "axios";
 import { useAppContext } from "./Context"
 import TextSize from "../theme/TextSize";
+import { hexToRGBA } from "../theme/Colors";
 
 // try {
 //     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
@@ -91,6 +92,11 @@ function Profile({testParameter}){
         backgroundRepeat: "no-repeat", //Prevent image repetition
         backgroundAttachment: "fixed", //Keep the background fixed
     };
+    const sectionContainerStyle = {
+        backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+        width: "600px",
+        padding: "20px"
+    }
     const headerTextStyle = {
         color: state.colorText,
         fontFamily: "'Poppins', sans-serif",
@@ -272,82 +278,83 @@ function Profile({testParameter}){
     <div class="wrapper">
         <div class="header"><Navbar /></div>
         <div class="content" style={bodyStyle}>
-            <p style={headerTextStyle}>Profile</p>
+            <div style={sectionContainerStyle}>
+                <p style={headerTextStyle}>Profile</p>
+                <div style={iconContainerStyle}>
+                    <img style={iconPictureStyle} src={storedImagePath}/>
+                    {/* <input id="file" accept="image/jpeg,image/png" type="file" onChange={handleImageSelect}/> */}
+                </div> <br></br>
                 
-            <div style={iconContainerStyle}>
-                <img style={iconPictureStyle} src={storedImagePath}/>
+                <label style={profileText}>Icon Link: </label>
+                <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input> <br></br>
+
+                <label style={profileText}>Username: </label>
+                <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input> <br></br>
                 
-                {/* <input id="file" accept="image/jpeg,image/png" type="file" onChange={handleImageSelect}/> */}
-            </div> <br></br>
-            
-            <label style={profileText}>Icon Link: </label>
-            <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input> <br></br>
+                <label style={profileText}>Gender: </label>
+                <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input> <br></br>
 
-            <label style={profileText}>Username: </label>
-            <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input> <br></br>
-            
-            <label style={profileText}>Gender: </label>
-            <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input> <br></br>
+                <label style={profileText}>Location: </label>
+                <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
 
-            <label style={profileText}>Location: </label>
-            <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
-
-            <div style={buttonContainerStyle}>
-                <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>
-            </div>
-
-            <p style={headerTextStyle}>Settings</p>
-
-            <p style={profileText}>Text Size: </p>
-            <div style={buttonContainerStyle}>
-                <button onClick={() => updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
-                <button onClick={() => updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
-                <button onClick={() => updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
-            </div>
-
-            <p style={profileText}>Theme Presets: </p>
-            <div style={buttonContainerStyle}>
-                <button onClick={() => {saveTheme(0)}} style={buttonStyle}><p>Dark</p></button>
-                <button onClick={() => {saveTheme(1)}} style={buttonStyle}><p>Light</p></button>
-            </div>
-            <p style={profileText}>Custom Theme Colors: </p>
-            <div style={customThemeContainerStyle}>
-                <div style={{width: "100px"}}>
-                    <label style={profileText} htmlFor="backgroundColorPicker">Background</label><br></br>
-                    <input style={buttonStyle} type="color" id="backgroundColorPicker" onChange={e => {updateColor("background", e.target.value)}} value={state.colorBackground}></input>
-                </div>
-                <div style={{width: "100px"}}>
-                    <label style={profileText}>Text</label><br></br>
-                    <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {updateColor("text", e.target.value)}} value={state.colorText}></input>
-                </div>
-                <div style={{width: "100px"}}>
-                    <label style={profileText} htmlFor="borderColorPicker">Border</label><br></br>
-                    <input style={buttonStyle} type="color" id="borderColorPicker" onChange={e => {updateColor("border", e.target.value)}} value={state.colorBorder}></input>
-                </div>
-                <div style={{width: "100px"}}>
-                    <label style={profileText} htmlFor="accentColorPicker">Accent</label><br></br>
-                    <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>
                 </div>
             </div>
-            <br></br>
-            <p style={profileText} htmlFor="customColors">Custom themes:</p>
-            <div style={buttonContainerStyle}>
-                <select style={buttonStyle} id="customColors" name="colors">
-                    <option>Red</option>
-                    <option>Blue</option>
-                    <option>Green</option>
-                </select>
-            </div>
-            <p style={profileText}>Background:</p>
-            <div style={buttonContainerStyle}>
-                <button onClick={() => {updateBackgroundImage(null)}} style={buttonStyle}><p>Clear</p></button>
-            </div>
-            <div style={buttonContainerStyle}>
-                <img style={backgroundOptionStyle} src={customBackgrounds[0]} onClick={e => {updateBackgroundImage(e.target.src)}}></img>
-                <img style={backgroundOptionStyle} src={customBackgrounds[1]} onClick={e => {updateBackgroundImage(e.target.src)}}></img>
-            </div>
-            <div style={buttonContainerStyle}>
-                <button style={buttonStyle} onClick={() => saveUserSettings()}>Save Settings</button>
+            <div style={sectionContainerStyle}>
+                <p style={headerTextStyle}>Settings</p>
+
+                <p style={profileText}>Text Size: </p>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
+                    <button onClick={() => updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
+                    <button onClick={() => updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
+                </div>
+
+                <p style={profileText}>Theme Presets: </p>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => {saveTheme(0)}} style={buttonStyle}><p>Dark</p></button>
+                    <button onClick={() => {saveTheme(1)}} style={buttonStyle}><p>Light</p></button>
+                </div>
+                <p style={profileText}>Custom Theme Colors: </p>
+                <div style={customThemeContainerStyle}>
+                    <div style={{width: "100px"}}>
+                        <label style={profileText} htmlFor="backgroundColorPicker">Background</label><br></br>
+                        <input style={buttonStyle} type="color" id="backgroundColorPicker" onChange={e => {updateColor("background", e.target.value)}} value={state.colorBackground}></input>
+                    </div>
+                    <div style={{width: "100px"}}>
+                        <label style={profileText}>Text</label><br></br>
+                        <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {updateColor("text", e.target.value)}} value={state.colorText}></input>
+                    </div>
+                    <div style={{width: "100px"}}>
+                        <label style={profileText} htmlFor="borderColorPicker">Border</label><br></br>
+                        <input style={buttonStyle} type="color" id="borderColorPicker" onChange={e => {updateColor("border", e.target.value)}} value={state.colorBorder}></input>
+                    </div>
+                    <div style={{width: "100px"}}>
+                        <label style={profileText} htmlFor="accentColorPicker">Accent</label><br></br>
+                        <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
+                    </div>
+                </div>
+                <br></br>
+                <p style={profileText} htmlFor="customColors">Custom themes:</p>
+                <div style={buttonContainerStyle}>
+                    <select style={buttonStyle} id="customColors" name="colors">
+                        <option>Red</option>
+                        <option>Blue</option>
+                        <option>Green</option>
+                    </select>
+                </div>
+                <p style={profileText}>Background:</p>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => {updateBackgroundImage(null)}} style={buttonStyle}><p>Clear</p></button>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <img style={backgroundOptionStyle} src={customBackgrounds[0]} onClick={e => {updateBackgroundImage(e.target.src)}}></img>
+                    <img style={backgroundOptionStyle} src={customBackgrounds[1]} onClick={e => {updateBackgroundImage(e.target.src)}}></img>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <button style={buttonStyle} onClick={() => saveUserSettings()}>Save Settings</button>
+                </div>
             </div>
         </div>
         <div class="footer"><SongPlayer /></div>

@@ -8,6 +8,7 @@ import { useAppContext } from "./Context"
 import ChatbotButton from "./ChatBotButton";
 import axios from "axios";
 import TextSize from "../theme/TextSize";
+import { hexToRGBA } from "../theme/Colors";
 
 function Mainpage() {
 
@@ -63,12 +64,12 @@ function Mainpage() {
   };
   
   const friendContainerStyle = {
-    position: "fixed", // Fixed position so it stays on the right
+    position: "fixed",
     top: 100,
     right: 0,
-    width: "20%", // Take up 20% of the viewport width
-    height: "900", // Take up the full height
-    backgroundColor: state.colorBackground, // Add background color for the friend component
+    width: "20%",
+    height: "900",
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
   
   const searchContainerStyle = {

@@ -1,39 +1,24 @@
 import React, { useEffect } from "react";
 import Navbar from "./NavBar";
-import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
-import axios from "axios";
-
-var textSizeSetting, themeSetting;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-const themeColors = Colors(themeSetting); //Obtain color values
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
-
-const bodyStyle = {
-  backgroundColor: themeColors.background,
-  margin: 0,
-  padding: 0,
-  height: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-};
+import { hexToRGBA } from "../theme/Colors";
+import { useAppContext } from "./Context";
 
 const Friends = () => {
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+
+  const bodyStyle = {
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+    margin: 0,
+    padding: 0,
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  };
+
+
   useEffect(() => {
     document.title = "PULSE - Friends";
   }, []);

@@ -1,12 +1,14 @@
 import React from 'react';
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
+import { hexToRGBA } from '../theme/Colors';
 
 const Card = ({ headerText, children, width = "500px", height = "300px"}) => {  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const cardContainerStyle = {
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
     border: "1px solid " + state.colorBorder,
     overflow: "auto",
     width: width,
