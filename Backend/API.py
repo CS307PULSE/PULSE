@@ -1211,8 +1211,12 @@ def friendRequests():
         user = User.from_json(user_data) 
         data = request.get_json()
         friendid = data.get('request')
+        #add no friend requests to self
         with DatabaseConnector(db_config) as conn:
             friendRequests = conn.get_friend_requests_from_DB(friendid)
+            friends = conn.get_friends_from_DB(friendid)
+            if friendid in friends:
+                return "friend is already on friends list"
             if friendid in friendRequests:
                 return "friend always has request"
             conn.update_friend_requests(friendid, user.spotify_id, True)
