@@ -167,87 +167,34 @@ function Profile({testParameter}){
         border: "1px " + state.colorBorder + " solid"
     }
     async function saveTheme(themeParameter) {
-        const axiosInstance = axios.create({
-            withCredentials: true,
-          });
-          const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/set_theme",
-            {
-              theme: themeParameter
-            }
-          );
-          const data = response.data;
-          console.log("Attempted post with value " + themeParameter);
-          window.location.reload();
-          return data;
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/set_theme", {theme: themeParameter});
+        return response.data;
     }
     async function saveTextSize(textSizeParameter) {
-        const axiosInstance = axios.create({
-            withCredentials: true,
-          });
-          const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/set_text_size",
-            {
-              text_size: textSizeParameter
-            }
-          );
-          const data = response.data;
-          console.log("Attempted post with value " + textSizeParameter);
-          window.location.reload();
-          return data;
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/set_text_size", {text_size: textSizeParameter});
+        return response.data;
     }
     async function saveUsername(usernameParameter) {
-        const axiosInstance = axios.create({
-            withCredentials: true,
-          });
-          const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/profile/change_displayname",
-            {
-              displayname: usernameParameter
-            }
-          );
-          const data = response.data;
-          return data;
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/profile/change_displayname", {displayname: usernameParameter});
+        return response.data;
     }
     async function saveGender(genderParameter) {
-        const axiosInstance = axios.create({
-            withCredentials: true,
-          });
-          const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/profile/change_gender",
-            {
-              gender: genderParameter
-            }
-          );
-          const data = response.data;
-          return data;
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/profile/change_gender", {gender: genderParameter});
+        return response.data;
     }
     async function saveLocation(locationParameter) {
-        const axiosInstance = axios.create({
-            withCredentials: true,
-          });
-          const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/profile/change_location",
-            {
-              location: locationParameter
-            }
-          );
-          const data = response.data;
-          return data;
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/profile/change_location", {location: locationParameter});
+        return response.data;
     }
     async function saveImagePath(imagePathParameter) {
-        console.log("Attempting location post with value " + imagePathParameter);
-        const axiosInstance = axios.create({
-            withCredentials: true,
-          });
-          const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/profile/upload",
-            {
-              filepath: imagePathParameter
-            }
-          );
-          const data = response.data;
-          return data;
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/profile/upload", {filepath: imagePathParameter});
+        return response.data;
     }
     async function handleImageSelect(event) {
         const file = event.target.files[0]; // Get the first selected file

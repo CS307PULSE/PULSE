@@ -22,34 +22,29 @@ function Mainpage() {
     backgroundRepeat: "no-repeat", //Prevent image repetition
     backgroundAttachment: "fixed", //Keep the background fixed
   };
-  
   const cardContainerStyle = {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-around",
     width: "75%", // Set width to 75% of the container
   };
-  
   const cardStyle = {
     marginBottom: "20px", // Add some bottom margin for spacing
     padding: "20px",
     textAlign: "center",
     fontFamily: "'Poppins', sans-serif",
   };
-  
   const cardContent = {
     color: state.colorText,
     fontSize: textSizes.body,
     fontFamily: "'Poppins', sans-serif",
   };
-  
   const buttonContainerStyle = {
     display: "flex",
     flexDirection: "column", // Stack buttons in a column
     alignItems: "center", // Center buttons horizontally
     marginTop: "10px", // Space between cards and buttons
   };
-  
   const buttonStyle = {
     backgroundColor: state.colorBackground,
     color: state.colorText,
@@ -62,7 +57,6 @@ function Mainpage() {
     margin: "5px", // Small space between buttons
     width: "90%",
   };
-  
   const friendContainerStyle = {
     position: "fixed",
     top: 100,
@@ -71,7 +65,6 @@ function Mainpage() {
     height: "900",
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
-  
   const searchContainerStyle = {
     display: "flex",
     marginLeft: "230px",
