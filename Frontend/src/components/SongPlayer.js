@@ -171,30 +171,169 @@ function SongPlayer() {
         setShuffleState(false);
     }, [shuffleState]);
 
-    async function saveVolume(volumeParameter) { //Set volume
-        console.log("Attempting volume post with value " + volumeParameter);
-        setVolumeLevel(volumeParameter);
-        const axiosInstance = axios.create({
-            withCredentials: true,
+  useEffect(() => {
+    if (playState === undefined) {
+    } else if (playState) {
+      //Play and pause
+      axios
+        .get("http://127.0.0.1:5000/player/play", { withCredentials: true })
+        .then((response) => {
+          // Handle the response from the backend if needed
+          console.log("Song played successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error playing song:", error);
         });
-        const response = await axiosInstance.post(
-            "http://127.0.0.1:5000/player/volume",
-            {
-                volume: volumeParameter
-            }
-        );
-        const data = response.data;
-        return data;
+      document.getElementById("playButton").src = images.pauseButton;
+    } else {
+      axios
+        .get("http://127.0.0.1:5000/player/pause", { withCredentials: true })
+        .then((response) => {
+          // Handle the response from the backend if needed
+          console.log("Song paused successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error pausing song:", error);
+        });
+      document.getElementById("playButton").src = images.playButton;
     }
+  }, [playState]);
 
-    return(
-        <div className="player" style={songPlayerStyle}>
-            <img id="prevButton" style={songPlayerButtonStyle} src={images.prevButton} onClick={() => {setPrevState(true)}} alt="Previous Song"></img>
-            <img id="playButton" style={songPlayerButtonStyle} src={images.playButton} onClick={() => {setPlayState(!playState)}} alt="Play Song"></img>
-            <img id="nextButton" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {setNextState(true)}} alt="Next Song"></img>
-            <img id="repeatButton" style={songPlayerButtonStyle} src={images.repeatButton} onClick={() => {setRepeatState(true)}} alt="Repeat"></img>
-            <img id="shuffleButton" style={songPlayerButtonStyle} src={images.shuffleButton} onClick={() => {setShuffleState(true)}} alt="Shuffle"></img>
-            {/* <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Album Image"></img>
+  useEffect(() => {
+    //Nexting
+    if (nextState) {
+      axios
+        .get("http://127.0.0.1:5000/player/skip", { withCredentials: true })
+        .then((response) => {
+          // Handle the response from the backend if needed
+          console.log("Song skipping successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error skipping song:", error);
+        });
+      setPlayState(true);
+    }
+    setNextState(false);
+  }, [nextState]);
+
+  useEffect(() => {
+    //Preving
+    if (prevState) {
+      axios
+        .get("http://127.0.0.1:5000/player/prev", { withCredentials: true })
+        .then((response) => {
+          // Handle the response from the backend if needed
+          console.log("Song preved successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error preving song:", error);
+        });
+      setPlayState(true);
+    }
+    setPrevState(false);
+  }, [prevState]);
+
+  useEffect(() => {
+    //Repeat
+    if (repeatState) {
+      axios
+        .get("http://127.0.0.1:5000/player/repeat", { withCredentials: true })
+        .then((response) => {
+          // Handle the response from the backend if needed
+          console.log("Repeat toggled successful:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error toggling repeat:", error);
+        });
+    }
+    setRepeatState(false);
+  }, [repeatState]);
+
+  useEffect(() => {
+    //Shuffle
+    if (shuffleState) {
+      axios
+        .get("http://127.0.0.1:5000/player/shuffle", { withCredentials: true })
+        .then((response) => {
+          // Handle the response from the backend if needed
+          console.log("Repeat toggled successful:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error toggling repeat:", error);
+        });
+    }
+    setShuffleState(false);
+  }, [shuffleState]);
+
+  async function saveVolume(volumeParameter) {
+    //Set volume
+    console.log("Attempting volume post with value " + volumeParameter);
+    setVolumeLevel(volumeParameter);
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    const response = await axiosInstance.post(
+      "http://127.0.0.1:5000/player/volume",
+      {
+        volume: volumeParameter,
+      }
+    );
+    const data = response.data;
+    return data;
+  }
+
+  return (
+    <div className="player" style={songPlayerStyle}>
+      <img
+        id="prevButton"
+        style={songPlayerButtonStyle}
+        src={images.prevButton}
+        onClick={() => {
+          setPrevState(true);
+        }}
+        alt="Previous Song"
+      ></img>
+      <img
+        id="playButton"
+        style={songPlayerButtonStyle}
+        src={images.playButton}
+        onClick={() => {
+          if (playState === undefined) {
+            setPlayState(true);
+          } else {
+            setPlayState(!playState);
+          }
+        }}
+        alt="Play Song"
+      ></img>
+      <img
+        id="nextButton"
+        style={songPlayerButtonStyle}
+        src={images.nextButton}
+        onClick={() => {
+          setNextState(true);
+        }}
+        alt="Next Song"
+      ></img>
+      <img
+        id="repeatButton"
+        style={songPlayerButtonStyle}
+        src={images.repeatButton}
+        onClick={() => {
+          setRepeatState(true);
+        }}
+        alt="Repeat"
+      ></img>
+      <img
+        id="shuffleButton"
+        style={songPlayerButtonStyle}
+        src={images.shuffleButton}
+        onClick={() => {
+          setShuffleState(true);
+        }}
+        alt="Shuffle"
+      ></img>
+      {/* <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Album Image"></img>
             <div style={infoContainerStyle}>
                 <p style={songNameTextStyle}>lol</p>
                 <p style={artistNameTextStyle}>asdsadasj daskldj askopasdsad</p>
@@ -212,9 +351,17 @@ function SongPlayer() {
                     <option value="option3">Option 3</option>
                 </select>
             </div> */}
-            <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={e => saveVolume(e.target.value)}></input>
-                
-        </div>
-    );
+      <input
+        style={volumeSliderStyle}
+        type="range"
+        id="mySlider"
+        min="0"
+        max="100"
+        value={volumeLevel}
+        step="1"
+        onChange={(e) => saveVolume(e.target.value)}
+      ></input>
+    </div>
+  );
 }
 export default SongPlayer;

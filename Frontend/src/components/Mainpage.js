@@ -5,9 +5,8 @@ import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
 import { useAppContext } from "./Context"
-import { pulseColors } from "../theme/Colors";
+import ChatbotButton from "./ChatBotButton";
 import axios from "axios";
-import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 
 function Mainpage() {
@@ -94,12 +93,18 @@ function Mainpage() {
     return data;
   }
   
+  const handleChatbotClick = () => {
+    // Logic to open chatbot goes here
+    alert('Chatbot clicked!');
+  };
+
   function StatsCardComp() {
     //Data to display on stats card
     const [topArtists, setTopArtists] = useState();
     const [topSongs, setTopSongs] = useState();
     const [followers, setFollowers] = useState();
     const [statsDone, setStatsDone] = useState(false);
+
     useEffect(() => {
       updateFollowers();
       const fetchData = async () => {
@@ -143,22 +148,33 @@ function Mainpage() {
     if (!statsDone) {
       return <p>Loading</p>;
     }
-    return (
-      <>
-        <p style={cardContent}>
-          Favorite artist of all time: {topArtists[2][0].name}
-        </p>
-        <p style={cardContent}>
-          Favorite artist recently: {topArtists[0][0].name}
-        </p>
-        <p style={cardContent}>
-          Favorite song of all time: {topSongs[2][0].name}
-        </p>
-        <p style={cardContent}>Favorite song recently: {topSongs[0][0].name}</p>
-        <p style={cardContent}>You have {followers} followers</p>
-      </>
-    );
+    try {
+      return (
+        <>
+          <p style={cardContent}>
+            Favorite artist of all time: {topArtists[2][0].name}
+          </p>
+          <p style={cardContent}>
+            Favorite artist recently: {topArtists[0][0].name}
+          </p>
+          <p style={cardContent}>
+            Favorite song of all time: {topSongs[2][0].name}
+          </p>
+          <p style={cardContent}>
+            Favorite song recently: {topSongs[0][0].name}
+          </p>
+          <p style={cardContent}>You have {followers} followers</p>
+        </>
+      );
+    } catch (e) {
+      console.log(e);
+      return <p>Try refreshing, data was bad, sorry!</p>;
+    }
   }
+
+  useEffect(() => {
+    document.title = "PULSE - Dashboard";
+  }, []);
 
   return (
     <div class="wrapper">
@@ -236,6 +252,7 @@ function Mainpage() {
           </Card>
         </div>
         {/* Define routes for each game */}
+        <ChatbotButton/>
         <div style={friendContainerStyle}>
           <FriendsCard />
         </div>

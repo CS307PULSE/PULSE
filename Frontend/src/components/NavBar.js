@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // If using React Router for navigation
+import React from "react";
+import { Link } from "react-router-dom"; // If using React Router for navigation
 import LogoPNG from "../../src/assets/LogoPNG.png";
 import ProfileIcon from "../../src/assets/ProfileIcon.png";
 import { useAppContext } from './Context';
@@ -58,16 +58,24 @@ const Navbar = () => {
 
       <div style={linkContainerStyle}>
         <div style={linkStyle}>
-          <Link to="/statistics" style={linkStyle}>Statistics</Link>
+          <Link to="/statistics" style={linkStyle}>
+            Statistics
+          </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/DJmixer" style={linkStyle}>DJ Mixer</Link>
+          <Link to="/DJmixer" style={linkStyle}>
+            DJ Mixer
+          </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/games" style={linkStyle}>Games</Link>
+          <Link to="/games" style={linkStyle}>
+            Games
+          </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/uploader" style={linkStyle}>Uploader</Link>
+          <Link to="/uploader" style={linkStyle}>
+            Uploader
+          </Link>
         </div>
       </div>
 
@@ -78,6 +86,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

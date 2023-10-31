@@ -23,21 +23,33 @@ const customBackgrounds = [ "https://wallpapers.com/images/featured/blue-galaxy-
 
 var storedUsername, storedGender, storedLocation, storedImagePath;
 try {
-    var usernameResponse = await axios.get("http://127.0.0.1:5000/profile/get_displayname", {withCredentials: true});
-    storedUsername = usernameResponse.data;
-    var genderResponse = await axios.get("http://127.0.0.1:5000/profile/get_gender", {withCredentials: true});
-    storedGender = genderResponse.data;
-    var locationResponse = await axios.get("http://127.0.0.1:5000/profile/get_location", {withCredentials: true});
-    storedLocation = locationResponse.data;
-    var imageResponse = await axios.get("http://127.0.0.1:5000/profile/get_image", {withCredentials: true});
-    storedImagePath = imageResponse.data;
-    console.log(storedImagePath);
+  var usernameResponse = await axios.get(
+    "http://127.0.0.1:5000/profile/get_displayname",
+    { withCredentials: true }
+  );
+  storedUsername = usernameResponse.data;
+  var genderResponse = await axios.get(
+    "http://127.0.0.1:5000/profile/get_gender",
+    { withCredentials: true }
+  );
+  storedGender = genderResponse.data;
+  var locationResponse = await axios.get(
+    "http://127.0.0.1:5000/profile/get_location",
+    { withCredentials: true }
+  );
+  storedLocation = locationResponse.data;
+  var imageResponse = await axios.get(
+    "http://127.0.0.1:5000/profile/get_image",
+    { withCredentials: true }
+  );
+  storedImagePath = imageResponse.data;
+  console.log(storedImagePath);
 } catch (e) {
-    console.log("User info fetch failed: " + e);
-    storedUsername = "undefined";
-    storedGender = "undefined";
-    storedLocation = "undefined";
-    storedImagePath = "undefined";
+  console.log("User info fetch failed: " + e);
+  storedUsername = "undefined";
+  storedGender = "undefined";
+  storedLocation = "undefined";
+  storedImagePath = "undefined";
 }
 
 function Profile({testParameter}){
@@ -340,6 +352,6 @@ function Profile({testParameter}){
         </div>
         <div class="footer"><SongPlayer /></div>
     </div>
-    );
+  );
 }
 export default Profile;
