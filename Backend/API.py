@@ -1260,7 +1260,7 @@ def addfriend():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
-@app.route('/friends/get_friend_data', methods=['GET'])
+@app.route('/friends/get_friends', methods=['GET'])
 def addfriend():
     if 'user' in session:
         user_data = session['user']
