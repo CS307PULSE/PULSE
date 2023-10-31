@@ -937,6 +937,18 @@ def get_gender():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/profile/get_chosen_song', methods=['GET'])
+def get_chosen_song():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
     from datetime import datetime, timedelta
