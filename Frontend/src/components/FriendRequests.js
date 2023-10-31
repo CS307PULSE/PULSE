@@ -17,7 +17,7 @@ try {
     withCredentials: true,
   });
   themeSetting = themeResponse.data;
-  var requestsResponse = await axios.get("http://127.0.0.1:5000/get_requests", {
+  var requestsResponse = await axios.get("http://127.0.0.1:5000/friends/get_requests", {
     withCredentials: true,
   });
   initialRequestsData = requestsResponse.data;
@@ -98,6 +98,7 @@ const FriendRequests = () => {
 
   const renderRequestRows = () => {
     const rows = [];
+    console.log(requestsData);
     for (let i = 0; i < requestsData.length; i += 5) {
       const requestsInRow = requestsData.slice(i, i + 5);
       rows.push(

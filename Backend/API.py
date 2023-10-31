@@ -1273,7 +1273,7 @@ def getFriends():
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
-                bufferobject['favoriteSong'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
                 counter = counter + 1
@@ -1298,10 +1298,9 @@ def getrequests():
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
-                frienduser.update_top_songs()
-                bufferobject['favoriteSong'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
-                jsonarray[counter] = bufferobject
+                jsonarray.append(bufferobject)
                 counter = counter + 1
             if len(response_data) == 0:
                 jsonarray = []
