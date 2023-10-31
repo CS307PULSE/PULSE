@@ -85,12 +85,13 @@ const Friends = () => {
   const [friendsData, setFriendsData] = useState(initialFriendData); 
 
   async function removeFriend(spotify_id) {
+    console.log("friend to be removed is sent to dane:" + spotify_id)
     const axiosInstance = axios.create({
       withCredentials: true,
     });
     const response = await axiosInstance.post(
       "http://127.0.0.1:5000/friends/remove_friend",
-      { removal: spotify_id }
+      { spotify_id: spotify_id }
     );
     const data = response.data;
     console.log("Friend removed: " + spotify_id);
