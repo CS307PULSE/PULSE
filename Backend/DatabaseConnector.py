@@ -153,7 +153,10 @@ class DatabaseConnector(object):
         sql_get_friends_query = "SELECT friends from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_friends_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return create_friends_array_from_DB(self.resultset[0])
+        if (self.resultset == None):
+            return []
+        else:
+            return create_friends_array_from_DB(self.resultset[0])
     
     
     # Returns friend requests array from DB in the form of an array.
@@ -161,7 +164,10 @@ class DatabaseConnector(object):
         sql_get_friend_requests_query = "SELECT friend_requests from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_friend_requests_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return create_friends_array_from_DB(self.resultset[0])
+        if (self.resultset == None):
+            return []
+        else:
+            return create_friends_array_from_DB(self.resultset[0])
     
     # Returns game settings array from DB in the form of a 5x5 array.
     def get_game_settings_from_DB(self, spotify_id):
@@ -696,3 +702,7 @@ db_config =  {
             'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
+
+#TODO: handle multiple requests to same person
+# handle no relevant users from a search
+#requests doesn't update unless page is reloaded. Same with Friends page and friends card

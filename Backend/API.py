@@ -1246,6 +1246,7 @@ def removeFriend():
         friendid = data.get('spotify_id')
         jsonarray = []
         with DatabaseConnector(db_config) as conn:
+            conn.update_friends(friendid, user.spotify_id, False)
             conn.update_friends(user.spotify_id, friendid, False)
             response_data = conn.get_friends_from_DB(user.spotify_id)
             for item in response_data:
@@ -1275,6 +1276,7 @@ def requestChoice():
         with DatabaseConnector(db_config) as conn:
             if choice:
                 conn.update_friends(user.spotify_id, friendid, True)
+                conn.update_friends(friendid, user.spotify_id, True)
                 conn.update_friend_requests(user.spotify_id, friendid, False)
             else:
                 conn.update_friend_requests(user.spotify_id, friendid, False)
