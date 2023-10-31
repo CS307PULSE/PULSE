@@ -176,7 +176,7 @@ const AddFriends = () => {
     });
     const response = await axiosInstance.post(
       "http://127.0.0.1:5000/friends/friend_request",
-      { request: sentRequest }
+      { request: spotify_id }
     );
     const data = response.data;
     console.log("Sent friend request to: " + sentRequest);
