@@ -147,6 +147,7 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return create_friends_array_from_DB(self.resultset[0])
     
+    
     # Returns friend requests array from DB in the form of an array.
     def get_friend_requests_from_DB(self, spotify_id):
         sql_get_friend_requests_query = "SELECT friend_requests from pulse.users WHERE spotify_id = %s"
@@ -224,7 +225,17 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return score_string_to_array(self.resultset[0])
-
+    
+    # Returns an array from DB with each spotify_id as a string inside of it.
+    def get_spotify_id_from_display_name_from_DB(self, display_name):
+        sql_get_spotify_ids_query = "SELECT spotify_id from pulse.users WHERE display_name = %s"
+        self.db_cursor.execute(sql_get_spotify_ids_query, (display_name,))
+        self.resultset = self.db_cursor.fetchall()
+        spotify_ids = []
+        for row in self.resultset:
+            spotify_ids.append(row[0])
+        return spotify_ids
+    
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
         sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
@@ -308,12 +319,16 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
     
-    # Updates friends in user DB. Expects spotify id and new friend spotify id to be added Returns 1 if successful, 0 if not.
-    def update_friends(self, spotify_id, new_friend_spotify_id):
+    # Updates friends in user DB. Expects spotify id and spotify id to be added or removed. addition = true if adding the spotify id and false if removing.
+    # Returns 1 if successful, 0 if not.
+    def update_friends(self, spotify_id, new_friend_spotify_id, addition):
         master_friends_array_dict = self.get_friends_from_DB(spotify_id)
         try:
             sql_update_friends_query = """UPDATE pulse.users SET friends = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_friends_query, (create_friends_string_for_DB(update_friends(master_friends_array_dict, new_friend_spotify_id)), spotify_id,))
+            if (addition):
+                self.db_cursor.execute(sql_update_friends_query, (create_friends_string_for_DB(add_friend(master_friends_array_dict, new_friend_spotify_id)), spotify_id,))
+            else:
+                self.db_cursor.execute(sql_update_friends_query, (create_friends_string_for_DB(remove_friend(master_friends_array_dict, new_friend_spotify_id)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -325,12 +340,17 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
         
-    # Updates friend requests in user DB. Expects spotify id and new friend request spotify id to be added Returns 1 if successful, 0 if not.
-    def update_friend_requests(self, spotify_id, new_friend_request_spotify_id):
+    # Updates friend requests in user DB. Expects spotify id and new friend request spotify id to be added. addition = true if adding the spotify id and false if removing.
+    # Returns 1 if successful, 0 if not.
+    def update_friend_requests(self, spotify_id, new_friend_request_spotify_id, addition):
         master_friend_requests_array_dict = self.get_friend_requests_from_DB(spotify_id)
         try:
             sql_update_friend_requests_query = """UPDATE pulse.users SET friend_requests = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_friend_requests_query, (create_friends_string_for_DB(update_friends(master_friend_requests_array_dict, new_friend_request_spotify_id)), spotify_id,))
+            
+            if (addition):
+                self.db_cursor.execute(sql_update_friend_requests_query, (create_friends_string_for_DB(add_friend(master_friend_requests_array_dict, new_friend_request_spotify_id)), spotify_id,))
+            else:
+                self.db_cursor.execute(sql_update_friend_requests_query, (create_friends_string_for_DB(remove_friend(master_friend_requests_array_dict, new_friend_request_spotify_id)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -611,12 +631,20 @@ def update_followers_dictionary(followers_dict, new_date, new_count):
     master_dict[date_string] = new_count
     return master_dict
 
-def update_friends(friends, new_friend):
+def add_friend(friends, new_friend):
     if (friends is None):
         master_friends = []
     else:
         master_friends = friends
     master_friends.append(new_friend)
+    return master_friends
+
+def remove_friend(friends, friend_to_remove):
+    if (friends is None):
+        master_friends = []
+    else:
+        master_friends = friends
+    master_friends.remove(friend_to_remove)
     return master_friends
 
 #game = 0, 1, 2, 3, or 4 
