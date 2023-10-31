@@ -1184,54 +1184,92 @@ def api_advanced_stats_test():
     else:
         return 'User session not found. Please log in again.'
 
-@app.route('/friends/sendrequest', methods=['POST'])
-def sendrequest():
+@app.route('/friends/friend_request', methods=['POST'])
+def getids():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        friendname = data.get('friendname')
+        friendid = data.get('spotifyid')
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_location(user.spotify_id, user.location) == 0):
-                error_message = "Location has not been stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
-        response_data = 'location updated.'
+            conn.update_friend_requests(user.spotify_id, friendid, True)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    return "added request"
 
-@app.route('/friends/addfriend', methods=['POST'])
+@app.route('/friends/friend_request_choice', methods=['POST'])
 def addfriend():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        acceptname = data.get('acceptname')
+        friendid = data.get('spotifyid')
+        choice = data.get('choice')
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_location(user.spotify_id, user.location) == 0):
-                error_message = "Location has not been stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
-        response_data = 'location updated.'
+            if choice:
+                conn.update_friends(user.spotify_id, friendid, True)
+                conn.update_friend_requests(user.spotify_id, friendid, False)
+                response_data = 'friend added.'
+            else:
+                conn.update_friend_requests(user.spotify_id, friendid, False)
+                response_data = 'friend removed.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    return response_data
 
 
-@app.route('/friends/removefriend', methods=['POST'])
-def removefriend():
+@app.route('/friends/friend_request_search', methods=['POST'])
+def addfriend():
+    if 'user' in session:
+        data = request.get_json()
+        friendname = data.get('friendname')
+        jsonarray = []
+        counter = 0
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_spotify_id_from_display_name_from_DB(friendname)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['display_name'] = frienduser.display_name
+                bufferobject['image_path'] = conn.get_icon_from_DB(item)
+                frienduser.update_top_songs()
+                bufferobject['favorite_song'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                jsonarray[counter] = bufferobject
+                counter = counter + 1
+            if len(response_data == 0):
+                jsonarray = None
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
+@app.route('/friends/get_friend_data', methods=['GET'])
+def addfriend():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        data = request.get_json()
-        removename = data.get('removename')
-        #with DatabaseConnector(db_config) as conn:
-        #    if (conn. == 0):
-        #        error_message = "Location has not been stored!"
-        #        return make_response(jsonify({'error': error_message}), 6969)
-        #response_data = 'location updated.'
+        jsonarray = []
+        counter = 0
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_friends_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['display_name'] = frienduser.display_name
+                bufferobject['image_path'] = conn.get_icon_from_DB(item)
+                frienduser.update_top_songs()
+                bufferobject['favorite_song'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                jsonarray[counter] = bufferobject
+                counter = counter + 1
+            if len(response_data == 0):
+                jsonarray = None
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
 
 @app.route('/test')
 def test():
