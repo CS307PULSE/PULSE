@@ -1190,7 +1190,7 @@ def getids():
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        friendid = data.get('spotifyid')
+        friendid = data.get('request')
         with DatabaseConnector(db_config) as conn:
             conn.update_friend_requests(user.spotify_id, friendid, True)
     else:
@@ -1204,7 +1204,7 @@ def getids():
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        friendid = data.get('spotifyid')
+        friendid = data.get('spotify_id')
         with DatabaseConnector(db_config) as conn:
             conn.update_friends(user.spotify_id, friendid, False)
     else:
@@ -1218,8 +1218,8 @@ def addfriend():
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        friendid = data.get('spotifyid')
-        choice = data.get('choice')
+        friendid = data.get('spotify_id')
+        choice = data.get('accepted')
         with DatabaseConnector(db_config) as conn:
             if choice:
                 conn.update_friends(user.spotify_id, friendid, True)
@@ -1238,7 +1238,7 @@ def addfriend():
 def addfriend():
     if 'user' in session:
         data = request.get_json()
-        friendname = data.get('friendname')
+        friendname = data.get('query')
         jsonarray = []
         counter = 0
         with DatabaseConnector(db_config) as conn:
@@ -1246,11 +1246,11 @@ def addfriend():
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
-                bufferobject['display_name'] = frienduser.display_name
-                bufferobject['image_path'] = conn.get_icon_from_DB(item)
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 frienduser.update_top_songs()
-                bufferobject['favorite_song'] = frienduser.stringify(frienduser.stats.top_songs[0])
-                bufferobject['friend_id'] = frienduser.spotify_id
+                bufferobject['favoriteSong'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray[counter] = bufferobject
                 counter = counter + 1
             if len(response_data == 0):
@@ -1272,11 +1272,11 @@ def addfriend():
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
-                bufferobject['display_name'] = frienduser.display_name
-                bufferobject['image_path'] = conn.get_icon_from_DB(item)
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 frienduser.update_top_songs()
-                bufferobject['favorite_song'] = frienduser.stringify(frienduser.stats.top_songs[0])
-                bufferobject['friend_id'] = frienduser.spotify_id
+                bufferobject['favoriteSong'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray[counter] = bufferobject
                 counter = counter + 1
             if len(response_data == 0):
