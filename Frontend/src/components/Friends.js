@@ -89,7 +89,7 @@ const Friends = () => {
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "http://127.0.0.1:5000/friends/friend_removal",
+      "http://127.0.0.1:5000/friends/remove_friend",
       { removal: spotify_id }
     );
     const data = response.data;
