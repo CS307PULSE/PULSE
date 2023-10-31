@@ -99,56 +99,9 @@ const buttonContainerStyle = {
   marginBottom: "16px",
 };
 
-//STUB FUNCTION FOR TESTING> DELETE WHEN CONNECTING
-async function sendAndFetchRelevantUsers(searchedUser) {
-  return [
-    {
-      name: 'John Doe',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Bohemian Rhapsody',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      spotify_id: 'test',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    // Add more friend data as needed
-  ];
-}
 
-/*  UNCOMMENT WHEN CONNECTING TO BACKEND
+
+
 async function sendAndFetchRelevantUsers(searchedUser) {
   const axiosInstance = axios.create({
     withCredentials: true,
@@ -161,17 +114,14 @@ async function sendAndFetchRelevantUsers(searchedUser) {
   console.log("Searched for user: " + response);
   return data
 }
-*/ 
+
 
 const AddFriends = () => {
   const [recievedRelevantUsers, setRecievedRelevantUsers] = useState();
   const [searchUserValue, setSearchUserValue] = useState();
   
   async function sendFriendRequest(spotify_id) {
-    console.log("Friend request sent to: " + spotify_id)
-    alert("Friend request sent!");
-    return
-    /* const axiosInstance = axios.create({
+    const axiosInstance = axios.create({
       withCredentials: true,
     });
     const response = await axiosInstance.post(
@@ -179,9 +129,8 @@ const AddFriends = () => {
       { request: spotify_id }
     );
     const data = response.data;
-    console.log("Sent friend request to: " + sentRequest);
+    console.log("Sent friend request to: " + spotify_id);
     return data;
-    */
   }
 
   function userSearch(recievedUsers) {
@@ -195,7 +144,7 @@ const AddFriends = () => {
               photoFilename={friend.photoUri}
               favoriteSong={friend.favoriteSong}
             />
-            <div class = "center">
+            <div className = "center">
               <button style={{ ...buttonStyle, textDecoration: 'none' }}   onClick={() => sendFriendRequest(friend.spotify_id)}>
                 Send Friend Request
               </button>

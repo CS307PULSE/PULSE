@@ -9,7 +9,7 @@ import axios from "axios";
 import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 
-var textSizeSetting, themeSetting, friends;
+var textSizeSetting, themeSetting, friendData;
 try {
   var textSizeResponse = await axios.get(
     "http://127.0.0.1:5000/get_text_size",
@@ -25,8 +25,6 @@ try {
   textSizeSetting = 1;
   themeSetting = 0;
 }
-
-/*  UNCOMMENT FOR CONNECTING TO BACKEND
 try {
   var friendResponse = await axios.get(
     "http://127.0.0.1:5000/friends/get_friends",
@@ -37,11 +35,10 @@ try {
   console.log("Friends fetch failed: " + e);
   friendData = [[]];
 }
-*/
 
 const themeColors = Colors(themeSetting); //Obtain color values
 const textSizes = TextSize(textSizeSetting); //Obtain text size values
-const friendsList = friends;
+const friendsList = friendData;
 
 // Styled components
 const CardContainer = styled.div`
@@ -89,45 +86,6 @@ const StyledLink = styled(Link)`
 
 
 const FriendsCard = ({}) => {
-  const friendData = [
-    {
-      name: 'John Doe',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Bohemian Rhapsody',
-    },
-    {
-      name: 'Jane Smith',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    {
-      name: 'Jane Smith',
-      photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-      favoriteSong: 'Hotel California',
-    },
-    // Add more friend data as needed
-  ];
-  
     return (
       <CardContainer>
         <StyledLink to="/friends">

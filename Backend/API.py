@@ -1185,21 +1185,21 @@ def api_advanced_stats_test():
         return 'User session not found. Please log in again.'
 
 @app.route('/friends/friend_request', methods=['POST'])
-def getids():
+def friendRequests():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
         friendid = data.get('request')
         with DatabaseConnector(db_config) as conn:
-            conn.update_friend_requests(user.spotify_id, friendid, True)
+            conn.update_friend_requests(friendid, user.spotify_id, True)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return "added request"
 
 @app.route('/friends/remove_friend', methods=['POST'])
-def getids():
+def removeFriend():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1213,7 +1213,7 @@ def getids():
     return "removed friend"
 
 @app.route('/friends/friend_request_choice', methods=['POST'])
-def addfriend():
+def requestChoice():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1234,8 +1234,8 @@ def addfriend():
     return response_data
 
 
-@app.route('/friends/friend_request_search', methods=['POST'])
-def addfriend():
+@app.route('/friends/add_friends_search', methods=['POST'])
+def friendRequestSearch():
     if 'user' in session:
         data = request.get_json()
         friendname = data.get('query')
@@ -1248,20 +1248,19 @@ def addfriend():
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
-                frienduser.update_top_songs()
-                bufferobject['favoriteSong'] = frienduser.stringify(frienduser.stats.top_songs[0])
+                bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
-                jsonarray[counter] = bufferobject
+                jsonarray.append(bufferobject)
                 counter = counter + 1
-            if len(response_data == 0):
-                jsonarray = None
+            if len(response_data) == 0:
+                jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
 @app.route('/friends/get_friends', methods=['GET'])
-def addfriend():
+def getFriends():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1274,13 +1273,12 @@ def addfriend():
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
-                frienduser.update_top_songs()
                 bufferobject['favoriteSong'] = frienduser.stringify(frienduser.stats.top_songs[0])
                 bufferobject['spotify_id'] = frienduser.spotify_id
-                jsonarray[counter] = bufferobject
+                jsonarray.append(bufferobject)
                 counter = counter + 1
-            if len(response_data == 0):
-                jsonarray = None
+            if len(response_data) == 0:
+                jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

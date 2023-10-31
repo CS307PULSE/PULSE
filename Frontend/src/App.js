@@ -1,4 +1,5 @@
 import "./App.css";
+import axios from "axios";
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
@@ -15,6 +16,9 @@ import Uploader from "./components/Uploader";
 import Friends from "./components/Friends";
 import AddFriends from "./components/AddFriends";
 import FriendRequests from "./components/FriendRequests";
+import SongRecommendation from "./components/SongRecommendation";
+import DJMixer from "./components/DJMixer";
+import HeadsUp from "./components/HeadsUp";
 
 import {
   Navigate,
@@ -80,7 +84,7 @@ function App() {
         <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
-        <Route path="/DJmixer/SongRecommendation" element={<SongRecommendations />}/>
+        <Route path="/DJmixer/SongRecommendation" element={<SongRecommendation />}/>
         <Route path="/uploader" element={<Uploader />} />
         <Route path="/friends/addFriends" element={<AddFriends />} />
         <Route path="/friends/friendRequests" element={<FriendRequests />} />

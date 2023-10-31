@@ -264,7 +264,8 @@ class DatabaseConnector(object):
                          theme=Theme(row[5]),                                                         
                          recommendation_params=create_rec_params_string_for_DB(row[7]),
                          location = row[9],
-                         gender = row[10])       
+                         gender = row[10],
+                         chosen_song = row[15],)       
             return userFromDB
 
     #--------------------------------------------------------------------------------------------------------
@@ -558,7 +559,7 @@ def create_rec_params_string_for_DB(rec_input_array):
     return rec_string
 
 def create_friends_array_from_DB(friends_input_string):
-    if (friends_input_string == ""):
+    if (friends_input_string == "" or friends_input_string == None):
         return []
     return friends_input_string.split(',')
 

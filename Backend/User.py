@@ -26,7 +26,9 @@ class User:
                  stats=None, 
                  recommendation_params=None,
                  gender=None,
-                 location=None):
+                 location=None,
+                 chosen_song = "Not Yet Chosen"
+                ):
     
         self.display_name = display_name                                                                   # String
         self.login_token = login_token                                                                     # Token Info Object
@@ -39,6 +41,7 @@ class User:
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
         self.gender = gender                                                                               # String                                   
         self.location = location                                                                           # String
+        self.chosen_song = chosen_song                                                                     # String
 
     def stringify(self, obj):
         if obj is None:
