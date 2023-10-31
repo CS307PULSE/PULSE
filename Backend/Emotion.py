@@ -87,7 +87,6 @@ class Emotion:
         total_distance = 0
         # Calculate the percentage differences for each parameter and accumulate the total distance
         for param in dict1:
-            target_value = target_parameters[param]
             value1 = dict1[param]
             value2 = dict2[param]
 
@@ -99,7 +98,21 @@ class Emotion:
         return total_distance
     
     def get_percentage(self, user, song):
-        self
+        percentage = []
+        tractdict = self.convert_track(user, song)
+        happy = self.gethappy()
+        angry = self.getangry()
+        sad = self.getsad()
+        happydist = self.calculate_total_distance(tractdict, happy)
+        angrydist = self.calculate_total_distance(tractdict, angry)
+        saddist = self.calculate_total_distance(tractdict, sad)
+        totaldist = saddist + angrydist + happydist
+        percentage.append(happydist/totaldist)
+        percentage.append(angrydist/totaldist)
+        percentage.append(saddist/totaldist)
+        return percentage
+        
+
 
     def convert_track(user, song):
         song_dict = {

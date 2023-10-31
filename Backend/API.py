@@ -1227,9 +1227,9 @@ def friendRequests():
         with DatabaseConnector(db_config) as conn:
             friendRequests = conn.get_friend_requests_from_DB(friendid)
             friends = conn.get_friends_from_DB(friendid)
-            if friendid in friends:
+            if user.spotify_id in friends:
                 return "friend is already on friends list"
-            if friendid in friendRequests:
+            if user.spotify_id in friendRequests:
                 return "friend always has request"
             conn.update_friend_requests(friendid, user.spotify_id, True)
     else:
