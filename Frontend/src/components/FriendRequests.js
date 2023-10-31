@@ -6,7 +6,7 @@ import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 import axios from "axios";
 
-var textSizeSetting, themeSetting;
+var textSizeSetting, themeSetting, initialRequestsData;
 try {
   var textSizeResponse = await axios.get(
     "http://127.0.0.1:5000/get_text_size",
@@ -17,13 +17,10 @@ try {
     withCredentials: true,
   });
   themeSetting = themeResponse.data;
-  
-  /* UNCOMMENT WHEN CONNECTING TO BACKEND
   var requestsResponse = await axios.get("http://127.0.0.1:5000/get_requests", {
     withCredentials: true,
   });
-  requestsData = requestsResponse.data;
-  */
+  initialRequestsData = requestsResponse.data;
 } catch (e) {
   console.log("Formatting settings fetch failed: " + e);
   textSizeSetting = 1;
@@ -80,94 +77,13 @@ const buttonContainerStyle = {
 
 
 
-//DELETE WHEN CONNECTING TO BACKEND
-const tempData = [
-  {
-    name: 'John Doe',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Bohemian Rhapsody',
-  },
-  {
-    name: 'Jane Smith',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Hotel California',
-  },
-  {
-    name: 'Jane Smith',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Hotel California',
-  },
-  {
-    name: 'Jane Smith',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Hotel California',
-  },
-  {
-    name: 'Jane Smith',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Hotel California',
-  },
-  {
-    name: 'Jane Smith',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Hotel California',
-  },
-  {
-    name: 'Jane Smith',
-    spotify_id: 'test',
-    photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-    favoriteSong: 'Hotel California',
-  },
-  // Add more friend data as needed
-];
 
 const FriendRequests = () => {
   // should be useState(requestsData) when connecting to backend
-  const [requestsData, setRequestsData] = useState(tempData)  
+  const [requestsData, setRequestsData] = useState(initialRequestsData)  
   
-
-  //Delete first 3 statements and uncomment the rest when connecting to backend
   async function friendRequestChoice(spotify_id, choice) {
-    console.log("Friend request accepted: " + spotify_id)
-
-    return [
-      {
-        name: 'John Doe',
-        spotify_id: 'test',
-        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-        favoriteSong: 'Bohemian Rhapsody',
-      },
-      {
-        name: 'Jane Smith',
-        spotify_id: 'test',
-        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-        favoriteSong: 'Hotel California',
-      },
-      {
-        name: 'Jane Smith',
-        spotify_id: 'test',
-        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-        favoriteSong: 'Hotel California',
-      },
-      {
-        name: 'Jane Smith',
-        spotify_id: 'test',
-        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-        favoriteSong: 'Hotel California',
-      },
-      {
-        name: 'Jane Smith',
-        spotify_id: 'test',
-        photoUri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1024px-Default_pfp.svg.png',
-        favoriteSong: 'Hotel California',
-      }, ];
-    /* const axiosInstance = axios.create({
+    const axiosInstance = axios.create({
       withCredentials: true,
     });
     const response = await axiosInstance.post(
@@ -176,9 +92,8 @@ const FriendRequests = () => {
         accepted: choice}
     );
     const data = response.data;
-    console.log("Friend request accepted: " + sentAcceptance);
+    console.log("Friend request accepted: " + choice + "___" + spotify_id);
     return data;
-    */
   }
 
   const renderRequestRows = () => {

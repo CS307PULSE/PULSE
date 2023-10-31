@@ -120,6 +120,14 @@ class DatabaseConnector(object):
         if (self.resultset == []) or (self.resultset is None):
             return None
         return self.resultset
+    
+    
+    # Returns the chosen song from DB as a string.
+    def get_chosen_song_from_user_DB(self, spotify_id,):
+        sql_get_chosen_song_query = "SELECT chosen_song from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_chosen_song_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
 
     # Returns the display name from DB as a string.
     def get_display_name_from_user_DB(self, spotify_id, data = None):
@@ -264,7 +272,8 @@ class DatabaseConnector(object):
                          theme=Theme(row[5]),                                                         
                          recommendation_params=create_rec_params_string_for_DB(row[7]),
                          location = row[9],
-                         gender = row[10])       
+                         gender = row[10],
+                         chosen_song = row[15],)       
             return userFromDB
 
     #--------------------------------------------------------------------------------------------------------
@@ -283,6 +292,22 @@ class DatabaseConnector(object):
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating token:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+        
+    # Updates chosen_song (expected string) in user DB. Returns 1 if successful, 0 if not.
+    def update_chosen_song(self, spotify_id, new_chosen_song):
+        try:
+            sql_update_chosen_song_query = """UPDATE pulse.users SET chosen_song = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_chosen_song_query, (new_chosen_song, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating display name:", str(e))
             self.db_conn.rollback()
             return 0  # Indicate that the update failed
 
@@ -558,7 +583,7 @@ def create_rec_params_string_for_DB(rec_input_array):
     return rec_string
 
 def create_friends_array_from_DB(friends_input_string):
-    if (friends_input_string == ""):
+    if (friends_input_string == "" or friends_input_string == None):
         return []
     return friends_input_string.split(',')
 
