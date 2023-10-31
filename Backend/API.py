@@ -1244,14 +1244,24 @@ def requestChoice():
             if choice:
                 conn.update_friends(user.spotify_id, friendid, True)
                 conn.update_friend_requests(user.spotify_id, friendid, False)
-                response_data = 'friend added.'
             else:
                 conn.update_friend_requests(user.spotify_id, friendid, False)
-                response_data = 'friend removed.'
+            response_data = conn.get_friend_requests_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+                counter = counter + 1
+            if len(response_data) == 0:
+                jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return response_data
+    return json.dumps(jsonarray)
 
 
 @app.route('/friends/add_friends_search', methods=['POST'])
