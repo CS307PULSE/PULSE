@@ -92,14 +92,15 @@ class Emotion:
             value2 = dict2[param]
 
             # Calculate the percentage difference
-            percentage_difference = abs((value1 - value2) / ((value1 + value2) / 2)) * 100
-
+            percentage_difference = abs(value1 - value2)
+            
             # Accumulate the total distance
             total_distance += percentage_difference
         return total_distance
     
-    
-    
+    def get_percentage(self, user, song):
+        self
+
     def convert_track(user, song):
         song_dict = {
             "target_energy": 0,
@@ -132,9 +133,25 @@ class Emotion:
         song_dict["target_tempo"] = song_features.get("tempo", 0)
         song_dict["target_time_signature"] = song_features.get("time_signature", 0)
         song_dict["target_valence"] = song_features.get("valence", 0)
+        return song_dict
 
-    def update_and_average_dict(user, original_dict, song):
-        song_dict = convert_track(user, song)
+    def update_and_average_dict(self, user, original_dict, song):
+        song_dict = self.convert_track(user, song)
         for key, value in original_dict.items():
             original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
+
+    def find_song_emotion(self, user, original_dict, song):
+        song_dict = self.convert_track(song)
+        happydistance = self.calculate_total_distance(self.gethappy, song_dict)
+        angrydistance = self.calculate_total_distance(self.getangry, song_dict)
+        saddistance = self.calculate_total_distance(self.getsad, song_dict)
+        lowest = min(happydistance, angrydistance, saddistance)
+        if(lowest == happydistance):
+            return "happy"
+        elif (lowest == angrydistance):
+            return "angry"
+        elif (lowest == saddistance):
+            return "sad"
+        else:
+            return "undefined"
