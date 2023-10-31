@@ -6,7 +6,7 @@ from Exceptions import ErrorHandler
 
 class Emotion:
     def __init__(self, 
-                user = None,
+
                 genres = None, 
                 target_energy=0,
                 target_popularity=0,
@@ -22,7 +22,6 @@ class Emotion:
                 target_tempo=0,
                 target_time_signature=0,
                 target_valence=0):
-        self.user = user, 
         self.target_energy = target_energy
         self.target_popularity = target_popularity
         self.target_acousticness = target_acousticness
@@ -37,7 +36,7 @@ class Emotion:
         self.target_tempo = target_tempo
         self.target_time_signature = target_time_signature
         self.target_valence = target_valence
-
+    
     def average(self, addedsong):
         print("average")
 
@@ -46,3 +45,24 @@ class Emotion:
     
     def getrecs():
         print("getting recommendations")
+
+    def getangry():
+        thisdict = {
+            "brand": "Ford",
+            "model": "Mustang",
+            "year": 1964
+        }
+    
+    def gethappy():
+        thisdict = {
+            "brand": "Ford",
+            "model": "Mustang",
+            "year": 1964
+        }
+    
+    def getsad():   
+        thisdict = {
+            "brand": "Ford",
+            "model": "Mustang",
+            "year": 1964
+        }

@@ -1191,6 +1191,11 @@ def sendrequest():
         user = User.from_json(user_data) 
         data = request.get_json()
         friendname = data.get('friendname')
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_location(user.spotify_id, user.location) == 0):
+                error_message = "Location has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'location updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1202,6 +1207,11 @@ def addfriend():
         user = User.from_json(user_data) 
         data = request.get_json()
         acceptname = data.get('acceptname')
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_location(user.spotify_id, user.location) == 0):
+                error_message = "Location has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'location updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1214,6 +1224,11 @@ def removefriend():
         user = User.from_json(user_data) 
         data = request.get_json()
         removename = data.get('removename')
+        #with DatabaseConnector(db_config) as conn:
+        #    if (conn. == 0):
+        #        error_message = "Location has not been stored!"
+        #        return make_response(jsonify({'error': error_message}), 6969)
+        #response_data = 'location updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
