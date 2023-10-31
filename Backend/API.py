@@ -1212,6 +1212,9 @@ def friendRequests():
         data = request.get_json()
         friendid = data.get('request')
         with DatabaseConnector(db_config) as conn:
+            friendRequests = conn.get_friend_requests_from_DB(friendid)
+            if friendid in friendRequests:
+                return "friend always has request"
             conn.update_friend_requests(friendid, user.spotify_id, True)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
