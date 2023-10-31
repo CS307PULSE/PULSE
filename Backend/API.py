@@ -863,6 +863,26 @@ def change_gender():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/profile/change_chosen_song', methods=['POST'])
+def change_chosen_song():
+    if 'user' in session:
+        data = request.get_json()
+        chosen_song = data.get('chosen_song')
+        chosen_song = chosen_song.title()
+        user_data = session['user']
+        user = User.from_json(user_data)
+        user.chosen_song = chosen_song
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == 0):
+                error_message = "chosen_song has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'chosen_song updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+
 @app.route('/profile/change_location', methods=['POST'])
 def change_location():
     if 'user' in session:
