@@ -1,6 +1,6 @@
 export const pulseColors = {
     green: "#6EEB4D",
-    black: "#000",
+    black: "#000000",
     white: "#FFFFFF",
     darkOffGrey: "#364232",
     lightOffGrey: "#c5d1c0"

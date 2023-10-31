@@ -1,69 +1,55 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from "react-router-dom";
-
-import { pulseColors } from "../theme/Colors";
-import axios from "axios";
-
-import Colors from "../theme/Colors"; 
+import { useAppContext } from './Context';
 import TextSize from "../theme/TextSize";
 
-var textSizeSetting, themeSetting;
-try {
-    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
-    textSizeSetting = textSizeResponse.data;
-    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    themeSetting = themeResponse.data;
-} catch (e) {
-    console.log("Formatting settings fetch failed: " + e);
-    textSizeSetting = 1;
-    themeSetting = 0;
-}
-const themeColors = Colors(themeSetting); //Obtain color values
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
-
-// Styled components
-const CardContainer = styled.div`
-  border: 1px solid ${themeColors.white};
-  overflow: hidden;
-  width: 500px;
-  height: 650px;
-`;
-
-const Header = styled.div`
-  background-color: ${themeColors.green}; // Set background color to green
-  color: black; // Set text color to green
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 700;
-  padding:10px;
-  text-transform: uppercase;
-`;
-
-const Content = styled.div`
-color: ${themeColors.white};
-font-family: Rhodium Libre;
-font-size: 14px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
-text-transform: uppercase;
-  padding: 16px;
-`;
 const StyledLink = styled(Link)`
   text-decoration: none; /* Remove underline */
   color: inherit; /* Inherit text color */
 `;
 
 const FriendsCard = ({children }) => {
-    return (
-      <CardContainer>
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+
+  const cardContainerStyle = {
+    border: "1px solid " + state.colorBorder,
+    overflow: "auto",
+    width: "500px",
+    height: "650px"
+  };
+  const headerStyle = {
+    backgroundColor: state.colorAccent, // Set background color to green
+    color: state.colorText, // Set text color to white
+    textAlign: "center",
+    fontFamily: "Poppins, sans-serif",
+    padding: "10px",
+    fontSize: textSizes.header3,
+    fontStyle: "normal",
+    fontWeight: "700",
+    lineHeight: "normal",
+    textTransform: "uppercase",
+    position: "sticky",
+    top: "0",
+  };
+  const contentStyle = {
+    color: state.colorText,
+    fontFamily: "Rhodium Libre",
+    fontSize: textSizes.body,
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: "normal",
+    textTransform: "uppercase",
+    padding: "16px",
+  };
+  return (
+      <div style={cardContainerStyle}>
         <StyledLink to="/friends">
-        <Header>FRIENDS</Header>
+        <div style={headerStyle}>FRIENDS</div>
       </StyledLink>
-        <Content>{children}</Content>
-      </CardContainer>
+        <div style={contentStyle}>{children}</div>
+      </div>
     );
   }
   

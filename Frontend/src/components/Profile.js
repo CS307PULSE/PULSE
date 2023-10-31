@@ -1,25 +1,25 @@
 import { React, useState } from "react";
 import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
-// import { pulseColors } from "../theme/Colors";
 import axios from "axios";
 import { useAppContext } from "./Context"
-
-import Colors from "../theme/Colors"; 
 import TextSize from "../theme/TextSize";
 
-var storedTextSizeSetting, themeSetting;
-try {
-    var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
-    storedTextSizeSetting = textSizeResponse.data;
-    var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-    themeSetting = themeResponse.data;
-} catch (e) {
-    console.log("Formatting settings fetch failed: " + e);
-    storedTextSizeSetting = 1;
-    themeSetting = 0;
-}
-const themeColors = Colors(themeSetting); //Obtain color values
+// try {
+//     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
+//     storedTextSizeSetting = textSizeResponse.data;
+//     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
+//     themeSetting = themeResponse.data;
+// } catch (e) {
+//     console.log("Formatting settings fetch failed: " + e);
+//     storedTextSizeSetting = 1;
+//     themeSetting = 0;
+// }
+
+const customBackgrounds = [ "https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg",
+                            "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/07/five-nights-at-freddys-lore-story-so-far.jpg",
+                            
+]
 
 var storedUsername, storedGender, storedLocation, storedImagePath;
 try {
@@ -48,38 +48,39 @@ function Profile({testParameter}){
     const [username, setUsername] = useState(storedUsername);
     const [gender, setGender] = useState(storedGender);
     const [location, setLocation] = useState(storedLocation);
-    const [textColor, setTextColor] = useState(themeColors.text);
-    const [backgroundColor, setBackgroundColor] = useState(themeColors.background);
-    const [borderColor, setBorderColor] = useState(themeColors.text);
-    const [accentColor, setAccentColor] = useState(themeColors.green);
-    const [backgroundImage, setBackgroundImage] = useState("https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg");
 
-    const [textSizeSetting, setTextSizeSetting] = useState(storedTextSizeSetting)
     const updateTextSize = (newSetting) => {
         dispatch({ type: 'UPDATE_TEXT_SIZE', payload: newSetting });
     };
-    const textSizes = TextSize(textSizeSetting); //Obtain text size values
+    const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+    
+    const updateColor = (colorType, newColor) => {
+        switch (colorType) {
+            case "all":
+                dispatch({ type: 'UPDATE_COLOR_ALL', payload: newColor }); break;
+            case "background": 
+                dispatch({ type: 'UPDATE_COLOR_BACKGROUND', payload: newColor }); break;
+            case "text": 
+                dispatch({ type: 'UPDATE_COLOR_TEXT', payload: newColor }); break;
+            case "border": 
+                dispatch({ type: 'UPDATE_COLOR_BORDER', payload: newColor }); break;
+            case "accent": 
+                dispatch({ type: 'UPDATE_COLOR_ACCENT', payload: newColor }); break;
+        }
+    }
+    const updateBackgroundImage = (newSetting) => {
+        dispatch({ type: 'UPDATE_BACKGROUND_IMAGE', payload: newSetting });
+    };
 
     const bodyStyle = {
-        backgroundColor: backgroundColor,
-        margin: 0,
-        padding: 0,
-        maxHeight: '100vh',
-        overflow: "auto"
-    };
-    const profileContainerStyle = {
-        backgroundImage: "url('" + backgroundImage + "')",
+        backgroundColor: state.colorBackground,
+        backgroundImage: "url('" + state.backgroundImage + "')",
         backgroundSize: "cover", //Adjust the image size to cover the element
         backgroundRepeat: "no-repeat", //Prevent image repetition
         backgroundAttachment: "fixed", //Keep the background fixed
-        padding: "20px",
-        margin: "0px",
-        width: "100%", // Set width to 100% to cover the entire width of the screen
-        height: "100%", // Set height to 100vh to cover the entire height of the screen
-        display: "inline-block"
     };
-    const headerStyle={
-        color: textColor,
+    const headerTextStyle = {
+        color: state.colorText,
         fontFamily: "'Poppins', sans-serif",
         fontSize: textSizes.header1,
         fontStyle: "normal",
@@ -87,7 +88,8 @@ function Profile({testParameter}){
         lineHeight: "normal"
     };
     const profileText={
-        color: textColor,
+        // backgroundColor: backgroundColor,
+        color: state.colorText,
         fontSize: textSizes.body,
         fontStyle: "normal",
         fontFamily: "'Poppins', sans-serif"
@@ -103,13 +105,12 @@ function Profile({testParameter}){
         gridTemplateColumns: "repeat(4, 1fr)",
         width: "500px"
     };
-    
     const buttonStyle = {
-        backgroundColor: backgroundColor,
-        color: textColor,
+        backgroundColor: state.colorBackground,
+        color: state.colorText,
         borderWidth: '1px',
         borderStyle: 'solid',
-        borderColor: borderColor,
+        borderColor: state.colorBorder,
         borderRadius: '10px',
         cursor: 'pointer',
         margin: '5px', // Small space between buttons
@@ -117,16 +118,15 @@ function Profile({testParameter}){
         height: "50px",
         fontSize: textSizes.body
     };
-    
     const textFieldStyle = {
-        backgroundColor: backgroundColor,
-        border: "1px " + borderColor + " solid",
+        backgroundColor: state.colorBackground,
+        border: "1px " + state.colorBorder + " solid",
         borderRadius: "10px",
         height: "20px",
         width: "300px",
-        color: textColor,
+        color: state.colorText,
         padding: "10px",
-        margin:"10px"
+        margin: "10px"
     };
     const iconContainerStyle = {
         width: "100px",
@@ -145,7 +145,7 @@ function Profile({testParameter}){
         height: "90px",
         borderRadius: "10px",
         margin:"20px",
-        border: "1px " + borderColor + " solid"
+        border: "1px " + state.colorBorder + " solid"
     }
     async function saveTheme(themeParameter) {
         const axiosInstance = axios.create({
@@ -230,7 +230,6 @@ function Profile({testParameter}){
           const data = response.data;
           return data;
     }
-    
     async function handleImageSelect(event) {
         const file = event.target.files[0]; // Get the first selected file
         if (file) {
@@ -248,7 +247,6 @@ function Profile({testParameter}){
             return data;
         }
     }
-    
     async function saveUserInfo(username, gender, location, imagePath) {
         saveUsername(username);
         saveGender(gender);
@@ -256,12 +254,13 @@ function Profile({testParameter}){
         saveImagePath(imagePath);
         window.location.reload();
     }
-
+    async function saveUserSettings() {
+    }
     return(
-    <div style={bodyStyle}>
-        <Navbar />
-        <div className="profile" style={profileContainerStyle}>
-            <p style={headerStyle}>Profile</p>
+    <div class="wrapper">
+        <div class="header"><Navbar /></div>
+        <div class="content" style={bodyStyle}>
+            <p style={headerTextStyle}>Profile</p>
                 
             <div style={iconContainerStyle}>
                 <img style={iconPictureStyle} src={storedImagePath}/>
@@ -285,15 +284,13 @@ function Profile({testParameter}){
                 <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>
             </div>
 
-            <p style={headerStyle}>Settings</p>
+            <p style={headerTextStyle}>Settings</p>
+
             <p style={profileText}>Text Size: </p>
             <div style={buttonContainerStyle}>
-                <button onClick={updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
-                <button onClick={updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
-                <button onClick={updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
-                {/* <button onClick={() => {saveTextSize(0)}} style={buttonStyle}><p>Small</p></button>
-                <button onClick={() => {saveTextSize(1)}} style={buttonStyle}><p>Medium</p></button>
-                <button onClick={() => {saveTextSize(2)}} style={buttonStyle}><p>Large</p></button> */}
+                <button onClick={() => updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
+                <button onClick={() => updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
+                <button onClick={() => updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
             </div>
 
             <p style={profileText}>Theme Presets: </p>
@@ -304,24 +301,24 @@ function Profile({testParameter}){
             <p style={profileText}>Custom Theme Colors: </p>
             <div style={customThemeContainerStyle}>
                 <div style={{width: "100px"}}>
+                    <label style={profileText} htmlFor="backgroundColorPicker">Background</label><br></br>
+                    <input style={buttonStyle} type="color" id="backgroundColorPicker" onChange={e => {updateColor("background", e.target.value)}} value={state.colorBackground}></input>
+                </div>
+                <div style={{width: "100px"}}>
                     <label style={profileText}>Text</label><br></br>
-                    <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {setTextColor(e.target.value)}} value={textColor}></input>
+                    <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {updateColor("text", e.target.value)}} value={state.colorText}></input>
                 </div>
                 <div style={{width: "100px"}}>
-                    <label style={profileText} for="backgroundColorPicker">Background</label><br></br>
-                    <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {setBackgroundColor(e.target.value)}} value={backgroundColor}></input>
+                    <label style={profileText} htmlFor="borderColorPicker">Border</label><br></br>
+                    <input style={buttonStyle} type="color" id="borderColorPicker" onChange={e => {updateColor("border", e.target.value)}} value={state.colorBorder}></input>
                 </div>
                 <div style={{width: "100px"}}>
-                    <label style={profileText} for="borderColorPicker">Border</label><br></br>
-                    <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {setBorderColor(e.target.value)}} value={borderColor}></input>
-                </div>
-                <div style={{width: "100px"}}>
-                    <label style={profileText} for="accentColorPicker">Accent</label><br></br>
-                    <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {setAccentColor(e.target.value)}} value={accentColor}></input>
+                    <label style={profileText} htmlFor="accentColorPicker">Accent</label><br></br>
+                    <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
                 </div>
             </div>
             <br></br>
-            <p style={profileText} for="customColors">Custom themes:</p>
+            <p style={profileText} htmlFor="customColors">Custom themes:</p>
             <div style={buttonContainerStyle}>
                 <select style={buttonStyle} id="customColors" name="colors">
                     <option>Red</option>
@@ -331,16 +328,17 @@ function Profile({testParameter}){
             </div>
             <p style={profileText}>Background:</p>
             <div style={buttonContainerStyle}>
-                <button onClick={() => {saveTextSize(0)}} style={buttonStyle}><p>Clear</p></button>
+                <button onClick={() => {updateBackgroundImage(null)}} style={buttonStyle}><p>Clear</p></button>
             </div>
             <div style={buttonContainerStyle}>
-                <img style={backgroundOptionStyle} src="https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg" onClick={e => {setBackgroundImage(e.target.src)}}></img>
-                <img style={backgroundOptionStyle} src={storedImagePath} onClick={e => {setBackgroundImage(e.target.src)}}></img>
-                <img style={backgroundOptionStyle} src={storedImagePath} onClick={e => {setBackgroundImage(e.target.src)}}></img>
+                <img style={backgroundOptionStyle} src={customBackgrounds[0]} onClick={e => {updateBackgroundImage(e.target.src)}}></img>
+                <img style={backgroundOptionStyle} src={customBackgrounds[1]} onClick={e => {updateBackgroundImage(e.target.src)}}></img>
+            </div>
+            <div style={buttonContainerStyle}>
+                <button style={buttonStyle} onClick={() => saveUserSettings()}>Save Settings</button>
             </div>
         </div>
-        <div style={{padding: "60px"}}></div>
-        <SongPlayer />
+        <div class="footer"><SongPlayer /></div>
     </div>
     );
 }
