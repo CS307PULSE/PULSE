@@ -16,6 +16,7 @@ import Friends from "./components/Friends";
 import axios from "axios";
 import DJMixer from "./components/DJMixer";
 import SongRecommendations from "./components/SongRecommendation";
+import ParameterRecommendations from "./components/ParameterRecommendation";
 import HeadsUp from "./components/HeadsUp";
 import {
   Navigate,
@@ -82,13 +83,9 @@ function App() {
         <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
-        
-        <Route
-          path="/DJmixer/SongRecommendation"
-          element={<SongRecommendations />}
-        />
+        <Route path="/DJmixer/SongRecommendation" element={<SongRecommendations />} />
+        <Route path="/DJmixer/ParameterRecommendation" element={<ParameterRecommendations />} />
         <Route path="/uploader" element={<Uploader />} />
-
         <Route path="/friends" element={<Friends />} />
       </Routes>
     </Router>
