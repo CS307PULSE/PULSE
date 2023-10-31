@@ -61,6 +61,7 @@ function Profile({testParameter}){
     const [username, setUsername] = useState(storedUsername);
     const [gender, setGender] = useState(storedGender);
     const [location, setLocation] = useState(storedLocation);
+    const [favoriteSong, setFavoriteSong] = useState("");
 
     const updateTextSize = (newSetting) => {
         dispatch({ type: 'UPDATE_TEXT_SIZE', payload: newSetting });
@@ -296,6 +297,9 @@ function Profile({testParameter}){
 
                 <label style={profileText}>Location: </label>
                 <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input> <br></br>
+
+                <label style={profileText}>Favorite Song: </label>
+                <input id="favorite-song" type="text" style={textFieldStyle} value={favoriteSong} onChange={e => {setFavoriteSong(e.target.value)}}></input> <br></br>
 
                 <div style={buttonContainerStyle}>
                     <button onClick={() => {saveUserInfo(username, gender, location, imagePath)}} style={buttonStyle}><p>Save Profile</p></button>

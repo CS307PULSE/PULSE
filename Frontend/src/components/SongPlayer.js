@@ -25,7 +25,6 @@ function SongPlayer() {
         repeatButton: "https://cdn-icons-png.flaticon.com/512/5355/5355955.png",
         shuffleButton: "https://cdn-icons-png.flaticon.com/512/5356/5356895.png"
     }
-    
     const songPlayerStyle = {
         position: 'fixed',
         bottom: "0",
@@ -36,13 +35,11 @@ function SongPlayer() {
         height: '60px', // Set height to 100vh to cover the entire height of the screen   
         display: 'flex'
     };
-    
     const songPlayerButtonStyle = {
         width: "auto",
         height: "40px",
         margin: "10px"
     }
-    
     const playbackSliderStyle = {
         width: '40%',
         height: "40px",
@@ -57,7 +54,6 @@ function SongPlayer() {
         position: 'absolute',
         right: '30px'
     };
-    
     const infoContainerStyle = {
         padding:"10px",
         width: "20%"
