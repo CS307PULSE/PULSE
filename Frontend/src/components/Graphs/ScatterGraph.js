@@ -1,9 +1,9 @@
-import { ResponsiveLine } from "@nivo/line";
+import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 import graphThemes from "./Graphs.js";
 import { useEffect, useState } from "react";
 
 //Line Graph
-export const LineGraph = (props) => {
+export const ScatterGraph = (props) => {
   const [data, setData] = useState();
   const [itemsSelectable, setItemsSelectable] = useState([]);
   const [itemsSelected, setItemsSelected] = useState([]);
@@ -250,11 +250,11 @@ export const LineGraph = (props) => {
               : Object.entries(dataSource)
                   .map(([timePeriod, timeItems]) => {
                     /*
-                console.log("Trying to find ");
-                console.log(item);
-                console.log("in");
-                console.log(timeItems[itemType]);
-                console.log(timeItems[itemType][item]);*/
+                  console.log("Trying to find ");
+                  console.log(item);
+                  console.log("in");
+                  console.log(timeItems[itemType]);
+                  console.log(timeItems[itemType][item]);*/
                     if (timeItems[itemType][item] === undefined) {
                       return {
                         x: timePeriod,
@@ -323,7 +323,7 @@ export const LineGraph = (props) => {
         ) : (
           <></>
         )}
-        <ResponsiveLine
+        <ResponsiveScatterPlot
           theme={graphThemes}
           data={data}
           colors={{ scheme: props.graphTheme }}
@@ -374,7 +374,7 @@ export const LineGraph = (props) => {
             props.dataName === "percentTimes" ||
             props.dataName === "percentTimePeriod" ||
             props.dataName === "numTimesSkipped"
-              ? ({ point }) => {
+              ? (point) => {
                   if (point === undefined) {
                     return undefined;
                   } else {
@@ -386,7 +386,7 @@ export const LineGraph = (props) => {
                           border: "1px solid #ccc",
                         }}
                       >
-                        <div>{point.id.slice(0, -2)}</div>
+                        <div>{point.node.id.slice(0, -2)}</div>
                         <div>
                           {props.dataName.includes("percent")
                             ? "% of time"
@@ -394,7 +394,7 @@ export const LineGraph = (props) => {
                             ? "Minutes"
                             : "Times skipped"}
                           :{" "}
-                          {point.data.yFormatted *
+                          {point.node.data.y *
                             (props.dataName === "percentTimes" ? 100.0 : 1.0)}
                         </div>
                       </div>

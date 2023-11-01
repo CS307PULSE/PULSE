@@ -8,6 +8,7 @@ import { PieGraph } from "./Graphs/PieGraph";
 import { BumpGraph } from "./Graphs/BumpGraph";
 import { ImageGraph } from "./Graphs/ImageGraph";
 import { CalendarGraph } from "./Graphs/CalendarGraph";
+import { ScatterGraph } from "./Graphs/ScatterGraph";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
@@ -523,6 +524,21 @@ export default function GraphGrid() {
                   dataVariation={container.dataVariation}
                   timeRange={container.timeRange}
                   graphTheme={container.graphSettings.graphTheme}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Scatter" ? (
+                <ScatterGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
                   legendEnabled={container.graphSettings.legendEnabled}
                 />
               ) : (
