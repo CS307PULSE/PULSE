@@ -141,3 +141,5 @@ export const BumpGraph = (props) => {
     return <p>Your data is empty!</p>;
   }
 };
+
+export default BumpGraph;

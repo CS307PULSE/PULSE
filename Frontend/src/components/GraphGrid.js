@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { Tooltip } from "react-tooltip";
 import { line1, bar1, pie1, pie2 } from "./Graphs/Graphs";
-import { BarGraph } from "./Graphs/BarGraph";
-import { LineGraph } from "./Graphs/LineGraph";
-import { PieGraph } from "./Graphs/PieGraph";
-import { BumpGraph } from "./Graphs/BumpGraph";
-import { ImageGraph } from "./Graphs/ImageGraph";
-import { CalendarGraph } from "./Graphs/CalendarGraph";
-import { ScatterGraph } from "./Graphs/ScatterGraph";
+import BarGraph from "./Graphs/BarGraph";
+import LineGraph from "./Graphs/LineGraph";
+import PieGraph from "./Graphs/PieGraph";
+import BumpGraph from "./Graphs/BumpGraph";
+import ImageGraph from "./Graphs/ImageGraph";
+import CalendarGraph from "./Graphs/CalendarGraph";
+import ScatterGraph from "./Graphs/ScatterGraph";
+import RadialBarGraph from "./Graphs/RadialBarGraph";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
@@ -334,7 +335,7 @@ export default function GraphGrid() {
       h: 1,
     };
 
-    if (newGraph.graphType.includes("Bar")) {
+    if (newGraph.graphType === "VertBar" || newGraph.graphType === "HortBar") {
       newGraph.graphSettings = Object.assign(
         { graphKeys: ["degrees"], graphIndexBy: "day" },
         newGraph.graphSettings
@@ -347,7 +348,7 @@ export default function GraphGrid() {
   };
 
   function getData(dataName, dataVariation, timeRange) {
-    console.log("Got this data: " + dataName);
+    //console.log("Got this data: " + dataName);
     try {
       switch (dataName) {
         case "bar1":
@@ -449,7 +450,8 @@ export default function GraphGrid() {
                 </button>
                 <Tooltip id="title-tooltip" />
               </div>
-              {container.graphType.includes("Bar") ? (
+              {container.graphType === "VertBar" ||
+              container.graphType === "HortBar" ? (
                 <BarGraph
                   graphName={container.graphType}
                   data={getData(
@@ -529,6 +531,21 @@ export default function GraphGrid() {
                 />
               ) : container.graphType === "Scatter" ? (
                 <ScatterGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "RadBar" ? (
+                <RadialBarGraph
                   data={getData(
                     container.data,
                     container.dataVariation,

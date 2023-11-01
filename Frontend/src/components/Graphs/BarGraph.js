@@ -1,7 +1,6 @@
 import { ResponsiveBar } from "@nivo/bar";
 import graphThemes from "./Graphs.js";
 
-//Bar Graph
 export const BarGraph = (props) => {
   return (
     <ResponsiveBar

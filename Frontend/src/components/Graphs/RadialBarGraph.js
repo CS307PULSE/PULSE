@@ -1,8 +1,8 @@
-import { ResponsiveScatterPlot } from "@nivo/scatterplot";
+import { ResponsiveRadialBar } from "@nivo/radial-bar";
 import graphThemes from "./Graphs.js";
 import { useEffect, useState } from "react";
 
-export const ScatterGraph = (props) => {
+export const RadialBarGraph = (props) => {
   const [data, setData] = useState();
   const [itemsSelectable, setItemsSelectable] = useState([]);
   const [itemsSelected, setItemsSelected] = useState([]);
@@ -322,7 +322,7 @@ export const ScatterGraph = (props) => {
         ) : (
           <></>
         )}
-        <ResponsiveScatterPlot
+        <ResponsiveRadialBar
           theme={graphThemes}
           data={data}
           colors={{ scheme: props.graphTheme }}
@@ -385,7 +385,7 @@ export const ScatterGraph = (props) => {
                           border: "1px solid #ccc",
                         }}
                       >
-                        <div>{point.node.id.slice(0, -2)}</div>
+                        <div>{point.bar.groupId}</div>
                         <div>
                           {props.dataName.includes("percent")
                             ? "% of time"
@@ -393,7 +393,7 @@ export const ScatterGraph = (props) => {
                             ? "Minutes"
                             : "Times skipped"}
                           :{" "}
-                          {point.node.data.y *
+                          {point.bar.data.y *
                             (props.dataName === "percentTimes" ? 100.0 : 1.0)}
                         </div>
                       </div>
@@ -441,4 +441,4 @@ export const ScatterGraph = (props) => {
   }
 };
 
-export default ScatterGraph;
+export default RadialBarGraph;

@@ -2,7 +2,6 @@ import { ResponsiveLine } from "@nivo/line";
 import graphThemes from "./Graphs.js";
 import { useEffect, useState } from "react";
 
-//Line Graph
 export const LineGraph = (props) => {
   const [data, setData] = useState();
   const [itemsSelectable, setItemsSelectable] = useState([]);
@@ -441,3 +440,5 @@ export const LineGraph = (props) => {
     return <p>Your data is empty!</p>;
   }
 };
+
+export default LineGraph;

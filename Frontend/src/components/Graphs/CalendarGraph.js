@@ -85,3 +85,5 @@ export const CalendarGraph = (props) => {
     return <p>Your data is empty!</p>;
   }
 };
+
+export default CalendarGraph;

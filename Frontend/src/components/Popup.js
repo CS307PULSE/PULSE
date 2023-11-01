@@ -209,6 +209,8 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         break;
       case "RadBar":
         setLineData(true);
+        setTimesDataEN(true);
+        setFollowerData(true);
         setLegendEN(true);
         break;
       case "Pie":

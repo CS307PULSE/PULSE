@@ -60,3 +60,5 @@ export const PieGraph = (props) => {
     return <p>Your data is empty!</p>;
   }
 };
+
+export default PieGraph;
