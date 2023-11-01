@@ -18,6 +18,9 @@ import AddFriends from "./components/AddFriends";
 import FriendRequests from "./components/FriendRequests";
 import SongRecommendation from "./components/SongRecommendation";
 import DJMixer from "./components/DJMixer";
+import PlaylistManager from "./components/PlaylistManager";
+import PlaylistRecommendation from "./components/PlaylistRecommendation";
+import SongRecommendations from "./components/SongRecommendation";
 import HeadsUp from "./components/HeadsUp";
 
 import {
@@ -84,7 +87,13 @@ function App() {
         <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
-        <Route path="/DJmixer/SongRecommendation" element={<SongRecommendation />}/>
+        <Route path="/DJmixer/PlaylistRecommendation" element={<PlaylistRecommendation />} />
+        <Route path="/DJmixer/PlaylistManager" element={<PlaylistManager />} />
+        
+        <Route
+          path="/DJmixer/SongRecommendation"
+          element={<SongRecommendations />}
+        />
         <Route path="/uploader" element={<Uploader />} />
         <Route path="/friends/addFriends" element={<AddFriends />} />
         <Route path="/friends/friendRequests" element={<FriendRequests />} />
