@@ -1278,6 +1278,7 @@ def requestChoice():
                 conn.update_friends(user.spotify_id, friendid, True)
                 conn.update_friends(friendid, user.spotify_id, True)
                 conn.update_friend_requests(user.spotify_id, friendid, False)
+                conn.update_friend_requests(friendid, user.spotify_id, False)
             else:
                 conn.update_friend_requests(user.spotify_id, friendid, False)
             response_data = conn.get_friend_requests_from_DB(user.spotify_id)

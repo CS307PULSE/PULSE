@@ -675,7 +675,8 @@ def remove_friend(friends, friend_to_remove):
         master_friends = []
     else:
         master_friends = friends
-    master_friends.remove(friend_to_remove)
+    if friend_to_remove in master_friends:
+        master_friends.remove(friend_to_remove)
     return master_friends
 
 #game = 0, 1, 2, 3, or 4 
@@ -703,6 +704,5 @@ db_config =  {
             'charset':'utf8'                                     # charset encoding
             }
 
-#TODO: handle multiple requests to same person
-# handle no relevant users from a search
+#TODO: 
 #requests doesn't update unless page is reloaded. Same with Friends page and friends card
