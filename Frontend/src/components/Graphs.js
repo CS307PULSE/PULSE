@@ -853,9 +853,11 @@ export const LineGraph = (props) => {
           pointLabelYOffset={-12}
           useMesh={true}
           tooltip={
-            xScale.type === "time"
-              ? undefined
-              : ({ point }) => {
+            props.dataName === "numMinutes" ||
+            props.dataName === "percentTimes" ||
+            props.dataName === "percentTimePeriod" ||
+            props.dataName === "numTimesSkipped"
+              ? ({ point }) => {
                   return (
                     <div
                       style={{
@@ -878,6 +880,7 @@ export const LineGraph = (props) => {
                     </div>
                   );
                 }
+              : undefined
           }
           legends={
             props.legendEnabled

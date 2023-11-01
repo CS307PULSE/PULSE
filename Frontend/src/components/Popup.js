@@ -20,6 +20,10 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [axisTitlesEN, setAxisTitlesEN] = useState(false);
   const [legendEN, setLegendEN] = useState(false);
   const [disabledThemes, setDisableTheme] = useState(false);
+  const [pieData, setPieData] = useState(false);
+  const [barData, setBarData] = useState(false);
+  const [lineData, setLineData] = useState(false);
+  const [timesField, setTimesField] = useState(false);
 
   //Data variables
   const [dataSelected, setDataSelected] = useState();
@@ -79,8 +83,19 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   useEffect(() => {
     if (dataSelected === "numMinutes" || dataSelected === "percentTimes") {
       setSpecTimesDataSelected(true);
+      setTimesField(true);
+    } else if (
+      dataSelected === "percentTimePeriod" ||
+      dataSelected === "numTimesSkipped"
+    ) {
+      setSpecTimesDataSelected(false);
+      setTimesField(true);
     } else {
       setSpecTimesDataSelected(false);
+      setTimesField(false);
+    }
+    if (imageGraph) {
+      setTimesField(true);
     }
   }, [dataSelected]);
 
@@ -108,12 +123,27 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           option.value === "followed_artists"
         ) {
           return { ...option, visible: imageGraph };
+        } else if (option.value.includes("pie")) {
+          return { ...option, visible: pieData };
+        } else if (option.value.includes("line")) {
+          return { ...option, visible: lineData };
+        } else if (option.value.includes("bar")) {
+          return { ...option, visible: barData };
         } else {
           return option;
         }
       })
     );
-  }, [timesDataEN, followerData, radarData, bumpData, imageGraph]);
+  }, [
+    timesDataEN,
+    followerData,
+    radarData,
+    bumpData,
+    imageGraph,
+    pieData,
+    lineData,
+    barData,
+  ]);
 
   if (!isOpen) return null; //Don't do anything when not open
 
@@ -155,6 +185,9 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setRadarData(false);
     setFollowerData(false);
     setBumpData(false);
+    setPieData(false);
+    setBarData(false);
+    setLineData(false);
     switch (e.target.value) {
       case "ImageGraph":
         setImageGraph(true);
@@ -164,18 +197,23 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       case "HortBar":
       case "Line":
       case "Scatter":
-        setMultiDataEN(true);
+        if (e.target.value.includes("Bar")) {
+          setBarData(true);
+        } else {
+          setLineData(true);
+        }
         setAxisTitlesEN(true);
         setLegendEN(true);
         setTimesDataEN(true);
         setFollowerData(true);
         break;
       case "RadBar":
-        setMultiDataEN(true);
+        setLineData(true);
         setLegendEN(true);
         break;
       case "Pie":
         setLegendEN(true);
+        setPieData(true);
         break;
       case "Bump":
         setBumpData(true);
@@ -194,6 +232,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         break;
     }
     setGraph(e.target.value);
+    setDataSelected();
   };
 
   function handleSubmit(e) {
@@ -298,7 +337,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Time:{" "}
-            <select name="timeRange" disabled={!timesDataEN && !imageGraph}>
+            <select name="timeRange" disabled={!timesField}>
               <option value="all">All Time</option>
               <option value="year" disabled={!timesDataEN}>
                 Yearly
