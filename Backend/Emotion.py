@@ -116,6 +116,9 @@ class Emotion:
         percentage.append(happydist/totaldist)
         percentage.append(angrydist/totaldist)
         percentage.append(saddist/totaldist)
+        percentage[0] = 1 - percentage[0] 
+        percentage[1] = 1 - percentage[1] 
+        percentage[2] = 1 - percentage[2] 
         return percentage
         
     def convert_track(user, song):
@@ -170,3 +173,21 @@ class Emotion:
             return "sad"
         else:
             return "undefined"
+        
+    def get_emotion_recommendations(user, emotiondict, genre):
+        return user.get_recommendations(
+                            seed_genres=[genre], 
+                            max_items=10,
+                            target_energy=emotiondict["target_energy"],
+                            target_popularity=emotiondict["target_energy"],
+                            target_acousticness=emotiondict["target_energy"],
+                            target_danceability=emotiondict["target_energy"],
+                            target_duration_ms=emotiondict["target_energy"],
+                            target_instrumentalness=emotiondict["target_energy"],
+                            target_liveness=emotiondict["target_energy"],
+                            target_loudness=emotiondict["target_energy"],
+                            target_mode=emotiondict["target_energy"],
+                            target_speechiness=emotiondict["target_energy"],
+                            target_tempo=emotiondict["target_energy"],
+                            target_valence=emotiondict["target_energy"],
+                            extraparameters = True)

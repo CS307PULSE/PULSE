@@ -457,3 +457,6 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
             return ['' for _ in range(max_items)]
+        
+    def get_genres(self):
+        return self.spotify_user.recommendation_genre_seeds()
