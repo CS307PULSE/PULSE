@@ -192,6 +192,25 @@ const PlaylistRecommendation = () => {
     }
   }
 
+  function generateDropdown(finishedPullingData, selectedPlaylistName) {
+    if (finishedPullingData && selectedPlaylistName !== undefined && selectedPlaylistName !== null) {
+      return (
+        <div>
+          <p style={{ display: 'inline', marginRight: '10px' }}>
+          Get song recommendations for {selectedPlaylistName} based on:
+          </p>
+          <select value={selectedRecMethod} onChange={changeSelectedRecMethod}>
+          <option value="genres">Genres</option>
+          <option value="artists">Artists</option>
+          <option value="albums">Albums</option>
+          </select>
+        </div>
+          )
+    } else {
+      return <p></p>;
+    }
+  }
+
   function updateParentState(selectedSongID, selectedSongName, selectedPlaylistID, selectedPlaylistName) {
     if (selectedSongID !== null && selectedSongName !== null) {
       setSelectedSongID(selectedSongID);
@@ -225,7 +244,7 @@ const PlaylistRecommendation = () => {
                         setSelectedSongName = {setSelectedSongName}
                         updateParentState = {updateParentState} />;
     } else if (finishedPullingData) {
-      return <p>Please click on a playlist to select it!</p>
+      return <p>Please click on a playlist to get recommendations for!</p>
     } else {
         return <p></p>;
     }
@@ -243,11 +262,7 @@ const PlaylistRecommendation = () => {
     <div style={bodyStyle}>
         <Navbar />
         {generatePlaylists(savedPlaylists, finishedPullingData)} 
-        <select value={selectedRecMethod} onChange={changeSelectedRecMethod}>
-          <option value="genres">Genres</option>
-          <option value="artists">Artists</option>
-          <option value="albums">Albums</option>
-        </select>
+        {generateDropdown(finishedPullingData, selectedPlaylistName)}
         {generateSongs()} 
     </div>
   );
