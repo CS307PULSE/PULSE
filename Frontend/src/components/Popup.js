@@ -358,10 +358,32 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           <div>
             Theme:{" "}
             <select name="graphTheme" disabled={disabledThemes}>
-              <option value="accent">Accent</option>
-              <option value="dark2">Dark2</option>
-              <option value="spectral">Spectral</option>
+              <option value="nivo">Default</option>
               <option value="category10">Category10</option>
+              <option value="accent">Accent</option>
+              <option value="dark2">Dark</option>
+              <option value="paired">Paired</option>
+              <option value="pastel1">Pastel #1</option>
+              <option value="pastel2">Pastel #2</option>
+              <option value="set1">Set #1</option>
+              <option value="set2">Set #2</option>
+              <option value="set3">Set #3</option>
+              <option value="blues">Blues</option>
+              <option value="greens">Greens</option>
+              <option value="greys">Greys</option>
+              <option value="oranges">Oranges</option>
+              <option value="purples">Purples</option>
+              <option value="reds">Reds</option>
+              <option value="greys">Greys</option>
+              <option value="brown_blueGreen">Brown to Blue-Green</option>
+              <option value="purpleRed_green">Purple to Green</option>
+              <option value="pink_yellowGreen">Pink to Green</option>
+              <option value="purple_orange">Purple to Orange</option>
+              <option value="red_blue">Red to Blue</option>
+              <option value="red_grey">Red to Grey</option>
+              <option value="red_yellow_blue">Red to Yellow to Blue</option>
+              <option value="red_yellow_green">Red to Yellow to Green</option>
+              <option value="spectral">Full spectrum</option>
             </select>
           </div>
           <div>
