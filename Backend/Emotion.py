@@ -96,7 +96,7 @@ class Emotion:
             value1 = dict1[param]
             value2 = dict2[param]
 
-            if param != name:
+            if param != "name":
                 # Calculate the percentage difference
                 percentage_difference = abs(value1 - value2)
                 # Accumulate the total distance
