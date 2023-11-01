@@ -400,7 +400,7 @@ class User:
                                                                     target_tempo=target_tempo,
                                                                     #min_time_signature=min_time_signature,
                                                                     #max_time_signature=max_time_signature,
-                                                                    target_time_signature=target_time_signature,
+                                                                    #target_time_signature=target_time_signature,
                                                                     #min_valence=min_valence,
                                                                     #max_valence=max_valence,
                                                                     target_valence=target_valence
