@@ -1,136 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import {
-  BarGraph,
-  LineGraph,
-  PieGraph,
-  TopGraph,
-  line1,
-  bar1,
-  pie1,
-  pie2,
-} from "./Graphs";
+import { Tooltip } from "react-tooltip";
+import { line1, bar1, pie1, pie2 } from "./Graphs/Graphs";
+import BarGraph from "./Graphs/BarGraph";
+import LineGraph from "./Graphs/LineGraph";
+import PieGraph from "./Graphs/PieGraph";
+import BumpGraph from "./Graphs/BumpGraph";
+import ImageGraph from "./Graphs/ImageGraph";
+import CalendarGraph from "./Graphs/CalendarGraph";
+import ScatterGraph from "./Graphs/ScatterGraph";
+import RadialBarGraph from "./Graphs/RadialBarGraph";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
-import tempData from "./tempDataFile.js";
+import tempBasicData from "./TempData/BasicStats.js";
+import tempAdvancedData from "./TempData/AdvancedStats";
+import defaultLayout from "./TempData/defaultLayout";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-//Default layout so that page does not look empty
-const defaultLayout = [
-  {
-    h: 1,
-    i: "Top songs of last 4 weeks",
-    w: 2,
-    x: 0,
-    y: 0,
-    data: "top_songs_4week",
-    graphType: "TopGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Top Artists of last 4 weeks",
-    w: 2,
-    x: 0,
-    y: 3,
-    data: "top_artists_4week",
-    graphType: "TopGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Recent songs",
-    w: 3,
-    x: 2,
-    y: 0,
-    data: "recent_songs",
-    graphType: "TopGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Saved Songs",
-    w: 1,
-    x: 4,
-    y: 1,
-    data: "saved_songs",
-    graphType: "TopGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Followed Artists",
-    w: 2,
-    x: 2,
-    y: 1,
-    data: "followed_artists",
-    graphType: "TopGraph",
-    graphSettings: {},
-  },
-  {
-    h: 1,
-    i: "Saved Albums",
-    w: 2,
-    x: 0,
-    y: 2,
-    data: "saved_albums",
-    graphType: "TopGraph",
-    graphSettings: {},
-  },
-  {
-    i: "Sample Pie",
-    graphType: "Pie",
-    data: "pie1",
-    graphSettings: { graphTheme: "category10" },
-    x: 3,
-    y: 2,
-    w: 1,
-    h: 1,
-  },
-  {
-    i: "Sample Bar",
-    graphType: "Bar",
-    data: "bar1",
-    graphSettings: {
-      graphKeys: ["degrees"],
-      graphIndexBy: "day",
-      graphTheme: "category10",
-    },
-    x: 2,
-    y: 2,
-    w: 1,
-    h: 1,
-  },
-  {
-    i: "Followers",
-    graphType: "Line",
-    data: "followers",
-    graphSettings: {
-      xName: "date",
-      yName: "Followers",
-      graphTheme: "spectral",
-    },
-    x: 4,
-    y: 2,
-    w: 1,
-    h: 1,
-  },
-  {
-    i: "Saved Playlists",
-    graphType: "TopGraph",
-    data: "saved_playlists",
-    graphSettings: {},
-    x: 0,
-    y: 1,
-    w: 2,
-    h: 1,
-  },
-];
-
-async function fetchBackendDatas() {
+async function fetchBasicData() {
   const response = await axios.get("http://127.0.0.1:5000/statistics", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
+async function fetchAdvancedData() {
+  const response = await axios.get("http://127.0.0.1:5000/get_advanced_stats", {
     withCredentials: true,
   });
   const data = response.data;
@@ -170,6 +69,8 @@ export default function GraphGrid() {
   const [followedArtists, setFollowedArtists] = useState();
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
+  const [advancedData, setAdvancedData] = useState();
+  const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
   //Remove container function
   const RemoveContainer = (containerName) => {
@@ -216,10 +117,11 @@ export default function GraphGrid() {
   //Send layout to local storage
   const saveToLS = (key, storingLayout) => {
     try {
+      /*
       console.log(
         "Layout " + key + " (should be " + layoutNumber + " ) stored as"
       );
-      console.log(storingLayout);
+      console.log(storingLayout);*/
       localStorage.setItem(key, JSON.stringify(storingLayout));
     } catch (e) {
       alert(e);
@@ -263,21 +165,16 @@ export default function GraphGrid() {
     setLayout(updatedLayout);
   };
 
-  //Get correct initial layout when initialized
-  useEffect(() => {
-    setLayout(getFromLS(layoutNumber));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finishedPullingData]);
-
   //Get data from server & set top song/artists
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("getting");
-        const data = await fetchBackendDatas();
+        console.log("getting basic stats");
+        const data = await fetchBasicData();
 
         //Log data in console to view
         try {
+          console.log("Got below data");
           const objData = {
             top_artists: JSON.parse(data.top_artists),
             top_songs: JSON.parse(data.top_songs),
@@ -290,7 +187,9 @@ export default function GraphGrid() {
             saved_playlists: JSON.parse(data.saved_playlists),
           };
           console.log(objData);
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
 
         //Try catch for each data for parsing failure when data field empty
         try {
@@ -357,7 +256,6 @@ export default function GraphGrid() {
           if (layout_data.defaultLayout === "") {
           } else {
             setlayoutNumber(parseInt(layout_data.defaultLayout));
-            console.log(parseInt(layout_data.defaultLayout));
           }
         }
 
@@ -366,10 +264,14 @@ export default function GraphGrid() {
         alert("Page failed fetching - loading backup data");
         console.error("Error fetching data:", error);
         // Temporary measure to keep things going
-        console.log(JSON.parse(tempData.follower_data));
-        setTopArtists(JSON.parse(tempData.top_artists));
-        setTopSongs(JSON.parse(tempData.top_songs));
-        setFollowers(JSON.parse(tempData.follower_data));
+        setTopArtists(tempBasicData.top_artists);
+        setTopSongs(tempBasicData.top_songs);
+        setFollowers(tempBasicData.follower_data);
+        setRecentSongs(tempBasicData.recent_history);
+        setSavedSongs(tempBasicData.saved_songs);
+        setSavedAlbums(JSON.parse(tempBasicData.saved_albums));
+        setFollowedArtists(tempBasicData.followed_artists);
+        setSavedPlaylists(tempBasicData.saved_playlists);
 
         setFinished(true);
       }
@@ -377,6 +279,30 @@ export default function GraphGrid() {
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  //Get advanced data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log("Getting advanced data");
+        const data = await fetchAdvancedData();
+        if (data === null) {
+          // Error thrown here to trigger backup advanced data
+          throw new Error("No advanced data found!");
+        } else {
+          setAdvancedData(data);
+        }
+      } catch (error) {
+        console.log(
+          "Page failed fetching advanced data - loading backup advanced data"
+        );
+        console.error("Error fetching advanced data:", error);
+        setAdvancedData(tempAdvancedData);
+      }
+    };
+    fetchData();
+    setFinishedAdvanced(true);
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -394,36 +320,35 @@ export default function GraphGrid() {
       i: newGraphData.graphName,
       graphType: newGraphData.graphType,
       data: newGraphData.data,
-      graphSettings: { graphTheme: newGraphData.graphTheme },
+      timeRange: newGraphData.timeRange,
+      dataVariation: newGraphData.dataVariation,
+      graphSettings: {
+        graphTheme: newGraphData.graphTheme,
+        clickAction: newGraphData.clickAction,
+        hortAxisTitle: newGraphData.hortAxisTitle,
+        vertAxisTitle: newGraphData.vertAxisTitle,
+        legendEnabled: newGraphData.legendEnabled,
+      },
       x: 0,
       y: 0,
       w: 1,
       h: 1,
     };
 
-    if (newGraph.graphType === "Bar") {
+    if (newGraph.graphType === "VertBar" || newGraph.graphType === "HortBar") {
       newGraph.graphSettings = Object.assign(
         { graphKeys: ["degrees"], graphIndexBy: "day" },
         newGraph.graphSettings
       );
-    } else if (newGraph.graphType === "Line") {
-      if (newGraph.data === "followers") {
-        newGraph.graphSettings = Object.assign(
-          { xName: "date", yName: "Followers" },
-          newGraph.graphSettings
-        );
-      } else {
-        newGraph.graphSettings = Object.assign(
-          { xName: "transportation", yName: "Count" },
-          newGraph.graphSettings
-        );
-      }
     }
 
+    console.log("New Layout item added:");
+    console.log(newGraph);
     AddContainer(newGraph);
   };
 
-  function getData(dataName) {
+  function getData(dataName, dataVariation, timeRange) {
+    //console.log("Got this data: " + dataName);
     try {
       switch (dataName) {
         case "bar1":
@@ -434,18 +359,28 @@ export default function GraphGrid() {
           return pie1;
         case "pie2":
           return pie2;
-        case "top_songs_4week":
-          return topSongs[0];
-        case "top_songs_6month":
-          return topSongs[1];
-        case "top_songs_all":
-          return topSongs[2];
-        case "top_artists_4week":
-          return topArtists[0];
-        case "top_artists_6month":
-          return topArtists[1];
-        case "top_artists_all":
-          return topArtists[2];
+        case "top_songs":
+          switch (timeRange) {
+            case "4week":
+              return topSongs[0];
+            case "6month":
+              return topSongs[1];
+            case "all":
+              return topSongs[2];
+            default:
+              return topSongs;
+          }
+        case "top_artists":
+          switch (timeRange) {
+            case "4week":
+              return topArtists[0];
+            case "6month":
+              return topArtists[1];
+            case "all":
+              return topArtists[2];
+            default:
+              return topArtists;
+          }
         case "followers":
           return followers;
         case "recent_songs":
@@ -458,6 +393,12 @@ export default function GraphGrid() {
           return savedPlaylists;
         case "followed_artists":
           return followedArtists;
+        case "numMinutes":
+        case "percentTimes":
+        case "percentTimePeriod":
+        case "numTimesSkipped":
+        case "emotion":
+          return advancedData;
         default:
           return null;
       }
@@ -467,97 +408,194 @@ export default function GraphGrid() {
     }
   }
 
+  //Get correct initial layout when initialized
+  useEffect(() => {
+    setLayout(getFromLS(layoutNumber));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finishedPullingData]);
+
   if (!finishedPullingData) {
     return <>Still Loading...</>;
-  }
-
-  return (
-    <React.Fragment>
-      <ResponsiveGridLayout
-        layouts={{ lg: layout }}
-        breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
-        cols={{ lg: 5, xs: 2, xxs: 1 }}
-        rowHeight={300}
-        width={"100%"}
-        onLayoutChange={handleLayoutChange}
-        draggableCancel=".custom-draggable-cancel"
-      >
-        {layout.map((container) => (
-          <div className="graphContainer" key={container.i}>
-            <div>
-              <div style={{ fontSize: "var(--title-text-size)" }}>
-                {container.i}
-              </div>
-              <button
-                className="GraphCloseButton custom-draggable-cancel"
-                onClick={() => RemoveContainer(container.i)}
-              >
-                X
-              </button>
-            </div>
-            {container.graphType === "Bar" ? (
-              <BarGraph
-                data={getData(container.data)}
-                dataName={container.data}
-                graphKeys={container.graphSettings.graphKeys}
-                graphIndexBy={container.graphSettings.graphIndexBy}
-                graphTheme={container.graphSettings.graphTheme}
-              />
-            ) : container.graphType === "Line" ? (
-              <LineGraph
-                data={getData(container.data)}
-                dataName={container.data}
-                xName={container.graphSettings.xName}
-                yName={container.graphSettings.yName}
-                graphTheme={container.graphSettings.graphTheme}
-              />
-            ) : container.graphType === "Pie" ? (
-              <PieGraph
-                data={getData(container.data)}
-                dataName={container.data}
-                graphTheme={container.graphSettings.graphTheme}
-              />
-            ) : container.graphType === "TopGraph" ? (
-              <TopGraph
-                data={getData(container.data)}
-                dataName={container.data}
-              />
-            ) : (
-              <p> Hi</p>
-            )}
-          </div>
-        ))}
-      </ResponsiveGridLayout>
-      <div>
-        <p> Current layout is {layoutNumber}</p>
-        <button onClick={() => handleLoadButtonClick(1)}>Load 1</button>
-        <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
-        <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
-        <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
-      </div>
-      <div>
-        <p>Set Default Layout: </p>
-        <select
-          name="defaultLayout"
-          value={defaultLayoutNum}
-          onChange={changeDefaultLayoutNum}
+  } else if (!finishedPullingAdvancedData) {
+    return <>Loading Advanced Data...</>;
+  } else {
+    return (
+      <React.Fragment>
+        <ResponsiveGridLayout
+          layouts={{ lg: layout }}
+          breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
+          cols={{ lg: 5, xs: 2, xxs: 1 }}
+          rowHeight={300}
+          width={"100%"}
+          onLayoutChange={handleLayoutChange}
+          draggableCancel=".custom-draggable-cancel"
         >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
-      <div>
-        <button className="TypButton" onClick={openPopup}>
-          Add Graph
-        </button>
-      </div>
-      <Popup
-        isOpen={isPopupOpen}
-        onClose={closePopup}
-        addGraph={getNewGraphData}
-        graphNames={graphNames}
-      />
-    </React.Fragment>
-  );
+          {layout.map((container) => (
+            <div className="graphContainer" key={container.i}>
+              <div style={{ marginBottom: "10px" }}>
+                <div
+                  style={{ fontSize: "var(--title-text-size)" }}
+                  data-tooltip-id="title-tooltip"
+                  data-tooltip-content={
+                    container.graphType + " of " + container.data
+                  }
+                >
+                  {container.i}
+                </div>
+                <button
+                  className="GraphCloseButton custom-draggable-cancel"
+                  onClick={() => RemoveContainer(container.i)}
+                >
+                  X
+                </button>
+                <Tooltip id="title-tooltip" />
+              </div>
+              {container.graphType === "VertBar" ||
+              container.graphType === "HortBar" ? (
+                <BarGraph
+                  graphName={container.graphType}
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphKeys={container.graphSettings.graphKeys}
+                  graphIndexBy={container.graphSettings.graphIndexBy}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Line" ? (
+                <LineGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Pie" ? (
+                <PieGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "ImageGraph" ? (
+                <ImageGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  clickAction={container.graphSettings.clickAction}
+                />
+              ) : container.graphType === "Bump" ? (
+                <BumpGraph
+                  data={getData(container.data)}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Calendar" ? (
+                <CalendarGraph
+                  data={getData(container.data)}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Scatter" ? (
+                <ScatterGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "RadBar" ? (
+                <RadialBarGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : (
+                <p> Invalid Graph Type</p>
+              )}
+            </div>
+          ))}
+        </ResponsiveGridLayout>
+        <div>
+          <p> Current layout is {layoutNumber}</p>
+          <button onClick={() => handleLoadButtonClick(1)}>Load 1</button>
+          <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
+          <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
+          <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
+        </div>
+        <div>
+          <p>Set Default Layout: </p>
+          <select
+            name="defaultLayout"
+            value={defaultLayoutNum}
+            onChange={changeDefaultLayoutNum}
+          >
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div>
+          <button className="TypButton" onClick={openPopup}>
+            Add Graph
+          </button>
+        </div>
+        <Popup
+          isOpen={isPopupOpen}
+          onClose={closePopup}
+          addGraph={getNewGraphData}
+          graphNames={graphNames}
+        />
+      </React.Fragment>
+    );
+  }
 }

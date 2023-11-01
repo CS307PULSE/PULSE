@@ -209,6 +209,7 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    start_time = time.time()
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -224,7 +225,11 @@ def statistics():
                 'layout_data' : ''}
 
         try:
+            start_time2 = time.time()
             update_data(user)
+            end_time2 = time.time()
+            execution_time2 = end_time2 - start_time2
+            print(f"Execution time: {execution_time2} seconds")
         except Exception as e:
             print(e)
             return jsonify(data)
@@ -248,7 +253,9 @@ def statistics():
 
         if followers is not None:
             data['follower_data'] = followers
-
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
         return jsonify(data)
         
     else:
@@ -257,6 +264,7 @@ def statistics():
     
 @app.route('/statistics/shortened')
 def statistics_short():
+    start_time = time.time()
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -266,7 +274,13 @@ def statistics_short():
                 'follower_data' : ''}
 
         try:
-            update_data(user)
+            update_data(user, update_recent_history=False,
+                update_top_songs=True,
+                update_top_artists=True,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=False)
         except Exception as e:
             print(e)
             return jsonify(data)
@@ -280,7 +294,9 @@ def statistics_short():
 
         if followers is not None:
             data['follower_data'] = followers
-
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
         return jsonify(data)
         
     else:
@@ -367,6 +383,7 @@ def get_text_size():
 
 @app.route('/update_followers')
 def update_followers():
+    start_time = time.time()
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -379,7 +396,9 @@ def update_followers():
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
-
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -1003,6 +1022,7 @@ def get_advanced_stats():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
+            # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
