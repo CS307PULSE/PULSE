@@ -3,7 +3,7 @@ import Navbar from "./NavBar";
 //import FriendsCard from "./FriendsCard";
 //import { Link } from "react-router-dom";
 import axios from "axios";
-import { ImageGraph } from "./Graphs.js";
+import { ImageGraph } from "./Graphs/ImageGraph";
 
 import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";

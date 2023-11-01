@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { Tooltip } from "react-tooltip";
-import {
-  BarGraph,
-  LineGraph,
-  PieGraph,
-  BumpGraph,
-  ImageGraph,
-  line1,
-  bar1,
-  pie1,
-  pie2,
-  CalendarGraph,
-} from "./Graphs";
+import { line1, bar1, pie1, pie2 } from "./Graphs/Graphs";
+import { BarGraph } from "./Graphs/BarGraph";
+import { LineGraph } from "./Graphs/LineGraph";
+import { PieGraph } from "./Graphs/PieGraph";
+import { BumpGraph } from "./Graphs/BumpGraph";
+import { ImageGraph } from "./Graphs/ImageGraph";
+import { CalendarGraph } from "./Graphs/CalendarGraph";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
