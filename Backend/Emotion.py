@@ -112,8 +112,6 @@ class Emotion:
         percentage.append(saddist/totaldist)
         return percentage
         
-
-
     def convert_track(user, song):
         song_dict = {
             "target_energy": 0,
@@ -150,7 +148,7 @@ class Emotion:
 
     def update_and_average_dict(self, user, original_dict, song):
         song_dict = self.convert_track(user, song)
-        for key, value in original_dict.items():
+        for key in original_dict.items():
             original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
 
