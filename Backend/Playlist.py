@@ -39,22 +39,34 @@ class Playlist:
         user.spotify_user.user_playlist_create(user, name, public, collaborative, description)
     
     def track_remove(user, playlist, spotify_uri):
-        print("wow")
+        user.spotify_user.user_playlist_remove_all_occurrences_of_items(playlist, spotify_uri)
 
     def track_replace(user, playlist, spotify_uri):
-        print("wow")
+        user.spotify_user.user_playlist_replace_items(playlist, spotify_uri)
 
     def track_reorder(user, playlist, spotify_uri):
-        print("wow")
+        user.spotify_user.user_playlist_reorder_tracks(user, playlist, 0, 0)
 
-    def playlist_follow(user, playlist, spotify_uri):
-        print("wow")
+    def playlist_follow(user, playlist, owner_id):
+        user.spotify_user.user_playlist_follow_playlist(playlist_owner_id = owner_id, playlist_id = playlist)
 
-    def playlist_unfollow(user, playlist, spotify_uri):
-        print("wow")
+    def playlist_unfollow(user, playlist):
+        user.spotify_user.user_playlist_unfollow(user, playlist)
 
-    def playlist_generate(user, playlist, spotify_uri):
-        print("wow")
-
-    def playlist_autofill(user, playlist, spotify_uri):
-        print("wow")
+    def playlist_generate(self, user, playlist):
+        genres = self.playlist_analysis(user, "genre", playlist)
+        recommendations = user.get_recommendations(seed_genres = genres, max_items = 30)
+        for song in recommendations:
+            self.add_track(user, playlist, song['id'])
+        
+    def playlist_analysis(user, field, playlist):
+        analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
+        genrearray = []
+        for item in analysis['items']:
+            genre = item['artists']['genres'][0]
+            if genre not in genrearray:
+                genrearray.append(genre)
+        return genrearray
+    
+    def playlist_get_tracks(user, playlist):
+        user.spotify_user.user_playlist_tracks(playlist_id = playlist)
