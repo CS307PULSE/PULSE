@@ -4,10 +4,11 @@ import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
+import StatsCard from "./StatsCard";
+
 import ChatbotButton from "./ChatBotButton";
 import { pulseColors } from "../theme/Colors";
 import axios from "axios";
-
 
 import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
@@ -100,98 +101,10 @@ const searchInputStyle = {
   width: "50%",
 };
 
-//Update follower data
-async function updateFollowers() {
-  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
-    withCredentials: true,
-  });
-  const data = response.data;
-  console.log("Followers response:");
-  console.log(response);
-  return data;
-}
-
 function Mainpage() {
-
   const handleChatbotClick = () => {
-    // Logic to open chatbot goes here
-    alert('Chatbot clicked!');
-};
-
-  function StatsCardComp() {
-    //Data to display on stats card
-    const [topArtists, setTopArtists] = useState();
-    const [topSongs, setTopSongs] = useState();
-    const [followers, setFollowers] = useState();
-    const [statsDone, setStatsDone] = useState(false);
-
-    useEffect(() => {
-      updateFollowers();
-      const fetchData = async () => {
-        const response = await axios.get(
-          "http://127.0.0.1:5000/statistics/shortened",
-          {
-            withCredentials: true,
-          }
-        );
-        console.log("response to stats card");
-        console.log(response);
-        const data = response.data;
-        try {
-          setTopArtists(JSON.parse(data.top_artists));
-        } catch (e) {
-          console.log(e);
-          console.log("Top Artist empty");
-        }
-
-        try {
-          setTopSongs(JSON.parse(data.top_songs));
-        } catch (e) {
-          console.log("Top Song empty");
-        }
-        if (data.follower_data === "") {
-          console.log("Followers empty");
-        } else {
-          const dateObjects = Object.keys(data.follower_data);
-          const lastObj =
-            data.follower_data[dateObjects[dateObjects.length - 1]];
-          console.log(dateObjects[dateObjects.length - 1]);
-          setFollowers(lastObj);
-        }
-        setStatsDone(true);
-      };
-
-      fetchData();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    if (!statsDone) {
-      return <p>Loading</p>;
-    }
-    try {
-      return (
-        <>
-          <p style={cardContent}>
-            Favorite artist of all time: {topArtists[2][0].name}
-          </p>
-          <p style={cardContent}>
-            Favorite artist recently: {topArtists[0][0].name}
-          </p>
-          <p style={cardContent}>
-            Favorite song of all time: {topSongs[2][0].name}
-          </p>
-          <p style={cardContent}>
-            Favorite song recently: {topSongs[0][0].name}
-          </p>
-          <p style={cardContent}>You have {followers} followers</p>
-        </>
-      );
-    } catch (e) {
-      console.log(e);
-      return <p>Try refreshing, data was bad, sorry!</p>;
-    }
-  }
-
+    alert("Chatbot clicked!");
+  };
   useEffect(() => {
     document.title = "PULSE - Dashboard";
   }, []);
@@ -202,7 +115,7 @@ function Mainpage() {
       <div style={{ padding: "5px" }} />
       <div style={cardContainerStyle}>
         <Card headerText="STATISTICS" style={cardStyle}>
-          {StatsCardComp()}
+          {StatsCard()}
         </Card>
         <Card headerText="DJ MIXER" style={cardStyle}>
           <p style={cardContent}>This is the content of Card 2.</p>
@@ -272,7 +185,7 @@ function Mainpage() {
         </Card>
       </div>
       {/* Define routes for each game */}
-      <ChatbotButton/>
+      <ChatbotButton />
       <div style={friendContainerStyle}>
         <FriendsCard />
       </div>

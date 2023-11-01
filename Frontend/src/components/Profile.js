@@ -99,7 +99,7 @@ const iconPictureStyle = {
   borderRadius: "10px",
 };
 
-var storedUsername, storedGender, storedLocation, storedImagePath;
+var storedUsername, storedGender, storedLocation, storedImagePath, storedFavoriteSong;
 try {
   var usernameResponse = await axios.get(
     "http://127.0.0.1:5000/profile/get_displayname",
@@ -121,7 +121,11 @@ try {
     { withCredentials: true }
   );
   storedImagePath = imageResponse.data;
-  console.log(storedImagePath);
+  var favoriteSongResponse = await axios.get(
+    "http://127.0.0.1:5000/profile/get_chosen_song",
+    { withCredentials: true }
+  );
+  storedFavoriteSong = favoriteSongResponse.data;
 } catch (e) {
   console.log("User info fetch failed: " + e);
   storedUsername = "undefined";
@@ -210,6 +214,19 @@ async function saveImagePath(imagePathParameter) {
   const data = response.data;
   return data;
 }
+async function saveFavoriteSong(favoriteSongParameter) {
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    const response = await axiosInstance.post(
+      "http://127.0.0.1:5000/profile/change_chosen_song",
+      {
+        chosen_song: favoriteSongParameter,
+      }
+    );
+    const data = response.data;
+    return data;
+  }
 
 async function handleImageSelect(event) {
   const file = event.target.files[0]; // Get the first selected file
@@ -229,12 +246,13 @@ async function handleImageSelect(event) {
   }
 }
 
-async function saveUserInfo(username, gender, location, imagePath) {
+async function saveUserInfo(username, gender, location, imagePath, favoriteSong) {
   saveUsername(username);
   saveGender(gender);
   saveLocation(location);
   saveImagePath(imagePath);
-  window.location.reload();
+  saveFavoriteSong(favoriteSong);
+//   window.location.reload();
 }
 
 function Profile({ testParameter }) {
@@ -242,7 +260,8 @@ function Profile({ testParameter }) {
   const [username, setUsername] = useState(storedUsername);
   const [gender, setGender] = useState(storedGender);
   const [location, setLocation] = useState(storedLocation);
-
+  const [favoriteSong, setFavoriteSong] = useState(storedFavoriteSong);
+  
   useEffect(() => {
     document.title = "PULSE - Profile";
   }, []);
@@ -302,10 +321,12 @@ function Profile({ testParameter }) {
           }}
         ></input>{" "}
         <br></br>
+        <label style={profileText}>Favorite Song: </label>
+        <input id="location" type="text" style={textFieldStyle} value={favoriteSong} onChange={(e) => {setFavoriteSong(e.target.value)}}></input>{" "} <br></br>
         <div style={buttonContainerStyle}>
           <button
             onClick={() => {
-              saveUserInfo(username, gender, location, imagePath);
+              saveUserInfo(username, gender, location, imagePath, favoriteSong);
             }}
             style={buttonStyle}
           >
