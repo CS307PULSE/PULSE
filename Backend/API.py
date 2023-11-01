@@ -255,6 +255,37 @@ def statistics():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     
+
+@app.route('/get_saved_playlists')
+def statistics():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = {'status' : 'Not updated',
+                'saved_playlists': ''}
+
+        try:
+            update_data(user,
+                update_recent_history=False,
+                update_top_songs=False,
+                update_top_artists=False,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=True)
+        except Exception as e:
+            print(e)
+            return jsonify(data)
+
+        data['status'] = 'Success'
+        data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
+
+        return jsonify(data)
+        
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    
 @app.route('/statistics/shortened')
 def statistics_short():
     if 'user' in session:
