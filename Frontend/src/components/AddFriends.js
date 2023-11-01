@@ -161,7 +161,7 @@ const AddFriends = () => {
     if (searchUserValue !== null && searchUserValue !== undefined) {
       console.log("searching for " + searchUserValue);
       sendAndFetchRelevantUsers(searchUserValue).then((data) => {
-        if (data !== null && data !== undefined) {
+        if (data !== null && data !== undefined && data.length != 0) {
           setRecievedRelevantUsers(data);
         } else {
           alert("User does not exist")
