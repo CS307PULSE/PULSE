@@ -334,7 +334,7 @@ export default function GraphGrid() {
       h: 1,
     };
 
-    if (newGraph.graphType === "VertBar") {
+    if (newGraph.graphType.includes("Bar")) {
       newGraph.graphSettings = Object.assign(
         { graphKeys: ["degrees"], graphIndexBy: "day" },
         newGraph.graphSettings
@@ -449,8 +449,9 @@ export default function GraphGrid() {
                 </button>
                 <Tooltip id="title-tooltip" />
               </div>
-              {container.graphType === "VertBar" ? (
+              {container.graphType.includes("Bar") ? (
                 <BarGraph
+                  graphName={container.graphType}
                   data={getData(
                     container.data,
                     container.dataVariation,

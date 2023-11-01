@@ -3,13 +3,13 @@ import graphThemes from "./Graphs.js";
 
 //Bar Graph
 export const BarGraph = (props) => {
-  console.log(props);
   return (
     <ResponsiveBar
       theme={graphThemes}
       data={props.data}
       keys={props.graphKeys}
       indexBy={props.graphIndexBy}
+      layout={props.graphName === "VertBar" ? "vertical" : "horizontal"}
       margin={{
         top: 30,
         right: props.legendEnabled ? 110 : 50,
