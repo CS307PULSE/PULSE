@@ -631,7 +631,7 @@ export const TopGraph = (props) => {
         className="TopGraph custom-draggable-cancel"
         onWheel={(e) => {
           if (e.deltaY === 0) return;
-          e.preventDefault();
+          e.cancelable && e.preventDefault();
           e.currentTarget.scrollTo({
             left: e.currentTarget.scrollLeft + e.deltaY,
             behavior: "auto",
@@ -746,7 +746,7 @@ export const TopGraph = (props) => {
               key={playlist.id + index}
             >
               <img
-                src={playlist.images[0].url}
+                src={playlist.images[0] === undefined ? ("https://images.wondershare.com/repairit/aticle/2021/07/resolve-images-not-showing-problem-1.jpg") : playlist.images[0].url}
                 alt={playlist.name}
                 className="TopGraphImage"
               />
@@ -760,6 +760,44 @@ export const TopGraph = (props) => {
                 trackObj.track.name + " by " + trackObj.track.artists[0].name
               }
               onClick={() => sendSongRequest(trackObj.track.uri)}
+              style={{ cursor: "pointer" }}
+              key={trackObj.track.id + index}
+            >
+              <img
+                src={trackObj.track.album.images[0].url}
+                alt={trackObj.track.name}
+                className="TopGraphImage"
+              />
+            </span>
+          ))
+        ) : props.dataName.includes("playlists_for_recs") ? (
+          props.data.map((playlist, index) => (
+            <span
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={
+                playlist.name + " created by " + playlist.owner.display_name
+              }
+              onClick={() => 
+                {props.updateParentState(null, null, playlist.id, playlist.name);
+              }}
+              style={{ cursor: "pointer" }}
+              key={playlist.id + index}
+            >
+              <img
+                src={playlist.images[0] === undefined ? ("https://images.wondershare.com/repairit/aticle/2021/07/resolve-images-not-showing-problem-1.jpg") : playlist.images[0].url}
+                alt={playlist.name}
+                className="TopGraphImage"
+              />
+            </span>
+          ))
+        ) : props.dataName.includes("songs_for_recs") ? (
+          props.data.map((trackObj, index) => (
+            <span
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={
+                trackObj.track.name + " by " + trackObj.track.artists[0].name
+              }
+              onClick={() => {sendSongRequest(trackObj.track.uri); props.updateParentState(trackObj.track.id,trackObj.track.name, null, null );}}
               style={{ cursor: "pointer" }}
               key={trackObj.track.id + index}
             >

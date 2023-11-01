@@ -15,6 +15,8 @@ import Uploader from "./components/Uploader";
 import Friends from "./components/Friends";
 import axios from "axios";
 import DJMixer from "./components/DJMixer";
+import PlaylistManager from "./components/PlaylistManager";
+import PlaylistRecommendation from "./components/PlaylistRecommendation";
 import SongRecommendations from "./components/SongRecommendation";
 import HeadsUp from "./components/HeadsUp";
 import {
@@ -81,6 +83,8 @@ function App() {
         <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
+        <Route path="/DJmixer/PlaylistRecommendation" element={<PlaylistRecommendation />} />
+        <Route path="/DJmixer/PlaylistManager" element={<PlaylistManager />} />
         
         <Route
           path="/DJmixer/SongRecommendation"
