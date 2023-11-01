@@ -100,6 +100,18 @@ const DJMixer = () => {
         >
           Artist Recommendation
         </Link>
+        <Link
+          to="/DJmixer/PlaylistRecommendation"
+          style={{ ...buttonStyle, textDecoration: "none" }}
+        >
+          Playlist Recommendation
+        </Link>
+        <Link
+          to="/DJmixer/PlaylistManager"
+          style={{ ...buttonStyle, textDecoration: "none" }}
+        >
+          Playlist Manager
+        </Link>
       </div>
       <SongPlayer />
     </div>

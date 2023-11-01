@@ -1,19 +1,149 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 //Popup passing through open and close functions
 export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
-  //Use states for data to be read from when generating new graph container
+  //Use states for data to be controlled
   const [graphName, setGraphName] = useState("");
-  const [data, setData] = useState("bar1");
-  const [graphType, setGraph] = useState("bar");
-  const [theme, setTheme] = useState("dark");
+  const [hortAxisTitle, setHortAxisTitle] = useState("");
+  const [vertAxisTitle, setVertAxisTitle] = useState("");
+  const [graphType, setGraph] = useState("ImageGraph");
   const [validName, setValidName] = useState(false);
 
   //Use states to selectively disable choices depending on data type
-  const [noneData, setNoneData] = useState(false);
-  const [barData, setBarData] = useState(true);
-  const [lineData, setLineData] = useState(false);
+  const [imageGraph, setImageGraph] = useState(true);
+  const [timesDataEN, setTimesDataEN] = useState(false);
+  const [specTimesDataEN, setSpecTimesDataSelected] = useState(false);
+  const [radarData, setRadarData] = useState(false);
+  const [followerData, setFollowerData] = useState(false);
+  const [bumpData, setBumpData] = useState(false);
+  const [multiDataEN, setMultiDataEN] = useState(false);
+  const [axisTitlesEN, setAxisTitlesEN] = useState(false);
+  const [legendEN, setLegendEN] = useState(false);
+  const [disabledThemes, setDisableTheme] = useState(false);
   const [pieData, setPieData] = useState(false);
+  const [barData, setBarData] = useState(false);
+  const [lineData, setLineData] = useState(false);
+  const [timesField, setTimesField] = useState(false);
+
+  //Data variables
+  const [dataSelected, setDataSelected] = useState();
+  const [dataOptions, setDataOptions] = useState([
+    { value: "bar1", label: "Sample Data1", visible: true },
+    { value: "line1", label: "Sample Data1", visible: true },
+    { value: "pie1", label: "Sample Data1", visible: true },
+    { value: "pie2", label: "Sample Data2", visible: false },
+    {
+      value: "numMinutes",
+      label: "Number of minutes listened to",
+      visible: timesDataEN,
+    },
+    {
+      value: "percentTimes",
+      label: "% of music listened to",
+      visible: timesDataEN,
+    },
+    {
+      value: "percentTimePeriod",
+      label: "Times listened to per time period",
+      visible: timesDataEN,
+    },
+    {
+      value: "numTimesSkipped",
+      label: "Times listened to or skipped or repeated",
+      visible: timesDataEN,
+    },
+    {
+      value: "emotion",
+      label: "Emotion of music listened to",
+      visible: radarData,
+    },
+    { value: "followers", label: "Followers", visible: followerData },
+    {
+      value: "top_songs",
+      label: "Top Songs",
+      visible: imageGraph || bumpData,
+    },
+    {
+      value: "top_artists",
+      label: "Top Artists",
+      visible: imageGraph || bumpData,
+    },
+    { value: "recent_songs", label: "Recent Songs", visible: imageGraph },
+    { value: "saved_songs", label: "Saved Songs", visible: imageGraph },
+    { value: "saved_albums", label: "Saved Albums", visible: imageGraph },
+    { value: "saved_playlists", label: "Saved Playlists", visible: imageGraph },
+    {
+      value: "followed_artists",
+      label: "Followed Artists",
+      visible: imageGraph,
+    },
+  ]);
+
+  //Update Data info
+  useEffect(() => {
+    if (dataSelected === "numMinutes" || dataSelected === "percentTimes") {
+      setSpecTimesDataSelected(true);
+      setTimesField(true);
+    } else if (
+      dataSelected === "percentTimePeriod" ||
+      dataSelected === "numTimesSkipped"
+    ) {
+      setSpecTimesDataSelected(false);
+      setTimesField(true);
+    } else {
+      setSpecTimesDataSelected(false);
+      setTimesField(false);
+    }
+    if (imageGraph) {
+      setTimesField(true);
+    }
+  }, [dataSelected]);
+
+  //Update data choices when state changes
+  useEffect(() => {
+    // Update visibility based on timesDataEN state
+    setDataOptions((prevOptions) =>
+      prevOptions.map((option) => {
+        if (
+          option.value === "numMinutes" ||
+          option.value === "percentTimes" ||
+          option.value === "percentTimePeriod" ||
+          option.value === "numTimesSkipped"
+        ) {
+          return { ...option, visible: timesDataEN };
+        } else if (option.value === "followers") {
+          return { ...option, visible: followerData };
+        } else if (option.value === "emotion") {
+          return { ...option, visible: radarData };
+        } else if (option.value.includes("top_")) {
+          return { ...option, visible: bumpData || imageGraph };
+        } else if (
+          option.value.includes("recent_") ||
+          option.value.includes("saved_") ||
+          option.value === "followed_artists"
+        ) {
+          return { ...option, visible: imageGraph };
+        } else if (option.value.includes("pie")) {
+          return { ...option, visible: pieData };
+        } else if (option.value.includes("line")) {
+          return { ...option, visible: lineData };
+        } else if (option.value.includes("bar")) {
+          return { ...option, visible: barData };
+        } else {
+          return option;
+        }
+      })
+    );
+  }, [
+    timesDataEN,
+    followerData,
+    radarData,
+    bumpData,
+    imageGraph,
+    pieData,
+    lineData,
+    barData,
+  ]);
 
   if (!isOpen) return null; //Don't do anything when not open
 
@@ -33,61 +163,78 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setGraphName(regexName);
   };
 
-  const changeData = (e) => {
-    const newData = e.target.value;
-    setData(newData);
-    if (
-      newData.includes("top_songs") ||
-      newData.includes("top_artists") ||
-      newData === "recent_songs" ||
-      newData === "saved_songs" ||
-      newData === "saved_albums" ||
-      newData === "followed_artists" ||
-      newData === "saved_playlists"
-    ) {
-      setNoneData(true);
-      setBarData(false);
-      setLineData(false);
-      setPieData(false);
-    } else if (newData === "bar1") {
-      setNoneData(false);
-      setBarData(true);
-      setLineData(false);
-      setPieData(false);
-    } else if (newData === "line1") {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(true);
-      setPieData(false);
-    } else if (newData === "pie1" || newData === "pie2") {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(false);
-      setPieData(true);
-    } else if (newData === "followers") {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(true);
-      setPieData(false);
-    } else {
-      setNoneData(false);
-      setBarData(false);
-      setLineData(false);
-      setPieData(false);
-    }
-    setGraph("");
+  const changeHortAxisTitle = (e) => {
+    //Replace special characters w/ null
+    const regexName = e.target.value.replace(/[^\w\s]/gi, "");
+    setHortAxisTitle(regexName);
+  };
+
+  const changeVertAxisTitle = (e) => {
+    //Replace special characters w/ null
+    const regexName = e.target.value.replace(/[^\w\s]/gi, "");
+    setVertAxisTitle(regexName);
   };
 
   const changeGraph = (e) => {
-    setGraph("TopGraph");
-  };
-
-  const changeTheme = (e) => {
-    if (data.includes("top_songs") || data.includes("top_artists")) {
-      setTheme("None");
-    } else {
-      setTheme(e.target.value);
+    setDisableTheme(false);
+    setImageGraph(false);
+    setTimesDataEN(false);
+    setMultiDataEN(false);
+    setAxisTitlesEN(false);
+    setLegendEN(false);
+    setRadarData(false);
+    setFollowerData(false);
+    setBumpData(false);
+    setPieData(false);
+    setBarData(false);
+    setLineData(false);
+    switch (e.target.value) {
+      case "ImageGraph":
+        setImageGraph(true);
+        setDisableTheme(true);
+        break;
+      case "VertBar":
+      case "HortBar":
+      case "Line":
+      case "Scatter":
+        if (e.target.value.includes("Bar")) {
+          setBarData(true);
+        } else {
+          setLineData(true);
+        }
+        setAxisTitlesEN(true);
+        setLegendEN(true);
+        setTimesDataEN(true);
+        setFollowerData(true);
+        break;
+      case "RadBar":
+        setLineData(true);
+        setTimesDataEN(true);
+        setFollowerData(true);
+        setLegendEN(true);
+        break;
+      case "Pie":
+        setLegendEN(true);
+        setPieData(true);
+        break;
+      case "Bump":
+        setBumpData(true);
+        setAxisTitlesEN(true);
+        break;
+      case "Radar":
+        setRadarData(true);
+        break;
+      case "Text":
+        break;
+      case "Calendar":
+        setFollowerData(true);
+        setDisableTheme(true);
+        break;
+      default:
+        break;
     }
+    setGraph(e.target.value);
+    setDataSelected();
   };
 
   function handleSubmit(e) {
@@ -100,7 +247,24 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     // Read the form data
     const form = e.target;
     const formData = new FormData(form);
-    let formJson = Object.fromEntries(formData.entries());
+    const formJson = {};
+    //Converts to JSON object
+    for (let [name, value] of formData) {
+      //If item exists already - then add to array
+      if (formJson[name]) {
+        if (!Array.isArray(formJson[name])) {
+          formJson[name] = [formJson[name]]; // Convert to array if it's not already
+        }
+        formJson[name].push(value);
+      } else {
+        formJson[name] = value;
+      }
+    }
+
+    //Set dataVariation to song if below data
+    if (formJson.data === "numTimesSkipped") {
+      formJson.dataVariation = "songs";
+    }
 
     if (validName) {
       onClose();
@@ -133,59 +297,132 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             />
           </div>
           <div>
-            Data:{" "}
-            <select name="data" value={data} onChange={changeData}>
-              <option value="bar1">Bar1</option>
-              <option value="line1">Line1</option>
-              <option value="pie1">Pie1</option>
-              <option value="pie2">Pie2</option>
-              <option value="top_songs_4week">Top Songs of last 4 weeks</option>
-              <option value="top_songs_6month">
-                Top Songs of last 6 months
-              </option>
-              <option value="top_songs_all">Top Songs of all time</option>
-              <option value="top_artists_4week">
-                Top Artists of last 4 weeks
-              </option>
-              <option value="top_artists_6month">
-                Top Artists of last 6 months
-              </option>
-              <option value="top_artists_all">Top Artists of all time</option>
-              <option value="followers">Followers</option>
-              <option value="recent_songs">Recent Songs</option>
-              <option value="saved_songs">Saved Songs</option>
-              <option value="saved_albums">Saved Albums</option>
-              <option value="saved_playlists">Saved Playlists</option>
-              <option value="followed_artists">Followed Artists</option>
+            Graph Type:{" "}
+            <select name="graphType" value={graphType} onChange={changeGraph}>
+              <option value="ImageGraph">Images</option>
+              <option value="VertBar">Vertical Bar</option>
+              <option value="HortBar">Horizontal Bar</option>
+              <option value="RadBar">Radial Bar</option>
+              <option value="Line">Line</option>
+              <option value="Pie">Pie</option>
+              <option value="Bump">Bump</option>
+              <option value="Radar">Radar</option>
+              <option value="Scatter">Scatter</option>
+              <option value="Calendar">Calendar</option>
+              <option value="Text">Text</option>
             </select>
           </div>
           <div>
-            Graph Type:{" "}
-            <select name="graphType" value={graphType} onChange={changeGraph}>
-              <option value="TopGraph" disabled={!noneData}></option>
-              <option value="Bar" disabled={!barData}>
-                Bar
+            Data:{" "}
+            <select
+              name="data"
+              value={dataSelected}
+              onChange={(e) => setDataSelected(e.target.value)}
+            >
+              {dataOptions.map((option) =>
+                option.visible ? (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ) : null
+              )}
+            </select>
+          </div>
+          <div>
+            Type of Data:{" "}
+            <select name="dataVariation" disabled={!specTimesDataEN}>
+              <option value="songs">Songs</option>
+              <option value="artists">Artists</option>
+              <option value="genres">Genres</option>
+              <option value="eras">Eras</option>
+            </select>
+          </div>
+          <div>
+            Time:{" "}
+            <select name="timeRange" disabled={!timesField}>
+              <option value="all">All Time</option>
+              <option value="year" disabled={!timesDataEN}>
+                Yearly
               </option>
-              <option value="Line" disabled={!lineData}>
-                Line
+              <option value="month" disabled={!timesDataEN}>
+                Monthly
               </option>
-              <option value="Pie" disabled={!pieData}>
-                Pie
+              <option value="6month" disabled={!imageGraph}>
+                6 Months
+              </option>
+              <option value="4week" disabled={!imageGraph}>
+                4 Weeks
               </option>
             </select>
           </div>
           <div>
             Theme:{" "}
-            <select
-              name="graphTheme"
-              value={theme}
-              onChange={changeTheme}
-              disabled={noneData}
-            >
-              <option value="accent">Accent</option>
-              <option value="dark2">Dark2</option>
-              <option value="spectral">Spectral</option>
+            <select name="graphTheme" disabled={disabledThemes}>
+              <option value="nivo">Default</option>
               <option value="category10">Category10</option>
+              <option value="accent">Accent</option>
+              <option value="dark2">Dark</option>
+              <option value="paired">Paired</option>
+              <option value="pastel1">Pastel #1</option>
+              <option value="pastel2">Pastel #2</option>
+              <option value="set1">Set #1</option>
+              <option value="set2">Set #2</option>
+              <option value="set3">Set #3</option>
+              <option value="blues">Blues</option>
+              <option value="greens">Greens</option>
+              <option value="greys">Greys</option>
+              <option value="oranges">Oranges</option>
+              <option value="purples">Purples</option>
+              <option value="reds">Reds</option>
+              <option value="greys">Greys</option>
+              <option value="brown_blueGreen">Brown to Blue-Green</option>
+              <option value="purpleRed_green">Purple to Green</option>
+              <option value="pink_yellowGreen">Pink to Green</option>
+              <option value="purple_orange">Purple to Orange</option>
+              <option value="red_blue">Red to Blue</option>
+              <option value="red_grey">Red to Grey</option>
+              <option value="red_yellow_blue">Red to Yellow to Blue</option>
+              <option value="red_yellow_green">Red to Yellow to Green</option>
+              <option value="spectral">Full spectrum</option>
+            </select>
+          </div>
+          <div>
+            Horizontal Axis Title:
+            <input
+              name="hortAxisTitle"
+              type="input"
+              rows={1}
+              cols={20}
+              className="nameField"
+              value={hortAxisTitle}
+              onChange={changeHortAxisTitle}
+              placeholder="Horizontal Axis Name"
+              disabled={!axisTitlesEN}
+            />
+          </div>
+          <div>
+            Vertical Axis Title:
+            <input
+              name="vertAxisTitle"
+              type="input"
+              rows={1}
+              cols={20}
+              className="nameField"
+              value={vertAxisTitle}
+              onChange={changeVertAxisTitle}
+              placeholder="Vertical Axis Name"
+              disabled={!axisTitlesEN}
+            />
+          </div>
+          <div>
+            Legend Enabled:
+            <input name="legendEnabled" type="checkbox" disabled={!legendEN} />
+          </div>
+          <div>
+            Link Click Action:{" "}
+            <select name="clickAction" disabled={!imageGraph}>
+              <option value="playMusic">Play Music</option>
+              <option value="spotifyPage">Link to Spotify Page</option>
             </select>
           </div>
           <div>
