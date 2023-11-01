@@ -90,21 +90,9 @@ const buttonStyle = {
   textAlign: "center", // Center the text horizontally
 };
 
-async function sendAndFetchPlaylists(sentPlaylistName) {
-    const axiosInstance = axios.create({
-        withCredentials: true,
-      });
-      const response = await axiosInstance.post(
-        "http://127.0.0.1:5000/djmixer/playlist_recommendation/playlist_search",
-        { playlist: sentPlaylistName }
-      );
-      const data = response.data;
-      console.log(response);
-      return data;
-}
 
 async function fetchBackendDatas() {
-    const response = await axios.get("http://127.0.0.1:5000/statistics", {
+    const response = await axios.get("http://127.0.0.1:5000/get_saved_playlists", {
       withCredentials: true,
     });
     const data = response.data;
