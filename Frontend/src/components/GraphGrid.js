@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { Tooltip } from "react-tooltip";
-import { line1, bar1, pie1, pie2 } from "./Graphs/Graphs";
+import { line1, bar1, pie1, pie2, nameFromDataName } from "./Graphs/Graphs";
 import BarGraph from "./Graphs/BarGraph";
 import LineGraph from "./Graphs/LineGraph";
 import PieGraph from "./Graphs/PieGraph";
@@ -435,9 +435,22 @@ export default function GraphGrid() {
               <div style={{ marginBottom: "10px" }}>
                 <div
                   style={{ fontSize: "var(--title-text-size)" }}
-                  data-tooltip-id="title-tooltip"
+                  data-tooltip-id={container.i + "-tooltip"}
                   data-tooltip-content={
-                    container.graphType + " of " + container.data
+                    container.graphType +
+                    ' of "' +
+                    nameFromDataName(container.data) +
+                    '"' +
+                    (container.data === "numMinutes" ||
+                    container.data === "percentTimes"
+                      ? " for " + container.dataVariation
+                      : "") +
+                    (container.data.includes("num") ||
+                    container.data.includes("percent") ||
+                    (container.data.includes("top") &&
+                      !(container.graphType === "Bump"))
+                      ? " for " + container.timeRange
+                      : "")
                   }
                 >
                   {container.i}
@@ -448,7 +461,7 @@ export default function GraphGrid() {
                 >
                   X
                 </button>
-                <Tooltip id="title-tooltip" />
+                <Tooltip id={container.i + "-tooltip"} />
               </div>
               {container.graphType === "VertBar" ||
               container.graphType === "HortBar" ? (
