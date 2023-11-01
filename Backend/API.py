@@ -334,6 +334,33 @@ def statistics_short():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
+@app.route('/get_friends_recent_songs', methods=['POST'])
+def statistics():
+    data = request.get_json()
+    friend_ids = data.get('friend_ids')
+    friend_songs = {}
+    for friend_id in friend_ids.keys():
+        with DatabaseConnector(db_config) as conn:
+            user = conn.get_user_from_user_DB(spotify_id=friend_id)
+
+        try:
+            update_data(user,
+                update_recent_history=True,
+                update_top_songs=False,
+                update_top_artists=False,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=False)
+            
+            friend_songs[friend_id] = user.stats.recent_history
+
+        except Exception as e:
+            print(e)
+            friend_songs[friend_id] = {}
+
+    return jsonify(friend_songs)
+
 @app.route('/statistics/set_layout', methods=['POST'])
 def set_layout():
     data = request.get_json()
