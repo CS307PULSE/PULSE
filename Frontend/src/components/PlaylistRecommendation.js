@@ -180,13 +180,17 @@ const PlaylistRecommendation = () => {
   function generatePlaylists(masterPlaylists, finishedPullingData) {
     console.log(masterPlaylists)
     if (finishedPullingData) {
-        return <TopGraph data={masterPlaylists} 
-                        dataName={"playlists_for_recs"} 
-                        selectedPlaylistID = {selectedPlaylistID}
-                        setSelectedPlaylistID = {setSelectedPlaylistID}
-                        selectedPlaylistName = {selectedPlaylistName}
-                        setSelectedPlaylistName = {setSelectedPlaylistName}
-                        updateParentState = {updateParentState} />;
+        return (
+        <div style={{ height: "300px", overflowY: "scroll" }}>
+          <TopGraph data={masterPlaylists} 
+                          dataName={"playlists_for_recs"} 
+                          selectedPlaylistID = {selectedPlaylistID}
+                          setSelectedPlaylistID = {setSelectedPlaylistID}
+                          selectedPlaylistName = {selectedPlaylistName}
+                          setSelectedPlaylistName = {setSelectedPlaylistName}
+                          updateParentState = {updateParentState} />
+        </div>
+          )
     } else {
         return <p>Please wait while we pull your playlists</p>;
     }
@@ -236,13 +240,16 @@ const PlaylistRecommendation = () => {
     });
     //UNCOMMENT OUT FOR CONNECTION TO BACKEND
     return <p>Test successful. Need to connect to backend to continue</p>
-    return <TopGraph data={songRecs} 
+    return (
+      <div style={{ height: "300px", overflowY: "scroll" }}><TopGraph data={songRecs} 
                         dataName={"songs_for_recs"} 
                         selectedSongID ={selectedSongID} 
                         setSelectedSongID = {setSelectedSongID}
                         selectedSongName ={selectedSongName} 
                         setSelectedSongName = {setSelectedSongName}
                         updateParentState = {updateParentState} />;
+      </div>
+    )
     } else if (finishedPullingData) {
       return <p>Please click on a playlist to get recommendations for!</p>
     } else {
