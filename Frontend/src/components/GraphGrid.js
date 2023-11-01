@@ -11,6 +11,7 @@ import {
   bar1,
   pie1,
   pie2,
+  CalendarGraph,
 } from "./Graphs";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
@@ -167,12 +168,6 @@ export default function GraphGrid() {
     setLayout(updatedLayout);
   };
 
-  //Get correct initial layout when initialized
-  useEffect(() => {
-    setLayout(getFromLS(layoutNumber));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finishedPullingData]);
-
   //Get data from server & set top song/artists
   useEffect(() => {
     const fetchData = async () => {
@@ -302,12 +297,11 @@ export default function GraphGrid() {
           setAdvancedData(data);
         }
       } catch (error) {
-        alert(
+        console.log(
           "Page failed fetching advanced data - loading backup advanced data"
         );
         console.error("Error fetching advanced data:", error);
         setAdvancedData(tempAdvancedData);
-        setFinished(true);
       }
     };
     fetchData();
@@ -357,6 +351,7 @@ export default function GraphGrid() {
   };
 
   function getData(dataName, dataVariation, timeRange) {
+    console.log("Got this data: " + dataName);
     try {
       switch (dataName) {
         case "bar1":
@@ -416,147 +411,162 @@ export default function GraphGrid() {
     }
   }
 
+  //Get correct initial layout when initialized
+  useEffect(() => {
+    setLayout(getFromLS(layoutNumber));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finishedPullingData]);
+
   if (!finishedPullingData) {
     return <>Still Loading...</>;
   } else if (!finishedPullingAdvancedData) {
     return <>Loading Advanced Data...</>;
-  }
-
-  return (
-    <React.Fragment>
-      <ResponsiveGridLayout
-        layouts={{ lg: layout }}
-        breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
-        cols={{ lg: 5, xs: 2, xxs: 1 }}
-        rowHeight={300}
-        width={"100%"}
-        onLayoutChange={handleLayoutChange}
-        draggableCancel=".custom-draggable-cancel"
-      >
-        {layout.map((container) => (
-          <div className="graphContainer" key={container.i}>
-            <div style={{ marginBottom: "10px" }}>
-              <div
-                style={{ fontSize: "var(--title-text-size)" }}
-                data-tooltip-id="title-tooltip"
-                data-tooltip-content={
-                  container.graphType + " of " + container.data
-                }
-              >
-                {container.i}
-              </div>
-              <button
-                className="GraphCloseButton custom-draggable-cancel"
-                onClick={() => RemoveContainer(container.i)}
-              >
-                X
-              </button>
-              <Tooltip id="title-tooltip" />
-            </div>
-            {container.graphType === "VertBar" ? (
-              <BarGraph
-                data={getData(
-                  container.data,
-                  container.dataVariation,
-                  container.timeRange
-                )}
-                dataName={container.data}
-                dataVariation={container.dataVariation}
-                timeRange={container.timeRange}
-                graphKeys={container.graphSettings.graphKeys}
-                graphIndexBy={container.graphSettings.graphIndexBy}
-                graphTheme={container.graphSettings.graphTheme}
-                hortAxisTitle={container.graphSettings.hortAxisTitle}
-                vertAxisTitle={container.graphSettings.vertAxisTitle}
-                legendEnabled={container.graphSettings.legendEnabled}
-              />
-            ) : container.graphType === "Line" ? (
-              <LineGraph
-                data={getData(
-                  container.data,
-                  container.dataVariation,
-                  container.timeRange
-                )}
-                dataName={container.data}
-                dataVariation={container.dataVariation}
-                timeRange={container.timeRange}
-                graphTheme={container.graphSettings.graphTheme}
-                hortAxisTitle={container.graphSettings.hortAxisTitle}
-                vertAxisTitle={container.graphSettings.vertAxisTitle}
-                legendEnabled={container.graphSettings.legendEnabled}
-              />
-            ) : container.graphType === "Pie" ? (
-              <PieGraph
-                data={getData(
-                  container.data,
-                  container.dataVariation,
-                  container.timeRange
-                )}
-                dataName={container.data}
-                dataVariation={container.dataVariation}
-                timeRange={container.timeRange}
-                graphTheme={container.graphSettings.graphTheme}
-                legendEnabled={container.graphSettings.legendEnabled}
-              />
-            ) : container.graphType === "ImageGraph" ? (
-              <ImageGraph
-                data={getData(
-                  container.data,
-                  container.dataVariation,
-                  container.timeRange
-                )}
-                dataName={container.data}
-                dataVariation={container.dataVariation}
-                timeRange={container.timeRange}
-                clickAction={container.graphSettings.clickAction}
-              />
-            ) : container.graphType === "Bump" ? (
-              <BumpGraph
-                data={getData(container.data, container.timeRange)}
-                dataName={container.data}
-                dataVariation={container.dataVariation}
-                timeRange={container.timeRange}
-                graphTheme={container.graphSettings.graphTheme}
-                hortAxisTitle={container.graphSettings.hortAxisTitle}
-                vertAxisTitle={container.graphSettings.vertAxisTitle}
-                legendEnabled={container.graphSettings.legendEnabled}
-              />
-            ) : (
-              <p> Invalid Graph Type</p>
-            )}
-          </div>
-        ))}
-      </ResponsiveGridLayout>
-      <div>
-        <p> Current layout is {layoutNumber}</p>
-        <button onClick={() => handleLoadButtonClick(1)}>Load 1</button>
-        <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
-        <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
-        <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
-      </div>
-      <div>
-        <p>Set Default Layout: </p>
-        <select
-          name="defaultLayout"
-          value={defaultLayoutNum}
-          onChange={changeDefaultLayoutNum}
+  } else {
+    return (
+      <React.Fragment>
+        <ResponsiveGridLayout
+          layouts={{ lg: layout }}
+          breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
+          cols={{ lg: 5, xs: 2, xxs: 1 }}
+          rowHeight={300}
+          width={"100%"}
+          onLayoutChange={handleLayoutChange}
+          draggableCancel=".custom-draggable-cancel"
         >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
-      <div>
-        <button className="TypButton" onClick={openPopup}>
-          Add Graph
-        </button>
-      </div>
-      <Popup
-        isOpen={isPopupOpen}
-        onClose={closePopup}
-        addGraph={getNewGraphData}
-        graphNames={graphNames}
-      />
-    </React.Fragment>
-  );
+          {layout.map((container) => (
+            <div className="graphContainer" key={container.i}>
+              <div style={{ marginBottom: "10px" }}>
+                <div
+                  style={{ fontSize: "var(--title-text-size)" }}
+                  data-tooltip-id="title-tooltip"
+                  data-tooltip-content={
+                    container.graphType + " of " + container.data
+                  }
+                >
+                  {container.i}
+                </div>
+                <button
+                  className="GraphCloseButton custom-draggable-cancel"
+                  onClick={() => RemoveContainer(container.i)}
+                >
+                  X
+                </button>
+                <Tooltip id="title-tooltip" />
+              </div>
+              {container.graphType === "VertBar" ? (
+                <BarGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphKeys={container.graphSettings.graphKeys}
+                  graphIndexBy={container.graphSettings.graphIndexBy}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Line" ? (
+                <LineGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Pie" ? (
+                <PieGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "ImageGraph" ? (
+                <ImageGraph
+                  data={getData(
+                    container.data,
+                    container.dataVariation,
+                    container.timeRange
+                  )}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  clickAction={container.graphSettings.clickAction}
+                />
+              ) : container.graphType === "Bump" ? (
+                <BumpGraph
+                  data={getData(container.data)}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  hortAxisTitle={container.graphSettings.hortAxisTitle}
+                  vertAxisTitle={container.graphSettings.vertAxisTitle}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : container.graphType === "Calendar" ? (
+                <CalendarGraph
+                  data={getData(container.data)}
+                  dataName={container.data}
+                  dataVariation={container.dataVariation}
+                  timeRange={container.timeRange}
+                  graphTheme={container.graphSettings.graphTheme}
+                  legendEnabled={container.graphSettings.legendEnabled}
+                />
+              ) : (
+                <p> Invalid Graph Type</p>
+              )}
+            </div>
+          ))}
+        </ResponsiveGridLayout>
+        <div>
+          <p> Current layout is {layoutNumber}</p>
+          <button onClick={() => handleLoadButtonClick(1)}>Load 1</button>
+          <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
+          <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
+          <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
+        </div>
+        <div>
+          <p>Set Default Layout: </p>
+          <select
+            name="defaultLayout"
+            value={defaultLayoutNum}
+            onChange={changeDefaultLayoutNum}
+          >
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div>
+          <button className="TypButton" onClick={openPopup}>
+            Add Graph
+          </button>
+        </div>
+        <Popup
+          isOpen={isPopupOpen}
+          onClose={closePopup}
+          addGraph={getNewGraphData}
+          graphNames={graphNames}
+        />
+      </React.Fragment>
+    );
+  }
 }

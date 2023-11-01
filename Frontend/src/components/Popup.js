@@ -19,6 +19,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [multiDataEN, setMultiDataEN] = useState(false);
   const [axisTitlesEN, setAxisTitlesEN] = useState(false);
   const [legendEN, setLegendEN] = useState(false);
+  const [disabledThemes, setDisableTheme] = useState(false);
 
   //Data variables
   const [dataSelected, setDataSelected] = useState();
@@ -145,6 +146,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   };
 
   const changeGraph = (e) => {
+    setDisableTheme(false);
     setImageGraph(false);
     setTimesDataEN(false);
     setMultiDataEN(false);
@@ -156,6 +158,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     switch (e.target.value) {
       case "ImageGraph":
         setImageGraph(true);
+        setDisableTheme(true);
         break;
       case "VertBar":
       case "HortBar":
@@ -183,7 +186,12 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         break;
       case "Text":
         break;
+      case "Calendar":
+        setFollowerData(true);
+        setDisableTheme(true);
+        break;
       default:
+        break;
     }
     setGraph(e.target.value);
   };
@@ -308,7 +316,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           </div>
           <div>
             Theme:{" "}
-            <select name="graphTheme" disabled={imageGraph}>
+            <select name="graphTheme" disabled={disabledThemes}>
               <option value="accent">Accent</option>
               <option value="dark2">Dark2</option>
               <option value="spectral">Spectral</option>
