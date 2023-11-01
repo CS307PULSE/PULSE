@@ -882,7 +882,6 @@ def change_chosen_song():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-
 @app.route('/profile/change_location', methods=['POST'])
 def change_location():
     if 'user' in session:
