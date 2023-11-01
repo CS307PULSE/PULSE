@@ -5,6 +5,7 @@ import {
   BarGraph,
   LineGraph,
   PieGraph,
+  BumpGraph,
   ImageGraph,
   line1,
   bar1,
@@ -373,8 +374,9 @@ export default function GraphGrid() {
             case "6month":
               return topSongs[1];
             case "all":
-            default:
               return topSongs[2];
+            default:
+              return topSongs;
           }
         case "top_artists":
           switch (timeRange) {
@@ -383,8 +385,9 @@ export default function GraphGrid() {
             case "6month":
               return topArtists[1];
             case "all":
-            default:
               return topArtists[2];
+            default:
+              return topArtists;
           }
         case "followers":
           return followers;
@@ -506,6 +509,17 @@ export default function GraphGrid() {
                 dataVariation={container.dataVariation}
                 timeRange={container.timeRange}
                 clickAction={container.graphSettings.clickAction}
+              />
+            ) : container.graphType === "Bump" ? (
+              <BumpGraph
+                data={getData(container.data, container.timeRange)}
+                dataName={container.data}
+                dataVariation={container.dataVariation}
+                timeRange={container.timeRange}
+                graphTheme={container.graphSettings.graphTheme}
+                hortAxisTitle={container.graphSettings.hortAxisTitle}
+                vertAxisTitle={container.graphSettings.vertAxisTitle}
+                legendEnabled={container.graphSettings.legendEnabled}
               />
             ) : (
               <p> Invalid Graph Type</p>

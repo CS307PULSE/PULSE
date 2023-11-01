@@ -15,6 +15,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [specTimesDataEN, setSpecTimesDataSelected] = useState(false);
   const [radarData, setRadarData] = useState(false);
   const [followerData, setFollowerData] = useState(false);
+  const [bumpData, setBumpData] = useState(false);
   const [multiDataEN, setMultiDataEN] = useState(false);
   const [axisTitlesEN, setAxisTitlesEN] = useState(false);
   const [legendEN, setLegendEN] = useState(false);
@@ -55,12 +56,12 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     {
       value: "top_songs",
       label: "Top Songs",
-      visible: imageGraph,
+      visible: imageGraph || bumpData,
     },
     {
       value: "top_artists",
       label: "Top Artists",
-      visible: imageGraph,
+      visible: imageGraph || bumpData,
     },
     { value: "recent_songs", label: "Recent Songs", visible: imageGraph },
     { value: "saved_songs", label: "Saved Songs", visible: imageGraph },
@@ -86,50 +87,32 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   useEffect(() => {
     // Update visibility based on timesDataEN state
     setDataOptions((prevOptions) =>
-      prevOptions.map((option) =>
-        option.value === "numMinutes" ||
-        option.value === "percentTimes" ||
-        option.value === "percentTimePeriod" ||
-        option.value === "numTimesSkipped"
-          ? { ...option, visible: timesDataEN }
-          : option
-      )
+      prevOptions.map((option) => {
+        if (
+          option.value === "numMinutes" ||
+          option.value === "percentTimes" ||
+          option.value === "percentTimePeriod" ||
+          option.value === "numTimesSkipped"
+        ) {
+          return { ...option, visible: timesDataEN };
+        } else if (option.value === "followers") {
+          return { ...option, visible: followerData };
+        } else if (option.value === "emotion") {
+          return { ...option, visible: radarData };
+        } else if (option.value.includes("top_")) {
+          return { ...option, visible: bumpData || imageGraph };
+        } else if (
+          option.value.includes("recent_") ||
+          option.value.includes("saved_") ||
+          option.value === "followed_artists"
+        ) {
+          return { ...option, visible: imageGraph };
+        } else {
+          return option;
+        }
+      })
     );
-  }, [timesDataEN]);
-
-  useEffect(() => {
-    // Update visibility based on followerData state
-    setDataOptions((prevOptions) =>
-      prevOptions.map((option) =>
-        option.value === "followers"
-          ? { ...option, visible: followerData }
-          : option
-      )
-    );
-  }, [followerData]);
-
-  useEffect(() => {
-    // Update visibility based on radarData state
-    setDataOptions((prevOptions) =>
-      prevOptions.map((option) =>
-        option.value === "emotion" ? { ...option, visible: radarData } : option
-      )
-    );
-  }, [radarData]);
-
-  useEffect(() => {
-    // Update visibility based on imageGraph state
-    setDataOptions((prevOptions) =>
-      prevOptions.map((option) =>
-        option.value.includes("top_") ||
-        option.value.includes("recent_") ||
-        option.value.includes("saved_") ||
-        option.value === "followed_artists"
-          ? { ...option, visible: imageGraph }
-          : option
-      )
-    );
-  }, [imageGraph]);
+  }, [timesDataEN, followerData, radarData, bumpData, imageGraph]);
 
   if (!isOpen) return null; //Don't do anything when not open
 
@@ -169,6 +152,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setLegendEN(false);
     setRadarData(false);
     setFollowerData(false);
+    setBumpData(false);
     switch (e.target.value) {
       case "ImageGraph":
         setImageGraph(true);
@@ -191,6 +175,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         setLegendEN(true);
         break;
       case "Bump":
+        setBumpData(true);
         setAxisTitlesEN(true);
         break;
       case "Radar":
