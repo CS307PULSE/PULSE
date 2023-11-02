@@ -130,7 +130,7 @@ class DatabaseConnector(object):
         return self.resultset[0]
     
     # Returns the color_palettes from DB an 2D array with 5 rows and 4 columns.
-    def get_color_palettes_user_DB(self, spotify_id,):
+    def get_color_palettes_from_user_DB(self, spotify_id,):
         sql_get_color_palettes_query = "SELECT color_palettes from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_color_palettes_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
