@@ -1,9 +1,15 @@
 export const pulseColors = {
     green: "#6EEB4D",
-    black: "#000",
+    black: "#000000",
     white: "#FFFFFF",
     darkOffGrey: "#364232",
     lightOffGrey: "#c5d1c0"
+}
+export const hexToRGBA = (hexColor, alpha) => {
+    const red = parseInt(hexColor.slice(1, 3), 16);
+    const green = parseInt(hexColor.slice(3, 5), 16);
+    const blue = parseInt(hexColor.slice(5, 7), 16);
+    return "rgba(" + red + ", " + blue + ", " + green + ", " + alpha + ")";
 }
 function Colors(colorSetting) {
     const themeColors = {
