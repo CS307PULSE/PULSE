@@ -28,7 +28,6 @@ from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
 run_connected = True
-spoof_songs = False
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
@@ -535,18 +534,7 @@ def playback():
                 return "Failed to reauthenticate token"
         print(f"Starting with filter {filter_search}!")
         
-        global spoof_songs
-        if (spoof_songs):
-            songs = []
-            songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
-            random_track = random.choice(songs)
-            track_uri = random_track['uri']
-        elif filter_search == "":
+        if filter_search == "":
             if user.stats.saved_songs is None:
                 user.update_saved_songs()
             songs = user.stats.saved_songs
@@ -565,6 +553,30 @@ def playback():
                 songs = user.stats.saved_songs
                 random_track = random.choice(songs)
                 track_uri = random_track['track']['uri']
+                
+        user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/games/random_friend', methods=['POST'])
+def random_friend():
+    data = request.get_json()
+    id_dict = data.get('friend_songs')
+    random_id = random.choice(list(id_dict.keys()))
+    return jsonify(random_id)
+
+@app.route('/games/playback_friends', methods=['POST'])
+def playback_friends():
+    data = request.get_json()
+    songs = data.get('songs')
+    timestamp_ms = 20000 #20 seconds playback
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        random_track = random.choice(songs)
+        track_uri = random_track['track']['uri']
                 
         user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
         return jsonify("Success!")
@@ -1040,8 +1052,8 @@ def change_location():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_background', methods=['POST'])
-def change_background():
+@app.route('/profile/set_background_image', methods=['POST'])
+def set_background_image():
     if 'user' in session:
         data = request.get_json()
         background = data.get('background')
@@ -1057,21 +1069,51 @@ def change_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_themes', methods=['POST'])
-def change_themes():
+@app.route('/profile/set_saved_themes', methods=['POST'])
+def set_saved_themes():
     if 'user' in session:
         data = request.get_json()
         themes = data.get('themes')
+        for theme in themes:
+            theme[0] = theme[0].replace(" ", "")
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_color_palettes(user.spotify_id, themes) == -1):
+            if (conn.update_saved_themes(user.spotify_id, themes) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/set_color_palette', methods=['POST'])
+def set_color_palette():
+    if 'user' in session:
+        data = request.get_json()
+        palette = data.get('color_palette')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palette(user.spotify_id, palette) == -1):
+                error_message = "palette has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Palette updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_color_palette', methods=['GET'])
+def get_color_palette():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palette_from_user_DB(user.spotify_id)
+    else:
+        response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
 @app.route('/profile/get_displayname', methods=['GET'])
@@ -1121,8 +1163,8 @@ def get_chosen_song():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_background')
-def get_background():
+@app.route('/profile/get_background_image')
+def get_background_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -1133,13 +1175,13 @@ def get_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_themes')
-def get_themes():
+@app.route('/profile/get_saved_themes')
+def get_saved_themes():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_color_palettes_from_user_DB(user.spotify_id)
+            response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

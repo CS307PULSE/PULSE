@@ -114,7 +114,7 @@ class DatabaseConnector(object):
         sql_get_advanced_stats_query = "SELECT advanced_stats from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
@@ -129,12 +129,35 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
-    # Returns the color_palettes from DB an 2D array with 5 rows and 4 columns.
-    def get_color_palettes_from_user_DB(self, spotify_id,):
-        sql_get_color_palettes_query = "SELECT color_palettes from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_color_palettes_query, (spotify_id,))
+    # Returns the color_palette from DB an 2D array with 5 rows and 5 columns.
+    def get_color_palette_from_user_DB(self, spotify_id,):
+        sql_get_color_palette_query = "SELECT color_palette from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_color_palette_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 4)
+        twod = string_to_array_row_by_col(self.resultset[0], 1, 4, False)
+        return [twod[0][0], twod[0][1], twod[0][2], twod[0][3]]
+    
+    # Returns the saved_themes from DB an 2D array with 5 rows and 5 columns.
+    def get_saved_themes_from_user_DB(self, spotify_id,):
+        sql_get_saved_themes_query = "SELECT saved_themes from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        packed_str = self.resultset[0]
+        print("Packed_str: " + packed_str)
+        count = 0
+        for i in range(0, len(packed_str)):
+            if packed_str[i] == ' ':
+                count +=1
+        print("Count: " + str(count))
+        row = 0
+        if count == 4:
+            row = 1
+        elif count == 0:
+            return []
+        else:
+            row = int(1 + (count - 4) / 5)
+        print("Row: " + str(row))
+        return string_to_array_row_by_col(self.resultset[0], row, 5, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
@@ -155,7 +178,7 @@ class DatabaseConnector(object):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
@@ -188,7 +211,7 @@ class DatabaseConnector(object):
         sql_get_game_settings_query = "SELECT game_settings from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_game_settings_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 5)
+        return string_to_array_row_by_col(self.resultset[0], 5, 5, True)
     
     # Returns the gender from DB as a string.
     def get_gender_from_user_DB(self, spotify_id, data = None):
@@ -347,11 +370,30 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
 
         
-    # Updates color palettes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
-    def update_color_palettes(self, spotify_id, new_color_palettes):
+    # Updates saved_themes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    def update_saved_themes(self, spotify_id, new_saved_themes):
         try:
-            sql_update_color_palettes = """UPDATE pulse.users SET color_palettes = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_color_palettes, (array_to_string(new_color_palettes), spotify_id,))
+            sql_update_saved_themes = """UPDATE pulse.users SET saved_themes = %s WHERE spotify_id = %s"""
+            if (new_saved_themes == []):
+                self.db_cursor.execute(sql_update_saved_themes, ("", spotify_id,))
+            else:
+                self.db_cursor.execute(sql_update_saved_themes, (array_to_string(new_saved_themes), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating followers:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    # Updates color_palette (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    def update_color_palette(self, spotify_id, new_color_palette):
+        try:
+            sql_update_color_palette_query = """UPDATE pulse.users SET color_palette = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_color_palette_query, (array_to_string(new_color_palette), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -707,10 +749,13 @@ def array_to_string(game_settings_input_array):
     flattened = [str(item) for sublist1 in game_settings_input_array for item in sublist1]
     return ' '.join(flattened)
 
-def string_to_array_row_by_col(game_settings_input_string, row, col):
+def string_to_array_row_by_col(game_settings_input_string, row, col, is_int):
     # Convert the string back to a 2D array
     elements = game_settings_input_string.split()
-    flat_list = [int(element) for element in elements]
+    if (is_int):
+        flat_list = [int(element) for element in elements]
+    else:
+        flat_list = [str(element) for element in elements]
     
     # Create a 3D array from the flattened
     arr = []
