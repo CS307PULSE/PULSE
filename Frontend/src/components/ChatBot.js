@@ -26,9 +26,24 @@ const ChatBot = () => {
     }, []);
 
     useEffect(() => {
-        // This will run right after the `songs` state is updated
         console.log("Updated songs:", songs);
-    }, [songs]);
+        
+        const sendSong = async () => {
+            // Check if songs is not just empty spaces
+                try {
+                    // Use POST if you want to send data in the request body
+                    const response = await axios.get('http://127.0.0.1:5000/chatbot/pull_songs', { songs }, { withCredentials: true });
+                    console.log(response.data); // Assuming the server sends back JSON
+                } catch (error) {
+                    console.error('Error sending songs:', error.response ? error.response.data : error.message);
+                }
+        };
+    
+        // Call sendSong here
+        sendSong();
+    
+    }, [songs]); // This will run the effect every time `songs` state updates
+    
 
     useEffect(() => {
         console.log("Updated feedback:", feedback);
