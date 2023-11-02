@@ -297,8 +297,6 @@ def friend_statistics():
         return jsonify(data)
     
     with DatabaseConnector(db_config) as conn:
-        layout = conn.get_layout_from_DB(user.spotify_id)
-    with DatabaseConnector(db_config) as conn:
         followers = conn.get_followers_from_DB(user.spotify_id)
 
     data['status'] = 'Success'
