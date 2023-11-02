@@ -134,7 +134,7 @@ class DatabaseConnector(object):
         sql_get_color_palette_query = "SELECT color_palette from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_color_palette_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        twod = string_to_array_row_by_col(self.resultset[0], 1, 4)
+        twod = string_to_array_row_by_col(self.resultset[0], 1, 4, False)
         return [twod[0][0], twod[0][1], twod[0][2], twod[0][4]]
     
     # Returns the saved_themes from DB an 2D array with 5 rows and 5 columns.
@@ -142,7 +142,7 @@ class DatabaseConnector(object):
         sql_get_saved_themes_query = "SELECT saved_themes from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 5)
+        return string_to_array_row_by_col(self.resultset[0], 5, 5, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
@@ -196,7 +196,7 @@ class DatabaseConnector(object):
         sql_get_game_settings_query = "SELECT game_settings from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_game_settings_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 5)
+        return string_to_array_row_by_col(self.resultset[0], 5, 5, True)
     
     # Returns the gender from DB as a string.
     def get_gender_from_user_DB(self, spotify_id, data = None):
@@ -704,10 +704,13 @@ def array_to_string(game_settings_input_array):
     flattened = [str(item) for sublist1 in game_settings_input_array for item in sublist1]
     return ' '.join(flattened)
 
-def string_to_array_row_by_col(game_settings_input_string, row, col):
+def string_to_array_row_by_col(game_settings_input_string, row, col, is_int):
     # Convert the string back to a 2D array
     elements = game_settings_input_string.split()
-    flat_list = [int(element) for element in elements]
+    if (is_int):
+        flat_list = [int(element) for element in elements]
+    else:
+        flat_list = [str(element) for element in elements]
     
     # Create a 3D array from the flattened
     arr = []
