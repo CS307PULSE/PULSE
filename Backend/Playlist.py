@@ -104,9 +104,12 @@ class Playlist:
     def playlist_genre_analysis(user, playlist):
         try:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 100)
-            genredict = Emotion.createnewemotion()
+            genredict = Emotion.createnewemotion("genredict")
             for song in analysis:
-                genredict = Emotion.update_and_average_dict()
+                genredict = Emotion.update_and_average_dict(user, genredict, song)
+                print(genredict)
+            print(genredict)
+            return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
     
