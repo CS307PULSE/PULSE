@@ -1063,12 +1063,11 @@ def set_saved_themes():
         data = request.get_json()
         themes = data.get('themes')
         for theme in themes:
-            theme[0] = theme.title()
             theme[0] = theme[0].replace(" ", "")
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_color_palettes(user.spotify_id, themes) == -1):
+            if (conn.update_saved_themes(user.spotify_id, themes) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'Themes updated.'
@@ -1170,7 +1169,7 @@ def get_saved_themes():
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_color_palettes_from_user_DB(user.spotify_id)
+            response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
