@@ -263,6 +263,61 @@ def statistics():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     
+@app.route('/friend_statistics')
+def friend_statistics():
+    start_time = time.time()
+    data = request.get_json()
+    id = data.get('id')
+    with DatabaseConnector(db_config) as conn:
+        user = conn.get_user_from_user_DB(spotify_id=id)
+
+    if user is None:
+        error_message = "The user is not found! Please try again!"
+        return make_response(jsonify({'error': error_message}), 80)
+
+    data = {'status' : 'Not updated',
+            'recent_history' : '',
+            'top_songs' : '',
+            'top_artists' : '',
+            'followed_artists' : '',
+            'saved_songs' : '',
+            'saved_albums' : '',
+            'saved_playlists': '',
+            'follower_data' : ''}
+
+    try:
+        start_time2 = time.time()
+        update_data(user)
+        end_time2 = time.time()
+        execution_time2 = end_time2 - start_time2
+        print(f"Execution time: {execution_time2} seconds")
+    except Exception as e:
+        print(e)
+        return jsonify(data)
+    
+    with DatabaseConnector(db_config) as conn:
+        layout = conn.get_layout_from_DB(user.spotify_id)
+    with DatabaseConnector(db_config) as conn:
+        followers = conn.get_followers_from_DB(user.spotify_id)
+
+    data['status'] = 'Success'
+    data['recent_history'] = user.stringify(user.stats.recent_history)
+    data['top_songs'] = user.stringify(user.stats.top_songs)
+    data['top_artists'] = user.stringify(user.stats.top_artists)
+    data['followed_artists'] = user.stringify(user.stats.followed_artists)
+    data['saved_songs'] = user.stringify(user.stats.saved_songs)
+    data['saved_albums'] = user.stringify(user.stats.saved_albums)
+    data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
+
+    if layout is not None:
+        data['layout_data'] = layout
+
+    if followers is not None:
+        data['follower_data'] = followers
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time} seconds")
+    return jsonify(data)
 
 @app.route('/get_saved_playlists')
 def get_saved_playlists():
