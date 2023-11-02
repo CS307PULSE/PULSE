@@ -392,7 +392,7 @@ def statistics_short():
         return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/get_friends_recent_songs', methods=['POST'])
-def statistics():
+def get_friends_recent_songs():
     data = request.get_json()
     friend_ids = data.get('friend_ids')
     friend_songs = {}
@@ -441,6 +441,7 @@ def search_bar():
         user = User.from_json(user_data)
         results = user.search_for_items(max_items=5, items_type="track", query=query)
         return jsonify(results)
+
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

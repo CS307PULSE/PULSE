@@ -101,13 +101,11 @@ async function fetchBackendDatas() {
 }
 
 async function getSongRecommendations(selectedPlaylistID, selectedRecMethod) {
-  return null
-  /*
   const axiosInstance = axios.create({
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/djmixer/playlist_recs/get_song_recs",
+    "http://127.0.0.1:5000/playlist/get_recs",
     { selectedPlaylistID: selectedPlaylistID,
       selectedRecMethod: selectedRecMethod}
   );
@@ -115,7 +113,6 @@ async function getSongRecommendations(selectedPlaylistID, selectedRecMethod) {
   console.log("Got song recommendations for the chosen playlist");
   console.log(response);
   return data;
-  */
 }
 
 
@@ -226,18 +223,6 @@ const PlaylistRecommendation = () => {
         setSongRecs(data);
       }
     });
-    //UNCOMMENT OUT FOR CONNECTION TO BACKEND
-    return (
-      <div style={{ height: "300px", overflowY: "scroll" }}>
-        <ImageGraph data={savedPlaylists} 
-                        dataName={"playlists_for_recs"} 
-                        selectedPlaylistID = {selectedPlaylistID}
-                        setSelectedPlaylistID = {setSelectedPlaylistID}
-                        selectedPlaylistName = {selectedPlaylistName}
-                        setSelectedPlaylistName = {setSelectedPlaylistName}
-                        updateParentState = {updateParentState} />
-      </div>
-        )
     return (
       <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
                         dataName={"songs_for_recs"} 
