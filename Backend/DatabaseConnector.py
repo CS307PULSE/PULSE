@@ -129,12 +129,12 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
-    # Returns the color_palettes from DB an 2D array with 5 rows and 4 columns.
-    def get_color_palettes_from_user_DB(self, spotify_id,):
-        sql_get_color_palettes_query = "SELECT color_palettes from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_color_palettes_query, (spotify_id,))
+    # Returns the saved_themes from DB an 2D array with 5 rows and 5 columns.
+    def get_saved_themes_from_user_DB(self, spotify_id,):
+        sql_get_saved_themes_query = "SELECT saved_themes from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 4)
+        return string_to_array_row_by_col(self.resultset[0], 5, 5)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
@@ -332,10 +332,10 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
         
     # Updates color palettes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
-    def update_color_palettes(self, spotify_id, new_color_palettes):
+    def update_saved_themes(self, spotify_id, new_saved_themes):
         try:
-            sql_update_color_palettes = """UPDATE pulse.users SET color_palettes = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_color_palettes, (array_to_string(new_color_palettes), spotify_id,))
+            sql_update_saved_themes = """UPDATE pulse.users SET saved_themes = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_saved_themes, (array_to_string(new_saved_themes), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
