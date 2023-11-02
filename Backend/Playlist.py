@@ -105,7 +105,7 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             genrearray = []
             for item in analysis['items']:
-                genre = item['artists']['genres'][0]
+                genre = item['artists'][0]['genres'][0]
                 if genre not in genrearray:
                     genrearray.append(genre)
             return genrearray
