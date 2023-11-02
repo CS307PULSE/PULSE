@@ -28,7 +28,8 @@ try {
         username: await getUserField("http://127.0.0.1:5000/profile/get_displayname"),
         gender: await getUserField("http://127.0.0.1:5000/profile/get_gender"),
         location: await getUserField("http://127.0.0.1:5000/profile/get_location"),
-        icon: await getUserField("http://127.0.0.1:5000/profile/get_image")
+        icon: await getUserField("http://127.0.0.1:5000/profile/get_image"),
+        favoriteSong: await getUserField("http://127.0.0.1:5000/profile/get_chosen_song")
     }
 } catch (e) {
   console.log("User info fetch failed: " + e);
@@ -57,7 +58,7 @@ function Profile({testParameter}){
     const [username, setUsername] = useState(storedUserFields.username);
     const [gender, setGender] = useState(storedUserFields.gender);
     const [location, setLocation] = useState(storedUserFields.location);
-    const [favoriteSong, setFavoriteSong] = useState("");
+    const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favoriteSong);
 
     const updateTextSize = (newSetting) => {
         dispatch({ type: 'UPDATE_TEXT_SIZE', payload: newSetting });
@@ -178,7 +179,8 @@ function Profile({testParameter}){
             saveUserField("http://127.0.0.1:5000/profile/change_displayname", {displayname: username}),
             saveUserField("http://127.0.0.1:5000/profile/change_gender", {gender: gender}),
             saveUserField("http://127.0.0.1:5000/profile/change_location", {location: location}),
-            saveUserField("http://127.0.0.1:5000/profile/upload", {filepath: imagePath})
+            saveUserField("http://127.0.0.1:5000/profile/upload", {filepath: imagePath}),
+            saveUserField("http://127.0.0.1:5000/profile/change_chosen_song", {chosen_song: favoriteSong})
         ]
         await Promise.all(savePromises);
         window.location.reload();
