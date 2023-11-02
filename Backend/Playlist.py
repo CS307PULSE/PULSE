@@ -104,9 +104,15 @@ class Playlist:
         try:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 100)
             genrearray = []
+            artistarray = []
             for item in analysis['items']:
-                genre = item['track'].get('artists',{})[0].get('genres',[None])[0]
-                print(item['track'].get('artists',{})[0])
+                artistid = item['track'].get('artists',{})[0].get('id',"")
+                if artistid != "":
+                    artistarray.append(artistid)
+            artistarray = user.spotify_user.artists(artistarray)
+            for artist in artistarray:
+                genre = artist.get('genres', None)
+                print(artist)
                 if genre not in genrearray and genre is not None:
                     genrearray.append(genre)
             print(genrearray)
