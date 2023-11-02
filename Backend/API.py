@@ -1062,6 +1062,9 @@ def set_saved_themes():
     if 'user' in session:
         data = request.get_json()
         themes = data.get('themes')
+        for theme in themes:
+            theme[0] = theme.title()
+            theme[0] = theme[0].replace(" ", "")
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
