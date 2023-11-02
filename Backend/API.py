@@ -297,8 +297,6 @@ def friend_statistics():
         return jsonify(data)
     
     with DatabaseConnector(db_config) as conn:
-        layout = conn.get_layout_from_DB(user.spotify_id)
-    with DatabaseConnector(db_config) as conn:
         followers = conn.get_followers_from_DB(user.spotify_id)
 
     data['status'] = 'Success'
@@ -309,9 +307,6 @@ def friend_statistics():
     data['saved_songs'] = user.stringify(user.stats.saved_songs)
     data['saved_albums'] = user.stringify(user.stats.saved_albums)
     data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
-
-    if layout is not None:
-        data['layout_data'] = layout
 
     if followers is not None:
         data['follower_data'] = followers
@@ -930,25 +925,6 @@ def upload_image():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
-# def upload_image():
-#     print("IN PROFILE/UPLOAD")
-#     if 'user' in session:
-#         data = request.get_json()
-#         image_og = data['filepath']
-#         user_data = session['user']
-#         user = User.from_json(user_data)
-#         #open image named uncompressed_image.jpg
-#         # image_og = secure_filename(image_og.filename)
-#         # if image_og.lower().endswith(('.png')) :
-#         #     im = Image.open(image_og)
-#         #     im.convert('RGB').save("image_name.jpg","JPEG") #this converts png image as jpeg
-#         storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
-#         os.rename(image_og, storage_loc)
-#         #save image locally
-#         response_data = 'Found and uploaded profile.'
-#     else:
-#         response_data = 'User session not found. Please log in again.'
-#     return jsonify(response_data)
 
 @app.route('/profile/get_image', methods=['GET'])
 def get_image():
@@ -961,16 +937,6 @@ def get_image():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
-
-# def get_image():
-#     if 'user' in session:
-#         user_data = session['user']
-#         user = User.from_json(user_data)
-#         storage_loc = os.getcwd().removesuffix('Backend\\') + "\\Icons\\" + user.spotify_id + ".jpeg"
-#         response_data =  #storage_loc
-#     else:
-#         response_data = 'User session not found. Please log in again.'
-#     return jsonify(response_data)
 
 @app.route('/profile/change_displayname', methods=['POST'])
 def change_displayname():
@@ -1275,7 +1241,11 @@ def get_advanced_stats():
         with DatabaseConnector(db_config) as conn:
             # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
-        response_data["Emotions"] = get_emotions(user, response_data["Tracks"])
+        emotions = get_emotions(user, response_data["Tracks"])
+        if emotions is None:
+            response_data["Emotions"] = {}
+        else:
+            response_data["Emotions"] = emotions
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1629,7 +1599,6 @@ def get_requests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
-
 @app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
     if 'user' in session:
@@ -1644,7 +1613,7 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
-app.route('/chatbot/pull_songs', methods=['GET'])
+@app.route('/chatbot/pull_songs', methods=['GET'])
 def pullsongs():
     if 'user' in session:
         user_data = session['user']
@@ -1655,7 +1624,7 @@ def pullsongs():
         # Split the string into an array using regular expressions
         titles = re.split(r'\d+\.', songlist)
         # Remove any leading or trailing whitespace from each item
-        titles = [item.strip() for item in items if item.strip()]
+        titles = [item.strip() for item in titles if item.strip()]
         # Display the resulting array
         trackids = []
         if len(titles) == 1:
@@ -1693,8 +1662,7 @@ def pullsongs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return "created playlist"
-
+    return "successful completion"
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
@@ -1704,7 +1672,6 @@ def feedback():
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
     return "Success"
-    
 
 @app.route('/test')
 def test():
