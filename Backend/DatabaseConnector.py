@@ -143,6 +143,8 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         packed_str = self.resultset[0]
+        if packed_str is None:
+            return []
         print("Packed_str: " + packed_str)
         count = 0
         for i in range(0, len(packed_str)):

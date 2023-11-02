@@ -242,16 +242,16 @@ def statistics():
             followers = conn.get_followers_from_DB(user.spotify_id)
 
         data['status'] = 'Success'
-        data['recent_history'] = user.stringify(user.stats.recent_history)
-        data['top_songs'] = user.stringify(user.stats.top_songs)
-        data['top_artists'] = user.stringify(user.stats.top_artists)
-        data['followed_artists'] = user.stringify(user.stats.followed_artists)
-        data['saved_songs'] = user.stringify(user.stats.saved_songs)
-        data['saved_albums'] = user.stringify(user.stats.saved_albums)
-        data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
+        data['recent_history'] = user.stats.recent_history
+        data['top_songs'] = user.stats.top_songs
+        data['top_artists'] = user.stats.top_artists
+        data['followed_artists'] = user.stats.followed_artists
+        data['saved_songs'] = user.stats.saved_songs
+        data['saved_albums'] = user.stats.saved_albums
+        data['saved_playlists'] = user.stats.saved_playlists
 
         if layout is not None:
-            data['layout_data'] = layout
+            data['layout_data'] = json.loads(layout)
 
         if followers is not None:
             data['follower_data'] = followers
@@ -264,7 +264,7 @@ def statistics():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     
-@app.route('/friend_statistics')
+@app.route('/friend_statistics', methods=['POST'])
 def friend_statistics():
     start_time = time.time()
     data = request.get_json()
@@ -288,6 +288,7 @@ def friend_statistics():
 
     try:
         start_time2 = time.time()
+        try_refresh(user)
         update_data(user)
         end_time2 = time.time()
         execution_time2 = end_time2 - start_time2
@@ -300,13 +301,13 @@ def friend_statistics():
         followers = conn.get_followers_from_DB(user.spotify_id)
 
     data['status'] = 'Success'
-    data['recent_history'] = user.stringify(user.stats.recent_history)
-    data['top_songs'] = user.stringify(user.stats.top_songs)
-    data['top_artists'] = user.stringify(user.stats.top_artists)
-    data['followed_artists'] = user.stringify(user.stats.followed_artists)
-    data['saved_songs'] = user.stringify(user.stats.saved_songs)
-    data['saved_albums'] = user.stringify(user.stats.saved_albums)
-    data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
+    data['recent_history'] = user.stats.recent_history
+    data['top_songs'] = user.stats.top_songs
+    data['top_artists'] = user.stats.top_artists
+    data['followed_artists'] = user.stats.followed_artists
+    data['saved_songs'] = user.stats.saved_songs
+    data['saved_albums'] = user.stats.saved_albums
+    data['saved_playlists'] = user.stats.saved_playlists
 
     if followers is not None:
         data['follower_data'] = followers
