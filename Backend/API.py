@@ -21,6 +21,7 @@ import random
 import io
 import time
 from werkzeug.utils import secure_filename
+import re
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -1599,6 +1600,54 @@ def getPlaylistRecs():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
+
+app.route('/chatbot/pull_songs', methods=['GET'])
+def pullsongs():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        songlist = data.get('songlist')
+        playlistcounter = 0    
+        # Split the string into an array using regular expressions
+        titles = re.split(r'\d+\.', songlist)
+        # Remove any leading or trailing whitespace from each item
+        titles = [item.strip() for item in items if item.strip()]
+        # Display the resulting array
+        trackids = []
+        if len(titles) == 1:
+            try:
+                results = user.search_for_items(max_items=1, items_type="track", query=titles[0])
+                player = Playback(user)
+                song_uri = results[0]['id']
+                player.select_song(song=[song_uri])
+            except Exception as e:
+                if (try_refresh(user, e)):
+                    player = Playback(user)
+                    song_uri = results[0]['id']
+                    player.select_song(song=[song_uri])
+                else:
+                    return "Failed to reauthenticate token"
+        else:
+            try:
+                playlistname = 'chatbot ' + playlistcounter
+                playlistid = Playlist.create_playlist(user, playlistname)['id']
+                for title in titles:
+                    trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
+                Playlist.add_track(playlistid=playlistid, song=trackids)
+            except Exception as e:
+                if (try_refresh(user, e)):
+                    playlistname = 'chatbot ' + playlistcounter
+                    playlistid = Playlist.create_playlist(user, playlistname)['id']
+                    for title in titles:
+                        trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
+                    Playlist.add_track(playlistid=playlistid, song=trackids)
+                else:
+                    return "Failed to reauthenticate token"
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "created playlist"
 
 @app.route('/test')
 def test():
