@@ -6,6 +6,7 @@ from Exceptions import ErrorHandler
 import Emotion
 import requests
 import base64
+import json
 class Playlist:
     def add_track(user, playlistid, song):
         try:
@@ -103,20 +104,9 @@ class Playlist:
     def playlist_genre_analysis(user, playlist):
         try:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 100)
-            genrearray = []
-            artistarray = []
-            for item in analysis['items']:
-                artistid = item['track'].get('artists',{})[0].get('id',"")
-                if artistid != "":
-                    artistarray.append(artistid)
-            artistarray = user.spotify_user.artists(artistarray)
-            for artist in artistarray:
-                genre = artist.get('genres', None)
-                print(artist)
-                if genre not in genrearray and genre is not None:
-                    genrearray.append(genre)
-            print(genrearray)
-            return genrearray
+            genredict = Emotion.createnewemotion()
+            for song in analysis:
+                genredict = Emotion.update_and_average_dict()
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
     
