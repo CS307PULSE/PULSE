@@ -142,7 +142,17 @@ class DatabaseConnector(object):
         sql_get_saved_themes_query = "SELECT saved_themes from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 5, False)
+        packed_str = self.resultset
+        count = 0
+        for char in packed_str:
+            if char == " ":
+                count +=1
+        row = 0
+        if count == 4:
+            row = 1
+        else:
+            row = 1 + (count - 4) % 5
+        return string_to_array_row_by_col(self.resultset[0], row, 5, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
