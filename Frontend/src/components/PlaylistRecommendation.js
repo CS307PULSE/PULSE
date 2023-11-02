@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TopGraph } from "./Graphs.js";
+import ImageGraph from "./Graphs/ImageGraph";
 import Navbar from "./NavBar";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
@@ -170,7 +170,7 @@ const PlaylistRecommendation = () => {
     if (finishedPullingData) {
         return (
         <div style={{ height: "300px", overflowY: "scroll" }}>
-          <TopGraph data={masterPlaylists} 
+          <ImageGraph data={masterPlaylists} 
                           dataName={"playlists_for_recs"} 
                           selectedPlaylistID = {selectedPlaylistID}
                           setSelectedPlaylistID = {setSelectedPlaylistID}
@@ -227,9 +227,19 @@ const PlaylistRecommendation = () => {
       }
     });
     //UNCOMMENT OUT FOR CONNECTION TO BACKEND
-    return <p>Test successful. Need to connect to backend to continue</p>
     return (
-      <div style={{ height: "300px", overflowY: "scroll" }}><TopGraph data={songRecs} 
+      <div style={{ height: "300px", overflowY: "scroll" }}>
+        <ImageGraph data={savedPlaylists} 
+                        dataName={"playlists_for_recs"} 
+                        selectedPlaylistID = {selectedPlaylistID}
+                        setSelectedPlaylistID = {setSelectedPlaylistID}
+                        selectedPlaylistName = {selectedPlaylistName}
+                        setSelectedPlaylistName = {setSelectedPlaylistName}
+                        updateParentState = {updateParentState} />
+      </div>
+        )
+    return (
+      <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
                         dataName={"songs_for_recs"} 
                         selectedSongID ={selectedSongID} 
                         setSelectedSongID = {setSelectedSongID}
