@@ -60,7 +60,7 @@ class Emotion:
         }
         return sad
     
-    def createnewemotion(name = "new emotion"):
+    def create_new_emotion(name = "new emotion"):
         emptydict = {
             "name" : name, 
             "target_energy": 0,
@@ -140,7 +140,9 @@ class Emotion:
             "target_tempo": 0,
             "target_valence": 0
         }
-        song_features = user.audio_features(song)
+        song_features = user.spotify_user.audio_features(song['id'])
+        song_features = song_features[0]
+        print(song_features)
         song_dict["target_energy"] = song_features.get("energy", 0)
         song_dict["target_popularity"] = song["popularity"]
         song_dict["target_acousticness"] = song_features.get("acousticness", 0)
@@ -177,20 +179,22 @@ class Emotion:
         else:
             return "undefined"
         
-    def get_emotion_recommendations(user, emotiondict, genre):
+    def get_emotion_recommendations(user, emotiondict, track = [], artist = [], genre = []):
         return user.get_recommendations(
-                            seed_genres=[genre], 
+                            seed_tracks=track,
+                            seed_artists=artist,
+                            seed_genres=genre, 
                             max_items=10,
                             target_energy=emotiondict["target_energy"],
-                            target_popularity=emotiondict["target_energy"],
-                            target_acousticness=emotiondict["target_energy"],
-                            target_danceability=emotiondict["target_energy"],
-                            target_duration_ms=emotiondict["target_energy"],
-                            target_instrumentalness=emotiondict["target_energy"],
-                            target_liveness=emotiondict["target_energy"],
-                            target_loudness=emotiondict["target_energy"],
-                            target_mode=emotiondict["target_energy"],
-                            target_speechiness=emotiondict["target_energy"],
-                            target_tempo=emotiondict["target_energy"],
-                            target_valence=emotiondict["target_energy"],
+                            target_popularity=emotiondict["target_popularity"],
+                            target_acousticness=emotiondict["target_acousticness"],
+                            target_danceability=emotiondict["target_danceability"],
+                            target_duration_ms=emotiondict["target_duration_ms"],
+                            target_instrumentalness=emotiondict["target_instrumentalness"],
+                            target_liveness=emotiondict["target_liveness"],
+                            target_loudness=emotiondict["target_loudness"],
+                            target_mode=emotiondict["target_mode"],
+                            target_speechiness=emotiondict["target_speechiness"],
+                            target_tempo=emotiondict["target_tempo"],
+                            target_valence=emotiondict["target_valence"],
                             extraparameters = True)

@@ -11,6 +11,7 @@ from Game import GameType, Game
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
 from Emotion import Emotion
+from Playlist import Playlist
 import json
 import Exceptions
 import os
@@ -20,6 +21,7 @@ import random
 import io
 import time
 from werkzeug.utils import secure_filename
+import re
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -1038,6 +1040,40 @@ def change_location():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/profile/change_background', methods=['POST'])
+def change_background():
+    if 'user' in session:
+        data = request.get_json()
+        background = data.get('background')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_custom_background(user.spotify_id, background) == -1):
+                error_message = "Location has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Themes updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/change_themes', methods=['POST'])
+def change_themes():
+    if 'user' in session:
+        data = request.get_json()
+        themes = data.get('themes')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palettes(user.spotify_id, themes) == -1):
+                error_message = "Location has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Themes updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
 @app.route('/profile/get_displayname', methods=['GET'])
 def get_displayname():
     if 'user' in session:
@@ -1080,6 +1116,30 @@ def get_chosen_song():
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_background')
+def get_background():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_custom_background_from_user_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_themes')
+def get_themes():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palettes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1527,6 +1587,73 @@ def get_requests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
+
+@app.route('/playlist/get_recs', methods=['POST'])
+def getPlaylistRecs():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        field = data.get('selectedRecMethod')
+        playlist_id = data.get('selectedPlaylistID')
+        songarray = Playlist.playlist_recommendations(user, playlist_id, field)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(songarray)
+
+app.route('/chatbot/pull_songs', methods=['GET'])
+def pullsongs():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        songlist = data.get('songlist')
+        playlistcounter = 0    
+        # Split the string into an array using regular expressions
+        titles = re.split(r'\d+\.', songlist)
+        # Remove any leading or trailing whitespace from each item
+        titles = [item.strip() for item in items if item.strip()]
+        # Display the resulting array
+        trackids = []
+        if len(titles) == 1:
+            try:
+                results = user.search_for_items(max_items=1, items_type="track", query=titles[0])
+                player = Playback(user)
+                song_uri = results[0]['id']
+                player.select_song(song=[song_uri])
+            except Exception as e:
+                if (try_refresh(user, e)):
+                    player = Playback(user)
+                    song_uri = results[0]['id']
+                    player.select_song(song=[song_uri])
+                else:
+                    return "Failed to reauthenticate token"
+        else:
+            try:
+                with DatabaseConnector(db_config) as conn:
+                    playlistcounter = conn.get_playlist_counter_from_base_stats_DB(user.spotify_id)
+                    conn.update_playlist_counter(user.spotify_id)
+                playlistname = 'chatbot ' + str(playlistcounter)
+                playlistid = Playlist.create_playlist(user, playlistname)['id']
+                for title in titles:
+                    trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
+                Playlist.add_track(playlistid=playlistid, song=trackids)
+            except Exception as e:
+                if (try_refresh(user, e)):
+                    playlistname = 'chatbot ' + str(playlistcounter)
+                    playlistid = Playlist.create_playlist(user, playlistname)['id']
+                    for title in titles:
+                        trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
+                    Playlist.add_track(playlistid=playlistid, song=trackids)
+                else:
+                    return "Failed to reauthenticate token"
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "created playlist"
+
+
 @app.route('/feedback', methods=['POST'])
 def feedback():
     data = request.get_json()
@@ -1536,6 +1663,7 @@ def feedback():
             return "Failed"
     return "Success"
     
+
 @app.route('/test')
 def test():
     if 'user' in session:

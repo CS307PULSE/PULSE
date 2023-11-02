@@ -1,100 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./NavBar";
+import SongPlayer from "./SongPlayer";
 import FriendsCard from "./FriendsCard";
-
 import { Link } from "react-router-dom";
-
 import axios from "axios";
-
-import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
-
-var textSizeSetting, themeSetting;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-const themeColors = Colors(themeSetting); //Obtain color values
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
-
-const bodyStyle = {
-  backgroundColor: themeColors.background,
-  margin: 0,
-  padding: 0,
-  height: "100%",
-};
-
-const friendContainerStyle = {
-  position: "fixed", // Fixed position so it stays on the right
-  top: 100,
-  right: 0,
-  width: "20%", // Take up 20% of the viewport width
-  height: "900", // Take up the full height
-  backgroundColor: themeColors.background, // Add background color for the friend component
-};
-
-const cardStyle = {
-  marginBottom: "20px", // Add some bottom margin for spacing
-  textAlign: "center",
-  fontFamily: "'Poppins', sans-serif",
-};
-
-const cardContent = {
-  color: themeColors.background,
-  width: "80%", // Take up 20% of the viewport width
-};
-
-const buttonContainerStyle = {
-  display: "flex",
-  flexDirection: "column", // Stack buttons in a column
-  alignItems: "center", // Center buttons horizontally
-  marginTop: "10px", // Space between cards and buttons
-};
-
-const buttonStyle = {
-  backgroundColor: themeColors.background,
-  color: themeColors.text,
-  padding: "8px",
-  border: "1px solid " + themeColors.border, // White border
-  borderRadius: "10px",
-  cursor: "pointer",
-  marginBottom: "5px", // Small space between buttons
-  width: "90%",
-};
-const gamesTitleStyle = {
-  color: themeColors.text,
-  textAlign: "center",
-  fontFamily: "Rhodium Libre",
-  fontSize: textSizes.header2,
-  fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "normal",
-  textTransform: "uppercase",
-  width: "80%", // Take up 20% of the viewport width
-};
-
-const gamesSubTitleStyle = {
-  color: themeColors.text,
-  textAlign: "center",
-  fontFamily: "Rhodium Libre",
-  fontSize: "14px",
-  fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "normal",
-  textTransform: "uppercase",
-  width: "80%", // Take up 20% of the viewport width
-};
+import { useAppContext } from "./Context";
+import { hexToRGBA } from "../theme/Colors";
 
 function getGameType(gameId) {
   // Define your game types here
@@ -136,7 +48,74 @@ async function fetchDataScores() {
 }
 
 const Games = () => {
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   const [scores, setScores] = useState([]);
+
+  const bodyStyle = {
+    backgroundColor: state.colorBackground,
+  };
+
+  const friendContainerStyle = {
+    position: "fixed",
+    top: "64px",
+    right: "0px",
+    bottom: "60px",
+    left: "80%",
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5)
+  };
+
+  const cardStyle = {
+    marginBottom: "20px", // Add some bottom margin for spacing
+    textAlign: "center",
+    fontFamily: "'Poppins', sans-serif",
+  };
+
+  const cardContent = {
+    color: state.colorBackground,
+    width: "80%", // Take up 20% of the viewport width
+  };
+
+  const buttonContainerStyle = {
+    display: "flex",
+    flexDirection: "column", // Stack buttons in a column
+    alignItems: "center", // Center buttons horizontally
+    marginTop: "10px", // Space between cards and buttons
+  };
+
+  const buttonStyle = {
+    backgroundColor: state.colorBackground,
+    color: state.colorText,
+    padding: "8px",
+    border: "1px solid " + state.colorBorder, // White border
+    borderRadius: "10px",
+    cursor: "pointer",
+    marginBottom: "5px", // Small space between buttons
+    width: "90%",
+  };
+  const gamesTitleStyle = {
+    color: state.colorText,
+    textAlign: "center",
+    fontFamily: "Rhodium Libre",
+    fontSize: textSizes.header2,
+    fontStyle: "normal",
+    fontWeight: 400,
+    lineHeight: "normal",
+    textTransform: "uppercase",
+    width: "80%", // Take up 20% of the viewport width
+  };
+
+  const gamesSubTitleStyle = {
+    color: state.colorText,
+    textAlign: "center",
+    fontFamily: "Rhodium Libre",
+    fontSize: "14px",
+    fontStyle: "normal",
+    fontWeight: 400,
+    lineHeight: "normal",
+    textTransform: "uppercase",
+    width: "80%", // Take up 20% of the viewport width
+  };
 
   useEffect(() => {
     document.title = "PULSE - Games Page";
@@ -178,78 +157,81 @@ const Games = () => {
   };
 
   return (
-    <div style={bodyStyle}>
-      <Navbar />
-      <div style={friendContainerStyle}>
-        <FriendsCard />
-      </div>
+    <div className="wrapper">
+      <div className="header"><Navbar /></div>
+      <div className="content" style={bodyStyle}>
+        <div style={friendContainerStyle}>
+          <FriendsCard />
+        </div>
 
-      <h2 style={gamesTitleStyle}>AVAILABLE GAMES</h2>
-      <div style={cardContent}>
-        <div style={buttonContainerStyle}>
-          {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
-          <Link
-            to="/game/guess-the-song"
-            style={{
-              ...buttonStyle,
-              textDecoration: "none",
-              textAlign: "center",
-            }}
-          >
-            GUESS THE SONG
-          </Link>
-          <Link
-            to="/game/guess-the-artist"
-            style={{
-              ...buttonStyle,
-              textDecoration: "none",
-              textAlign: "center",
-            }}
-          >
-            GUESS THE ARTIST
-          </Link>
-          <Link
-            to="/game/guess-who-listens"
-            style={{
-              ...buttonStyle,
-              textDecoration: "none",
-              textAlign: "center",
-            }}
-          >
-            GUESS WHO LISTENS TO THE SONG
-          </Link>
-          <Link
-            to="/game/guess-the-lyric"
-            style={{
-              ...buttonStyle,
-              textDecoration: "none",
-              textAlign: "center",
-            }}
-          >
-            GUESS THE NEXT LYRIC
-          </Link>
-          <Link
-            to="/game/heads-up"
-            style={{
-              ...buttonStyle,
-              textDecoration: "none",
-              textAlign: "center",
-            }}
-          >
-            HEADS UP
-          </Link>
+        <h2 style={gamesTitleStyle}>AVAILABLE GAMES</h2>
+        <div style={cardContent}>
+          <div style={buttonContainerStyle}>
+            {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
+            <Link
+              to="/game/guess-the-song"
+              style={{
+                ...buttonStyle,
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              GUESS THE SONG
+            </Link>
+            <Link
+              to="/game/guess-the-artist"
+              style={{
+                ...buttonStyle,
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              GUESS THE ARTIST
+            </Link>
+            <Link
+              to="/game/guess-who-listens"
+              style={{
+                ...buttonStyle,
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              GUESS WHO LISTENS TO THE SONG
+            </Link>
+            <Link
+              to="/game/guess-the-lyric"
+              style={{
+                ...buttonStyle,
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              GUESS THE NEXT LYRIC
+            </Link>
+            <Link
+              to="/game/heads-up"
+              style={{
+                ...buttonStyle,
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              HEADS UP
+            </Link>
+          </div>
+        </div>
+
+        {/* NEED TO FIX PULLING OF GAME STYLE */}
+
+        <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
+        <h2 style={gamesSubTitleStyle}>
+          1: Guess the song, 2: Guess the Artist, 4: Guess the next lyric
+        </h2>
+        <div style={{ color: "white", whiteSpace: "pre", marginLeft: "500px" }}>
+          {getGameData()}
         </div>
       </div>
-
-      {/* NEED TO FIX PULLING OF GAME STYLE */}
-
-      <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
-      <h2 style={gamesSubTitleStyle}>
-        1: Guess the song, 2: Guess the Artist, 4: Guess the next lyric
-      </h2>
-      <div style={{ color: "white", whiteSpace: "pre", marginLeft: "500px" }}>
-        {getGameData()}
-      </div>
+      <div className="footer"></div>
     </div>
   );
 };

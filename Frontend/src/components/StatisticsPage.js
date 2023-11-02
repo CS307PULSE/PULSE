@@ -5,28 +5,11 @@ import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
 import TextSize from "../theme/TextSize";
 
-import axios from "axios";
-
 // Access the CSS variable
 const root = document.documentElement;
 
-var textSizeSetting, themeSetting;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-const textSizes = TextSize(textSizeSetting);
+const themeSetting = 0;
+const textSizes = TextSize(1);
 
 document.documentElement.style.setProperty(
   "--graph-text-size",

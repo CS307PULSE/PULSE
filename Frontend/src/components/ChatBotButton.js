@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAppContext } from './Context';
 
 const ChatbotButton = () => {
+    const { state, dispatch } = useAppContext();
 
     // Inline styles for the components
     const containerStyle = {
@@ -12,8 +14,8 @@ const ChatbotButton = () => {
     };
 
     const buttonStyle = {
-        backgroundColor: '#6EEB4D',
-        color: 'black',
+        backgroundColor: state.colorAccent,
+        color: state.colorText,
         border: 'none',
         padding: '10px 20px',
         fontFamily: "Rhodium Libre",
@@ -24,7 +26,7 @@ const ChatbotButton = () => {
     };
 
     const buttonHoverStyle = {
-        backgroundColor: 'white'
+        backgroundColor: state.colorBackground
     };
 
     const [isHovered, setIsHovered] = React.useState(false);
