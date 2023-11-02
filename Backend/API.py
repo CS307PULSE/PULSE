@@ -11,6 +11,7 @@ from Game import GameType, Game
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
 from Emotion import Emotion
+from Playlist import Playlist
 import json
 import Exceptions
 import os
@@ -1530,11 +1531,11 @@ def getPlsylistRecs():
         data = request.get_json()
         field = data.get('selectedRecMethod')
         playlist_id = data.get('selectedPlaylistID')
-        
+        songarray = Playlist.playlist_recommendations(user, playlist_id, field)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return json.dumps(jsonarray)
+    return json.dumps(songarray)
 
 @app.route('/test')
 def test():

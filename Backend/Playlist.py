@@ -21,7 +21,7 @@ class Playlist:
                 base64_image = base64.b64encode(image_data).decode('utf-8')
 
                 # Check the image format (you may need to modify this part based on your needs)
-                if image_url.endswith('.jpg'):
+                if url.endswith('.jpg'):
                     image_format = 'jpeg'
                 else:
                     # Handle other image formats as needed
@@ -53,8 +53,8 @@ class Playlist:
     def playlist_unfollow(user, playlist):
         user.spotify_user.user_playlist_unfollow(user, playlist)
 
-    def playlist_generate(self, user, playlist):
-        recommendations = user.spotify_user.get_recommendations(seed_genres = genres, max_items = 30)
+    def playlist_generate(self, user, playlist, genre):
+        recommendations = user.spotify_user.get_recommendations(seed_genres = genre, max_items = 30)
         for song in recommendations:
             self.add_track(user, playlist, song['id'])
         
