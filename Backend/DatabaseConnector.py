@@ -129,6 +129,14 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
+    # Returns the color_palette from DB an 2D array with 5 rows and 5 columns.
+    def get_color_palette_from_user_DB(self, spotify_id,):
+        sql_get_color_palette_query = "SELECT color_palette from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_color_palette_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        twod = string_to_array_row_by_col(self.resultset[0], 1, 4)
+        return [twod[0][0], twod[0][1], twod[0][2], twod[0][4]]
+    
     # Returns the saved_themes from DB an 2D array with 5 rows and 5 columns.
     def get_saved_themes_from_user_DB(self, spotify_id,):
         sql_get_saved_themes_query = "SELECT saved_themes from pulse.users WHERE spotify_id = %s"
@@ -338,11 +346,27 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         
-    # Updates color palettes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    # Updates saved_themes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
     def update_saved_themes(self, spotify_id, new_saved_themes):
         try:
             sql_update_saved_themes = """UPDATE pulse.users SET saved_themes = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_saved_themes, (array_to_string(new_saved_themes), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating followers:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    # Updates color_palette (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    def update_color_palette(self, spotify_id, new_color_palette):
+        try:
+            sql_update_color_palette_query = """UPDATE pulse.users SET color_palette = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_color_palette_query, (array_to_string(new_color_palette), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
