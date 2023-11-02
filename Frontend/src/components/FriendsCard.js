@@ -24,7 +24,7 @@ const textSizes = TextSize(1); //Obtain text size values
 const friendsList = friendData;
 
 const FriendsCard = ({}) => {
-  const [ state, dispatch ] = useAppContext();
+  const { state, dispatch } = useAppContext();
 
   const cardContainerStyle = {
     border: "1px solid " + state.colorBorder,
@@ -40,10 +40,10 @@ const FriendsCard = ({}) => {
   };
   
   const header = {
-    backgroundColor: state.colorBackground,
+    backgroundColor: state.colorAccent,
     top: 0,
     position: "sticky",
-    color: "black",
+    color: state.colorText,
     fontFamily: "Poppins, sans-serif",
     fontSize: textSizes.header3,
     fontStyle: "normal",
@@ -55,7 +55,7 @@ const FriendsCard = ({}) => {
   const content = {
     color: state.colorText,
     fontFamily: "Rhodium Libre",
-    fontSize: textSizes.body,
+    fontSize: "14px",
     fontStyle: "normal",
     fontWeight: 400,
     lineHeight: "normal",
