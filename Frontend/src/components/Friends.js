@@ -9,10 +9,7 @@ import { Link } from "react-router-dom";
 
 var initialFriendData;
 try {
-  var friendResponse = await axios.get(
-    "http://127.0.0.1:5000/friends/get_friends",
-    { withCredentials: true }
-  );
+  var friendResponse = await axios.get("http://127.0.0.1:5000/friends/get_friends", {withCredentials: true});
   initialFriendData = friendResponse.data;
 } catch (e) {
   console.log("Friends fetch failed: " + e);
