@@ -129,6 +129,13 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
+    # Returns the color_palettes from DB an 2D array with 5 rows and 4 columns.
+    def get_color_palettes_user_DB(self, spotify_id,):
+        sql_get_color_palettes_query = "SELECT color_palettes from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_color_palettes_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return string_to_array_row_by_col(self.resultset[0], 5, 4)
+    
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
         sql_get_custom_background_query = "SELECT custom_background from pulse.users WHERE spotify_id = %s"
@@ -181,7 +188,7 @@ class DatabaseConnector(object):
         sql_get_game_settings_query = "SELECT game_settings from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_game_settings_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return game_settings_string_to_array(self.resultset[0])
+        return string_to_array_row_by_col(self.resultset[0], 5, 5)
     
     # Returns the gender from DB as a string.
     def get_gender_from_user_DB(self, spotify_id, data = None):
@@ -321,6 +328,22 @@ class DatabaseConnector(object):
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating display name:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    # Updates color palettes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    def update_color_palettes(self, spotify_id, new_color_palettes):
+        try:
+            sql_update_color_palettes = """UPDATE pulse.users SET color_palettes = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_color_palettes, (array_to_string(new_color_palettes), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating followers:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         
@@ -524,7 +547,7 @@ class DatabaseConnector(object):
         master_game_settings = self.get_game_settings_from_DB(spotify_id)
         try:
             sql_update_game_settings_query = """UPDATE pulse.users SET game_settings = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_game_settings_query, (game_settings_array_to_string(edit_game_settings(master_game_settings,new_settings_array,game)), spotify_id,))
+            self.db_cursor.execute(sql_update_game_settings_query, (array_to_string(edit_game_settings(master_game_settings,new_settings_array,game)), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -630,12 +653,12 @@ def create_rec_params_from_DB(rec_input_string):
     recommendation_params = [float(x) for x in rec_input_string.split(',')]
     return recommendation_params
 
-def game_settings_array_to_string(game_settings_input_array):
+def array_to_string(game_settings_input_array):
     # Convert the 2D array to a string by flattening it
     flattened = [str(item) for sublist1 in game_settings_input_array for item in sublist1]
     return ' '.join(flattened)
 
-def game_settings_string_to_array(game_settings_input_string):
+def string_to_array_row_by_col(game_settings_input_string, row, col):
     # Convert the string back to a 2D array
     elements = game_settings_input_string.split()
     flat_list = [int(element) for element in elements]
@@ -643,9 +666,9 @@ def game_settings_string_to_array(game_settings_input_string):
     # Create a 3D array from the flattened
     arr = []
     index = 0
-    for dim1 in range(5):
+    for dim1 in range(row):
         sublist1 = []
-        for dim2 in range(5):
+        for dim2 in range(col):
             sublist1.append(flat_list[index])
             index += 1
         arr.append(sublist1)
