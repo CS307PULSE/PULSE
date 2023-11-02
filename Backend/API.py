@@ -1052,8 +1052,8 @@ def change_location():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_background', methods=['POST'])
-def change_background():
+@app.route('/profile/set_background_image', methods=['POST'])
+def set_background_image():
     if 'user' in session:
         data = request.get_json()
         background = data.get('background')
@@ -1069,21 +1069,51 @@ def change_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_themes', methods=['POST'])
-def change_themes():
+@app.route('/profile/set_saved_themes', methods=['POST'])
+def set_saved_themes():
     if 'user' in session:
         data = request.get_json()
         themes = data.get('themes')
+        for theme in themes:
+            theme[0] = theme[0].replace(" ", "")
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_color_palettes(user.spotify_id, themes) == -1):
+            if (conn.update_saved_themes(user.spotify_id, themes) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/set_color_palette', methods=['POST'])
+def set_color_palette():
+    if 'user' in session:
+        data = request.get_json()
+        palette = data.get('color_palette')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palette(user.spotify_id, palette) == -1):
+                error_message = "palette has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Palette updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_color_palette', methods=['GET'])
+def get_color_palette():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palette_from_user_DB(user.spotify_id)
+    else:
+        response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
 @app.route('/profile/get_displayname', methods=['GET'])
@@ -1133,8 +1163,8 @@ def get_chosen_song():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_background')
-def get_background():
+@app.route('/profile/get_background_image')
+def get_background_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -1145,13 +1175,13 @@ def get_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_themes')
-def get_themes():
+@app.route('/profile/get_saved_themes')
+def get_saved_themes():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_color_palettes_from_user_DB(user.spotify_id)
+            response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

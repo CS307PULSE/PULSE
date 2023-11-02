@@ -11,6 +11,12 @@ export const hexToRGBA = (hexColor, alpha) => {
     const blue = parseInt(hexColor.slice(5, 7), 16);
     return "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
 }
+export const presetColors = {
+    dark: [pulseColors.black, pulseColors.white, pulseColors.lightOffGrey, pulseColors.green],
+    light: [pulseColors.white, pulseColors.black, pulseColors.darkOffGrey, pulseColors.green],
+    scary: ['#0e0c0c', '#ff7b00', '#ff0000', '#3a2727']
+}
+
 function Colors(colorSetting) {
     const themeColors = {
         background: "undefined",
