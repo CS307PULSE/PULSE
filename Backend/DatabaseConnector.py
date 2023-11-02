@@ -361,7 +361,6 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating display name:", str(e))
             self.db_conn.rollback()
-            print("AAAAAAAAAAAAAAAAAA")
             return -1  # Indicate that the update failed
 
     # Updates display_name (expected string) in user DB. Returns 1 if successful, -1 if not.
@@ -449,7 +448,6 @@ class DatabaseConnector(object):
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
             affected_rows = self.db_cursor.rowcount
-            print("AA")
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.

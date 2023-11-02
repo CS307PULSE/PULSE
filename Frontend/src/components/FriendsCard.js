@@ -8,7 +8,6 @@ import axios from 'axios';
 import Colors from '../theme/Colors';
 
 var friendData;
-
 try {
   var friendResponse = await axios.get(
     "http://127.0.0.1:5000/friends/get_friends",
@@ -23,6 +22,14 @@ try {
 const textSizes = TextSize(1); //Obtain text size values
 const friendsList = friendData;
 
+const NoFriends = () => {
+  if (friendData.length == 0) {
+    return (
+      <img style={{width: "100%", height: "100%"}} src={"https://i.imgflip.com/7bw89a.jpg"}></img>
+    )
+  }
+}
+
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
 
@@ -31,12 +38,8 @@ const FriendsCard = ({}) => {
     overflowY: "auto",
     maxWidth: "500px",
     width: "100%",
-    height: "650px",
+    height: "100%",
     margin: "0 auto"
-  };
-  
-  const friendContainerStyle = {
-    marginBottom: "20px"
   };
   
   const header = {
@@ -70,13 +73,13 @@ const FriendsCard = ({}) => {
   };
   return (
     <div style={cardContainerStyle}>
-      <div style={styledLink} to="/friends">
+      <Link style={styledLink} to="/friends">
         <div style={header}>FRIENDS</div>
-      </div>
+      </Link>
       
       <div className="friend-list">
         {friendData.map((friend, index) => (
-          <div style={friendContainerStyle} key={index}>
+          <div style={{marginBottom: "20px"}} key={index}>
             <Friend
               name={friend.name}
               photoFilename={friend.photoUri}
@@ -84,8 +87,8 @@ const FriendsCard = ({}) => {
             />
           </div>
         ))}
+        {NoFriends()}
       </div>
-    
     </div>
   );
 }

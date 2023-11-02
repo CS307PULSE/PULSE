@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Friend from './Friend';
 import Navbar from "./NavBar";
+import SongPlayer from "./SongPlayer";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 import { useAppContext } from "./Context";
@@ -21,13 +22,7 @@ const Friends = () => {
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   
   const bodyStyle = {
-    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-    margin: 0,
-    padding: 0,
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+    backgroundColor: state.colorBackground
   };
 
   useEffect(() => {
@@ -121,9 +116,9 @@ const Friends = () => {
   );
 
   return (
-    <div style={bodyStyle}>
-      <Navbar />
-      <div style={contentStyle}>
+    <div className="wrapper">
+      <div className="header"><Navbar /></div>
+      <div className="content" style={bodyStyle}>
         <div style={buttonContainerStyle}>
           <Link to="/Friends/addFriends" style={{ ...buttonStyle, textDecoration: 'none' }}>Add Friends</Link>
           <Link to="/Friends/friendRequests" style={{ ...buttonStyle, textDecoration: 'none' }}>Friend Requests</Link>
@@ -131,6 +126,7 @@ const Friends = () => {
         {removeFriendsMessage}
         {friendsData ? (friendsData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
       </div>
+      <div className="footer"><SongPlayer /></div>
     </div>
   );
 };

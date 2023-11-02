@@ -12,7 +12,8 @@ const Card = ({ headerText, children, width = "500px", height = "300px"}) => {
     border: "1px solid " + state.colorBorder,
     overflow: "auto",
     width: width,
-    height: height
+    height: height,
+    margin: "20px"
   };
   const headerStyle = {
     backgroundColor: state.colorAccent, // Set background color to green
