@@ -98,7 +98,10 @@ class Emotion:
 
             if param != "name":
                 # Calculate the percentage difference
-                percentage_difference = abs(value1 - value2)
+                if abs(value1 + value2) == 0:
+                    percentage_difference = 0
+                else:
+                    percentage_difference = abs(value1 - value2) / abs((value1 + value2) / 2)
                 # Accumulate the total distance
                 total_distance += percentage_difference
         return total_distance

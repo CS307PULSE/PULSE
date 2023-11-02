@@ -10,6 +10,7 @@ from User import User
 from Game import GameType, Game
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
+from Emotion import Emotion
 import json
 import Exceptions
 import os
@@ -264,7 +265,7 @@ def statistics():
     
 
 @app.route('/get_saved_playlists')
-def statistics():
+def get_saved_playlists():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -333,6 +334,33 @@ def statistics_short():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/get_friends_recent_songs', methods=['POST'])
+def statistics():
+    data = request.get_json()
+    friend_ids = data.get('friend_ids')
+    friend_songs = {}
+    for friend_id in friend_ids.keys():
+        with DatabaseConnector(db_config) as conn:
+            user = conn.get_user_from_user_DB(spotify_id=friend_id)
+
+        try:
+            update_data(user,
+                update_recent_history=True,
+                update_top_songs=False,
+                update_top_artists=False,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=False)
+            
+            friend_songs[friend_id] = user.stats.recent_history
+
+        except Exception as e:
+            print(e)
+            friend_songs[friend_id] = {}
+
+    return jsonify(friend_songs)
 
 @app.route('/statistics/set_layout', methods=['POST'])
 def set_layout():
@@ -1086,10 +1114,33 @@ def get_advanced_stats():
         with DatabaseConnector(db_config) as conn:
             # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
+        response_data["Emotions"] = get_emotions(user, response_data["Tracks"])
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
+
+def get_emotions(user, tracks):
+    emotions = {}
+    for track_uri in tracks.keys():
+        uri = track_uri.split(":")[-1]
+        emotion = Emotion.find_song_emotion(user, uri)
+        if emotion not in emotions.keys():
+            emotions[emotion] = 0
+        emotions[emotion] += tracks[track_uri]["Number of Minutes"]
+    
+    total = 0
+    for emotion in emotions.keys():
+        if emotion != "undefined":
+            total += emotions['emotion']
+    
+    if total == 0:
+        total = 1
+
+    for emotion in emotions.keys():
+        emotions['emotion'] /= total
+
+    return emotions
 
 @app.route('/api_only/get_advanced_stats_db')
 def api_only_get_advanced_stats():
