@@ -150,6 +150,8 @@ class DatabaseConnector(object):
         row = 0
         if count == 4:
             row = 1
+        elif count == 0:
+            return []
         else:
             row = 1 + (count - 4) % 5
         return string_to_array_row_by_col(self.resultset[0], row, 5, False)
@@ -360,7 +362,10 @@ class DatabaseConnector(object):
     def update_saved_themes(self, spotify_id, new_saved_themes):
         try:
             sql_update_saved_themes = """UPDATE pulse.users SET saved_themes = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_saved_themes, (array_to_string(new_saved_themes), spotify_id,))
+            if (new_saved_themes == []):
+                self.db_cursor.execute(sql_update_saved_themes, ("", spotify_id,))
+            else:
+                self.db_cursor.execute(sql_update_saved_themes, (array_to_string(new_saved_themes), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
