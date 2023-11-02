@@ -1038,8 +1038,8 @@ def change_location():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_background', methods=['POST'])
-def change_background():
+@app.route('/profile/set_background_image', methods=['POST'])
+def set_background_image():
     if 'user' in session:
         data = request.get_json()
         background = data.get('background')
@@ -1055,8 +1055,8 @@ def change_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_themes', methods=['POST'])
-def change_themes():
+@app.route('/profile/set_saved_themes', methods=['POST'])
+def set_saved_themes():
     if 'user' in session:
         data = request.get_json()
         themes = data.get('themes')
@@ -1119,7 +1119,7 @@ def get_chosen_song():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_background')
+@app.route('/profile/get_background_image')
 def get_background():
     if 'user' in session:
         user_data = session['user']
@@ -1131,8 +1131,8 @@ def get_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_themes')
-def get_themes():
+@app.route('/profile/get_saved_themes')
+def get_saved_themes():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)

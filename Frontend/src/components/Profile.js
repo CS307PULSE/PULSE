@@ -59,6 +59,9 @@ function Profile({testParameter}){
     const [gender, setGender] = useState(storedUserFields.gender);
     const [location, setLocation] = useState(storedUserFields.location);
     const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favoriteSong);
+    const [selectedTheme, setSelectedTheme] = useState(-1);
+    const [newThemeName, setNewThemeName] = useState("New Theme");
+    const [savedThemes, setSavedThemes] = useState([["name"],["name"],["name"],["name"],["name"]]);
 
     const updateTextSize = (newSetting) => {
         dispatch({ type: 'UPDATE_TEXT_SIZE', payload: newSetting });
@@ -190,8 +193,8 @@ function Profile({testParameter}){
         const themesArray = [colorArray, [], [], [], []];
         const savePromises = [
             saveUserField("http://127.0.0.1:5000/set_text_size", {text_size: state.settingTextSize}),
-            saveUserField("http://127.0.0.1:5000/profile/change_background", {background: state.backgroundImage}),
-            saveUserField("http://127.0.0.1:5000/profile/change_themes", {themes: themesArray})
+            saveUserField("http://127.0.0.1:5000/profile/set_background_image", {background: state.backgroundImage}),
+            saveUserField("http://127.0.0.1:5000/profile/set_saved_themes", {themes: themesArray})
         ]
         await Promise.all(savePromises);
         window.location.reload();
@@ -271,14 +274,24 @@ function Profile({testParameter}){
                         <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
                     </div>
                 </div>
+                <div style={textFieldContainerStyle}>
+                    <button onClick={() => {}} style={{...buttonStyle, width: "200px"}}><p>Save New Theme</p></button>
+                    <input id="save-theme-name-input" type="text" style={textFieldStyle} value={newThemeName} onChange={e => {setNewThemeName(e.target.value)}}></input>
+                </div>
                 <br></br>
                 <p style={profileText} htmlFor="customColors">Saved Themes</p>
                 <div style={buttonContainerStyle}>
-                    <select style={buttonStyle} id="customColors" name="colors">
-                        <option>Red</option>
-                        <option>Blue</option>
-                        <option>Green</option>
+                    <select style={buttonStyle} id="customColors">
+                        {savedThemes.map((item, index) => (
+                            <option key={index} value={item[0]}>
+                                {item[0]}
+                            </option>
+                        ))}
                     </select>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => {}} style={buttonStyle}><p>Save Changes</p></button>
+                    <button onClick={() => {}} style={buttonStyle}><p>Delete Theme</p></button>
                 </div>
                 <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Background</p>
                 <div style={buttonContainerStyle}>

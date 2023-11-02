@@ -54,7 +54,7 @@ export const AppContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     async function fetchContextData() {
-        dispatch({type: 'UPDATE_BACKGROUND_IMAGE', payload: await getUserField('http://127.0.0.1:5000/profile/get_background')});
+        dispatch({type: 'UPDATE_BACKGROUND_IMAGE', payload: await getUserField('http://127.0.0.1:5000/profile/get_background_image')});
         dispatch({type: 'UPDATE_TEXT_SIZE', payload: await getUserField('http://127.0.0.1:5000/get_text_size')});
     }
     useEffect(() => {
