@@ -204,6 +204,14 @@ class DatabaseConnector(object):
             #file.write(image)
             return icon[0]
         """
+
+    # Returns the feedback from DB as a string.
+    def get_most_recent_individual_feedback_from_feedback_DB(self):
+        sql = "SELECT individual_feedback FROM pulse.feedback ORDER BY feedback_idx1 DESC LIMIT 1;"
+        self.db_cursor.execute(sql)
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+
         
 
     # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
@@ -316,22 +324,6 @@ class DatabaseConnector(object):
             print("Error updating display name:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
-
-    # Updates display_name (expected string) in user DB. Returns 1 if successful, 0 if not.
-    def update_display_name(self, spotify_id, new_display_name):
-        try:
-            sql_update_display_name_query = """UPDATE pulse.users SET display_name = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_display_name_query, (new_display_name, spotify_id,))
-            self.db_conn.commit()
-            # Optionally, you can check if any rows were affected by the UPDATE operation.
-            # If you want to fetch the updated record, you can do it separately.
-            affected_rows = self.db_cursor.rowcount
-            return affected_rows
-        except Exception as e:
-            # Handle any exceptions that may occur during the database operation.
-            print("Error updating display name:", str(e))
-            self.db_conn.rollback()
-            return -1  # Indicate that the update failed
     
     # Updates followers (expected dictionary) in user DB. Returns 1 if sucessful, 0 if not
     def update_followers(self, spotify_id, new_date, new_count):
@@ -423,6 +415,23 @@ class DatabaseConnector(object):
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating icon:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    
+    # Updates individual_feedback (expected string) in feedback DB. Returns 1 if successful, 0 if not.
+    def update_individual_feedback(self, new_individual_feedback):
+        try:
+            sql_update_individual_feedback_query = """INSERT INTO pulse.feedback (individual_feedback) VALUES (%s)"""
+            self.db_cursor.execute(sql_update_individual_feedback_query, (new_individual_feedback,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating display name:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
 
