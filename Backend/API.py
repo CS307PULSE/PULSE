@@ -1524,7 +1524,7 @@ def getrequests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
-@app.route('/playlist/get_recs', methods=['GET'])
+@app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
     if 'user' in session:
         user_data = session['user']
@@ -1532,14 +1532,7 @@ def getPlaylistRecs():
         data = request.get_json()
         field = data.get('selectedRecMethod')
         playlist_id = data.get('selectedPlaylistID')
-        try:
-            songarray = Playlist.playlist_recommendations(user, playlist_id, field)
-        except Exception as e:
-            if (try_refresh(user, e)):
-                player = Playback(user)
-                player.select_song(song=[song_uri])
-            else:
-                return "Failed to reauthenticate token"
+        songarray = Playlist.playlist_recommendations(user, playlist_id, field)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

@@ -89,10 +89,10 @@ class Playlist:
         try:
             if field == "genres":
                 genres = Playlist.playlist_genre_analysis(user, playlist)
-                recommendations = user.spotify_user.get_recommendations(seed_genres = genres)
+                recommendations = user.get_recommendations(seed_genres = genres)
             elif field == "aritsts":
                 artists = Playlist.playlist_artist_analysis(user, playlist)
-                recommendations = user.spotify_user.get_recommendations(seed_artists = artists)
+                recommendations = user.get_recommendations(seed_artists = artists)
             elif field == "albums":
                 albumtracks = Playlist.playlist_album_analysis(user, playlist)
                 recommendations = user.spotify_user.get_recommendations(seed_tracks = albumtracks)
@@ -102,12 +102,14 @@ class Playlist:
 
     def playlist_genre_analysis(user, playlist):
         try:
-            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 100)
             genrearray = []
             for item in analysis['items']:
-                genre = item['artists'][0]['genres'][0]
-                if genre not in genrearray:
+                genre = item['track'].get('artists',{})[0].get('genres',[None])[0]
+                print(item['track'].get('artists',{})[0])
+                if genre not in genrearray and genre is not None:
                     genrearray.append(genre)
+            print(genrearray)
             return genrearray
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
@@ -117,8 +119,8 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             artistarray = []
             for item in analysis['items']:
-                artist = item['artists']['id']
-                if item not in artistarray:
+                artist = item['track'].get('artists',{})[0].get('id',None)
+                if artist not in artistarray and artist is not None:
                     artistarray.append(artist)
             return artistarray
         except spotipy.exceptions.SpotifyException as e:
