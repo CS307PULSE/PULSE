@@ -137,7 +137,7 @@ class Emotion:
             "target_tempo": 0,
             "target_valence": 0
         }
-        song_features = user.audio_features(song)
+        song_features = user.spotify_user.audio_features(song)
         song_dict["target_energy"] = song_features.get("energy", 0)
         song_dict["target_popularity"] = song["popularity"]
         song_dict["target_acousticness"] = song_features.get("acousticness", 0)
@@ -175,7 +175,7 @@ class Emotion:
             return "undefined"
         
     def get_emotion_recommendations(user, emotiondict, genre):
-        return user.get_recommendations(
+        return user.spotify_user.get_recommendations(
                             seed_genres=[genre], 
                             max_items=10,
                             target_energy=emotiondict["target_energy"],

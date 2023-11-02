@@ -357,7 +357,6 @@ def search_bar():
         user = User.from_json(user_data)
         results = user.search_for_items(max_items=5, items_type="track", query=query)
         return jsonify(results)
-
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1412,6 +1411,20 @@ def getrequests():
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
                 jsonarray = []
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
+@app.route('/playlist/get_recs', methods=['GET'])
+def getPlsylistRecs():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        field = data.get('selectedRecMethod')
+        playlist_id = data.get('selectedPlaylistID')
+        
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

@@ -54,12 +54,23 @@ class Playlist:
         user.spotify_user.user_playlist_unfollow(user, playlist)
 
     def playlist_generate(self, user, playlist):
-        genres = self.playlist_analysis(user, "genre", playlist)
-        recommendations = user.get_recommendations(seed_genres = genres, max_items = 30)
+        recommendations = user.spotify_user.get_recommendations(seed_genres = genres, max_items = 30)
         for song in recommendations:
             self.add_track(user, playlist, song['id'])
         
-    def playlist_analysis(user, field, playlist):
+    def playlist_recommendations(self, user, playlist, field):
+        if field == "genres":
+            genres = self.playlist_genre_analysis(user, playlist)
+            recommendations = user.spotify_user.get_recommendations(seed_genres = genres)
+        elif field == "aritsts":
+            artists = self.playlist_artist_analysis(user, playlist)
+            recommendations = user.spotify_user.get_recommendations(seed_artists = artists)
+        elif field == "albums":
+            albumtracks = self.playlist_album_analysis(user, playlist)
+            recommendations = user.spotify_user.get_recommendations(seed_tracks = albumtracks)
+        return recommendations
+
+    def playlist_genre_analysis(user, playlist):
         analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
         genrearray = []
         for item in analysis['items']:
@@ -67,6 +78,26 @@ class Playlist:
             if genre not in genrearray:
                 genrearray.append(genre)
         return genrearray
+    
+    def playlist_artist_analysis(user, playlist):
+        analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
+        artistarray = []
+        for item in analysis['items']:
+            artist = item['artists']['id']
+            if item not in artistarray:
+                artistarray.append(artist)
+        return artistarray
+    
+    def playlist_album_analysis(user, playlist):
+        analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
+        albumarray = []
+        for item in analysis['items']:
+            album_id = item['album']['id']
+            albumtracks = user.spotify_user.album_tracks(album_id, limit=10)
+            for song in albumtracks:
+                if song not in albumarray:
+                    albumarray.append(song)
+        return albumarray
     
     def playlist_get_tracks(user, playlist):
         user.spotify_user.user_playlist_tracks(playlist_id = playlist)
