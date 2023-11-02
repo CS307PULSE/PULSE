@@ -6,17 +6,6 @@ import { useAppContext } from "./Context"
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 
-// try {
-//     var textSizeResponse = await axios.get("http://127.0.0.1:5000/get_text_size", {withCredentials: true});
-//     storedTextSizeSetting = textSizeResponse.data;
-//     var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {withCredentials: true});
-//     themeSetting = themeResponse.data;   
-// } catch (e) {
-//     console.log("Formatting settings fetch failed: " + e);
-//     storedTextSizeSetting = 1;
-//     themeSetting = 0;
-// }
-
 const customBackgrounds = [ "https://images.pexels.com/photos/2382325/pexels-photo-2382325.jpeg?cs=srgb&dl=pexels-suzy-hazelwood-2382325.jpg&fm=jpg",
                             "https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg",
                             "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/07/five-nights-at-freddys-lore-story-so-far.jpg"

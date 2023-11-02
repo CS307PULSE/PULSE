@@ -1120,7 +1120,7 @@ def get_chosen_song():
     return jsonify(response_data)
 
 @app.route('/profile/get_background_image')
-def get_background():
+def get_background_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)

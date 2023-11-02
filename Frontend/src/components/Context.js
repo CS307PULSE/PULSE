@@ -10,7 +10,8 @@ const initialState = {
     colorText: pulseColors.white,
     colorBorder: pulseColors.white,
     colorAccent: pulseColors.green,
-    backgroundImage: ""
+    backgroundImage: "",
+    savedThemes: []
 };
 
 const reducer = (state, action) => {
@@ -41,6 +42,9 @@ const reducer = (state, action) => {
         case 'UPDATE_BACKGROUND_IMAGE':
             console.log("Updated background image context to be " + action.payload);
             return { ...state, backgroundImage: action.payload };
+        case 'UPDATE_SAVED_THEMES':
+            console.log("Updated saved theme context to be " + action.payload);
+            return { ...state, savedThemes: action.payload };
         default:
             return state;
     }
