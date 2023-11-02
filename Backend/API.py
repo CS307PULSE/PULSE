@@ -1125,7 +1125,7 @@ def get_background():
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_custom_background_from_DB(user.spotify_id)
+            response_data = conn.get_custom_background_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1137,7 +1137,7 @@ def get_themes():
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_color_palette_from_DB(user.spotify_id)
+            response_data = conn.get_color_palette_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

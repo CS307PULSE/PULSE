@@ -180,7 +180,8 @@ function Profile({testParameter}){
             saveUserField("http://127.0.0.1:5000/profile/change_gender", {gender: gender}),
             saveUserField("http://127.0.0.1:5000/profile/change_location", {location: location}),
             saveUserField("http://127.0.0.1:5000/profile/upload", {filepath: imagePath}),
-            saveUserField("http://127.0.0.1:5000/profile/change_chosen_song", {chosen_song: favoriteSong})
+            saveUserField("http://127.0.0.1:5000/profile/change_chosen_song", {chosen_song: favoriteSong}),
+            saveUserField("http://127.0.0.1:5000/profile/change_background", {background: state.backgroundImage})
         ]
         await Promise.all(savePromises);
         window.location.reload();
@@ -282,7 +283,7 @@ function Profile({testParameter}){
                 </div>
                 <div style={buttonContainerStyle}>
                 {customBackgrounds.map((item, index) => (
-                    <img style={backgroundOptionStyle} src={item} onClick={() => {updateBackgroundImage(item)}}></img>
+                    <img key={index} style={backgroundOptionStyle} src={item} onClick={() => {updateBackgroundImage(item)}}></img>
                 ))}
                 </div>
 

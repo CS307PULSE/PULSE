@@ -88,7 +88,7 @@ function SongPlayer() {
             .get("http://127.0.0.1:5000/player/play", {withCredentials: true})
             .then((response) => {
                 // Handle the response from the backend if needed
-                console.log("Song played successfully:", response.data);
+                // console.log("Song played successfully:", response.data);
             })
             .catch((error) => {
                 console.error("Error playing song:", error);
@@ -99,7 +99,7 @@ function SongPlayer() {
             .get("http://127.0.0.1:5000/player/pause", {withCredentials: true})
             .then((response) => {
                 // Handle the response from the backend if needed
-                console.log("Song paused successfully:", response.data);
+                // console.log("Song paused successfully:", response.data);
             })
             .catch((error) => {
                 console.error("Error pausing song:", error);
@@ -114,7 +114,7 @@ function SongPlayer() {
             .get("http://127.0.0.1:5000/player/skip", {withCredentials: true})
             .then((response) => {
                 // Handle the response from the backend if needed
-                console.log("Song skipping successfully:", response.data);
+                // console.log("Song skipping successfully:", response.data);
             })
             .catch((error) => {
                 console.error("Error skipping song:", error);
@@ -144,7 +144,7 @@ function SongPlayer() {
             .get("http://127.0.0.1:5000/player/repeat", {withCredentials: true})
             .then((response) => {
                 // Handle the response from the backend if needed
-                console.log("Repeat toggled successful:", response.data);
+                // console.log("Repeat toggled successful:", response.data);
             })
             .catch((error) => {
                 console.error("Error toggling repeat:", error);
@@ -158,7 +158,7 @@ function SongPlayer() {
             .get("http://127.0.0.1:5000/player/shuffle", {withCredentials: true})
             .then((response) => {
                 // Handle the response from the backend if needed
-                console.log("Repeat toggled successful:", response.data);
+                // console.log("Shuffle toggled successful:", response.data);
             })
             .catch((error) => {
                 console.error("Error toggling repeat:", error);
@@ -175,7 +175,7 @@ function SongPlayer() {
         .get("http://127.0.0.1:5000/player/play", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
-          console.log("Song played successfully:", response.data);
+          // console.log("Song played successfully:", response.data);
         })
         .catch((error) => {
           console.error("Error playing song:", error);
@@ -186,7 +186,7 @@ function SongPlayer() {
         .get("http://127.0.0.1:5000/player/pause", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
-          console.log("Song paused successfully:", response.data);
+          // console.log("Song paused successfully:", response.data);
         })
         .catch((error) => {
           console.error("Error pausing song:", error);
@@ -202,7 +202,7 @@ function SongPlayer() {
         .get("http://127.0.0.1:5000/player/skip", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
-          console.log("Song skipping successfully:", response.data);
+          // console.log("Song skipping successfully:", response.data);
         })
         .catch((error) => {
           console.error("Error skipping song:", error);
@@ -236,7 +236,7 @@ function SongPlayer() {
         .get("http://127.0.0.1:5000/player/repeat", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
-          console.log("Repeat toggled successful:", response.data);
+          // console.log("Repeat toggled successful:", response.data);
         })
         .catch((error) => {
           console.error("Error toggling repeat:", error);
@@ -252,7 +252,7 @@ function SongPlayer() {
         .get("http://127.0.0.1:5000/player/shuffle", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
-          console.log("Repeat toggled successful:", response.data);
+          // console.log("Repeat toggled successful:", response.data);
         })
         .catch((error) => {
           console.error("Error toggling repeat:", error);

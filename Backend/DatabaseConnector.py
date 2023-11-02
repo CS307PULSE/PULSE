@@ -327,7 +327,7 @@ class DatabaseConnector(object):
     # Updates custom_background (expected string) in user DB. Returns 1 if successful, -1 if not.
     def update_custom_background(self, spotify_id, new_custom_background):
         try:
-            sql_update_custom_background_query = """UPDATE pulse.users SET chosen_song = %s WHERE spotify_id = %s"""
+            sql_update_custom_background_query = """UPDATE pulse.users SET custom_background = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_custom_background_query, (new_custom_background, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
@@ -338,6 +338,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating display name:", str(e))
             self.db_conn.rollback()
+            print("AAAAAAAAAAAAAAAAAA")
             return -1  # Indicate that the update failed
 
     # Updates display_name (expected string) in user DB. Returns 1 if successful, -1 if not.

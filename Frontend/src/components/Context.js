@@ -1,5 +1,6 @@
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useReducer, useEffect } from 'react';
 import { pulseColors } from '../theme/Colors';
+import axios from 'axios';
 
 const AppContext = createContext();
 
@@ -44,9 +45,26 @@ const reducer = (state, action) => {
             return state;
     }
 };
-
+async function getUserField(route) {
+    var response = await axios.get(route, { withCredentials: true });
+    return response.data;
+}
 export const AppContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const stuff = await getUserField('http://127.0.0.1:5000/profile/get_background');
+                dispatch({ type: 'UPDATE_BACKGROUND_IMAGE', payload: stuff });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                dispatch({ type: 'UPDATE_BACKGROUND_IMAGE', payload: "" });
+            }
+        }
+        fetchData();
+    }, []);
+
     return (
         <AppContext.Provider value={{ state, dispatch }}>
             {children}
