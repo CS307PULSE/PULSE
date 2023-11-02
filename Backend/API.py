@@ -507,7 +507,7 @@ def update_followers():
             if (try_refresh(user, e)):
                 follower_data = user.get_followers_with_time()
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == 0):
+            if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
         end_time = time.time()
@@ -582,7 +582,7 @@ def store_scores():
             scores += [-1] * (10 - len(scores))
 
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_scores(user.spotify_id, scores, game_code) == 0):
+            if (conn.update_scores(user.spotify_id, scores, game_code) == -1):
                 error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
 
@@ -634,7 +634,7 @@ def set_settings():
         user = User.from_json(user_data)
 
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_game_settings(user.spotify_id, settings, game_code) == 0):
+            if (conn.update_game_settings(user.spotify_id, settings, game_code) == -1):
                 error_message = "The settings have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
         
@@ -908,7 +908,7 @@ def upload_image():
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_icon(user.spotify_id, newImage) == 0):
+            if (conn.update_icon(user.spotify_id, newImage) == -1):
                 error_message = "The profile image has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'username updated.'
@@ -967,8 +967,9 @@ def change_displayname():
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_display_name(user.spotify_id, user.display_name) == 0):
+            if (conn.update_display_name(user.spotify_id, user.display_name) == -1):
                 error_message = "The display name has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'username updated.'
@@ -986,8 +987,9 @@ def change_gender():
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_gender(user.spotify_id, user.gender) == 0):
+            if (conn.update_gender(user.spotify_id, user.gender) == -1):
                 error_message = "Gender has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'gender updated.'
@@ -1005,8 +1007,9 @@ def change_chosen_song():
         user_data = session['user']
         user = User.from_json(user_data)
         user.chosen_song = chosen_song
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == 0):
+            if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == -1):
                 error_message = "chosen_song has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'chosen_song updated.'
@@ -1024,8 +1027,9 @@ def change_location():
         user_data = session['user']
         user = User.from_json(user_data)
         user.location = location
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_location(user.spotify_id, user.location) == 0):
+            if (conn.update_location(user.spotify_id, user.location) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'location updated.'
@@ -1147,7 +1151,7 @@ def import_advanced_stats():
             json.dump(DATA, json_file, indent=4)
 
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_advanced_stats(user.spotify_id, DATA) == 0):
+            if (conn.update_advanced_stats(user.spotify_id, DATA) == -1):
                 error_message = "Advanced stats has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
 
@@ -1599,7 +1603,7 @@ def try_refresh(user, e=None):
             if not sp_oauth.is_token_expired(user.login_token):
                 #Update token
                 with DatabaseConnector(db_config) as conn:
-                    if (conn.update_token(user.spotify_id, user.login_token) == 0):
+                    if (conn.update_token(user.spotify_id, user.login_token) == -1):
                         raise Exceptions.UserNotFoundError
                 session["user"] = user.to_json()
                 print("Token successfully refreshed!")
@@ -1783,7 +1787,7 @@ def run_tests(testUser):
                 if not sp_oauth.is_token_expired(testUser.login_token):
                     #Update token
                     with DatabaseConnector(db_config) as conn:
-                        if (conn.update_token(testUser.spotify_id, testUser.login_token) == 0):
+                        if (conn.update_token(testUser.spotify_id, testUser.login_token) == -1):
                             raise Exceptions.UserNotFoundError
                     session["user"] = testUser.to_json()
                     print("Token successfully refreshed!")

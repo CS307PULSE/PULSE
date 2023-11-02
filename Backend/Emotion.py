@@ -106,15 +106,15 @@ class Emotion:
                 total_distance += percentage_difference
         return total_distance
     
-    def get_percentage(self, user, song):
+    def get_percentage(user, song):
         percentage = []
-        tractdict = self.convert_track(user, song)
-        happy = self.gethappy()
-        angry = self.getangry()
-        sad = self.getsad()
-        happydist = self.calculate_total_distance(tractdict, happy)
-        angrydist = self.calculate_total_distance(tractdict, angry)
-        saddist = self.calculate_total_distance(tractdict, sad)
+        tractdict = Emotion.convert_track(user, song)
+        happy = Emotion.gethappy()
+        angry = Emotion.getangry()
+        sad = Emotion.getsad()
+        happydist = Emotion.calculate_total_distance(tractdict, happy)
+        angrydist = Emotion.calculate_total_distance(tractdict, angry)
+        saddist = Emotion.calculate_total_distance(tractdict, sad)
         totaldist = saddist + angrydist + happydist
         percentage.append(happydist/totaldist)
         percentage.append(angrydist/totaldist)
@@ -155,18 +155,18 @@ class Emotion:
         song_dict["target_valence"] = song_features.get("valence", 0)
         return song_dict
 
-    def update_and_average_dict(self, user, original_dict, song):
-        song_dict = self.convert_track(user, song)
+    def update_and_average_dict(user, original_dict, song):
+        song_dict = Emotion.convert_track(user, song)
         for key in original_dict.keys():
             if key != "name":
                 original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
 
-    def find_song_emotion(self, user, song):
-        song_dict = self.convert_track(user, song)
-        happydistance = self.calculate_total_distance(self.gethappy, song_dict)
-        angrydistance = self.calculate_total_distance(self.getangry, song_dict)
-        saddistance = self.calculate_total_distance(self.getsad, song_dict)
+    def find_song_emotion(user, song):
+        song_dict = Emotion.convert_track(user, song)
+        happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
+        angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)
+        saddistance = Emotion.calculate_total_distance(Emotion.getsad, song_dict)
         lowest = min(happydistance, angrydistance, saddistance)
         if(lowest == happydistance):
             return "happy"

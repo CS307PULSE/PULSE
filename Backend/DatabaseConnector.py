@@ -90,7 +90,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating token:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
         
     #Creates a a new row in stats DB containing only the username with all other values being null. Expects spotify_id and returns None
     def create_new_user_in_stats_DB(self, spotify_id):
@@ -104,7 +104,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating token:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
 
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
@@ -299,7 +299,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating token:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
         
     # Updates chosen_song (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_chosen_song(self, spotify_id, new_chosen_song):
@@ -315,7 +315,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating display name:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
 
     # Updates display_name (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_display_name(self, spotify_id, new_display_name):
@@ -331,7 +331,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating display name:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
     
     # Updates followers (expected dictionary) in user DB. Returns 1 if sucessful, 0 if not
     def update_followers(self, spotify_id, new_date, new_count):
@@ -348,7 +348,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating followers:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
     
     # Updates friends in user DB. Expects spotify id and spotify id to be added or removed. addition = true if adding the spotify id and false if removing.
     # Returns 1 if successful, 0 if not.
@@ -369,7 +369,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating friends:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
         
     # Updates friend requests in user DB. Expects spotify id and new friend request spotify id to be added. addition = true if adding the spotify id and false if removing.
     # Returns 1 if successful, 0 if not.
@@ -391,7 +391,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating friend requests:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
     
     # Update gender (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_gender(self, spotify_id, new_gender):
@@ -402,12 +402,13 @@ class DatabaseConnector(object):
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
             affected_rows = self.db_cursor.rowcount
+            print("AA")
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating gender:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
 
     # Updates icon (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_icon(self, spotify_id, new_icon):
@@ -423,7 +424,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating icon:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
 
     # Update layout (expected JSON object) in user DB. Returns 1 if successful, 0 if not.
     def update_layout(self, spotify_id, new_layout):
@@ -439,7 +440,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating layout:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
     
     # Update layout (expected string) in user DB. Returns 1 if successful, 0 if not.
     def update_location(self, spotify_id, new_location):
@@ -455,7 +456,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating location:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
 
 
     # Update recommendation (expected array) in user DB. Returns 1 if successful, 0 if not.
@@ -472,7 +473,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating params:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed        
+            return -1  # Indicate that the update failed        
     
     # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     def update_scores(self, spotify_id, new_score_array, game):
@@ -490,7 +491,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating scores:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed   
+            return -1  # Indicate that the update failed   
         # Updates scores (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
     
     # Updates game settings (expected 1D Array and game to update in form of int 0-4) in user DB. Returns 1 if successful, 0 if not. 
@@ -509,7 +510,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating game_settings:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed   
+            return -1  # Indicate that the update failed   
     # Update text_size (expected int) in user DB. Returns 1 if successful, 0 if not.
     def update_text_size(self, spotify_id, new_text_size):
         try:
@@ -524,7 +525,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating text size:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
     
     # Update theme (expected int) in user DB. Returns 1 if successful, 0 if not.
     def update_theme(self, spotify_id, new_theme):
@@ -540,7 +541,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating theme:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
         
     # Update token (expected JSON object) in user DB. Returns 1 if successful, 0 if not. 
     def update_token(self, spotify_id, login_token):
@@ -556,7 +557,7 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating token:", str(e))
             self.db_conn.rollback()
-            return 0  # Indicate that the update failed
+            return -1  # Indicate that the update failed
 
 #--------------------------------------------------------------------------------------------------------
 # Conversion functions to and from DB
