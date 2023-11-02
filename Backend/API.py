@@ -264,7 +264,7 @@ def statistics():
     
 
 @app.route('/get_saved_playlists')
-def statistics():
+def get_saved_playlists():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
