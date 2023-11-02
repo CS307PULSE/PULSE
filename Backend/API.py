@@ -1038,6 +1038,40 @@ def change_location():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/profile/change_background', methods=['POST'])
+def change_background():
+    if 'user' in session:
+        data = request.get_json()
+        background = data.get('background')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_custom_background(user.spotify_id, background) == -1):
+                error_message = "Location has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Themes updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/change_themes', methods=['POST'])
+def change_themes():
+    if 'user' in session:
+        data = request.get_json()
+        themes = data.get('themes')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palettes(user.spotify_id, themes) == -1):
+                error_message = "Location has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Themes updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
 @app.route('/profile/get_displayname', methods=['GET'])
 def get_displayname():
     if 'user' in session:
@@ -1080,6 +1114,30 @@ def get_chosen_song():
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_background')
+def get_background():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_custom_background_from_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_themes')
+def get_themes():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palette_from_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
