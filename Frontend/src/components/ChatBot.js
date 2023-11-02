@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import OpenAI from "openai";
 import Navbar from './NavBar';
+import axios from 'axios';
 
 const OPENAI_API_KEY = "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";
 const openai = new OpenAI({
@@ -15,6 +16,8 @@ const ChatBot = () => {
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState([{ type: 'bot', content: "Hey! Welcome to pulse bot" }]);
     const [songs, setSongs] = useState([]);
+    const [feedback, setFeedback] = useState('');
+    const [awaitingFeedback, setAwaitingFeedback] = useState(false);
 
     // the use effect hook for thr chatBot 
     useEffect(() => {
@@ -26,7 +29,29 @@ const ChatBot = () => {
         // This will run right after the `songs` state is updated
         console.log("Updated songs:", songs);
     }, [songs]);
+
+    useEffect(() => {
+        console.log("Updated feedback:", feedback);
+        const sendFeedback = async () => {
+            if (feedback.trim()) { // Check if feedback is not just empty spaces
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/feedback', { feedback }, { withCredentials: true });
+                    console.log(response.data); // Assuming the server sends back JSON
+                } catch (error) {
+                    console.error('Error sending feedback:', error.response ? error.response.data : error.message);
+                }
+            }
+        };
     
+        // Only call sendFeedback if feedback is not an empty string
+        if (feedback !== '') {
+            sendFeedback();
+        }
+        // Adding `feedback` as a dependency makes this effect run every time `feedback` changes.
+    }, [feedback]);
+
+
+ 
     const styles = {
         title:{
             color: "#FFF",
@@ -93,6 +118,10 @@ const ChatBot = () => {
     const handleSendMessage = async () => {
         if (inputValue.trim() === '') return;
 
+    // Check if the message is about feedback
+    const feedbackKeywords = ['feedback', 'comment', 'suggestion', 'recommendation'];
+    const isFeedback = feedbackKeywords.some(keyword => inputValue.toLowerCase().includes(keyword));
+   
 
         setMessages([...messages, { type: 'user', content: inputValue }]);
         try {
@@ -118,6 +147,27 @@ const ChatBot = () => {
                 setSongs([]); // If no songs are found, set the state to an empty array
             }
 
+            const feedbackKeywords = ['feedback', 'comment', 'suggestion', 'recommendation'];
+        const isFeedbackKeyword = feedbackKeywords.some(keyword => inputValue.toLowerCase().includes(keyword));
+
+        if (isFeedbackKeyword) {
+            // Set the awaitingFeedback state to true
+            setAwaitingFeedback(true);
+            // Ask for feedback
+            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Could you please tell me more about your thoughts?" }]);
+        } else if (awaitingFeedback) {
+            // Overwrite the existing feedback with the new message
+            setFeedback(inputValue);
+            // Reset the awaitingFeedback state
+            setAwaitingFeedback(false);
+            // Send a thank you message to the user
+            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Thank you for your feedback!" }]);
+            // Here, you would handle the feedback, e.g., sending it to a server or logging it
+        } else {
+            // Normal message handling if the user is not providing feedback
+            // ... your existing code to send the message to OpenAI and handle the response
+        }
+        console.log(feedback);
             setMessages(prevMessages => [...prevMessages, { type: 'bot', content: botResponse }]);
         } catch (error) {
             console.error("Error fetching response from OpenAI:", error);
