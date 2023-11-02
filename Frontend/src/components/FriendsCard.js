@@ -4,23 +4,11 @@ import styled from 'styled-components';
 import { Link } from "react-router-dom";
 import { useAppContext } from './Context';
 import TextSize from "../theme/TextSize";
+import axios from 'axios';
+import Colors from '../theme/Colors';
 
-var textSizeSetting, themeSetting, friendData;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
+var friendData;
+
 try {
   var friendResponse = await axios.get(
     "http://127.0.0.1:5000/friends/get_friends",
@@ -32,8 +20,8 @@ try {
   friendData = [[]];
 }
 
-const themeColors = Colors(themeSetting); //Obtain color values
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
+const themeColors = Colors(0); //Obtain color values
+const textSizes = TextSize(1); //Obtain text size values
 const friendsList = friendData;
 
 // Styled components

@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Friend from './Friend';
 import Navbar from "./NavBar";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 import { useAppContext } from "./Context";
+import axios from "axios";
+import { Link } from "react-router-dom";
+
+var initialFriendData;
+try {
+  var friendResponse = await axios.get(
+    "http://127.0.0.1:5000/friends/get_friends",
+    { withCredentials: true }
+  );
+  initialFriendData = friendResponse.data;
+} catch (e) {
+  console.log("Friends fetch failed: " + e);
+  initialFriendData = [[]];
+}
 
 const Friends = () => {
   const { state, dispatch } = useAppContext();
@@ -36,12 +50,12 @@ const Friends = () => {
   };
 
   const buttonStyle = {
-    backgroundColor: themeColors.background,
-    color: themeColors.text,
+    backgroundColor: state.colorBackground,
+    color: state.colorText,
     padding: "20px 40px", // Increase the padding for taller buttons
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: themeColors.text,
+    borderColor: state.colorBorder,
     borderRadius: "10px",
     cursor: "pointer",
     margin: "5px",
