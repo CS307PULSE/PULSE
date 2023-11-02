@@ -5,6 +5,7 @@ import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import SongPlayer from "./SongPlayer";
 import { useAppContext } from "./Context"
+import StatsCard from "./StatsCard";
 import ChatbotButton from "./ChatBotButton";
 import axios from "axios";
 import TextSize from "../theme/TextSize";
@@ -166,6 +167,9 @@ function Mainpage() {
     }
   }
 
+  const handleChatbotClick = () => {
+    alert("Chatbot clicked!");
+  };
   useEffect(() => {
     document.title = "PULSE - Dashboard";
   }, []);

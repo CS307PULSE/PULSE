@@ -10,6 +10,7 @@ from User import User
 from Game import GameType, Game
 from DatabaseConnector import DatabaseConnector
 from DatabaseConnector import db_config
+from Emotion import Emotion
 import json
 import Exceptions
 import os
@@ -209,6 +210,7 @@ def games():
 
 @app.route('/statistics')
 def statistics():
+    start_time = time.time()
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -224,7 +226,11 @@ def statistics():
                 'layout_data' : ''}
 
         try:
+            start_time2 = time.time()
             update_data(user)
+            end_time2 = time.time()
+            execution_time2 = end_time2 - start_time2
+            print(f"Execution time: {execution_time2} seconds")
         except Exception as e:
             print(e)
             return jsonify(data)
@@ -248,6 +254,94 @@ def statistics():
 
         if followers is not None:
             data['follower_data'] = followers
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
+        return jsonify(data)
+        
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    
+@app.route('/friend_statistics')
+def friend_statistics():
+    start_time = time.time()
+    data = request.get_json()
+    id = data.get('id')
+    with DatabaseConnector(db_config) as conn:
+        user = conn.get_user_from_user_DB(spotify_id=id)
+
+    if user is None:
+        error_message = "The user is not found! Please try again!"
+        return make_response(jsonify({'error': error_message}), 80)
+
+    data = {'status' : 'Not updated',
+            'recent_history' : '',
+            'top_songs' : '',
+            'top_artists' : '',
+            'followed_artists' : '',
+            'saved_songs' : '',
+            'saved_albums' : '',
+            'saved_playlists': '',
+            'follower_data' : ''}
+
+    try:
+        start_time2 = time.time()
+        update_data(user)
+        end_time2 = time.time()
+        execution_time2 = end_time2 - start_time2
+        print(f"Execution time: {execution_time2} seconds")
+    except Exception as e:
+        print(e)
+        return jsonify(data)
+    
+    with DatabaseConnector(db_config) as conn:
+        layout = conn.get_layout_from_DB(user.spotify_id)
+    with DatabaseConnector(db_config) as conn:
+        followers = conn.get_followers_from_DB(user.spotify_id)
+
+    data['status'] = 'Success'
+    data['recent_history'] = user.stringify(user.stats.recent_history)
+    data['top_songs'] = user.stringify(user.stats.top_songs)
+    data['top_artists'] = user.stringify(user.stats.top_artists)
+    data['followed_artists'] = user.stringify(user.stats.followed_artists)
+    data['saved_songs'] = user.stringify(user.stats.saved_songs)
+    data['saved_albums'] = user.stringify(user.stats.saved_albums)
+    data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
+
+    if layout is not None:
+        data['layout_data'] = layout
+
+    if followers is not None:
+        data['follower_data'] = followers
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time} seconds")
+    return jsonify(data)
+
+@app.route('/get_saved_playlists')
+def get_saved_playlists():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = {'status' : 'Not updated',
+                'saved_playlists': ''}
+
+        try:
+            update_data(user,
+                update_recent_history=False,
+                update_top_songs=False,
+                update_top_artists=False,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=True)
+        except Exception as e:
+            print(e)
+            return jsonify(data)
+
+        data['status'] = 'Success'
+        data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
 
         return jsonify(data)
         
@@ -257,6 +351,7 @@ def statistics():
     
 @app.route('/statistics/shortened')
 def statistics_short():
+    start_time = time.time()
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -266,7 +361,13 @@ def statistics_short():
                 'follower_data' : ''}
 
         try:
-            update_data(user)
+            update_data(user, update_recent_history=False,
+                update_top_songs=True,
+                update_top_artists=True,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=False)
         except Exception as e:
             print(e)
             return jsonify(data)
@@ -280,12 +381,41 @@ def statistics_short():
 
         if followers is not None:
             data['follower_data'] = followers
-
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
         return jsonify(data)
         
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/get_friends_recent_songs', methods=['POST'])
+def get_friends_recent_songs():
+    data = request.get_json()
+    friend_ids = data.get('friend_ids')
+    friend_songs = {}
+    for friend_id in friend_ids.keys():
+        with DatabaseConnector(db_config) as conn:
+            user = conn.get_user_from_user_DB(spotify_id=friend_id)
+
+        try:
+            update_data(user,
+                update_recent_history=True,
+                update_top_songs=False,
+                update_top_artists=False,
+                update_followed_artists=False,
+                update_saved_tracks=False,
+                update_saved_albums=False,
+                update_saved_playlists=False)
+            
+            friend_songs[friend_id] = user.stats.recent_history
+
+        except Exception as e:
+            print(e)
+            friend_songs[friend_id] = {}
+
+    return jsonify(friend_songs)
 
 @app.route('/statistics/set_layout', methods=['POST'])
 def set_layout():
@@ -367,6 +497,7 @@ def get_text_size():
 
 @app.route('/update_followers')
 def update_followers():
+    start_time = time.time()
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -379,7 +510,9 @@ def update_followers():
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 6969)
-
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -834,6 +967,7 @@ def change_displayname():
         user_data = session['user']
         user = User.from_json(user_data)
         user.display_name = newname
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_display_name(user.spotify_id, user.display_name) == -1):
                 error_message = "The display name has not been stored!"
@@ -853,11 +987,32 @@ def change_gender():
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_gender(user.spotify_id, user.gender) == -1):
                 error_message = "Gender has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'gender updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/change_chosen_song', methods=['POST'])
+def change_chosen_song():
+    if 'user' in session:
+        data = request.get_json()
+        chosen_song = data.get('chosen_song')
+        chosen_song = chosen_song.title()
+        user_data = session['user']
+        user = User.from_json(user_data)
+        user.chosen_song = chosen_song
+        session['user'] = user.to_json()
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == -1):
+                error_message = "chosen_song has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'chosen_song updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -872,6 +1027,7 @@ def change_location():
         user_data = session['user']
         user = User.from_json(user_data)
         user.location = location
+        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
             if (conn.update_location(user.spotify_id, user.location) == -1):
                 error_message = "Location has not been stored!"
@@ -912,6 +1068,18 @@ def get_gender():
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_gender_from_user_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_chosen_song', methods=['GET'])
+def get_chosen_song():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1003,11 +1171,35 @@ def get_advanced_stats():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
+            # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
+        response_data["Emotions"] = get_emotions(user, response_data["Tracks"])
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
+
+def get_emotions(user, tracks):
+    emotions = {}
+    for track_uri in tracks.keys():
+        uri = track_uri.split(":")[-1]
+        emotion = Emotion.find_song_emotion(user, uri)
+        if emotion not in emotions.keys():
+            emotions[emotion] = 0
+        emotions[emotion] += tracks[track_uri]["Number of Minutes"]
+    
+    total = 0
+    for emotion in emotions.keys():
+        if emotion != "undefined":
+            total += emotions['emotion']
+    
+    if total == 0:
+        total = 1
+
+    for emotion in emotions.keys():
+        emotions['emotion'] /= total
+
+    return emotions
 
 @app.route('/api_only/get_advanced_stats_db')
 def api_only_get_advanced_stats():
@@ -1183,6 +1375,157 @@ def api_advanced_stats_test():
             
     else:
         return 'User session not found. Please log in again.'
+
+@app.route('/friends/friend_request', methods=['POST'])
+def friendRequests():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        friendid = data.get('request')
+        #add no friend requests to self
+        with DatabaseConnector(db_config) as conn:
+            friendRequests = conn.get_friend_requests_from_DB(friendid)
+            friends = conn.get_friends_from_DB(friendid)
+            if user.spotify_id in friends:
+                return "friend is already on friends list"
+            if user.spotify_id in friendRequests:
+                return "friend always has request"
+            conn.update_friend_requests(friendid, user.spotify_id, True)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "added request"
+
+@app.route('/friends/remove_friend', methods=['POST'])
+def removeFriend():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        friendid = data.get('spotify_id')
+        jsonarray = []
+        with DatabaseConnector(db_config) as conn:
+            conn.update_friends(friendid, user.spotify_id, False)
+            conn.update_friends(user.spotify_id, friendid, False)
+            response_data = conn.get_friends_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+            if len(response_data) == 0:
+                jsonarray = []
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
+@app.route('/friends/friend_request_choice', methods=['POST'])
+def requestChoice():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        friendid = data.get('spotify_id')
+        choice = data.get('accepted')
+        jsonarray = []
+        with DatabaseConnector(db_config) as conn:
+            if choice:
+                conn.update_friends(user.spotify_id, friendid, True)
+                conn.update_friends(friendid, user.spotify_id, True)
+                conn.update_friend_requests(user.spotify_id, friendid, False)
+                conn.update_friend_requests(friendid, user.spotify_id, False)
+            else:
+                conn.update_friend_requests(user.spotify_id, friendid, False)
+            response_data = conn.get_friend_requests_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+            if len(response_data) == 0:
+                jsonarray = []
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
+
+@app.route('/friends/add_friends_search', methods=['POST'])
+def friendRequestSearch():
+    if 'user' in session:
+        data = request.get_json()
+        friendname = data.get('query')
+        jsonarray = []
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_spotify_id_from_display_name_from_DB(friendname)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+            if len(response_data) == 0:
+                jsonarray = []
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
+@app.route('/friends/get_friends', methods=['GET'])
+def getFriends():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        jsonarray = []
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_friends_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+            if len(response_data) == 0:
+                jsonarray = []
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
+
+@app.route('/friends/get_requests', methods=['GET'])
+def getrequests():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        jsonarray = []
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_friend_requests_from_DB(user.spotify_id)
+            for item in response_data:
+                frienduser = conn.get_user_from_user_DB(item)
+                bufferobject = { }
+                bufferobject['name'] = frienduser.display_name
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
+                bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['spotify_id'] = frienduser.spotify_id
+                jsonarray.append(bufferobject)
+            if len(response_data) == 0:
+                jsonarray = []
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return json.dumps(jsonarray)
 
 @app.route('/test')
 def test():

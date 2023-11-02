@@ -1,55 +1,107 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import Friend from './Friend'; 
+import styled from 'styled-components';
 import { Link } from "react-router-dom";
 import { useAppContext } from './Context';
 import TextSize from "../theme/TextSize";
 
+var textSizeSetting, themeSetting, friendData;
+try {
+  var textSizeResponse = await axios.get(
+    "http://127.0.0.1:5000/get_text_size",
+    { withCredentials: true }
+  );
+  textSizeSetting = textSizeResponse.data;
+  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
+    withCredentials: true,
+  });
+  themeSetting = themeResponse.data;
+} catch (e) {
+  console.log("Formatting settings fetch failed: " + e);
+  textSizeSetting = 1;
+  themeSetting = 0;
+}
+try {
+  var friendResponse = await axios.get(
+    "http://127.0.0.1:5000/friends/get_friends",
+    { withCredentials: true }
+  );
+  friendData = friendResponse.data;
+} catch (e) {
+  console.log("Friends fetch failed: " + e);
+  friendData = [[]];
+}
+
+const themeColors = Colors(themeSetting); //Obtain color values
+const textSizes = TextSize(textSizeSetting); //Obtain text size values
+const friendsList = friendData;
+
+// Styled components
+const CardContainer = styled.div`
+  border: 1px solid ${themeColors.white};
+  overflow-y: auto;
+  max-width: 500px; /* Set a maximum width to limit the container size */
+  width: 100%; /* Ensure the container takes available width */
+  height: 650px;
+  margin: 0 auto; /* Horizontally center the container */
+`;
+
+// Add margin to each Friend component for spacing
+const FriendContainer = styled.div`
+  margin-bottom: 20px; /* Adjust the margin as needed for spacing */
+`;
+
+const Header = styled.div`
+  background-color: ${themeColors.green}; // Set background color to green
+  top: 0;
+  position: sticky;
+  color: black; // Set text color to green
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  padding: 10px;
+  text-transform: uppercase;
+`;
+
+const Content = styled.div`
+  color: ${themeColors.white};
+  font-family: Rhodium Libre;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  padding: 16px;
+`;
+
 const StyledLink = styled(Link)`
+  position: sticky;
   text-decoration: none; /* Remove underline */
   color: inherit; /* Inherit text color */
 `;
 
-const FriendsCard = ({children }) => {
-  const { state, dispatch } = useAppContext();
-  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-  const cardContainerStyle = {
-    border: "1px solid " + state.colorBorder,
-    overflow: "auto",
-    width: "500px",
-    height: "650px"
-  };
-  const headerStyle = {
-    backgroundColor: state.colorAccent, // Set background color to green
-    color: state.colorText, // Set text color to white
-    textAlign: "center",
-    fontFamily: "Poppins, sans-serif",
-    padding: "10px",
-    fontSize: textSizes.header3,
-    fontStyle: "normal",
-    fontWeight: "700",
-    lineHeight: "normal",
-    textTransform: "uppercase",
-    position: "sticky",
-    top: "0",
-  };
-  const contentStyle = {
-    color: state.colorText,
-    fontFamily: "Rhodium Libre",
-    fontSize: textSizes.body,
-    fontStyle: "normal",
-    fontWeight: "400",
-    lineHeight: "normal",
-    textTransform: "uppercase",
-    padding: "16px",
-  };
-  return (
-      <div style={cardContainerStyle}>
+const FriendsCard = ({}) => {
+    return (
+      <CardContainer>
         <StyledLink to="/friends">
-        <div style={headerStyle}>FRIENDS</div>
-      </StyledLink>
-        <div style={contentStyle}>{children}</div>
-      </div>
+          <Header>FRIENDS</Header>
+        </StyledLink>
+        
+        <div className="friend-list">
+          {friendData.map((friend, index) => (
+            <FriendContainer key={index}>
+              <Friend
+                name={friend.name}
+                photoFilename={friend.photoUri}
+                favoriteSong={friend.favoriteSong}
+              />
+            </FriendContainer>
+          ))}
+        </div>
+      
+      </CardContainer>
     );
   }
   

@@ -1,13 +1,32 @@
 // ChatBot.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import OpenAI from "openai";
 import Navbar from './NavBar';
+
+const OPENAI_API_KEY = "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";
+const openai = new OpenAI({
+    apiKey: OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true,
+});
 
 const ChatBot = () => {
     const [inputValue, setInputValue] = useState('');
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([{ type: 'bot', content: "Hey! Welcome to pulse bot" }]);
+    const [songs, setSongs] = useState([]);
 
+    // the use effect hook for thr chatBot 
+    useEffect(() => {
+        // Add opening message when component mounts
+        setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "How can I assist you with songs today?" }]);
+    }, []);
+
+    useEffect(() => {
+        // This will run right after the `songs` state is updated
+        console.log("Updated songs:", songs);
+    }, [songs]);
+    
     const styles = {
         title:{
             color: "#FFF",
@@ -71,16 +90,49 @@ const ChatBot = () => {
         setInputValue(e.target.value);
     };
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (inputValue.trim() === '') return;
+
+
         setMessages([...messages, { type: 'user', content: inputValue }]);
-        setInputValue(''); // Clear the input. Integration with API will go here.
+        try {
+            const promptText = `The following is a conversation with a song helper assistant.The webiste the assistant is running on is called PULSE. The website has 5 main sections: the dashboard, the statistics page, the games page, a DJ mixer page and the uploader page. The games futher divided into: Guess the song, Guess the artist, Guess who listens to the song, guess the next lyric and heads up. You can change the dark/light mode and text size in the profile under the setting section. Given partial lyrics ALWAYS send a link to the full lyrics as url. When asked for songs based on any criteria give it in list format with numbers. \n\nHuman: ${inputValue}\nAI: `;
+            
+            const response = await openai.completions.create({
+                model: "gpt-3.5-turbo-instruct",
+                prompt: promptText,
+                temperature: 0.9,
+                max_tokens: 150,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0.6,
+                stop: ["Human:", "AI:"],
+            });
+            console.log(response)
+            const botResponse = response.choices[0].text.trim();
+
+            const songMatches = botResponse.match(/"([^"]+)"/g); // Regex to find quotes
+            if (songMatches) {
+                setSongs(songMatches.map(song => song.replace(/"/g, ''))); // Remove quotes and add to songs list
+            } else {
+                setSongs([]); // If no songs are found, set the state to an empty array
+            }
+
+            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: botResponse }]);
+        } catch (error) {
+            console.error("Error fetching response from OpenAI:", error);
+            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Sorry, I faced an error fetching a response." }]);
+        }
+    
+        setInputValue(''); // Clear the input after sending the message
     };
+
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             handleSendMessage();
         }
     };
+   
 
     return (
         <div style={styles.container}>

@@ -4,8 +4,12 @@
   "private": true,
   "dependencies": {
     "@nivo/bar": "^0.83.0",
+    "@nivo/bump": "^0.83.0",
+    "@nivo/calendar": "^0.83.0",
     "@nivo/line": "^0.83.0",
     "@nivo/pie": "^0.83.0",
+    "@nivo/radial-bar": "^0.83.0",
+    "@nivo/scatterplot": "^0.83.0",
     "axios": "^1.5.1",
     "react": "^18.2.0",
     "react-grid-layout": "^1.4.2",
