@@ -114,7 +114,7 @@ class DatabaseConnector(object):
         sql_get_advanced_stats_query = "SELECT advanced_stats from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
@@ -155,7 +155,7 @@ class DatabaseConnector(object):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
