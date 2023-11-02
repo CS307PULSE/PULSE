@@ -1437,7 +1437,7 @@ def api_advanced_stats_test():
         return 'User session not found. Please log in again.'
 
 @app.route('/friends/friend_request', methods=['POST'])
-def friendRequests():
+def friend_requests():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1458,7 +1458,7 @@ def friendRequests():
     return "added request"
 
 @app.route('/friends/remove_friend', methods=['POST'])
-def removeFriend():
+def remove_friend():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1485,7 +1485,7 @@ def removeFriend():
     return json.dumps(jsonarray)
 
 @app.route('/friends/friend_request_choice', methods=['POST'])
-def requestChoice():
+def request_choice():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1519,7 +1519,7 @@ def requestChoice():
 
 
 @app.route('/friends/add_friends_search', methods=['POST'])
-def friendRequestSearch():
+def friend_request_search():
     if 'user' in session:
         data = request.get_json()
         friendname = data.get('query')
@@ -1542,7 +1542,7 @@ def friendRequestSearch():
     return json.dumps(jsonarray)
 
 @app.route('/friends/get_friends', methods=['GET'])
-def getFriends():
+def get_friends():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1565,7 +1565,7 @@ def getFriends():
     return json.dumps(jsonarray)
 
 @app.route('/friends/get_requests', methods=['GET'])
-def getrequests():
+def get_requests():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1586,6 +1586,7 @@ def getrequests():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
+
 
 @app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
@@ -1651,6 +1652,17 @@ def pullsongs():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return "created playlist"
+
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.get_json()
+    feedback = data.get('feedback')
+    with DatabaseConnector(db_config) as conn:
+        if (conn.update_individual_feedback(feedback) == -1):
+            return "Failed"
+    return "Success"
+    
 
 @app.route('/test')
 def test():
