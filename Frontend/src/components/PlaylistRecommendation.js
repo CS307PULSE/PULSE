@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TopGraph } from "./Graphs.js";
+import ImageGraph from "./Graphs/ImageGraph";
 import Navbar from "./NavBar";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
@@ -53,6 +53,7 @@ const searchInputStyle = {
     display: "flex-grow",
 };
 
+
 const friendContainerStyle = {
   position: "fixed",
   top: 100,
@@ -101,21 +102,33 @@ async function fetchBackendDatas() {
 }
 
 async function getSongRecommendations(selectedPlaylistID, selectedRecMethod) {
-  return null
-  /*
   const axiosInstance = axios.create({
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/djmixer/playlist_recs/get_song_recs",
+    "http://127.0.0.1:5000/playlist/get_recs",
     { selectedPlaylistID: selectedPlaylistID,
       selectedRecMethod: selectedRecMethod}
+  );
+  const data = response.data;
+  console.log("send the song to be added");
+  console.log(response);
+  return data;
+}
+
+async function sendSongToBeAdded(selectedPlaylistID, selectedSongID) {
+  const axiosInstance = axios.create({
+    withCredentials: true,
+  });
+  const response = await axiosInstance.post(
+    "http://127.0.0.1:5000/playlist/add_song",
+    { selectedPlaylistID: selectedPlaylistID,
+      selectedSongID : selectedSongID}
   );
   const data = response.data;
   console.log("Got song recommendations for the chosen playlist");
   console.log(response);
   return data;
-  */
 }
 
 
@@ -170,7 +183,7 @@ const PlaylistRecommendation = () => {
     if (finishedPullingData) {
         return (
         <div style={{ height: "300px", overflowY: "scroll" }}>
-          <TopGraph data={masterPlaylists} 
+          <ImageGraph data={masterPlaylists} 
                           dataName={"playlists_for_recs"} 
                           selectedPlaylistID = {selectedPlaylistID}
                           setSelectedPlaylistID = {setSelectedPlaylistID}
@@ -226,10 +239,8 @@ const PlaylistRecommendation = () => {
         setSongRecs(data);
       }
     });
-    //UNCOMMENT OUT FOR CONNECTION TO BACKEND
-    return <p>Test successful. Need to connect to backend to continue</p>
     return (
-      <div style={{ height: "300px", overflowY: "scroll" }}><TopGraph data={songRecs} 
+      <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
                         dataName={"songs_for_recs"} 
                         selectedSongID ={selectedSongID} 
                         setSelectedSongID = {setSelectedSongID}
@@ -242,6 +253,26 @@ const PlaylistRecommendation = () => {
       return <p>Please click on a playlist to get recommendations for!</p>
     } else {
         return <p></p>;
+    }
+  }
+
+  function generateAddSongsButton() {
+    if (selectedSongID !== null && selectedSongID !== undefined) {
+      return (
+        <button
+          style={{ ...buttonStyle, textDecoration: 'none' }}
+          onClick={() => {
+            sendSongToBeAdded(selectedPlaylistID, selectedSongID)
+              .then(data => {
+                if (!data.success) {
+                  alert("This song is already in your playlist");
+                }
+              });
+          }}
+        ></button>
+      );
+    } else {
+      return <p></p>
     }
   }
 
@@ -259,6 +290,7 @@ const PlaylistRecommendation = () => {
         {generatePlaylists(savedPlaylists, finishedPullingData)} 
         {generateDropdown(finishedPullingData, selectedPlaylistName)}
         {generateSongs()} 
+        {generateAddSongsButton()}
     </div>
   );
 };

@@ -14,11 +14,19 @@ const openai = new OpenAI({
 const ChatBot = () => {
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState([{ type: 'bot', content: "Hey! Welcome to pulse bot" }]);
+    const [songs, setSongs] = useState([]);
+
     // the use effect hook for thr chatBot 
     useEffect(() => {
         // Add opening message when component mounts
         setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "How can I assist you with songs today?" }]);
     }, []);
+
+    useEffect(() => {
+        // This will run right after the `songs` state is updated
+        console.log("Updated songs:", songs);
+    }, [songs]);
+    
     const styles = {
         title:{
             color: "#FFF",
@@ -84,11 +92,11 @@ const ChatBot = () => {
 
     const handleSendMessage = async () => {
         if (inputValue.trim() === '') return;
-    
+
+
         setMessages([...messages, { type: 'user', content: inputValue }]);
-        
         try {
-            const promptText = `The following is a conversation with a song helper assistant. The asstance can help find songs, lyrics, similar songs and songs based on location.\n\nHuman: ${inputValue}\nAI: `;
+            const promptText = `The following is a conversation with a song helper assistant.The webiste the assistant is running on is called PULSE. The website has 5 main sections: the dashboard, the statistics page, the games page, a DJ mixer page and the uploader page. The games futher divided into: Guess the song, Guess the artist, Guess who listens to the song, guess the next lyric and heads up. You can change the dark/light mode and text size in the profile under the setting section. Given partial lyrics ALWAYS send a link to the full lyrics as url. When asked for songs based on any criteria give it in list format with numbers. \n\nHuman: ${inputValue}\nAI: `;
             
             const response = await openai.completions.create({
                 model: "gpt-3.5-turbo-instruct",
@@ -102,6 +110,14 @@ const ChatBot = () => {
             });
             console.log(response)
             const botResponse = response.choices[0].text.trim();
+
+            const songMatches = botResponse.match(/"([^"]+)"/g); // Regex to find quotes
+            if (songMatches) {
+                setSongs(songMatches.map(song => song.replace(/"/g, ''))); // Remove quotes and add to songs list
+            } else {
+                setSongs([]); // If no songs are found, set the state to an empty array
+            }
+
             setMessages(prevMessages => [...prevMessages, { type: 'bot', content: botResponse }]);
         } catch (error) {
             console.error("Error fetching response from OpenAI:", error);

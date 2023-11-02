@@ -60,7 +60,7 @@ class Emotion:
         }
         return sad
     
-    def createnewemotion(name = "new emotion"):
+    def create_new_emotion(name = "new emotion"):
         emptydict = {
             "name" : name, 
             "target_energy": 0,
@@ -106,15 +106,15 @@ class Emotion:
                 total_distance += percentage_difference
         return total_distance
     
-    def get_percentage(self, user, song):
+    def get_percentage(user, song):
         percentage = []
-        tractdict = self.convert_track(user, song)
-        happy = self.gethappy()
-        angry = self.getangry()
-        sad = self.getsad()
-        happydist = self.calculate_total_distance(tractdict, happy)
-        angrydist = self.calculate_total_distance(tractdict, angry)
-        saddist = self.calculate_total_distance(tractdict, sad)
+        tractdict = Emotion.convert_track(user, song)
+        happy = Emotion.gethappy()
+        angry = Emotion.getangry()
+        sad = Emotion.getsad()
+        happydist = Emotion.calculate_total_distance(tractdict, happy)
+        angrydist = Emotion.calculate_total_distance(tractdict, angry)
+        saddist = Emotion.calculate_total_distance(tractdict, sad)
         totaldist = saddist + angrydist + happydist
         percentage.append(happydist/totaldist)
         percentage.append(angrydist/totaldist)
@@ -140,7 +140,9 @@ class Emotion:
             "target_tempo": 0,
             "target_valence": 0
         }
-        song_features = user.audio_features(song)
+        song_features = user.spotify_user.audio_features(song['id'])
+        song_features = song_features[0]
+        print(song_features)
         song_dict["target_energy"] = song_features.get("energy", 0)
         song_dict["target_popularity"] = song["popularity"]
         song_dict["target_acousticness"] = song_features.get("acousticness", 0)
@@ -155,18 +157,18 @@ class Emotion:
         song_dict["target_valence"] = song_features.get("valence", 0)
         return song_dict
 
-    def update_and_average_dict(self, user, original_dict, song):
-        song_dict = self.convert_track(user, song)
+    def update_and_average_dict(user, original_dict, song):
+        song_dict = Emotion.convert_track(user, song)
         for key in original_dict.keys():
             if key != "name":
                 original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
 
-    def find_song_emotion(self, user, song):
-        song_dict = self.convert_track(user, song)
-        happydistance = self.calculate_total_distance(self.gethappy, song_dict)
-        angrydistance = self.calculate_total_distance(self.getangry, song_dict)
-        saddistance = self.calculate_total_distance(self.getsad, song_dict)
+    def find_song_emotion(user, song):
+        song_dict = Emotion.convert_track(user, song)
+        happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
+        angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)
+        saddistance = Emotion.calculate_total_distance(Emotion.getsad, song_dict)
         lowest = min(happydistance, angrydistance, saddistance)
         if(lowest == happydistance):
             return "happy"
@@ -177,20 +179,22 @@ class Emotion:
         else:
             return "undefined"
         
-    def get_emotion_recommendations(user, emotiondict, genre):
+    def get_emotion_recommendations(user, emotiondict, track = [], artist = [], genre = []):
         return user.get_recommendations(
-                            seed_genres=[genre], 
+                            seed_tracks=track,
+                            seed_artists=artist,
+                            seed_genres=genre, 
                             max_items=10,
                             target_energy=emotiondict["target_energy"],
-                            target_popularity=emotiondict["target_energy"],
-                            target_acousticness=emotiondict["target_energy"],
-                            target_danceability=emotiondict["target_energy"],
-                            target_duration_ms=emotiondict["target_energy"],
-                            target_instrumentalness=emotiondict["target_energy"],
-                            target_liveness=emotiondict["target_energy"],
-                            target_loudness=emotiondict["target_energy"],
-                            target_mode=emotiondict["target_energy"],
-                            target_speechiness=emotiondict["target_energy"],
-                            target_tempo=emotiondict["target_energy"],
-                            target_valence=emotiondict["target_energy"],
+                            target_popularity=emotiondict["target_popularity"],
+                            target_acousticness=emotiondict["target_acousticness"],
+                            target_danceability=emotiondict["target_danceability"],
+                            target_duration_ms=emotiondict["target_duration_ms"],
+                            target_instrumentalness=emotiondict["target_instrumentalness"],
+                            target_liveness=emotiondict["target_liveness"],
+                            target_loudness=emotiondict["target_loudness"],
+                            target_mode=emotiondict["target_mode"],
+                            target_speechiness=emotiondict["target_speechiness"],
+                            target_tempo=emotiondict["target_tempo"],
+                            target_valence=emotiondict["target_valence"],
                             extraparameters = True)
