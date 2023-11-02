@@ -391,7 +391,7 @@ def statistics_short():
         return make_response(jsonify({'error': error_message}), 69)
 
 @app.route('/get_friends_recent_songs', methods=['POST'])
-def statistics():
+def get_friends_recent_songs():
     data = request.get_json()
     friend_ids = data.get('friend_ids')
     friend_songs = {}
