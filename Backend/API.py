@@ -28,7 +28,6 @@ from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
 run_connected = True
-spoof_songs = False
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
@@ -535,18 +534,7 @@ def playback():
                 return "Failed to reauthenticate token"
         print(f"Starting with filter {filter_search}!")
         
-        global spoof_songs
-        if (spoof_songs):
-            songs = []
-            songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
-            random_track = random.choice(songs)
-            track_uri = random_track['uri']
-        elif filter_search == "":
+        if filter_search == "":
             if user.stats.saved_songs is None:
                 user.update_saved_songs()
             songs = user.stats.saved_songs
@@ -565,6 +553,30 @@ def playback():
                 songs = user.stats.saved_songs
                 random_track = random.choice(songs)
                 track_uri = random_track['track']['uri']
+                
+        user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/games/random_friend', methods=['POST'])
+def random_friend():
+    data = request.get_json()
+    id_dict = data.get('friend_songs')
+    random_id = random.choice(list(id_dict.keys()))
+    return jsonify(random_id)
+
+@app.route('/games/playback_friends', methods=['POST'])
+def playback_friends():
+    data = request.get_json()
+    songs = data.get('songs')
+    timestamp_ms = 20000 #20 seconds playback
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        random_track = random.choice(songs)
+        track_uri = random_track['track']['uri']
                 
         user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
         return jsonify("Success!")
