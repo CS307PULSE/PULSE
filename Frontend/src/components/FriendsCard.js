@@ -2,11 +2,7 @@ import React from 'react';
 import Friend from './Friend'; 
 import styled from 'styled-components';
 import { Link } from "react-router-dom";
-
-import { pulseColors } from "../theme/Colors";
-import axios from "axios";
-
-import Colors from "../theme/Colors";
+import { useAppContext } from './Context';
 import TextSize from "../theme/TextSize";
 
 var textSizeSetting, themeSetting, friendData;
@@ -78,6 +74,7 @@ const Content = styled.div`
   text-transform: uppercase;
   padding: 16px;
 `;
+
 const StyledLink = styled(Link)`
   position: sticky;
   text-decoration: none; /* Remove underline */

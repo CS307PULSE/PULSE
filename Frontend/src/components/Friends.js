@@ -1,87 +1,61 @@
 import React, { useState } from "react";
 import Friend from './Friend';
 import Navbar from "./NavBar";
-import Colors from "../theme/Colors";
-import { Link } from "react-router-dom";
 import TextSize from "../theme/TextSize";
-import axios from "axios";
-
-var textSizeSetting, themeSetting, initialFriendData;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-try {
-  var friendResponse = await axios.get(
-    "http://127.0.0.1:5000/friends/get_friends",
-    { withCredentials: true }
-  );
-  initialFriendData = friendResponse.data;
-} catch (e) {
-  console.log("Friends fetch failed: " + e);
-  initialFriendData = [[]];
-}
-
-
-const themeColors = Colors(themeSetting); //Obtain color values
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
-
-const bodyStyle = {
-  backgroundColor: themeColors.background,
-  margin: 0,
-  padding: 0,
-  height: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-};
-
-const contentStyle = {
-  flex: 1, // Ensure content takes available space
-  padding: "16px",
-  overflow: "auto",
-};
-
-const buttonContainerStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  marginBottom: "16px",
-};
-
-const buttonStyle = {
-  backgroundColor: themeColors.background,
-  color: themeColors.text,
-  padding: "20px 40px", // Increase the padding for taller buttons
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: themeColors.text,
-  borderRadius: "10px",
-  cursor: "pointer",
-  margin: "5px",
-  width: "100%", // Adjust the width to take up the entire space available
-  textAlign: "center", // Center the text horizontally
-};
-
-const friendRowStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // Adjust column width as needed
-  gap: "10vw", // Adjust the gap between friends
-  marginBottom: "16px", // Add vertical space between rows
-};
-
+import { hexToRGBA } from "../theme/Colors";
+import { useAppContext } from "./Context";
 
 const Friends = () => {
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+  
+  const bodyStyle = {
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+    margin: 0,
+    padding: 0,
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  };
+
+  useEffect(() => {
+    document.title = "PULSE - Friends";
+  }, []);
+
+  const contentStyle = {
+    flex: 1, // Ensure content takes available space
+    padding: "16px",
+    overflow: "auto",
+  };
+
+  const buttonContainerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "16px",
+  };
+
+  const buttonStyle = {
+    backgroundColor: themeColors.background,
+    color: themeColors.text,
+    padding: "20px 40px", // Increase the padding for taller buttons
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: themeColors.text,
+    borderRadius: "10px",
+    cursor: "pointer",
+    margin: "5px",
+    width: "100%", // Adjust the width to take up the entire space available
+    textAlign: "center", // Center the text horizontally
+  };
+
+  const friendRowStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // Adjust column width as needed
+    gap: "10vw", // Adjust the gap between friends
+    marginBottom: "16px", // Add vertical space between rows
+  };
+
   const [friendsData, setFriendsData] = useState(initialFriendData); 
 
   async function removeFriend(spotify_id) {

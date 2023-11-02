@@ -1,10 +1,10 @@
 import "./App.css";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { AppContextProvider } from "./components/Context";
+
 import Login from "./components/Login";
 import Profile from "./components/Profile";
-//import EditProfile from "./components/EditProfile";
-
 import GuessTheSong from "./components/GuessTheSong";
 import GuessTheArtist from "./components/GuessTheArtist";
 import GuessTheLyric from "./components/GuessTheLyric";
@@ -21,6 +21,7 @@ import DJMixer from "./components/DJMixer";
 import PlaylistManager from "./components/PlaylistManager";
 import PlaylistRecommendation from "./components/PlaylistRecommendation";
 import SongRecommendations from "./components/SongRecommendation";
+import ParameterRecommendations from "./components/ParameterRecommendation";
 import HeadsUp from "./components/HeadsUp";
 
 import {
@@ -64,6 +65,7 @@ function App() {
     setLoginClicked(true);
   };
   return (
+    <AppContextProvider>
     <Router>
       <Routes>
         <Route
@@ -87,19 +89,17 @@ function App() {
         <Route path="/PulseBot" element={<ChatBot />} />
         <Route path="/games" element={<Games />} />
         <Route path="/DJmixer" element={<DJMixer />} />
+        <Route path="/DJmixer/SongRecommendation" element={<SongRecommendations />} />
+        <Route path="/DJmixer/ParameterRecommendation" element={<ParameterRecommendations />} />
         <Route path="/DJmixer/PlaylistRecommendation" element={<PlaylistRecommendation />} />
         <Route path="/DJmixer/PlaylistManager" element={<PlaylistManager />} />
-        
-        <Route
-          path="/DJmixer/SongRecommendation"
-          element={<SongRecommendations />}
-        />
         <Route path="/uploader" element={<Uploader />} />
         <Route path="/friends/addFriends" element={<AddFriends />} />
         <Route path="/friends/friendRequests" element={<FriendRequests />} />
         <Route path="/friends" element={<Friends />} />
       </Routes>
     </Router>
+    </AppContextProvider>
   );
 }
 

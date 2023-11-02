@@ -89,6 +89,12 @@ const DJMixer = () => {
       </div>
       <div style={buttonContainerStyle}>
         <Link
+          to="/DJmixer/ParameterRecommendation"
+          style={{ ...buttonStyle, textDecoration: "none" }}
+        >
+          Parameter Recommendation
+        </Link>
+        <Link
           to="/DJmixer/SongRecommendation"
           style={{ ...buttonStyle, textDecoration: "none" }}
         >
