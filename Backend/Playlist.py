@@ -3,7 +3,7 @@ import multiprocessing
 import time
 import User
 from Exceptions import ErrorHandler
-import Emotion
+from Emotion import Emotion
 import requests
 import base64
 import json
@@ -89,8 +89,10 @@ class Playlist:
     def playlist_recommendations(user, playlist, field):
         try:
             if field == "genres":
-                genres = Playlist.playlist_genre_analysis(user, playlist)
-                recommendations = user.get_recommendations(seed_genres = genres)
+                genresdict = Playlist.playlist_genre_analysis(user, playlist)
+                track=user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['id']
+                recommendations = Emotion.get_emotion_recommendations(user, genresdict, track=track)
+                print(recommendations)
             elif field == "aritsts":
                 artists = Playlist.playlist_artist_analysis(user, playlist)
                 recommendations = user.get_recommendations(seed_artists = artists)
@@ -103,12 +105,18 @@ class Playlist:
 
     def playlist_genre_analysis(user, playlist):
         try:
-            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 100)
-            genredict = Emotion.createnewemotion("genredict")
-            for song in analysis:
-                genredict = Emotion.update_and_average_dict(user, genredict, song)
-                print(genredict)
-            print(genredict)
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 20)
+            first_iteration = True    
+            genredict = None
+            for song in analysis['items']:
+                track = song['track']
+                print(track)
+                if first_iteration:
+                    genredict = Emotion.convert_track(user, track)
+                    first_iteration = False
+                else:
+                    genredict = Emotion.update_and_average_dict(user, genredict, track)
+            print("\n\n\nreturned\n\n\n")
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)

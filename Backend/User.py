@@ -357,7 +357,7 @@ class User:
                             extraparameters = False
                             ):
         try:
-            if(extraparameters):
+            if extraparameters:
                 recommendations = self.spotify_user.recommendations(seed_tracks=seed_tracks, 
                                                                     seed_artists=seed_artists, 
                                                                     seed_genres=seed_genres, 
