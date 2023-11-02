@@ -186,16 +186,20 @@ function Profile({testParameter}){
         window.location.reload();
     }
     async function saveUserSettings() {
+        const colorArray = [state.colorBackground, state.colorText, state.colorBorder, state.colorAccent];
+        const themesArray = [colorArray, [], [], [], []];
         const savePromises = [
-            saveUserField("http://127.0.0.1:5000/set_text_size", {text_size: state.settingTextSize})
+            saveUserField("http://127.0.0.1:5000/set_text_size", {text_size: state.settingTextSize}),
+            saveUserField("http://127.0.0.1:5000/profile/change_background", {background: state.backgroundImage}),
+            saveUserField("http://127.0.0.1:5000/profile/change_themes", {themes: themesArray})
         ]
         await Promise.all(savePromises);
         window.location.reload();
     }
     return(
-    <div class="wrapper">
-        <div class="header"><Navbar /></div>
-        <div class="content" style={bodyStyle}>
+    <div className="wrapper">
+        <div className="header"><Navbar /></div>
+        <div className="content" style={bodyStyle}>
             <div style={sectionContainerStyle}>
                 <p style={headerTextStyle}>Profile</p>
                 <div style={iconContainerStyle}>
@@ -278,11 +282,11 @@ function Profile({testParameter}){
                 </div>
                 <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Background</p>
                 <div style={buttonContainerStyle}>
-                    <button onClick={() => {updateBackgroundImage(null)}} style={buttonStyle}><p>Clear</p></button>
+                    <button onClick={() => {updateBackgroundImage("")}} style={buttonStyle}><p>Clear</p></button>
                 </div>
                 <div style={buttonContainerStyle}>
                 {customBackgrounds.map((item, index) => (
-                    <img style={backgroundOptionStyle} src={item} onClick={() => {updateBackgroundImage(item)}}></img>
+                    <img key={index} style={backgroundOptionStyle} src={item} onClick={() => {updateBackgroundImage(item)}}></img>
                 ))}
                 </div>
 
@@ -295,7 +299,7 @@ function Profile({testParameter}){
                 </div>
             </div>
         </div>
-        <div class="footer"><SongPlayer /></div>
+        <div className="footer"><SongPlayer /></div>
     </div>
   );
 }
