@@ -87,11 +87,6 @@ function Mainpage() {
     console.log(response);
     return data;
   }
-  
-  const handleChatbotClick = () => {
-    // Logic to open chatbot goes here
-    alert('Chatbot clicked!');
-  };
 
   function StatsCardComp() {
     //Data to display on stats card
