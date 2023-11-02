@@ -77,24 +77,24 @@ class Playlist:
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
-    def playlist_generate(self, user, playlist, genre):
+    def playlist_generate(user, playlist, genre):
         try:
             recommendations = user.spotify_user.get_recommendations(seed_genres = genre, max_items = 30)
             for song in recommendations:
-                self.add_track(user, playlist, song['id'])
+                Playlist.add_track(user, playlist, song['id'])
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
         
-    def playlist_recommendations(self, user, playlist, field):
+    def playlist_recommendations(user, playlist, field):
         try:
             if field == "genres":
-                genres = self.playlist_genre_analysis(user, playlist)
+                genres = Playlist.playlist_genre_analysis(user, playlist)
                 recommendations = user.spotify_user.get_recommendations(seed_genres = genres)
             elif field == "aritsts":
-                artists = self.playlist_artist_analysis(user, playlist)
+                artists = Playlist.playlist_artist_analysis(user, playlist)
                 recommendations = user.spotify_user.get_recommendations(seed_artists = artists)
             elif field == "albums":
-                albumtracks = self.playlist_album_analysis(user, playlist)
+                albumtracks = Playlist.playlist_album_analysis(user, playlist)
                 recommendations = user.spotify_user.get_recommendations(seed_tracks = albumtracks)
             return recommendations
         except spotipy.exceptions.SpotifyException as e:
