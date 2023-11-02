@@ -1630,14 +1630,17 @@ def pullsongs():
                     return "Failed to reauthenticate token"
         else:
             try:
-                playlistname = 'chatbot ' + playlistcounter
+                with DatabaseConnector(db_config) as conn:
+                    playlistcounter = conn.get_playlist_counter_from_base_stats_DB(user.spotify_id)
+                    conn.update_playlist_counter(user.spotify_id)
+                playlistname = 'chatbot ' + str(playlistcounter)
                 playlistid = Playlist.create_playlist(user, playlistname)['id']
                 for title in titles:
                     trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
                 Playlist.add_track(playlistid=playlistid, song=trackids)
             except Exception as e:
                 if (try_refresh(user, e)):
-                    playlistname = 'chatbot ' + playlistcounter
+                    playlistname = 'chatbot ' + str(playlistcounter)
                     playlistid = Playlist.create_playlist(user, playlistname)['id']
                     for title in titles:
                         trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
