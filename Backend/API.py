@@ -1599,7 +1599,6 @@ def get_requests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
-
 @app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
     if 'user' in session:
@@ -1614,7 +1613,21 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
-app.route('/chatbot/pull_songs', methods=['GET'])
+@app.route('/stats/emotion_percent', methods=['GET'])
+def emotion_percent():
+    if 'user' in session:
+        user_data = session['user']
+        data = request.get_json()
+        user = User.from_json(user_data) 
+        trackid = data.get('trackid')
+        popularity = data.get('popularity')
+        emotionarray = Emotion.get_percentage(user, trackid, popularity)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(emotionarray)
+
+@app.route('/chatbot/pull_songs', methods=['GET'])
 def pullsongs():
     if 'user' in session:
         user_data = session['user']
@@ -1625,7 +1638,7 @@ def pullsongs():
         # Split the string into an array using regular expressions
         titles = re.split(r'\d+\.', songlist)
         # Remove any leading or trailing whitespace from each item
-        titles = [item.strip() for item in items if item.strip()]
+        titles = [item.strip() for item in titles if item.strip()]
         # Display the resulting array
         trackids = []
         if len(titles) == 1:
@@ -1663,8 +1676,7 @@ def pullsongs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return "created playlist"
-
+    return "successful completion"
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
@@ -1674,7 +1686,6 @@ def feedback():
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
     return "Success"
-    
 
 @app.route('/test')
 def test():
