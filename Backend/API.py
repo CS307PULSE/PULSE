@@ -1524,7 +1524,7 @@ def getrequests():
     return json.dumps(jsonarray)
 
 @app.route('/playlist/get_recs', methods=['GET'])
-def getPlsylistRecs():
+def getPlaylistRecs():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
