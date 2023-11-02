@@ -96,7 +96,7 @@ class Emotion:
             value1 = dict1[param]
             value2 = dict2[param]
 
-            if param != "name":
+            if param != "name" and param != "target_duration_ms":
                 # Calculate the percentage difference
                 if abs(value1 + value2) == 0:
                     percentage_difference = 0
