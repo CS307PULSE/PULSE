@@ -228,8 +228,15 @@ class DatabaseConnector(object):
     
     # Returns the location from DB as a string.
     def get_location_from_user_DB(self, spotify_id, data = None):
-        sql = "SELECT location from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
+        sql_get_location_query = "SELECT location from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_location_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    
+    # Returns the playlist counter from DB as an int
+    def get_playlist_counter_from_base_stats_DB(self, spotify_id):
+        sql_get_playlist_counter_query = "SELECT playlist_counter from pulse.base_stats WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_playlist_counter_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
 
@@ -470,6 +477,23 @@ class DatabaseConnector(object):
         try:
             sql_update_location_query = """UPDATE pulse.users SET location = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_location_query, (new_location, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating location:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    #Increments playlist_counter by 1 for the given spotify ID    
+    def update_playlist_counter(self, spotify_id):
+        new_counter = self.get_playlist_counter_from_base_stats_DB(spotify_id) + 1
+        try:
+            sql_update_playlist_counter_query = """UPDATE pulse.base_stats SET playlist_counter = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_playlist_counter_query, (new_counter, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
