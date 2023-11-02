@@ -28,6 +28,7 @@
   padding: 20px;
   margin-top: 64px;
   margin-bottom: 60px;
+  position: relative;
   overflow: auto;
 }
 .footer {

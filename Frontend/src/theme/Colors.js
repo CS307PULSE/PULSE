@@ -9,7 +9,7 @@ export const hexToRGBA = (hexColor, alpha) => {
     const red = parseInt(hexColor.slice(1, 3), 16);
     const green = parseInt(hexColor.slice(3, 5), 16);
     const blue = parseInt(hexColor.slice(5, 7), 16);
-    return "rgba(" + red + ", " + blue + ", " + green + ", " + alpha + ")";
+    return "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
 }
 function Colors(colorSetting) {
     const themeColors = {

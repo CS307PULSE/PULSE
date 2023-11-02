@@ -1,78 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
-//import FriendsCard from "./FriendsCard";
-//import { Link } from "react-router-dom";
+import SongPlayer from "./SongPlayer";
 import axios from "axios";
 import { ImageGraph } from "./Graphs/ImageGraph";
-
-import Colors from "../theme/Colors";
+import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
 
-var textSizeSetting, themeSetting;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-const themeColors = Colors(themeSetting); //Obtain color values
 // eslint-disable-next-line no-unused-vars
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
-
-const bodyStyle = {
-  backgroundColor: themeColors.background,
-  margin: 0,
-  padding: 0,
-  height: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-};
-
-/*const friendContainerStyle = {
-  position: "fixed",
-  top: 100,
-  right: 0,
-  width: "20%",
-  height: "900",
-  backgroundColor: themeColors.background,
-};*/
-
-const buttonStyle = {
-  backgroundColor: themeColors.background,
-  color: themeColors.text,
-  padding: "20px 40px", // Increase the padding for taller buttons
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: themeColors.text,
-  borderRadius: "10px",
-  cursor: "pointer",
-  margin: "5px",
-  width: "100%", // Adjust the width to take up the entire space available
-  textAlign: "center", // Center the text horizontally
-};
-
-const searchContainerStyle = {
-  display: "flex",
-  marginLeft: "30px",
-  // justifyContent: 'center',
-  marginBottom: "20px",
-};
-
-const searchInputStyle = {
-  padding: "8px",
-  width: "75%",
-  display: "flex-grow",
-};
 
 async function sendAndFetchSongReqs(sentTrack) {
   const axiosInstance = axios.create({
@@ -102,6 +36,9 @@ async function sendSearchAndReturn(sendSerach) {
 }
 
 const SongRecommendation = () => {
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+
   const [recievedSearchData, setRecievedSearchData] = useState();
   const [recievedRecData, setRecievedRecData] = useState();
   const [searchValue, setSearchValue] = useState();
@@ -154,42 +91,66 @@ const SongRecommendation = () => {
     setSearchRecVal(e.target.value);
   };
 
-  return (
-    <div style={bodyStyle}>
-      <Navbar />
-      <div style={searchContainerStyle}>
-        <input
-          type="text"
-          placeholder="Search..."
-          style={searchInputStyle}
-          value={searchRecVal}
-          onChange={changeRecVal}
-        />
-        <button
-          style={{ ...buttonStyle, textDecoration: "none" }}
-          onClick={() => getRecommendations()}
-        >
-          Get Recommendations
-        </button>
-      </div>
-      {songRecs(recievedRecData)}
+  const bodyStyle = {
+    backgroundColor: state.colorBackground,
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
+  };
+  
+  /*const friendContainerStyle = {
+    position: "fixed",
+    top: 100,
+    right: 0,
+    width: "20%",
+    height: "900",
+    backgroundColor: themeColors.background,
+  };*/
+  
+  const buttonStyle = {
+    backgroundColor: state.colorBackground,
+    color: state.colorText,
+    padding: "20px 40px", // Increase the padding for taller buttons
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: state.colorBorder,
+    borderRadius: "10px",
+    cursor: "pointer",
+    margin: "5px",
+    width: "100%", // Adjust the width to take up the entire space available
+    textAlign: "center", // Center the text horizontally
+  };
+  
+  const searchContainerStyle = {
+    display: "flex",
+    marginLeft: "30px",
+    // justifyContent: 'center',
+    marginBottom: "20px",
+  };
+  
+  const searchInputStyle = {
+    padding: "8px",
+    width: "75%",
+    display: "flex-grow",
+  };
 
-      <div style={searchContainerStyle}>
-        <input
-          type="text"
-          placeholder="Search..."
-          style={searchInputStyle}
-          value={searchValue}
-          onChange={changeSearchValue}
-        />
-        <button
-          style={{ ...buttonStyle, textDecoration: "none" }}
-          onClick={() => getSearch()}
-        >
-          Search
-        </button>
+  return (
+    <div className="wrapper">
+      <div className="header"><Navbar /></div>
+      <div className="content" style={bodyStyle}>
+        <div style={searchContainerStyle}>
+          <input type="text" placeholder="Search..." style={searchInputStyle} value={searchRecVal} onChange={changeRecVal}/>
+          <button style={{ ...buttonStyle, textDecoration: "none" }} onClick={() => getRecommendations()}> Get Recommendations </button>
+        </div>
+        {songRecs(recievedRecData)}
+        <div style={searchContainerStyle}>
+          <input type="text" placeholder="Search..." style={searchInputStyle} value={searchValue} onChange={changeSearchValue}/>
+          <button style={{ ...buttonStyle, textDecoration: "none" }} onClick={() => getSearch()}>Search</button>
+        </div>
+        {songRecs(recievedSearchData)}
       </div>
-      {songRecs(recievedSearchData)}
+      <div className="footer"><SongPlayer /></div>
     </div>
   );
 };

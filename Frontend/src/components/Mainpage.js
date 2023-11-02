@@ -27,10 +27,12 @@ function Mainpage() {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-around",
-    width: "75%", // Set width to 75% of the container
+    overflow: "auto",
+    width: "75%",
+    height: "100%"
   };
   const cardStyle = {
-    marginBottom: "20px", // Add some bottom margin for spacing
+    margin: "20px", // Add some bottom margin for spacing
     padding: "20px",
     textAlign: "center",
     fontFamily: "'Poppins', sans-serif",
@@ -60,10 +62,10 @@ function Mainpage() {
   };
   const friendContainerStyle = {
     position: "fixed",
-    top: 100,
-    right: 0,
-    width: "20%",
-    height: "900",
+    top: "64px",
+    right: "0px",
+    bottom: "60px",
+    left: "80%",
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
   const searchContainerStyle = {
@@ -170,9 +172,9 @@ function Mainpage() {
   }, []);
 
   return (
-    <div class="wrapper">
-      <div class="header"><Navbar /></div>
-      <div class="content" style={bodyStyle}>
+    <div className="wrapper">
+      <div className="header"><Navbar /></div>
+      <div className="content" style={bodyStyle}>
         <div style={cardContainerStyle}>
           <Card headerText="STATISTICS" style={cardStyle}>
             {StatsCardComp()}
@@ -180,63 +182,20 @@ function Mainpage() {
           <Card headerText="DJ MIXER" style={cardStyle}>
             <p style={cardContent}>This is the content of Card 2.</p>
           </Card>
-        </div>
-        <div style={{ padding: "20px" }} />
-        <div style={cardContainerStyle}>
           <Card headerText="GAMES" style={cardStyle}>
             <p style={cardContent}>
               <div style={buttonContainerStyle}>
                 {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
-                <Link
-                  to="/game/guess-the-song"
-                  style={{
-                    ...buttonStyle,
-                    textDecoration: "none",
-                    textAlign: "center",
-                  }}
-                >
-                  GUESS THE SONG
-                </Link>
-                <Link
-                  to="/game/guess-the-artist"
-                  style={{
-                    ...buttonStyle,
-                    textDecoration: "none",
-                    textAlign: "center",
-                  }}
-                >
-                  GUESS THE ARTIST
-                </Link>
-                <Link
-                  to="/game/guess-who-listens"
-                  style={{
-                    ...buttonStyle,
-                    textDecoration: "none",
-                    textAlign: "center",
-                  }}
-                >
-                  GUESS WHO LISTENS TO THE SONG
-                </Link>
-                <Link
-                  to="/game/guess-the-lyric"
-                  style={{
-                    ...buttonStyle,
-                    textDecoration: "none",
-                    textAlign: "center",
-                  }}
-                >
-                  GUESS THE NEXT LYRIC
-                </Link>
-                <Link
-                  to="/game/heads-up"
-                  style={{
-                    ...buttonStyle,
-                    textDecoration: "none",
-                    textAlign: "center",
-                  }}
-                >
-                  HEADS UP
-                </Link>
+                <Link to="/game/guess-the-song" 
+                  style={{...buttonStyle, textDecoration: "none", textAlign: "center"}}>GUESS THE SONG</Link>
+                <Link to="/game/guess-the-artist" 
+                  style={{...buttonStyle, textDecoration: "none", textAlign: "center"}}>GUESS THE ARTIST</Link>
+                <Link to="/game/guess-who-listens" 
+                  style={{...buttonStyle, textDecoration: "none", textAlign: "center"}}>GUESS WHO LISTENS TO THE SONG</Link>
+                <Link to="/game/guess-the-lyric" 
+                  style={{...buttonStyle, textDecoration: "none", textAlign: "center"}}>GUESS THE NEXT LYRIC</Link>
+                <Link to="/game/heads-up" 
+                  style={{...buttonStyle, textDecoration: "none", textAlign: "center"}}>HEADS UP</Link>
               </div>
             </p>
           </Card>
@@ -250,7 +209,7 @@ function Mainpage() {
           <FriendsCard />
         </div>
       </div>
-      <div class="footer"><SongPlayer /></div>
+      <div className="footer"><SongPlayer /></div>
     </div>
   );
 }
