@@ -1074,6 +1074,34 @@ def set_saved_themes():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/profile/set_color_palette', methods=['POST'])
+def set_color_palette():
+    if 'user' in session:
+        data = request.get_json()
+        palette = data.get('color_palette')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palette(user.spotify_id, palette) == -1):
+                error_message = "palette has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Palette updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_color_palette', methods=['GET'])
+def get_color_palette():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palette_from_user_DB(user.spotify_id)
+    else:
+        response_data = 'User session not found. Please log in again.'
+    return jsonify(response_data)
+
 @app.route('/profile/get_displayname', methods=['GET'])
 def get_displayname():
     if 'user' in session:
