@@ -135,7 +135,7 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_color_palette_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         twod = string_to_array_row_by_col(self.resultset[0], 1, 4, False)
-        return [twod[0][0], twod[0][1], twod[0][2], twod[0][4]]
+        return [twod[0][0], twod[0][1], twod[0][2], twod[0][3]]
     
     # Returns the saved_themes from DB an 2D array with 5 rows and 5 columns.
     def get_saved_themes_from_user_DB(self, spotify_id,):
