@@ -58,7 +58,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'airplainfood@gmail.com'
 app.config['MAIL_PASSWORD'] = 'Flyingfludoodle12'
-app.config['MAIL_DEFAULT_SENDER'] = 'rheaasharma@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'airplainfood@gmail.com'
 mail = Mail(app)
 
 scopes = [
@@ -403,11 +403,11 @@ def get_friends_recent_songs():
     friend_ids = data.get('friend_ids')
     friend_songs = {}
     for friend_id in friend_ids.keys():
-        with DatabaseConnector(db_config) as conn:
-            user = conn.get_user_from_user_DB(spotify_id=friend_id)
-        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
-
         try:
+            with DatabaseConnector(db_config) as conn:
+                user = conn.get_user_from_user_DB(spotify_id=friend_id)
+            user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
+
             update_data(user,
                 update_recent_history=True,
                 update_top_songs=False,
@@ -421,6 +421,7 @@ def get_friends_recent_songs():
 
         except Exception as e:
             print(e)
+            return "error"
             friend_songs[friend_id] = {}
 
     return jsonify(friend_songs)
@@ -1744,7 +1745,6 @@ def playlist_unfollow():
     return "Playlist unfollowed!"
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
-
 def pull_songs():
     if 'user' in session:
         #return "gotHere"
@@ -1809,7 +1809,7 @@ def feedback():
 def send_feedback_email(feedback):
     try:
         msg = Message("New Feedback Submission", 
-                      recipients=["rheaasharma@gmail.com"])
+                      recipients=["airplainfood@gmail.com"])
         msg.body = f"New feedback received:\n\n{feedback}"
         mail.send(msg)
         print("Mail sent successfully.")
