@@ -1441,6 +1441,20 @@ def api_advanced_stats_test():
     else:
         return 'User session not found. Please log in again.'
 
+@app.route('/stats/emotion_percent', methods=['GET'])
+def emotion_percent():
+    if 'user' in session:
+        user_data = session['user']
+        data = request.get_json()
+        user = User.from_json(user_data) 
+        trackid = data.get('trackid')
+        popularity = data.get('popularity')
+        emotionarray = Emotion.get_percentage(user, trackid, popularity)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(emotionarray)
+
 @app.route('/friends/friend_request', methods=['POST'])
 def friend_requests():
     if 'user' in session:
@@ -1593,7 +1607,7 @@ def get_requests():
     return json.dumps(jsonarray)
 
 @app.route('/playlist/get_recs', methods=['POST'])
-def getPlaylistRecs():
+def get_playlist_recs():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
@@ -1606,23 +1620,123 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
-
-@app.route('/stats/emotion_percent', methods=['POST'])
-def emotion_percent():
+@app.route('/playlist/create', methods=['POST'])
+def playlist_create():
     if 'user' in session:
         user_data = session['user']
+        user = User.from_json(user_data)
         data = request.get_json()
-        user = User.from_json(user_data) 
-        trackid = data.get('trackid')
-        popularity = data.get('popularity')
-        emotionarray = Emotion.get_percentage(user, trackid, popularity)
+        name = data.get('name')
+        try_refresh(user)
+        Playlist.create_playlist(user=user, name=name)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return jsonify(emotionarray)
+    return "Created playlist!"
+
+@app.route('/playlist/get_tracks')
+def playlist_get_tracks():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlistid')
+        try_refresh(user)
+        response_data = Playlist.playlist_get_tracks(user=user, playlist=playlist)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/playlist/add_track', methods=['POST'])
+def playlist_add_track():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlistid')
+        song = data.get('song')
+        try_refresh(user)
+        Playlist.add_track(user=user, playlist=playlist, song=song)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Added track!"
+
+@app.route('/playlist/remove_track', methods=['POST'])
+def playlist_remove_track():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlist')
+        uri = data.get('uri')
+        try_refresh(user)
+        Playlist.track_remove(user=user, playlist=playlist, uri=uri)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Removed track!"
+
+@app.route('/playlist/change_image', methods=['POST'])
+def playlist_change_image():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlist')
+        url = data.get('url')
+        try_refresh(user)
+        Playlist.change_image(user=user, playlist=playlist, url=url)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Changed image!"
+
+@app.route('/playlist/reorder_tracks', methods=['POST'])
+def playlist_reorder_tracks():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlist')
+        try_refresh(user)
+        Playlist.track_reorder(user=user, playlist=playlist)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Reordered tracks!"
+
+@app.route('/playlist/follow', methods=['POST'])
+def playlist_follow():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlist')
+        try_refresh(user)
+        Playlist.playlist_follow(user=user, playlist=playlist)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Playlist followed!"
+
+@app.route('/playlist/unfollow', methods=['POST'])
+def playlist_unfollow():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlist')
+        try_refresh(user)
+        Playlist.playlist_unfollow(user=user, playlist=playlist)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Playlist unfollowed!"
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
-def pullsongs():
+def pull_songs():
     if 'user' in session:
         #return "gotHere"
         user_data = session['user']

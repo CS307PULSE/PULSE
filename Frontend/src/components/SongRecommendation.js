@@ -17,7 +17,6 @@ async function sendAndFetchSongReqs(sentTrack) {
     { track: sentTrack }
   );
   const data = response.data;
-  console.log(response);
   return data;
 }
 
@@ -30,7 +29,6 @@ async function sendSearchAndReturn(sendSerach) {
     { query: sendSerach }
   );
   const data = response.data;
-  console.log("Got");
   console.log(response);
   return data;
 }
@@ -49,7 +47,6 @@ const SongRecommendation = () => {
   }, []);
 
   function songRecs(recievedSongs) {
-    console.log(recievedSongs);
     if (recievedSongs !== undefined) {
       return <ImageGraph data={recievedSongs} dataName={"top_song"} />;
     } else {
@@ -62,6 +59,7 @@ const SongRecommendation = () => {
       console.log("searching for " + searchValue);
       sendSearchAndReturn(searchValue).then((data) => {
         if (data !== null && data !== undefined) {
+          console.log(data);
           setRecievedSearchData(data);
         }
       });
