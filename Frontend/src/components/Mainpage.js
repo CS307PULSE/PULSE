@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
+import Uploader from "./Uploader";
 import SongPlayer from "./SongPlayer";
 import { useAppContext } from "./Context"
 import StatsCard from "./StatsCard";
@@ -200,7 +201,7 @@ function Mainpage() {
             </p>
           </Card>
           <Card headerText="UPLOADER" style={cardStyle}>
-            <p style={cardContent}>ENTER LOCAL FILE PATH:</p>
+            <Uploader />
           </Card>
         </div>
         {/* Define routes for each game */}

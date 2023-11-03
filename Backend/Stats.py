@@ -291,7 +291,7 @@ class Stats:
         SONGS_TO_API_DATA_MAP = self.populate_song_data_map(uris=list(set(SONG_IDS)), token=token, more_data=more_data)
         EPISODES_TO_API_DATA_MAP = self.populate_episode_data_map(uris=list(set(EPISODE_IDS)), token=token, more_data=more_data)
 
-        if (ADVANCED_STATS_DATA is None):
+        if (ADVANCED_STATS_DATA is None or ADVANCED_STATS_DATA == {}):
             ADVANCED_STATS_DATA = {
                 "Metadata"                          :   {
                     "Number of Files"               :   0,
@@ -1151,7 +1151,7 @@ class Stats:
         for chunk in uri_chunks:
             try:
                 artist_data = self.get_artist_data(chunk, token).get('artists', {})
-
+    
                 for artist in artist_data:
                     if artist is None: artist = {}
                     uri = artist.get('uri', "Unknown:").split(":")[-1]
