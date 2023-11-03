@@ -1740,7 +1740,6 @@ def playlist_unfollow():
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
 def pull_songs():
-def pull_songs():
     if 'user' in session:
         #return "gotHere"
         user_data = session['user']
