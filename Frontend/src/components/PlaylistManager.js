@@ -186,7 +186,7 @@ const PlaylistManager = () => {
             <p style={headerTextStyle}>Selected Playlist: {playlists.length > 0 ? playlists[selectedPlaylistIndex].name : "None"}</p>
             <div style={buttonContainerStyle}>
                 <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
-                <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>Update Icon (.jpeg)</button>
+                <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>
             </div>
             <div style={buttonContainerStyle}>
                 <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button>

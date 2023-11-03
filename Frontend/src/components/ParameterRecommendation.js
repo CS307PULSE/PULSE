@@ -20,15 +20,20 @@ const ParameterRecommendations = () => {
     const [derivedEmotionName, setDerivedEmotionName] = useState("New Derived Emotion");
 
     function updateParameter(newValue, index) {
-        setSelectedEmotionIndex(-1);
+        if(selectedEmotionIndex >= 0) {
+            setSelectedEmotionIndex(-1);
+            setNewEmotionName(newEmotionName + " (edited)");
+        }
         var updatedValues = [...parameters];
         updatedValues[index] = newValue;
         setParameters(updatedValues);
     };
     function retrieveEmotion(index) {
         setSelectedEmotionIndex(index);
+        setNewEmotionName("New Emotion");
         try {
             if (index >= 0) {
+                setNewEmotionName(emotions[index].name);
                 setParameters(emotions[index].parameters);
             }
         } catch (e) {
@@ -166,6 +171,10 @@ const ParameterRecommendations = () => {
             <div style={{display: "flex"}}>
             <div>
                 <div style={sectionContainerStyle}>
+                    <div style={buttonContainerStyle}>
+                        <label style={textStyle}>Emotion Name</label>
+                        <input id="emotion-name" type="text" style={buttonStyle} value={newEmotionName} onChange={e => {setNewEmotionName(e.target.value)}}></input>
+                    </div>
                     <div style={{...buttonContainerStyle, width: "100%"}}>
                         <select style={buttonStyle} id="selectEmotion" value={selectedEmotionIndex} onChange={(e) => {retrieveEmotion(e.target.value)}}>
                             <option key={-1} value={-1}>Custom Emotion</option>
@@ -175,7 +184,7 @@ const ParameterRecommendations = () => {
                                 </option>
                             ))}
                         </select>
-                        <button onClick={() => {createEmotion("new one", parameters)}} style={buttonStyle}><p>Create</p></button>
+                        <button onClick={() => {createEmotion(newEmotionName, parameters)}} style={buttonStyle}><p>Create</p></button>
                         <button onClick={() => {deleteEmotion(selectedEmotionIndex)}} style={buttonStyle}><p>Delete</p></button>
                     </div>
                     {parameterInfo.map((item, index) => (
