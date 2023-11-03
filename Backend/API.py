@@ -1289,6 +1289,7 @@ def store_advanced_stats():
         if (conn.update_advanced_stats(id, DATA) == -1):
             error_message = "Advanced stats has not been stored!"
             return make_response(jsonify({'error': error_message}), 6969)
+    return "Stored!"
 
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():

@@ -63,7 +63,8 @@ const buttonStyle = {
 
 //TODO put array into response 
 async function sendFilepaths(filepaths) {
-  console.log("sending filepaths")
+  console.log("sending filepaths");
+  console.log(filepaths);
   const axiosInstance = axios.create({
     withCredentials: true,
   });
@@ -72,7 +73,8 @@ async function sendFilepaths(filepaths) {
     { filepaths : filepaths }
   );
   const data = response.data;
-  console.log("DATA:" + data);
+  console.log("DATA:");
+  console.log(response);
   return data;
 }
 
@@ -85,6 +87,9 @@ const Uploader = () => {
   const [filepaths, setFilepaths] = useState([""]);
   const [hasDataInDB, setHasDataInDB] = useState(hasDataInDBInitial);
   const [inputValue, setInputValue] = useState("");
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadedData, setLoadedData] = useState(null);
+  const [triedToLoadData, setTriedToLoadData] = useState(null);
 
 
 
@@ -107,17 +112,40 @@ const Uploader = () => {
     }
   }
 
-  const doneTypingPaths = () => {
+  async function doneTypingPaths() {
+    setLoadingData(true);
+    setTriedToLoadData(true);
+    var test = !(await sendFilepaths(filepaths));
+    console.log("HERE");
+    setFilepaths([]);
+    if (!test) {
+      setLoadingData(false);
+      setLoadedData(false);
+    } else {
+      setLoadingData(false);
+      setLoadedData(true);
+    }
+  }
+
+    /*
     setHasData(true);
-    if (!sendFilepaths(filepaths)) {
+    console.log(loadingData);
+    console.log(loadedData);
+    if (!loadingData && loadedData === null)
+      console.log("1");
+      setLoadedData(!sendFilepaths(filepaths));
+      setLoadingData(true);
+    if (loadedData) {
+      console.log("2");
       setFilepaths([]);
       setHasDataInDB(true);
-    } else {
+    } else if (!loadedData && loadedData !== null) {
+      console.log("3");
       setFilepaths([]);
       setHasDataInDB(false);
       alert("One or more of the filepaths you entered do not work. Please try again")
     }
-  }
+    */
 
 
 //___________________________________________________________________________________
@@ -143,6 +171,24 @@ const Uploader = () => {
           <button onClick={() => setHasData(true)}>I have my data</button>
         </div>
       );
+    }
+  }
+
+  function uploadingCheck() {
+    if (loadingData && triedToLoadData) {
+      return <p>Loading data. Please stay on the page</p>
+    } else if (!loadingData && !loadedData && triedToLoadData){
+      setTriedToLoadData(false);
+      setLoadedData(false);
+      setLoadingData(false);
+      setFilepaths([]);
+      alert("One or more of the filepaths you entered do not work. Please try again");
+      return
+    } else if (loadedData) {
+      setHasDataInDB(true);
+      return
+    } else if (triedToLoadData) {
+      return
     }
   }
 
@@ -177,6 +223,7 @@ const Uploader = () => {
     <div style={bodyStyle}>
     {generateInstructions(hasData)}
     {uploadFiles(hasData)}
+    {uploadingCheck()}
     </div>
   );
 };
