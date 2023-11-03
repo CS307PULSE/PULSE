@@ -206,8 +206,10 @@ const PlaylistRecommendation = () => {
     if (finishedPullingData && selectedPlaylistID !== undefined && selectedPlaylistID !== null) {
     getSongRecommendations(selectedPlaylistID, selectedRecMethod).then((data) => {
       console.log("DATA: "+ data);
-      if (data !== null && data !== undefined) {
+      if (data !== null && data !== undefined && data[1] !== "") {
         setSongRecs(data);
+      } if (data[1] === "") {
+        console.log("Your data is so empty man ):")
       }
     });
     return (

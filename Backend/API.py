@@ -1614,11 +1614,11 @@ def get_playlist_recs():
         data = request.get_json()
         field = data.get('selectedRecMethod')
         playlist_id = data.get('selectedPlaylistID')
-        songarray = Playlist.playlist_recommendations(user, playlist_id, field)
+        song_array = Playlist.playlist_recommendations(user, playlist_id, field)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return json.dumps(songarray)
+    return json.dumps(song_array)
 
 @app.route('/playlist/create', methods=['POST'])
 def playlist_create():
@@ -1740,6 +1740,7 @@ def playlist_unfollow():
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
 def pull_songs():
+def pull_songs():
     if 'user' in session:
         #return "gotHere"
         user_data = session['user']
@@ -1751,12 +1752,7 @@ def pull_songs():
             return "empty data"
         playlistcounter = 0
         if len(songlist) == 0 :
-            return "empty data"    
-        # Split the string into an array using regular expressions
-        #titles = re.split(r'\d+\.', songlist)
-        # Remove any leading or trailing whitespace from each item
-        #titles = [item.strip() for item in titles if item.strip()]
-        # Display the resulting array
+            return "empty data"
         trackids = []
         if len(songlist) == 1:
             try:
@@ -1799,7 +1795,6 @@ def pull_songs():
 def feedback():
     data = request.get_json()
     feedback = data.get('feedback')
-    print("1")
     with DatabaseConnector(db_config) as conn:
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
