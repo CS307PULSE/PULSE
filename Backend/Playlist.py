@@ -44,7 +44,7 @@ class Playlist:
 
     def create_playlist(user, name, public = True, collaborative = False, description = ''):
         try:
-            user.spotify_user.user_playlist_create(user.spotify_id, name, public, collaborative, description)
+            return user.spotify_user.user_playlist_create(user.spotify_id, name, public, collaborative, description)
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
     

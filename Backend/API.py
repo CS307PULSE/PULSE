@@ -1616,6 +1616,7 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
+
 @app.route('/stats/emotion_percent', methods=['GET'])
 def emotion_percent():
     if 'user' in session:
@@ -1630,30 +1631,32 @@ def emotion_percent():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(emotionarray)
 
+
 @app.route('/chatbot/pull_songs', methods=['POST'])
 def pullsongs():
     if 'user' in session:
+        #return "gotHere"
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
         songlist = data.get('songlist')
         playlistcounter = 0    
         # Split the string into an array using regular expressions
-        titles = re.split(r'\d+\.', songlist)
+        #titles = re.split(r'\d+\.', songlist)
         # Remove any leading or trailing whitespace from each item
-        titles = [item.strip() for item in titles if item.strip()]
+        #titles = [item.strip() for item in titles if item.strip()]
         # Display the resulting array
         trackids = []
-        if len(titles) == 1:
+        if len(songlist) == 1:
             try:
-                results = user.search_for_items(max_items=1, items_type="track", query=titles[0])
+                results = user.search_for_items(max_items=1, items_type="track", query=songlist[0])
                 player = Playback(user)
-                song_uri = results[0]['id']
+                song_uri = results[0]['uri']
                 player.select_song(song=[song_uri])
             except Exception as e:
                 if (try_refresh(user, e)):
                     player = Playback(user)
-                    song_uri = results[0]['id']
+                    song_uri = results[0]['uri']
                     player.select_song(song=[song_uri])
                 else:
                     return "Failed to reauthenticate token"
@@ -1664,16 +1667,16 @@ def pullsongs():
                     conn.update_playlist_counter(user.spotify_id)
                 playlistname = 'chatbot ' + str(playlistcounter)
                 playlistid = Playlist.create_playlist(user, playlistname)['id']
-                for title in titles:
-                    trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
-                Playlist.add_track(playlistid=playlistid, song=trackids)
+                for title in songlist:
+                    trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)[0]['uri']) 
+                Playlist.add_track(user, playlistid=playlistid, song=trackids)
             except Exception as e:
                 if (try_refresh(user, e)):
                     playlistname = 'chatbot ' + str(playlistcounter)
                     playlistid = Playlist.create_playlist(user, playlistname)['id']
-                    for title in titles:
-                        trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)['id']) 
-                    Playlist.add_track(playlistid=playlistid, song=trackids)
+                    for title in songlist:
+                        trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)[0]['uri']) 
+                    Playlist.add_track(user, playlistid=playlistid, song=trackids)
                 else:
                     return "Failed to reauthenticate token"
     else:
@@ -1685,6 +1688,7 @@ def pullsongs():
 def feedback():
     data = request.get_json()
     feedback = data.get('feedback')
+    print("1")
     with DatabaseConnector(db_config) as conn:
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
