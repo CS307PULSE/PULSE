@@ -13,7 +13,7 @@ const PlaylistManager = () => {
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const [playlists, setPlaylists] = useState([]);
-  const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(0);
+  const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(-1);
   const [songSearchString, setSongSearchString] = useState("");
   const [songSearchResults, setSongSearchResults] = useState([]);
   const [playlistSongs, setPlaylistSongs] = useState([]);
@@ -211,7 +211,7 @@ const PlaylistManager = () => {
         </div>
         <div>
           <div style={{...sectionContainerStyle, height: "400px"}}>
-            <p style={headerTextStyle}>Selected Playlist: {playlists.length > 0 ? playlists[selectedPlaylistIndex].name : "None"}</p>
+            <p style={headerTextStyle}>Selected Playlist: {playlists[selectedPlaylistIndex] ? playlists[selectedPlaylistIndex].name : "None"}</p>
             <div style={buttonContainerStyle}>
                 <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
                 <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>

@@ -65,7 +65,11 @@ export const AppContextProvider = ({ children }) => {
         dispatch({type: 'UPDATE_SAVED_THEMES', payload: await getUserField('http://127.0.0.1:5000/profile/get_saved_themes')});
     }
     useEffect(() => {
-        fetchContextData();
+        try {
+            fetchContextData();
+        } catch (e) {
+            console.error("Error fetching context: " + e);
+        }
     }, []);
 
     return (

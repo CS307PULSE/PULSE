@@ -20,6 +20,7 @@ const ParameterRecommendations = () => {
     const [emotionName, setEmotionName] = useState("New Emotion");
     const [derivedEmotionName, setDerivedEmotionName] = useState("New Derived Emotion");
     const [genreSelection, setGenreSelection] = useState(genreList[0]);
+    const [songRecommendations, setSongRecommendations] = useState([]);
 
     function updateParameter(newValue, index) {
         var updatedValues = [...parameters];
@@ -74,7 +75,14 @@ const ParameterRecommendations = () => {
             console.error("Error deleting  emotion: " + e);
         }
     }
-    
+    function getSongImage(track) {
+        const image = track.album.images[0];
+        if (image) {
+          return image.url;
+        } else {
+          return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
+        }
+      }
     async function getPlaylists() {
         const axiosInstance = axios.create({withCredentials: true});
         var response = await axiosInstance.get("http://127.0.0.1:5000/get_saved_playlists");
@@ -104,12 +112,28 @@ const ParameterRecommendations = () => {
     async function derivePlaylistEmotion(playlistID) {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_playlist_dict", {playlist: playlistID});
-        console.log(response.data);
+        const data = response.data;
+        const newParameters = [
+            data.target_energy,
+            data.target_popularity,
+            data.target_acousticness,
+            data.target_danceability,
+            data.target_duration_ms / 60000,
+            data.target_instrumentalness,
+            data.target_liveness,
+            data.target_loudness,
+            data.target_mode,
+            data.target_speechiness,
+            data.target_tempo,
+            data.target_valence
+        ]
+        setParameters(newParameters);
+        console.log(newParameters);
     }
     async function getEmotionRecommendations(name, parameters, genre) {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
-        console.log(response.data);
+        setSongRecommendations(response.data);
     }
     
     const bodyStyle = {
@@ -232,7 +256,7 @@ const ParameterRecommendations = () => {
                 </div>
             </div>
             <div>
-                <div style={sectionContainerStyle}>
+                <div style={{...sectionContainerStyle, height: "400px"}}>
                     <div style={buttonContainerStyle}>
                         <label style={textStyle}>Genre </label>
                         <select style={buttonStyle} value={genreSelection} onChange={(e) => setGenreSelection(e.target.value)}>
@@ -246,6 +270,14 @@ const ParameterRecommendations = () => {
                             getEmotionRecommendations(emotionName, parameters, genreSelection)
                         }}>Get [{emotionName}] Recommendations from [{genreSelection}]</button>
                     </div>
+                    {songRecommendations.length > 0 && songRecommendations.map((item, index) => (
+                        <div key={index} style={selectionDisplayStyle}>
+                            <img style={imageStyle} src={getSongImage(item)}></img>
+                            <div>
+                                <p style={textStyle}>{item.name}</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
                 <div style={{...sectionContainerStyle, height: "400px"}}>
                     <div style={buttonContainerStyle}>

@@ -1867,7 +1867,7 @@ def get_playlist_dict():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(playlist_dict)
     
-@app.route('/recommendations/get_songs_from_dict')
+@app.route('/recommendations/get_songs_from_dict', methods=['POST'])
 def get_songs_dict():
     if 'user' in session:
         user_data = session['user']
@@ -1901,12 +1901,14 @@ def analyze_emotions():
         user = User.from_json(user_data) 
         data = request.get_json()
         playlist = data['playlist']
+        emotion = [0] * 11  # Creates an array with 11 zeros
         playlist_dict = Playlist.playlist_genre_analysis(user, playlist)
-        playlist_dict = list(playlist_dict.values())
+        for i, key in enumerate(playlist_dict.keys()):
+            emotion[i] = round(playlist_dict[key], 2)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return jsonify(playlist_dict)
+    return jsonify(emotion)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
