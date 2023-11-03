@@ -1897,18 +1897,8 @@ def analyze_emotions():
         playlist = data['playlist']
         emotion = [0] * 11  # Creates an array with 11 zeros
         playlist_dict = Playlist.playlist_genre_analysis(user, playlist)
-        emotion[0] = playlist_dict["target_energy"]
-        emotion[1] = playlist_dict["target_popularity"] 
-        emotion[2] = playlist_dict["target_acousticness"]
-        emotion[3] = playlist_dict["target_danceability"] 
-        emotion[4] = playlist_dict["target_duration_ms"] 
-        emotion[5] = playlist_dict["target_instrumentalness"]
-        emotion[6] = playlist_dict["target_liveness"] 
-        emotion[7] = playlist_dict["target_loudness"] 
-        emotion[8] = playlist_dict["target_mode"] 
-        emotion[9] = playlist_dict["target_speechiness"] 
-        emotion[10] = playlist_dict["target_tempo"] 
-        emotion[11] = playlist_dict["target_valence"] 
+        for i, key in enumerate(playlist_dict.keys()):
+            emotion[i] = round(playlist_dict[key], 2)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
