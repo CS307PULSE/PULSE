@@ -106,8 +106,10 @@ const ParameterRecommendations = () => {
         const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_playlist_dict", {playlist: playlistID});
         console.log(response.data);
     }
-    async function getEmotionRecommendations(parameters, genre) {
-        
+    async function getEmotionRecommendations(name, parameters, genre) {
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
+        console.log(response.data);
     }
     
     const bodyStyle = {
@@ -240,7 +242,9 @@ const ParameterRecommendations = () => {
                         </select>
                     </div>
                     <div style={buttonContainerStyle}>
-                        <button style={buttonStyle} onClick={() => {}}>Get [{emotionName}] Recommendations from [{genreSelection}]</button>
+                        <button style={buttonStyle} onClick={() => {
+                            getEmotionRecommendations(emotionName, parameters, genreSelection)
+                        }}>Get [{emotionName}] Recommendations from [{genreSelection}]</button>
                     </div>
                 </div>
                 <div style={{...sectionContainerStyle, height: "400px"}}>
