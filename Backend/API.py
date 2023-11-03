@@ -1280,10 +1280,12 @@ def friend_get_advanced_stats():
     return jsonify(response_data)
 
 def get_emotions(user, tracks):
+    return None
     emotions = {}
     for track_uri in tracks.keys():
-        if "spotify:episode:" in track_uri:
+        if "spotify:track:" in track_uri:
             uri = track_uri.split(":")[-1]
+            try_refresh(user)
             emotion = Emotion.find_song_emotion(user, uri)
             if emotion is not None:
                 if emotion not in emotions.keys():
@@ -1293,7 +1295,7 @@ def get_emotions(user, tracks):
     total = 0
     for emotion in emotions.keys():
         if emotion != "undefined":
-            total += emotions['emotion']
+            total += emotions[emotion]
     
     if total == 0:
         total = 1
@@ -1628,7 +1630,7 @@ def get_playlist_recs():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(song_array)
 
-@app.route('/stats/emotion_percent', methods=['GET'])
+@app.route('/stats/emotion_percent', methods=['POST'])
 def emotion_percent():
     if 'user' in session:
         try:

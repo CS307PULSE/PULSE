@@ -170,9 +170,9 @@ class Emotion:
         song_dict = Emotion.convert_track(user, song, popularity)
         if song_dict is None:
             return None
-        happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
-        angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)
-        saddistance = Emotion.calculate_total_distance(Emotion.getsad, song_dict)
+        happydistance = Emotion.calculate_total_distance(Emotion.gethappy(), song_dict)
+        angrydistance = Emotion.calculate_total_distance(Emotion.getangry(), song_dict)
+        saddistance = Emotion.calculate_total_distance(Emotion.getsad(), song_dict)
         lowest = min(happydistance, angrydistance, saddistance)
         if(lowest == happydistance):
             return "happy"
