@@ -1628,7 +1628,9 @@ def pullsongs():
             songlist = data.get('songlist')
         except Exception as e:
             return "empty data"
-        playlistcounter = 0    
+        playlistcounter = 0
+        if len(songlist) == 0 :
+            return "empty data"    
         # Split the string into an array using regular expressions
         #titles = re.split(r'\d+\.', songlist)
         # Remove any leading or trailing whitespace from each item
