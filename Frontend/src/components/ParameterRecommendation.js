@@ -112,13 +112,28 @@ const ParameterRecommendations = () => {
     async function derivePlaylistEmotion(playlistID) {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_playlist_dict", {playlist: playlistID});
-        console.log(response.data);
+        const data = response.data;
+        const newParameters = [
+            data.target_energy,
+            data.target_popularity,
+            data.target_acousticness,
+            data.target_danceability,
+            data.target_duration_ms / 60000,
+            data.target_instrumentalness,
+            data.target_liveness,
+            data.target_loudness,
+            data.target_mode,
+            data.target_speechiness,
+            data.target_tempo,
+            data.target_valence
+        ]
+        setParameters(newParameters);
+        console.log(newParameters);
     }
     async function getEmotionRecommendations(name, parameters, genre) {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
         setSongRecommendations(response.data);
-        console.log(response.data);
     }
     
     const bodyStyle = {
