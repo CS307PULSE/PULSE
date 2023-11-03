@@ -17,6 +17,7 @@ import axios from "axios";
 import tempBasicData from "./TempData/BasicStats.js";
 import tempAdvancedData from "./TempData/AdvancedStats";
 import defaultLayout from "./TempData/defaultLayout";
+import TextGraph from "./Graphs/TextGraph.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -36,6 +37,25 @@ async function fetchBasicFriendData(spotify_id) {
   const data = response.data;
   console.log(response);
   return data;
+}
+
+async function fetchAdvancedFriendData(spotify_id) {
+  try {
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    const response = await axiosInstance.post(
+      "http://127.0.0.1:5000/friend_get_advanced_stats",
+      {
+        id: spotify_id,
+      }
+    );
+    const data = response.data;
+    console.log(response);
+    return data;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function fetchAdvancedData() {
@@ -367,20 +387,42 @@ export default function GraphGrid() {
         !friendDatas.some((element) => element.id === newGraphData.friendID)
       ) {
         setFriendDataUpdated(false);
-        fetchBasicFriendData(newGraphData.friendID).then((friendData) => {
-          setFriendDatas([
-            ...friendDatas,
-            {
-              id: newGraphData.friendID,
-              name: newGraphData.friendName,
-              data: friendData,
-            },
-          ]);
-          setFriendDataUpdated(true);
+        fetchBasicFriendData(newGraphData.friendID).then((basicFriendData) => {
+          fetchAdvancedFriendData(newGraphData.friendID).then(
+            (advancedFriendData) => {
+              if (advancedFriendData !== null) {
+                setFriendDatas([
+                  ...friendDatas,
+                  {
+                    id: newGraphData.friendID,
+                    name: newGraphData.friendName,
+                    basicData: basicFriendData,
+                    advancedData: advancedFriendData,
+                  },
+                ]);
+              } else {
+                alert(
+                  "Page failed fetching friend advanced data - loading backup advanced data"
+                );
+                console.log(
+                  "Page failed fetching friend advanced data - loading backup advanced data"
+                );
+                setFriendDatas([
+                  ...friendDatas,
+                  {
+                    id: newGraphData.friendID,
+                    name: newGraphData.friendName,
+                    basicData: basicFriendData,
+                    advancedData: advancedData,
+                  },
+                ]);
+              }
+              setFriendDataUpdated(true);
+            }
+          );
         });
       }
     }
-
     console.log("New Layout item added:");
     console.log(newGraph);
     AddContainer(newGraph);
@@ -423,71 +465,83 @@ export default function GraphGrid() {
                 case "4week":
                   return [
                     topSongs[0],
-                    friendDatas[friendIndex].data.top_songs[0],
+                    friendDatas[friendIndex].basicData.top_songs[0],
                   ];
                 case "6month":
                   return [
                     topSongs[1],
-                    friendDatas[friendIndex].data.top_songs[2],
+                    friendDatas[friendIndex].basicData.top_songs[2],
                   ];
                 case "all":
                   return [
                     topSongs[1],
-                    friendDatas[friendIndex].data.top_songs[2],
+                    friendDatas[friendIndex].basicData.top_songs[2],
                   ];
                 default:
-                  return [topSongs, friendDatas[friendIndex].data.top_songs];
+                  return [
+                    topSongs,
+                    friendDatas[friendIndex].basicData.top_songs,
+                  ];
               }
             case "top_artists":
               switch (props.timeRange) {
                 case "4week":
                   return [
                     topArtists[0],
-                    friendDatas[friendIndex].data.top_artists[0],
+                    friendDatas[friendIndex].basicData.top_artists[0],
                   ];
                 case "6month":
                   return [
                     topArtists[1],
-                    friendDatas[friendIndex].data.top_artists[1],
+                    friendDatas[friendIndex].basicData.top_artists[1],
                   ];
                 case "all":
                   return [
                     topArtists[2],
-                    friendDatas[friendIndex].data.top_artists[2],
+                    friendDatas[friendIndex].basicData.top_artists[2],
                   ];
                 default:
                   return [
                     topArtists,
-                    friendDatas[friendIndex].data.top_artists,
+                    friendDatas[friendIndex].basicData.top_artists,
                   ];
               }
             case "followers":
-              return [followers, friendDatas[friendIndex].data.follower_data];
+              return [
+                followers,
+                friendDatas[friendIndex].basicData.follower_data,
+              ];
             case "recent_songs":
               return [
                 recentSongs,
-                friendDatas[friendIndex].data.recent_history,
+                friendDatas[friendIndex].basicData.recent_history,
               ];
             case "saved_songs":
-              return [savedSongs, friendDatas[friendIndex].data.saved_songs];
+              return [
+                savedSongs,
+                friendDatas[friendIndex].basicData.saved_songs,
+              ];
             case "saved_albums":
-              return [savedAlbums, friendDatas[friendIndex].data.saved_albums];
+              return [
+                savedAlbums,
+                friendDatas[friendIndex].basicData.saved_albums,
+              ];
             case "saved_playlists":
               return [
                 savedPlaylists,
-                friendDatas[friendIndex].data.saved_playlists,
+                friendDatas[friendIndex].basicData.saved_playlists,
               ];
             case "followed_artists":
               return [
                 followedArtists,
-                friendDatas[friendIndex].data.followed_artists,
+                friendDatas[friendIndex].basicData.followed_artists,
               ];
             case "numMinutes":
             case "percentTimes":
             case "percentTimePeriod":
             case "numTimesSkipped":
             case "emotion":
-              return advancedData;
+              return [advancedData, friendDatas[friendIndex].advancedData];
             default:
               return null;
           }
@@ -496,43 +550,43 @@ export default function GraphGrid() {
             case "top_songs":
               switch (props.timeRange) {
                 case "4week":
-                  return friendDatas[friendIndex].data.top_songs[0];
+                  return friendDatas[friendIndex].basicData.top_songs[0];
                 case "6month":
-                  return friendDatas[friendIndex].data.top_songs[1];
+                  return friendDatas[friendIndex].basicData.top_songs[1];
                 case "all":
-                  return friendDatas[friendIndex].data.top_songs[2];
+                  return friendDatas[friendIndex].basicData.top_songs[2];
                 default:
-                  return friendDatas[friendIndex].data.top_songs;
+                  return friendDatas[friendIndex].basicData.top_songs;
               }
             case "top_artists":
               switch (props.timeRange) {
                 case "4week":
-                  return friendDatas[friendIndex].data.top_artists[0];
+                  return friendDatas[friendIndex].basicData.top_artists[0];
                 case "6month":
-                  return friendDatas[friendIndex].data.top_artists[1];
+                  return friendDatas[friendIndex].basicData.top_artists[1];
                 case "all":
-                  return friendDatas[friendIndex].data.top_artists[2];
+                  return friendDatas[friendIndex].basicData.top_artists[2];
                 default:
-                  return friendDatas[friendIndex].data.top_artists;
+                  return friendDatas[friendIndex].basicData.top_artists;
               }
             case "followers":
-              return friendDatas[friendIndex].data.follower_data;
+              return friendDatas[friendIndex].basicData.follower_data;
             case "recent_songs":
-              return friendDatas[friendIndex].data.recent_history;
+              return friendDatas[friendIndex].basicData.recent_history;
             case "saved_songs":
-              return friendDatas[friendIndex].data.saved_songs;
+              return friendDatas[friendIndex].basicData.saved_songs;
             case "saved_albums":
-              return friendDatas[friendIndex].data.saved_albums;
+              return friendDatas[friendIndex].basicData.saved_albums;
             case "saved_playlists":
-              return friendDatas[friendIndex].data.saved_playlists;
+              return friendDatas[friendIndex].basicData.saved_playlists;
             case "followed_artists":
-              return friendDatas[friendIndex].data.followed_artists;
+              return friendDatas[friendIndex].basicData.followed_artists;
             case "numMinutes":
             case "percentTimes":
             case "percentTimePeriod":
             case "numTimesSkipped":
             case "emotion":
-              return advancedData;
+              return friendDatas[friendIndex].advancedData;
             default:
               return null;
           }
@@ -695,6 +749,7 @@ export default function GraphGrid() {
                     dataName={container.data}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     graphKeys={container.graphSettings.graphKeys}
                     graphIndexBy={container.graphSettings.graphIndexBy}
@@ -709,6 +764,7 @@ export default function GraphGrid() {
                     dataName={container.data}
                     dataVariation={container.dataVariation}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    friendName={container.friendName}
                     timeRange={container.timeRange}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
@@ -719,6 +775,7 @@ export default function GraphGrid() {
                   <PieGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -729,6 +786,7 @@ export default function GraphGrid() {
                   <ImageGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -738,6 +796,7 @@ export default function GraphGrid() {
                   <BumpGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -750,6 +809,7 @@ export default function GraphGrid() {
                   <CalendarGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -760,6 +820,7 @@ export default function GraphGrid() {
                   <ScatterGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -772,6 +833,7 @@ export default function GraphGrid() {
                   <RadialBarGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -784,6 +846,7 @@ export default function GraphGrid() {
                   <RadarGraph
                     data={getData(container)}
                     dataName={container.data}
+                    friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
@@ -791,6 +854,12 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Text" ? (
+                  <TextGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
                   />
                 ) : (
                   <p> Invalid Graph Type</p>

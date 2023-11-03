@@ -62,6 +62,8 @@ export const LineGraph = (props) => {
 
   //Setup Data per selected values
   useEffect(() => {
+    console.log("graph props");
+    console.log(props);
     if (props.data === undefined || props.data === null) {
       setData("Bad Data");
       return;
@@ -78,26 +80,29 @@ export const LineGraph = (props) => {
         props.dataName === "numMinutes" ||
         props.dataName === "percentTimes"
       ) {
+        const tempData = props.bothFriendAndOwnData
+          ? props.data[0]
+          : props.data;
         switch (props.dataVariation) {
           case "songs":
             setItemsSelectable(
-              Object.keys(props.data.Tracks).map((key) => ({
-                name: props.data.Tracks[key].Name,
+              Object.keys(tempData.Tracks).map((key) => ({
+                name: tempData.Tracks[key].Name,
                 uri: key,
               }))
             );
             break;
           case "artists":
             setItemsSelectable(
-              Object.keys(props.data.Artists).map((key) => ({
-                name: props.data.Artists[key].Name,
+              Object.keys(tempData.Artists).map((key) => ({
+                name: tempData.Artists[key].Name,
                 uri: key,
               }))
             );
             break;
           case "genres":
             setItemsSelectable(
-              Object.keys(props.data.Genres).map((key) => ({
+              Object.keys(tempData.Genres).map((key) => ({
                 name: key,
                 uri: key,
               }))
@@ -105,7 +110,7 @@ export const LineGraph = (props) => {
             break;
           case "eras":
             setItemsSelectable(
-              Object.keys(props.data.Eras).map((key) => ({
+              Object.keys(tempData.Eras).map((key) => ({
                 name: key,
                 uri: key,
               }))
@@ -140,7 +145,7 @@ export const LineGraph = (props) => {
             ],
           });
           tempDataArr.push({
-            id: props.friendName + "Overall",
+            id: props.friendName + " Overall",
             data: [
               { x: "morning", y: props.data[1]["Time of Day Breakdown"][0] },
               { x: "afternoon", y: props.data[1]["Time of Day Breakdown"][1] },
@@ -341,9 +346,12 @@ export const LineGraph = (props) => {
         console.log(tempDataArr);
         setData(tempDataArr);
       } else if (props.dataName === "numTimesSkipped") {
+        const tempData = props.bothFriendAndOwnData
+          ? props.data[0]
+          : props.data;
         setItemsSelectable(
-          Object.keys(props.data.Tracks).map((key) => ({
-            name: props.data.Tracks[key].Name,
+          Object.keys(tempData.Tracks).map((key) => ({
+            name: tempData.Tracks[key].Name,
             uri: key,
           }))
         );
@@ -391,12 +399,25 @@ export const LineGraph = (props) => {
           : props.dataVariation === "genres"
           ? "Genres"
           : "Eras";
-      const years = Object.keys(props.data.Yearly);
+      const years = props.bothFriendAndOwnData
+        ? Array.from(
+            new Set([
+              Object.keys(props.data[0].Yearly),
+              Object.keys(props.data[1].Yearly),
+            ])
+          )
+        : Object.keys(props.data.Yearly);
       const highestYear = Math.max(...years.map(Number));
-      const dataSource =
-        props.timeRange === "year"
-          ? props.data.Yearly
-          : props.data.Yearly[highestYear].Monthly;
+      const dataSource = props.bothFriendAndOwnData
+        ? props.timeRange === "year"
+          ? [props.data[0].Yearly, props.data[1].Yearly]
+          : [
+              props.data[0].Yearly[highestYear].Monthly,
+              props.data[1].Yearly[highestYear].Monthly,
+            ]
+        : props.timeRange === "year"
+        ? props.data.Yearly
+        : props.data.Yearly[highestYear].Monthly;
       const monthsOrder = [
         "JANUARY",
         "FEBRUARY",
@@ -418,10 +439,17 @@ export const LineGraph = (props) => {
       console.log(props.data);
       setData(
         itemsSelected.map((item) => ({
-          id:
-            props.dataVariation === "songs" || props.dataVariation === "artists"
-              ? props.data[itemType][item].Name
-              : item,
+          id: props.bothFriendAndOwnData
+            ? props.dataVariation === "songs" ||
+              props.dataVariation === "artists"
+              ? props.data[0][itemType][item] !== undefined
+                ? props.data[0][itemType][item].Name
+                : props.data[1][itemType][item].Name
+              : item
+            : props.dataVariation === "songs" ||
+              props.dataVariation === "artists"
+            ? props.data[itemType][item].Name
+            : item,
           data:
             props.timeRange === "all"
               ? [
@@ -432,7 +460,10 @@ export const LineGraph = (props) => {
                       },
                       {
                         x: props.friendName + "All",
-                        y: props.data[1][itemType][item][readVal],
+                        y:
+                          props.data[1][itemType][item] !== undefined
+                            ? props.data[1][itemType][item][readVal]
+                            : 0,
                       })
                     : {
                         x:
@@ -442,6 +473,45 @@ export const LineGraph = (props) => {
                         y: props.data[itemType][item][readVal],
                       },
                 ]
+              : props.bothFriendAndOwnData
+              ? Object.entries(dataSource[0])
+                  .map(([timePeriod, timeItems]) => {
+                    if (timeItems[itemType][item] === undefined) {
+                      return {
+                        x: timePeriod,
+                        y: 0,
+                      };
+                    } else {
+                      return {
+                        x: timePeriod,
+                        y: timeItems[itemType][item][readVal],
+                      };
+                    }
+                  })
+                  .sort((a, b) => {
+                    return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
+                  })
+                  .concat(
+                    Object.entries(dataSource[1])
+                      .map(([timePeriod, timeItems]) => {
+                        if (timeItems[itemType][item] === undefined) {
+                          return {
+                            x: timePeriod,
+                            y: 0,
+                          };
+                        } else {
+                          return {
+                            x: timePeriod,
+                            y: timeItems[itemType][item][readVal],
+                          };
+                        }
+                      })
+                      .sort((a, b) => {
+                        return (
+                          monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x)
+                        );
+                      })
+                  )
               : Object.entries(dataSource)
                   .map(([timePeriod, timeItems]) => {
                     if (timeItems[itemType][item] === undefined) {

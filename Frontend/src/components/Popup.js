@@ -224,6 +224,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setLineData(false);
     switch (e.target.value) {
       case "ImageGraph":
+      case "Text":
         setImageGraph(true);
         setDisableTheme(true);
         break;
@@ -260,8 +261,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       case "Radar":
         setRadarData(true);
         break;
-      case "Text":
-        break;
+
       case "Calendar":
         setFollowerData(true);
         setDisableTheme(true);
@@ -477,7 +477,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               onChange={(e) => {
                 setWantFriendData(e.target.checked);
               }}
-              disabled={!friendsAvailable || advancedData}
+              disabled={!friendsAvailable}
             />
           </div>
           <div>
@@ -485,7 +485,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             <select
               name="friendID"
               defaultValue={defaultFriend}
-              disabled={!wantFriendData || advancedData}
+              disabled={!wantFriendData}
             >
               {friendsAvailable
                 ? friends.map((friend) => (
@@ -501,7 +501,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             <input
               name="bothFriendAndOwnData"
               type="checkbox"
-              disabled={!multiDataEN || !wantFriendData || advancedData}
+              disabled={!multiDataEN || !wantFriendData}
             />
           </div>
           <div>
