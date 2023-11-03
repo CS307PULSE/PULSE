@@ -178,6 +178,7 @@ function Profile({testParameter}){
             return;
         }
         var newColors = state.savedThemes[index].slice(1);
+        setNewThemeName(state.savedThemes[index][0]);
         dispatch({ type: 'UPDATE_COLOR_ALL', payload: newColors });        
     }
     function deleteTheme(index) {
@@ -190,12 +191,11 @@ function Profile({testParameter}){
         newSavedThemes.splice(index, 1);
         dispatch({ type: 'UPDATE_SAVED_THEMES', payload: newSavedThemes });    
     }
-    function updateTheme(index, newColors) {
+    function updateTheme(index, name, newColors) {
         if (state.savedThemes[index] == undefined) {
             return;
         }
         var newSavedThemes = state.savedThemes;
-        var name = newSavedThemes[index][0];
         newSavedThemes[index] = [name, ...newColors];
         dispatch({ type: 'UPDATE_SAVED_THEMES', payload: newSavedThemes });
     }
@@ -292,8 +292,7 @@ function Profile({testParameter}){
                     </div>
                 </div>
                 <div style={textFieldContainerStyle}>
-                    <button onClick={() => {createTheme(newThemeName, getColorArray())}} 
-                        style={{...buttonStyle, width: "200px"}}><p>Create New Theme</p></button>
+                    <label style={profileText}>Theme Name</label>
                     <input id="save-theme-name-input" type="text" style={textFieldStyle} value={newThemeName} onChange={e => {setNewThemeName(e.target.value)}}></input>
                 </div>
                 <br></br>
@@ -309,7 +308,8 @@ function Profile({testParameter}){
                 </div>
                 <div style={buttonContainerStyle}>
                     <button onClick={() => {retrieveTheme(selectedTheme)}} style={buttonStyle}><p>Use Theme</p></button>
-                    <button onClick={() => {updateTheme(selectedTheme, getColorArray())}} style={buttonStyle}><p>Save Changes</p></button>
+                    <button onClick={() => {updateTheme(selectedTheme, newThemeName, getColorArray())}} style={buttonStyle}><p>Save Changes</p></button>
+                    <button onClick={() => {createTheme(newThemeName, getColorArray())}} style={buttonStyle}><p>Create Theme</p></button>
                     <button onClick={() => {deleteTheme(selectedTheme)}} style={buttonStyle}><p>Delete Theme</p></button>
                 </div>
                 <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Background</p>
