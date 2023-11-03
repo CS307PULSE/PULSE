@@ -42,6 +42,7 @@ export default function StatisticsPage() {
     backgroundSize: "cover", //Adjust the image size to cover the element
     backgroundRepeat: "no-repeat", //Prevent image repetition
     backgroundAttachment: "fixed", //Keep the background fixed
+    textAlign: "center"
   };
 
   useEffect(() => {
