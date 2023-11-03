@@ -1601,6 +1601,7 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
+
 @app.route('/stats/emotion_percent', methods=['GET'])
 def emotion_percent():
     if 'user' in session:
@@ -1615,9 +1616,11 @@ def emotion_percent():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(emotionarray)
 
+
 @app.route('/chatbot/pull_songs', methods=['POST'])
 def pullsongs():
     if 'user' in session:
+        #return "gotHere"
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
@@ -1670,6 +1673,7 @@ def pullsongs():
 def feedback():
     data = request.get_json()
     feedback = data.get('feedback')
+    print("1")
     with DatabaseConnector(db_config) as conn:
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
