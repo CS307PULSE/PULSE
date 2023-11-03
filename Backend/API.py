@@ -1281,7 +1281,6 @@ def friend_get_advanced_stats():
     return jsonify(response_data)
 
 def get_emotions(user, tracks):
-    return None
     emotions = {}
     for track_uri in tracks.keys():
         if "spotify:track:" in track_uri:

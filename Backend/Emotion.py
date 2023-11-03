@@ -125,7 +125,45 @@ class Emotion:
         percentage["percent_sad"] = 1 - (saddist/totaldist)
         return percentage
         
+    def spoof():
+        import random
+        parameters = [
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Energy', "key": 'target_energy'},
+            {"min": 0, "max": 100, "step": 1, "name": 'Popularity', "key": 'target_popularity'},
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Acousticness', "key": 'target_acousticness'},
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Danceability', "key": 'target_danceability'},
+            {"min": 0, "max": 10*60*1000, "step": 1, "name": 'Duration (min)', "key": 'target_duration_ms'},
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Instrumentalness', "key": 'target_instrumentalness'},
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Liveness', "key": 'target_liveness'},
+            {"min": -30, "max": 0, "step": 0.5, "name": 'Loudness (dB)', "key": 'target_loudness'},
+            {"min": 0, "max": 1, "step": 1, "name": 'Mode', "key": 'target_mode'},
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Speechiness', "key": 'target_speechiness'},
+            {"min": 30, "max": 300, "step": 1, "name": 'Tempo', "key": 'target_tempo'},
+            {"min": 0, "max": 1, "step": 0.01, "name": 'Valence', "key": 'target_valence'}
+        ]
+
+        random_values = {}
+
+        for param in parameters:
+            min_val = param["min"]
+            max_val = param["max"]
+            step = param["step"]
+            key = param["key"]
+            
+            # Calculate the number of possible values within the specified range and step size
+            num_possible_values = int((max_val - min_val) / step) + 1
+
+            # Generate a random index within the range of possible values
+            random_index = random.randint(0, num_possible_values - 1)
+
+            # Calculate the random value based on the random index
+            random_value = round(min_val + random_index * step, 2)
+            random_values[key] = random_value
+        random_values["name"] = "songdict"
+        return random_values
+
     def convert_track(user, song, popularity = 0, duration = 0):
+        return Emotion.spoof()
         song_dict = {
             "name" : "songdict",
             "target_energy": 0,
