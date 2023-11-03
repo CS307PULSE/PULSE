@@ -14,7 +14,13 @@ async function fetchFriends() {
 }
 
 //Popup passing through open and close functions
-export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
+export default function Popup({
+  isOpen,
+  onClose,
+  addGraph,
+  graphNames,
+  advancedDataAvailable = true,
+}) {
   //Use states for data to be controlled
   const [graphName, setGraphName] = useState("");
   const [hortAxisTitle, setHortAxisTitle] = useState("");
@@ -40,6 +46,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [friendsAvailable, setFriendsAvailable] = useState(false);
   const [wantFriendData, setWantFriendData] = useState(false);
   const [defaultFriend, setDefaultFriend] = useState();
+  // eslint-disable-next-line no-unused-vars
   const [advancedData, setAdvancedData] = useState(false);
 
   //Data variables
@@ -56,6 +63,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       visible: timesDataEN,
     },
     {
+      value: "numStreams",
+      label: "Number of times listened to",
+      visible: timesDataEN,
+    },
+    {
       value: "percentTimes",
       label: "% of music listened to",
       visible: timesDataEN,
@@ -67,12 +79,17 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     },
     {
       value: "numTimesSkipped",
-      label: "Times listened to or skipped or repeated",
+      label: "Times skipped",
       visible: timesDataEN,
     },
     {
       value: "emotion",
       label: "Emotion of music listened to",
+      visible: radarData,
+    },
+    {
+      value: "emotion",
+      label: "Emotion of all music listened to",
       visible: radarData,
     },
     { value: "followers", label: "Followers", visible: followerData },
@@ -112,7 +129,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
 
   //Update Data info
   useEffect(() => {
-    if (dataSelected === "numMinutes" || dataSelected === "percentTimes") {
+    if (
+      dataSelected === "numMinutes" ||
+      dataSelected === "percentTimes" ||
+      dataSelected === "numStreams"
+    ) {
       setSpecTimesDataSelected(true);
       setTimesField(true);
       setAdvancedData(true);
@@ -131,6 +152,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     if (imageGraph) {
       setTimesField(true);
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataSelected]);
 
   //Update data choices when state changes
@@ -140,14 +162,19 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       prevOptions.map((option) => {
         if (
           option.value === "numMinutes" ||
+          option.value === "numStreams" ||
           option.value === "percentTimes" ||
           option.value === "percentTimePeriod" ||
           option.value === "numTimesSkipped"
         ) {
-          return { ...option, visible: timesDataEN };
+          if (advancedDataAvailable) {
+            return { ...option, visible: timesDataEN };
+          } else {
+            return { ...option, visible: false };
+          }
         } else if (option.value === "followers") {
           return { ...option, visible: followerData };
-        } else if (option.value === "emotion") {
+        } else if (option.value.includes("emotion")) {
           return { ...option, visible: radarData };
         } else if (option.value.includes("top_")) {
           return { ...option, visible: bumpData || imageGraph };
@@ -385,6 +412,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               <option value="artists">Artists</option>
               <option value="genres">Genres</option>
               <option value="eras">Eras</option>
+              <option value="all">All</option>
             </select>
           </div>
           <div>
