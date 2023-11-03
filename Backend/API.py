@@ -1253,6 +1253,29 @@ def get_advanced_stats():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/friend_get_advanced_stats', methods=['POST'])
+def friend_get_advanced_stats():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        id = data.get('id')
+
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_advanced_stats_from_DB(id)
+            if response_data is None:
+                return None
+
+        emotions = get_emotions(user, response_data["Tracks"])
+        if emotions is None:
+            response_data["Emotions"] = {}
+        else:
+            response_data["Emotions"] = emotions
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
 def get_emotions(user, tracks):
     emotions = {}
     for track_uri in tracks.keys():
@@ -1583,7 +1606,6 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
-
 @app.route('/stats/emotion_percent', methods=['GET'])
 def emotion_percent():
     if 'user' in session:
@@ -1597,7 +1619,6 @@ def emotion_percent():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(emotionarray)
-
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
 def pullsongs():
