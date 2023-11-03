@@ -1162,8 +1162,10 @@ def import_advanced_stats():
     from datetime import datetime
     start_time = datetime.now()
     if 'user' in session:
-        #data = request.get_json()
-        #filepath = data.get('filepath')
+        data = request.get_json()
+        filepaths = data.get('filepaths')
+        print(filepaths)
+        return "worked"
         filepaths = ["C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_15.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_14.json",
