@@ -183,13 +183,16 @@ const PlaylistManager = () => {
             <div style={buttonContainerStyle}>
                 <label style={textStyle}>Genre </label>
                 <select style={buttonStyle} value={playlistGenre} onChange={(e) => setPlaylistGenre(e.target.value)}>
+                  <option key={-1} value={"none"}>Blank Playlist</option>
                   {genreList.map((item, index) => (
                     <option key={index} value={item}>{item}</option>
                   ))}
                 </select>
             </div>
             <div style={buttonContainerStyle}>
-                <button style={buttonStyle} onClick={() => {playlistPost("create", {name: playlistName})}}>Generate Playlist</button>
+                <button style={buttonStyle} onClick={() => {
+                  playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre})
+                }}>Generate Playlist</button>
             </div>
           </div>
           <div style={{...sectionContainerStyle, height: "400px"}}>

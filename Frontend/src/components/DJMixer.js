@@ -86,12 +86,12 @@ const DJMixer = () => {
           >
             Playlist Manager
           </Link>
-          <Link
+          {/* <Link
             to="/DJmixer/PlaylistGenerator"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
             Playlist Generator
-          </Link>
+          </Link> */}
         </div>
       </div>
       <div className="footer"><SongPlayer /></div>

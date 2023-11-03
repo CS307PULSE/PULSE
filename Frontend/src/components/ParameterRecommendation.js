@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { hexToRGBA } from "../theme/Colors";
 import { parameterInfo, presetEmotions } from "../theme/Emotions";
 import axios from "axios";
+import { genreList } from "../theme/Emotions";
 
 const ParameterRecommendations = () => {  
     const { state, dispatch } = useAppContext();
@@ -18,8 +19,8 @@ const ParameterRecommendations = () => {
     const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(0);
     const [emotionName, setEmotionName] = useState("New Emotion");
     const [derivedEmotionName, setDerivedEmotionName] = useState("New Derived Emotion");
+    const [genreSelection, setGenreSelection] = useState(genreList[0]);
 
-    
     function updateParameter(newValue, index) {
         var updatedValues = [...parameters];
         updatedValues[index] = newValue;
@@ -104,6 +105,9 @@ const ParameterRecommendations = () => {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_playlist_dict", {playlist: playlistID});
         console.log(response.data);
+    }
+    async function getEmotionRecommendations(parameters, genre) {
+        
     }
     
     const bodyStyle = {
@@ -226,6 +230,19 @@ const ParameterRecommendations = () => {
                 </div>
             </div>
             <div>
+                <div style={sectionContainerStyle}>
+                    <div style={buttonContainerStyle}>
+                        <label style={textStyle}>Genre </label>
+                        <select style={buttonStyle} value={genreSelection} onChange={(e) => setGenreSelection(e.target.value)}>
+                        {genreList.map((item, index) => (
+                            <option key={index} value={item}>{item}</option>
+                        ))}
+                        </select>
+                    </div>
+                    <div style={buttonContainerStyle}>
+                        <button style={buttonStyle} onClick={() => {}}>Get [{emotionName}] Recommendations from [{genreSelection}]</button>
+                    </div>
+                </div>
                 <div style={{...sectionContainerStyle, height: "400px"}}>
                     <div style={buttonContainerStyle}>
                         <input type="text" style={buttonStyle} value={derivedEmotionName} onChange={e => {setDerivedEmotionName(e.target.value)}}></input>

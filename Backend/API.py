@@ -1633,7 +1633,7 @@ def playlist_create():
         try_refresh(user)
         Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
         playlist = playlist.get('id', None)
-        if genre != 'Blank' and playlist != None:
+        if genre != 'none' and playlist != None:
             Playlist.playlist_generate(user=user, playlist=playlist, genre=genre)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
