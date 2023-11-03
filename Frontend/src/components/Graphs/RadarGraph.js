@@ -37,22 +37,22 @@ export const RadarGraph = (props) => {
     if (itemsSelected === undefined || itemsSelected.length === 0) {
       return;
     }
-    if (props.dataName === "emotion") {
+    if (props.dataName.includes("emotion")) {
       setKeys([itemsSelected[0].name]);
       getEmotion(itemsSelected[0].id, itemsSelected[0].popularity).then(
         (emotions) => {
           const tempObj = [
             {
               emotion: "Angry",
-              [itemsSelected[0]["name"]]: emotions["percent_angry"],
+              [itemsSelected[0]["name"]]: emotions["percent_angry"] * 100,
             },
             {
               emotion: "Happy",
-              [itemsSelected[0]["name"]]: emotions["percent_happy"],
+              [itemsSelected[0]["name"]]: emotions["percent_happy"] * 100,
             },
             {
               emotion: "Sad",
-              [itemsSelected[0]["name"]]: emotions["percent_sad"],
+              [itemsSelected[0]["name"]]: emotions["percent_sad"] * 100,
             },
           ];
           setData(tempObj);

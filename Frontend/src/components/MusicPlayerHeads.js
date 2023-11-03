@@ -65,7 +65,7 @@ const ScoreStyle = {
   lineHeight: "normal",
   textTransform: "uppercase",
 };
-const MusicPlayerName = ({
+const MusicPlayerHeads = ({
   playerNames,
   numberOfPlayers,
   numberOfRounds,
@@ -79,6 +79,7 @@ const MusicPlayerName = ({
   const [showScores, setShowScores] = useState(false);
   const [playButtonDisabled, setPlayButtonDisabled] = useState(false);
   const [randomFriendId, setRandomFriendId] = useState(null);
+  const [animateSkip, setAnimateSkip] = useState(false);
 
   useEffect(() => {
     // Initialize players using names from playerNames prop
@@ -97,6 +98,25 @@ const MusicPlayerName = ({
     setPlayButtonDisabled(false);
     getRandomFriend(friendsRecentSongs);
   }, [currentNumberOfRounds]);
+
+  const slideOutLeftAnimation = `
+  @keyframes slideOutLeft {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  .slideOutLeft {
+    animation-name: slideOutLeft;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+  }
+`;
 
   const handlePlayButtonClick = () => {
   // playback 
@@ -271,6 +291,8 @@ const MusicPlayerName = ({
   }
 
   return (
+    <>
+    <style>{slideOutLeftAnimation}</style>
     <div style={musicPlayerStyle}>
       <button
         style={playButtonStyle}
@@ -279,6 +301,7 @@ const MusicPlayerName = ({
       >
         {isPlaying ? "Pause" : "Play"}
       </button>
+      <div className={animateSkip ? 'slideOutLeft' : ''} style={playerListStyle}>
       <div style={playerListStyle}>
         <h3>Player List</h3>
         {players.map((player) => (
@@ -291,6 +314,7 @@ const MusicPlayerName = ({
             {player.name} (Score: {player.score})
           </label>
         ))}
+        </div>
         <div style={{ padding: "20px" }} />
         <div style={buttonContainerStyle}>
           <button style={buttonStyle} onClick={handleEveryoneWrongClick}>
@@ -302,7 +326,8 @@ const MusicPlayerName = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
 
-export default MusicPlayerName;
+export default MusicPlayerHeads;

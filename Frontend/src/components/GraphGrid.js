@@ -101,6 +101,9 @@ export default function GraphGrid() {
   const [finishedPullingData, setFinished] = useState(false);
   const [friendDatas, setFriendDatas] = useState([]);
   const [friendDataUpdated, setFriendDataUpdated] = useState(true);
+  const [friendBasicDataAvailable, setBasicFriendsAvailable] = useState(true);
+  const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] =
+    useState(true);
   const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
@@ -326,6 +329,9 @@ export default function GraphGrid() {
           setAdvancedData(data);
         }
       } catch (error) {
+        alert("Page failed fetching advanced data");
+        setAdvancedData("Empty");
+        /*
         alert(
           "Page failed fetching advanced data - loading backup advanced data"
         );
@@ -334,6 +340,7 @@ export default function GraphGrid() {
         );
         console.error("Error fetching advanced data:", error);
         setAdvancedData(tempAdvancedData);
+        */
       }
     };
     fetchData();
@@ -390,36 +397,31 @@ export default function GraphGrid() {
         fetchBasicFriendData(newGraphData.friendID).then((basicFriendData) => {
           fetchAdvancedFriendData(newGraphData.friendID).then(
             (advancedFriendData) => {
+              setFriendDatas([
+                ...friendDatas,
+                {
+                  id: newGraphData.friendID,
+                  name: newGraphData.friendName,
+                  basicData: basicFriendData,
+                  advancedData: advancedFriendData,
+                },
+              ]);
               if (advancedFriendData !== null) {
-                setFriendDatas([
-                  ...friendDatas,
-                  {
-                    id: newGraphData.friendID,
-                    name: newGraphData.friendName,
-                    basicData: basicFriendData,
-                    advancedData: advancedFriendData,
-                  },
-                ]);
+                setAdvancedFriendsAvailable(true);
+                setFriendDataUpdated(true);
               } else {
-                alert(
-                  "Page failed fetching friend advanced data - loading backup advanced data"
-                );
-                console.log(
-                  "Page failed fetching friend advanced data - loading backup advanced data"
-                );
-                setFriendDatas([
-                  ...friendDatas,
-                  {
-                    id: newGraphData.friendID,
-                    name: newGraphData.friendName,
-                    basicData: basicFriendData,
-                    advancedData: advancedData,
-                  },
-                ]);
+                alert("Page failed fetching friend advanced data");
+                setFriendDataUpdated(false);
+                setAdvancedFriendsAvailable(false);
               }
-              setFriendDataUpdated(true);
             }
           );
+          if (basicFriendData === null) {
+            setBasicFriendsAvailable(false);
+          } else {
+            setFriendDataUpdated(true);
+            setBasicFriendsAvailable(true);
+          }
         });
       }
     }
@@ -537,6 +539,7 @@ export default function GraphGrid() {
                 friendDatas[friendIndex].basicData.followed_artists,
               ];
             case "numMinutes":
+            case "numStreams":
             case "percentTimes":
             case "percentTimePeriod":
             case "numTimesSkipped":
@@ -582,6 +585,7 @@ export default function GraphGrid() {
             case "followed_artists":
               return friendDatas[friendIndex].basicData.followed_artists;
             case "numMinutes":
+            case "numStreams":
             case "percentTimes":
             case "percentTimePeriod":
             case "numTimesSkipped":
@@ -628,6 +632,7 @@ export default function GraphGrid() {
           case "followed_artists":
             return followedArtists;
           case "numMinutes":
+          case "numStreams":
           case "percentTimes":
           case "percentTimePeriod":
           case "numTimesSkipped":
@@ -681,6 +686,7 @@ export default function GraphGrid() {
                           nameFromDataName(container.data) +
                           '"' +
                           (container.data === "numMinutes" ||
+                          container.data === "numStreams" ||
                           container.data === "percentTimes"
                             ? " for " + container.dataVariation
                             : "") +
@@ -702,7 +708,13 @@ export default function GraphGrid() {
                       </button>
                       <Tooltip id={container.i + "-tooltip"} />
                     </div>
-                    <div>Loading graph data</div>
+                    <div>
+                      {friendBasicDataAvailable
+                        ? friendAdvancedDataAvailable
+                          ? "Loading graph data"
+                          : "Friends advanced data unavailable"
+                        : "Friends basic data unavailable"}
+                    </div>
                   </div>
                 );
               }
@@ -724,6 +736,7 @@ export default function GraphGrid() {
                       nameFromDataName(container.data) +
                       '"' +
                       (container.data === "numMinutes" ||
+                      container.data === "numStreams" ||
                       container.data === "percentTimes"
                         ? " for " + container.dataVariation
                         : "") +
@@ -901,6 +914,9 @@ export default function GraphGrid() {
           onClose={closePopup}
           addGraph={getNewGraphData}
           graphNames={graphNames}
+          advancedDataAvailable={
+            advancedData !== undefined && advancedData !== "Empty"
+          }
         />
       </React.Fragment>
     );
