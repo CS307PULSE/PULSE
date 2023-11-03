@@ -157,14 +157,14 @@ class Emotion:
         song_dict["target_valence"] = song_features.get("valence", 0)
         return song_dict
 
-    def update_and_average_dict(user, original_dict, song, popularity, duration):
+    def update_and_average_dict(user, original_dict, song, popularity = 0, duration = 0):
         song_dict = Emotion.convert_track(user, song, popularity, duration)
         for key in original_dict.keys():
             if key != "name":
                 original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
-
-    def find_song_emotion(user, song, popularity):
+    
+    def find_song_emotion(user, song, popularity = 0):
         song_dict = Emotion.convert_track(user, song, popularity)
         happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
         angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)

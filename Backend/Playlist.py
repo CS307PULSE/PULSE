@@ -108,19 +108,20 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 20)
             first_iteration = True    
             genredict = None
+            
             for song in analysis['items']:
-                track = song['track']
-                print(track)
+                track = song['track']['id']
+                popularity = song['track']['popularity']
                 if first_iteration:
-                    genredict = Emotion.convert_track(user, track)
+                    genredict = Emotion.convert_track(user, track, popularity)
                     first_iteration = False
                 else:
-                    genredict = Emotion.update_and_average_dict(user, genredict, track)
+                    genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
             print("\n\n\nreturned\n\n\n")
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
-    
+        
     def playlist_artist_analysis(user, playlist):
         try:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
