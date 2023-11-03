@@ -143,12 +143,12 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         packed_str = self.resultset[0]
-        print("Packed_str: " + packed_str)
+        if (packed_str is None):
+            return []
         count = 0
         for i in range(0, len(packed_str)):
             if packed_str[i] == ' ':
                 count +=1
-        print("Count: " + str(count))
         row = 0
         if count == 4:
             row = 1
@@ -156,7 +156,6 @@ class DatabaseConnector(object):
             return []
         else:
             row = int(1 + (count - 4) / 5)
-        print("Row: " + str(row))
         return string_to_array_row_by_col(self.resultset[0], row, 5, False)
     
     # Returns the custom background from DB as a string.
