@@ -53,7 +53,9 @@ class Playlist:
     
     def track_remove(user, playlist, spotify_uri):
         try:
-            user.spotify_user.user_playlist_remove_all_occurrences_of_items(playlist, spotify_uri)
+            print(playlist)
+            print(spotify_uri)
+            user.spotify_user.user_playlist_remove_all_occurrences_of_tracks(user.spotify_id, playlist, [spotify_uri])
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 

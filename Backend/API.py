@@ -1674,7 +1674,7 @@ def playlist_remove_track():
         playlist = data.get('playlist')
         uri = data.get('song')
         try_refresh(user)
-        Playlist.track_remove(user=user, playlist=playlist, uri=uri)
+        Playlist.track_remove(user=user, playlist=playlist, spotify_uri=uri)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
