@@ -1634,7 +1634,7 @@ def playlist_create():
         return make_response(jsonify({'error': error_message}), 69)
     return "Created playlist!"
 
-@app.route('/playlist/get_tracks')
+@app.route('/playlist/get_tracks', methods = ['POST'])
 def playlist_get_tracks():
     if 'user' in session:
         user_data = session['user']
@@ -1672,7 +1672,7 @@ def playlist_remove_track():
         user = User.from_json(user_data)
         data = request.get_json()
         playlist = data.get('playlist')
-        uri = data.get('uri')
+        uri = data.get('song')
         try_refresh(user)
         Playlist.track_remove(user=user, playlist=playlist, uri=uri)
     else:
@@ -1739,7 +1739,6 @@ def playlist_unfollow():
     return "Playlist unfollowed!"
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
-def pull_songs():
 def pull_songs():
     if 'user' in session:
         #return "gotHere"

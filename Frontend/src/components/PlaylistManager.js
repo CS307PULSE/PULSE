@@ -14,6 +14,7 @@ const PlaylistManager = () => {
   const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(0);
   const [songSearchString, setSongSearchString] = useState("");
   const [songSearchResults, setSongSearchResults] = useState([]);
+  const [playlistSongs, setPlaylistSongs] = useState([]);
   const [playlistName, setPlaylistName] = useState("New Playlist");
   const [imagePath, setImagePath] = useState("");
 
@@ -33,11 +34,25 @@ const PlaylistManager = () => {
     var response = await axiosInstance.get("http://127.0.0.1:5000/get_saved_playlists");
     const parsedPlaylists = JSON.parse(response.data.saved_playlists);
     setPlaylists(parsedPlaylists);
-    // console.log(parsedPlaylists);
   }
   useEffect(() => {
     getPlaylists();
   }, []);
+  async function getPlaylistSongs(playlistID) {
+    const axiosInstance = axios.create({withCredentials: true});
+    const response = await axiosInstance.post("http://127.0.0.1:5000/playlist/get_tracks", {playlist: playlistID});
+    const trackData = response.data;
+    setPlaylistSongs(trackData.items);
+    console.log(trackData.items);
+  }
+  useEffect(() => {
+    console.log("use effect ran");
+    if (playlists[selectedPlaylistIndex]) {
+      console.log("use effect entered");
+      getPlaylistSongs(playlists[selectedPlaylistIndex].id);
+    }
+  }, [selectedPlaylistIndex]);
+  
 
   function getPlaylistImage(index) {
     const image = playlists[index].images[0];
@@ -161,7 +176,7 @@ const PlaylistManager = () => {
           </div>
         </div>
         <div>
-          <div style={sectionContainerStyle}>
+          <div style={{...sectionContainerStyle, height: "400px"}}>
             <p style={headerTextStyle}>Selected Playlist: {playlists.length > 0 ? playlists[selectedPlaylistIndex].name : "None"}</p>
             <div style={buttonContainerStyle}>
                 <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
@@ -172,6 +187,15 @@ const PlaylistManager = () => {
                 <button style={buttonStyle} onClick={() => {playlistPost("follow", {playlist: playlists[selectedPlaylistIndex].id})}}>Follow</button>
                 <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
             </div>
+            {playlistSongs.length > 0 && playlistSongs.map((item, index) => (
+              <div key={index} style={selectionDisplayStyle} onClick={() => {setSelectedPlaylistIndex(index)}}>
+                <button style={{...buttonStyle, width: "80px"}} onClick={() => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id})}}>Remove</button>
+                <img style={imageStyle} src={item.track.album.images[0].url}></img>
+                <div>
+                  <p style={textStyle}>{item.track.name}</p>
+                </div>
+              </div>
+            ))}
           </div>
           <div style={sectionContainerStyle}>
           <p style={headerTextStyle}>Add Songs</p>
