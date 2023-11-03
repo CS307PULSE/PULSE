@@ -88,9 +88,11 @@ class Playlist:
         
     def playlist_recommendations(user, playlist, field):
         try:
+            track = []
             if field == "genres":
                 genresdict = Playlist.playlist_genre_analysis(user, playlist)
-                track=user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['id']
+                track.append(user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['uri'])
+                print(track)
                 recommendations = Emotion.get_emotion_recommendations(user, genresdict, track=track)
                 print(recommendations)
             elif field == "aritsts":
