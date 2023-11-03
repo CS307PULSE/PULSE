@@ -88,7 +88,7 @@ const Uploader = () => {
   const [hasDataInDB, setHasDataInDB] = useState(hasDataInDBInitial);
   const [inputValue, setInputValue] = useState("");
   const [loadingData, setLoadingData] = useState(false);
-  const [loadedData, setLoadedData] = useState(null);
+  const [loadDataFailed, setLoadDataFailed] = useState(false);
   const [triedToLoadData, setTriedToLoadData] = useState(null);
 
 
@@ -113,17 +113,18 @@ const Uploader = () => {
   }
 
   async function doneTypingPaths() {
-    setLoadingData(true);
-    setTriedToLoadData(true);
+    //false if failed
     var test = !(await sendFilepaths(filepaths));
     console.log("HERE");
     setFilepaths([]);
     if (!test) {
       setLoadingData(false);
-      setLoadedData(false);
+      setLoadDataFailed(true);
+      alert("One or more of your filepaths may be incorrect")
     } else {
-      setLoadingData(false);
-      setLoadedData(true);
+      setLoadingData(true);
+      setLoadDataFailed(false);
+      setHasDataInDB(true);
     }
   }
 
@@ -155,7 +156,9 @@ const Uploader = () => {
     if (hasDataInDB) {
       return ( 
         <div>
-          <p>You have already uploaded your data!</p>
+          <p>You have already uploaded your data!
+            It may take up to 10 minutes for data to start populating your statistics page
+          </p>
           <button onClick={() => setHasDataInDB(false)}>I want to reupload my data</button>
         </div>
       );
@@ -165,8 +168,8 @@ const Uploader = () => {
       return (
         <div>
           <p>You can get a ZIP file with a copy of your personal data by using the 
-            automated Download your data tool on the Privacy Settings section of your 
-            account page or by contacting spotify. Make sure to request your "extended streaming history
+            automated Download your data tool on the Privacy Settings section of your spotify 
+            account page or by contacting spotify. Make sure to request your "extended streaming history"
             and not any of the other options</p>
           <button onClick={() => setHasData(true)}>I have my data</button>
         </div>
@@ -174,23 +177,6 @@ const Uploader = () => {
     }
   }
 
-  function uploadingCheck() {
-    if (loadingData && triedToLoadData) {
-      return <p>Loading data. Please stay on the page</p>
-    } else if (!loadingData && !loadedData && triedToLoadData){
-      setTriedToLoadData(false);
-      setLoadedData(false);
-      setLoadingData(false);
-      setFilepaths([]);
-      alert("One or more of the filepaths you entered do not work. Please try again");
-      return
-    } else if (loadedData) {
-      setHasDataInDB(true);
-      return
-    } else if (triedToLoadData) {
-      return
-    }
-  }
 
   function uploadFiles(hasData) {
     if (hasDataInDB) {
@@ -223,7 +209,6 @@ const Uploader = () => {
     <div style={bodyStyle}>
     {generateInstructions(hasData)}
     {uploadFiles(hasData)}
-    {uploadingCheck()}
     </div>
   );
 };

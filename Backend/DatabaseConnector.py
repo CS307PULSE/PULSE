@@ -70,8 +70,7 @@ class DatabaseConnector(object):
                                 friends, 
                                 theme, 
                                 location,
-                                gender,
-                                recommendation_params) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
+                                gender) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
         
                
             self.db_cursor.execute(sql_store_new_user_query, (new_user.display_name, 
@@ -80,8 +79,7 @@ class DatabaseConnector(object):
                                                 create_friends_string_for_DB(new_user.friends),
                                                 int(new_user.theme.value),
                                                 new_user.location,
-                                                new_user.gender,
-                                                create_rec_params_string_for_DB(new_user.recommendation_params),))
+                                                new_user.gender,))
 
             self.db_conn.commit()
             affected_rows = self.db_cursor.rowcount
@@ -443,8 +441,7 @@ class DatabaseConnector(object):
                          login_token=json.loads(row[2]),                                                               
                          spotify_id=row[3],                                                             
                          friends=create_friends_array_from_DB(row[4]),        
-                         theme=Theme(row[5]),                                                         
-                         recommendation_params=create_rec_params_string_for_DB(row[7]),
+                         theme=Theme(row[5]),
                          location = row[9],
                          gender = row[10],
                          chosen_song = row[15],)       
