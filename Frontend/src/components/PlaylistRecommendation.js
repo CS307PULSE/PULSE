@@ -137,6 +137,8 @@ const PlaylistRecommendation = () => {
     const [finishedPullingData, setFinished] = useState(false);
     const [selectedPlaylistName, setSelectedPlaylistName] = useState(null);
     const [selectedPlaylistID, setSelectedPlaylistID] = useState(null);
+    const [lastSelectedPlaylistID, setLastSelectedPlaylistID] = useState(null);
+    const [refreshSongRecs, setRefreshSongRecs] = useState(false)
     const [selectedRecMethod, setSelectedRecMethod] = useState("genres");
     const [songRecs, setSongRecs] = useState();
     const [selectedSongID, setSelectedSongID] = useState()
@@ -216,13 +218,13 @@ const PlaylistRecommendation = () => {
     }
   }
 
-  function updateParentState(selectedSongID, selectedSongName, selectedPlaylistID, selectedPlaylistName) {
-    if (selectedSongID !== null && selectedSongName !== null) {
-      setSelectedSongID(selectedSongID);
-      setSelectedSongName(selectedSongName);
-    } else {
-      setSelectedPlaylistID(selectedPlaylistID);
-      setSelectedPlaylistName(selectedPlaylistName)
+  function updateParentState(selectedSongIDParam, selectedSongNameParam, selectedPlaylistIDParam, selectedPlaylistNameParam) {
+    if (selectedSongIDParam !== null && selectedSongNameParam !== null && selectedSongID!== selectedSongIDParam) {
+      setSelectedSongID(selectedSongIDParam);
+      setSelectedSongName(selectedSongNameParam);
+    } else if (selectedPlaylistIDParam !== null && selectedPlaylistNameParam !== null && selectedPlaylistID !== selectedPlaylistIDParam){
+      setSelectedPlaylistID(selectedPlaylistIDParam);
+      setSelectedPlaylistName(selectedPlaylistNameParam)
       console.log("selectedPlaylistID: " + selectedPlaylistID);
       console.log("selectedPlaylistName: " + selectedPlaylistName);
     }
@@ -232,7 +234,7 @@ const PlaylistRecommendation = () => {
     console.log("here");
     console.log("selectedPlaylistID: " + selectedPlaylistID);
     console.log("selectedPlaylistName: " + selectedPlaylistName);
-    if (finishedPullingData && selectedPlaylistID !== undefined && selectedPlaylistID !== null) {
+    if (finishedPullingData && selectedPlaylistID !== undefined && selectedPlaylistID !== null && selectedPlaylistID !== lastSelectedPlaylistID) {
     getSongRecommendations(selectedPlaylistID, selectedRecMethod).then((data) => {
       console.log("DATA: "+ data);
       if (data !== null && data !== undefined && data[1] !== "") {
