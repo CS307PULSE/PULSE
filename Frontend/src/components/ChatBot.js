@@ -26,6 +26,7 @@ const ChatBot = () => {
     }, []);
 
     useEffect(() => {
+        let isMounted = true;
         console.log("Updated songs:", songs);
         
         const sendSong = async () => {
@@ -47,8 +48,13 @@ const ChatBot = () => {
         };
     
         // Call sendSong here
-        sendSong();
-    
+        if (isMounted) {
+            sendSong();
+        }
+        
+        return () => {
+            isMounted = false;
+        };
     }, [songs]); // This will run the effect every time `songs` state updates
     
 
