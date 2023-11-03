@@ -1896,9 +1896,6 @@ def analyze_emotions():
         data = request.get_json()
         playlist = data['playlist']
         playlist_dict = Playlist.playlist_genre_analysis(user, playlist)
-        with DatabaseConnector(db_config) as conn:
-                    playlistcounter = conn.update_recommendation_params(user.spotify_id, )
-                    conn.update_playlist_counter(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
