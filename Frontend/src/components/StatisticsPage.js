@@ -12,13 +12,10 @@ const root = document.documentElement;
 const themeSetting = 0;
 const textSizes = TextSize(1);
 
-document.documentElement.style.setProperty(
-  "--graph-text-size",
-  textSizes.small
-);
+document.documentElement.style.setProperty("--graph-text-size", textSizes.body);
 document.documentElement.style.setProperty(
   "--title-text-size",
-  textSizes.small
+  textSizes.header3
 );
 
 // Modify the CSS variable
@@ -42,7 +39,7 @@ export default function StatisticsPage() {
     backgroundSize: "cover", //Adjust the image size to cover the element
     backgroundRepeat: "no-repeat", //Prevent image repetition
     backgroundAttachment: "fixed", //Keep the background fixed
-    textAlign: "center"
+    textAlign: "center",
   };
 
   useEffect(() => {

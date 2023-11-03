@@ -715,6 +715,10 @@ export default function GraphGrid() {
                     style={{ fontSize: "var(--title-text-size)" }}
                     data-tooltip-id={container.i + "-tooltip"}
                     data-tooltip-content={
+                      (container.friendName !== undefined
+                        ? container.friendName + "'s "
+                        : "") +
+                      (container.bothFriendAndOwnData ? "and own " : "") +
                       container.graphType +
                       ' of "' +
                       nameFromDataName(container.data) +
