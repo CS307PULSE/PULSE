@@ -1069,6 +1069,7 @@ def set_color_palette():
             if (conn.update_color_palette(user.spotify_id, palette) == -1):
                 error_message = "palette has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
+
         response_data = 'Palette updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -1311,6 +1312,7 @@ def store_advanced_stats():
         if (conn.update_advanced_stats(id, DATA) == -1):
             error_message = "Advanced stats has not been stored!"
             return make_response(jsonify({'error': error_message}), 404)
+
 
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
@@ -1609,6 +1611,22 @@ def get_requests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
+@app.route('/playlist/add_song', methods=['POST'])
+def playlist_add_song():
+    if 'user' in session:
+        song = []
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('selectedPlaylistID')
+        song.append(data.get('selectedSongURI'))
+        try_refresh(user)
+        Playlist.add_track(user=user, playlist=playlist, song=song)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Added track!"
+
 @app.route('/playlist/get_recs', methods=['POST'])
 def get_playlist_recs():
     if 'user' in session:
@@ -1621,7 +1639,29 @@ def get_playlist_recs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return json.dumps(song_array)
+    return jsonify(song_array)
+
+@app.route('/stats/emotion_percent', methods=['GET'])
+def emotion_percent():
+    if 'user' in session:
+        try:
+            user_data = session['user']
+            data = request.get_json()
+            user = User.from_json(user_data) 
+            trackid = data.get('trackid')
+            popularity = data.get('popularity')
+            emotionarray = Emotion.get_percentage(user, trackid, popularity)
+        except Exception as e:
+                if (try_refresh(user, e)):
+                    user_data = session['user']
+                    data = request.get_json()
+                    user = User.from_json(user_data) 
+                    trackid = data.get('trackid')
+                    popularity = data.get('popularity')
+                    emotionarray = Emotion.get_percentage(user, trackid, popularity)
+                else:
+                    return "Failed to reauthenticate token"
+    return json.dumps(emotionarray)
 
 @app.route('/playlist/create', methods=['POST'])
 def playlist_create():
@@ -1632,6 +1672,7 @@ def playlist_create():
         name = data.get('name')
         try_refresh(user)
         Playlist.create_playlist(user=user, name=name)
+
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1739,7 +1780,6 @@ def playlist_unfollow():
     return "Playlist unfollowed!"
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
-def pull_songs():
 def pull_songs():
     if 'user' in session:
         #return "gotHere"

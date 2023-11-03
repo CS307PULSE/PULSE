@@ -89,18 +89,18 @@ class Playlist:
     def playlist_recommendations(user, playlist, field):
         try:
             track = []
+            recommendations = []
             if field == "genres":
                 genresdict = Playlist.playlist_genre_analysis(user, playlist)
                 track.append(user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['uri'])
-                print(track)
                 recommendations = Emotion.get_emotion_recommendations(user, genresdict, track=track)
-                print(recommendations)
-            elif field == "aritsts":
+            elif field == "artists":
                 artists = Playlist.playlist_artist_analysis(user, playlist)
-                recommendations = user.get_recommendations(seed_artists = artists)
+                recommendations = user.get_recommendations(seed_artists = artists, max_items = 10)
             elif field == "albums":
-                albumtracks = Playlist.playlist_album_analysis(user, playlist)
-                recommendations = user.spotify_user.get_recommendations(seed_tracks = albumtracks)
+                albumdict = Playlist.playlist_album_analysis(user, playlist)
+                track.append(user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['uri'])
+                recommendations = Emotion.get_emotion_recommendations(user, albumdict, track=track)
             return recommendations
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
@@ -119,7 +119,6 @@ class Playlist:
                     first_iteration = False
                 else:
                     genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
-            print("\n\n\nreturned\n\n\n")
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
@@ -129,24 +128,31 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             artistarray = []
             for item in analysis['items']:
-                artist = item['track'].get('artists',{})[0].get('id',None)
-                if artist not in artistarray and artist is not None:
-                    artistarray.append(artist)
+                if len(artistarray) < 5:
+                    artist = item['track'].get('artists',{})[0].get('id',None)
+                    if artist not in artistarray and artist is not None:
+                        artistarray.append(artist)
             return artistarray
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
     
     def playlist_album_analysis(user, playlist):
         try:
-            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
-            albumarray = []
-            for item in analysis['items']:
-                album_id = item['album']['id']
-                albumtracks = user.spotify_user.album_tracks(album_id, limit=10)
-                for song in albumtracks:
-                    if song not in albumarray:
-                        albumarray.append(song)
-            return albumarray
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 10)
+            first_iteration = True    
+            genredict = None
+            for song in analysis['items']:
+                album = song['track']['album']['id']
+                albumsongs = user.spotify_user.album_tracks(album, limit=5)
+                for song in albumsongs['items']:
+                    track = song['id']
+                    popularity = 0
+                    if first_iteration:
+                        genredict = Emotion.convert_track(user, track, popularity)
+                        first_iteration = False
+                    else:
+                        genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
+            return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
     
