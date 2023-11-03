@@ -28,7 +28,6 @@ from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
 run_connected = True
-spoof_songs = False
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
@@ -180,6 +179,7 @@ def callback():
             if not user_exists:
                 conn.create_new_user_in_user_DB(user)
                 conn.create_new_user_in_stats_DB(user.spotify_id)
+                conn.create_new_user_in_advanced_stats_DB(user.spotify_id)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
@@ -272,6 +272,7 @@ def friend_statistics():
     id = data.get('id')
     with DatabaseConnector(db_config) as conn:
         user = conn.get_user_from_user_DB(spotify_id=id)
+    user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
     if user is None:
         error_message = "The user is not found! Please try again!"
@@ -289,6 +290,7 @@ def friend_statistics():
 
     try:
         start_time2 = time.time()
+        try_refresh(user)
         update_data(user)
         end_time2 = time.time()
         execution_time2 = end_time2 - start_time2
@@ -297,8 +299,6 @@ def friend_statistics():
         print(e)
         return jsonify(data)
     
-    with DatabaseConnector(db_config) as conn:
-        layout = conn.get_layout_from_DB(user.spotify_id)
     with DatabaseConnector(db_config) as conn:
         followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -310,9 +310,6 @@ def friend_statistics():
     data['saved_songs'] = user.stringify(user.stats.saved_songs)
     data['saved_albums'] = user.stringify(user.stats.saved_albums)
     data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
-
-    if layout is not None:
-        data['layout_data'] = layout
 
     if followers is not None:
         data['follower_data'] = followers
@@ -400,6 +397,7 @@ def get_friends_recent_songs():
     for friend_id in friend_ids.keys():
         with DatabaseConnector(db_config) as conn:
             user = conn.get_user_from_user_DB(spotify_id=friend_id)
+        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
         try:
             update_data(user,
@@ -535,18 +533,7 @@ def playback():
                 return "Failed to reauthenticate token"
         print(f"Starting with filter {filter_search}!")
         
-        global spoof_songs
-        if (spoof_songs):
-            songs = []
-            songs.append(user.search_for_items(query="Runaway by Kanye West", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Born Sinner by J. Cole", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="COFFEE BEAN by Travis Scott", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Riteous by Juice WRLD", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="Fuck Love by XXXTENTACION", items_type='track', max_items=1)[0])
-            songs.append(user.search_for_items(query="XO Tour Llif3 by Lil Uzi Vert", items_type='track', max_items=1)[0])
-            random_track = random.choice(songs)
-            track_uri = random_track['uri']
-        elif filter_search == "":
+        if filter_search == "":
             if user.stats.saved_songs is None:
                 user.update_saved_songs()
             songs = user.stats.saved_songs
@@ -565,6 +552,30 @@ def playback():
                 songs = user.stats.saved_songs
                 random_track = random.choice(songs)
                 track_uri = random_track['track']['uri']
+                
+        user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        return jsonify("Success!")
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+
+@app.route('/games/random_friend', methods=['POST'])
+def random_friend():
+    data = request.get_json()
+    id_dict = data.get('friend_songs')
+    random_id = random.choice(list(id_dict.keys()))
+    return jsonify(random_id)
+
+@app.route('/games/playback_friends', methods=['POST'])
+def playback_friends():
+    data = request.get_json()
+    songs = data.get('songs')
+    timestamp_ms = 20000 #20 seconds playback
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        random_track = random.choice(songs)
+        track_uri = random_track['track']['uri']
                 
         user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
         return jsonify("Success!")
@@ -918,25 +929,6 @@ def upload_image():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
-# def upload_image():
-#     print("IN PROFILE/UPLOAD")
-#     if 'user' in session:
-#         data = request.get_json()
-#         image_og = data['filepath']
-#         user_data = session['user']
-#         user = User.from_json(user_data)
-#         #open image named uncompressed_image.jpg
-#         # image_og = secure_filename(image_og.filename)
-#         # if image_og.lower().endswith(('.png')) :
-#         #     im = Image.open(image_og)
-#         #     im.convert('RGB').save("image_name.jpg","JPEG") #this converts png image as jpeg
-#         storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
-#         os.rename(image_og, storage_loc)
-#         #save image locally
-#         response_data = 'Found and uploaded profile.'
-#     else:
-#         response_data = 'User session not found. Please log in again.'
-#     return jsonify(response_data)
 
 @app.route('/profile/get_image', methods=['GET'])
 def get_image():
@@ -949,16 +941,6 @@ def get_image():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
-
-# def get_image():
-#     if 'user' in session:
-#         user_data = session['user']
-#         user = User.from_json(user_data)
-#         storage_loc = os.getcwd().removesuffix('Backend\\') + "\\Icons\\" + user.spotify_id + ".jpeg"
-#         response_data =  #storage_loc
-#     else:
-#         response_data = 'User session not found. Please log in again.'
-#     return jsonify(response_data)
 
 @app.route('/profile/change_displayname', methods=['POST'])
 def change_displayname():
@@ -1040,8 +1022,8 @@ def change_location():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_background', methods=['POST'])
-def change_background():
+@app.route('/profile/set_background_image', methods=['POST'])
+def set_background_image():
     if 'user' in session:
         data = request.get_json()
         background = data.get('background')
@@ -1057,21 +1039,51 @@ def change_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/change_themes', methods=['POST'])
-def change_themes():
+@app.route('/profile/set_saved_themes', methods=['POST'])
+def set_saved_themes():
     if 'user' in session:
         data = request.get_json()
         themes = data.get('themes')
+        for theme in themes:
+            theme[0] = theme[0].replace(" ", "")
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_color_palettes(user.spotify_id, themes) == -1):
+            if (conn.update_saved_themes(user.spotify_id, themes) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/set_color_palette', methods=['POST'])
+def set_color_palette():
+    if 'user' in session:
+        data = request.get_json()
+        palette = data.get('color_palette')
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palette(user.spotify_id, palette) == -1):
+                error_message = "palette has not been stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        response_data = 'Palette updated.'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/profile/get_color_palette', methods=['GET'])
+def get_color_palette():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palette_from_user_DB(user.spotify_id)
+    else:
+        response_data = 'User session not found. Please log in again.'
     return jsonify(response_data)
 
 @app.route('/profile/get_displayname', methods=['GET'])
@@ -1121,8 +1133,8 @@ def get_chosen_song():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_background')
-def get_background():
+@app.route('/profile/get_background_image')
+def get_background_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -1133,13 +1145,13 @@ def get_background():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
-@app.route('/profile/get_themes')
-def get_themes():
+@app.route('/profile/get_saved_themes')
+def get_saved_themes():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_color_palettes_from_user_DB(user.spotify_id)
+            response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1147,7 +1159,7 @@ def get_themes():
 
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
-    from datetime import datetime, timedelta
+    from datetime import datetime
     start_time = datetime.now()
     if 'user' in session:
         #data = request.get_json()
@@ -1168,7 +1180,7 @@ def import_advanced_stats():
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_3.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019-2020_2.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019_1.json",
-                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2018-2019_0.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2018-2019_0.json"
                      ]
         user_data = session['user']
         user = User.from_json(user_data)
@@ -1178,11 +1190,7 @@ def import_advanced_stats():
             error_message = "Failed to reauthenticate token"
             return make_response(jsonify({'error': error_message}), 10)
     
-        # Get data from DB
-        # with DatabaseConnector(db_config) as conn:
-        #  DATA = conn.get_advanced_stats_from_DB(user.spotify_id)
         DATA = None
-
         time.sleep(30)
         for filepath in filepaths: 
             time.sleep(5)
@@ -1233,7 +1241,11 @@ def get_advanced_stats():
         with DatabaseConnector(db_config) as conn:
             # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
-        response_data["Emotions"] = get_emotions(user, response_data["Tracks"])
+        emotions = get_emotions(user, response_data["Tracks"])
+        if emotions is None:
+            response_data["Emotions"] = {}
+        else:
+            response_data["Emotions"] = emotions
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1261,48 +1273,16 @@ def get_emotions(user, tracks):
 
     return emotions
 
-@app.route('/api_only/get_advanced_stats_db')
-def api_only_get_advanced_stats():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data) 
-        with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
-    return Response(json.dumps(response_data, indent=4), mimetype='application/json')
-
-@app.route('/api_only/import_advanced_stats_multiple_files')
-def api_import_advanced_stats_multiple_files():
-    return
-
-@app.route('/api_only/get_advanced_stats')
-def api_import_get_advanced_stats():
-    if 'user' in session:
-        with DatabaseConnector(db_config) as conn:
-            user_exists = conn.does_user_exist_in_user_DB("0ajzwwwmv2hwa3k1bj2z19obr")
-            if user_exists:
-                user = conn.get_user_from_user_DB(spotify_id="0ajzwwwmv2hwa3k1bj2z19obr")
-                session['user'] = user.to_json()
-        filepath = request.args.get('filepath')
-        if filepath:
-            if (try_refresh(user)):
-                user = User.from_json(session['user'])
-                response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
-                response_data = json.dumps(response_data, indent=4)
-            else:
-                response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
-                response_data = json.dumps(response_data, indent=4)
-            #json_data = json.dumps(response_data, indent=4)
-            response = Response(response_data, mimetype='application/json')
-        else:
-            response = "Filepath not provided."
-
-    else:
-        response = 'User session not found. Please log in again.'
-    
-    return response
+@app.route('/store_advanced_stats')
+def store_advanced_stats():
+    id = "0ajzwwwmv2hwa3k1bj2z19obr"
+    file_path = "advanced_stats_output.json"
+    with open(file_path, 'r') as file:
+        DATA = json.load(file)
+    with DatabaseConnector(db_config) as conn:
+        if (conn.update_advanced_stats(id, DATA) == -1):
+            error_message = "Advanced stats has not been stored!"
+            return make_response(jsonify({'error': error_message}), 6969)
 
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
@@ -1639,9 +1619,7 @@ def pullsongs():
             songlist = data.get('songlist')
         except Exception as e:
             return "empty data"
-        playlistcounter = 0
-        if len(songlist) == 0 :
-            return "empty data"    
+        playlistcounter = 0    
         # Split the string into an array using regular expressions
         #titles = re.split(r'\d+\.', songlist)
         # Remove any leading or trailing whitespace from each item

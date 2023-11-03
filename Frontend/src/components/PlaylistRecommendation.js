@@ -137,40 +137,41 @@ const PlaylistRecommendation = () => {
     const [finishedPullingData, setFinished] = useState(false);
     const [selectedPlaylistName, setSelectedPlaylistName] = useState(null);
     const [selectedPlaylistID, setSelectedPlaylistID] = useState(null);
-    const [lastSelectedPlaylistID, setLastSelectedPlaylistID] = useState(null);
     const [refreshSongRecs, setRefreshSongRecs] = useState(false)
     const [selectedRecMethod, setSelectedRecMethod] = useState("genres");
-    const [songRecs, setSongRecs] = useState();
+    const [songRecs, setSongRecs] = useState(null);
     const [selectedSongID, setSelectedSongID] = useState()
     const [selectedSongName, setSelectedSongName] = useState("No song selected")
 
   //Get data from server & set top song/artists
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        console.log("getting");
-        const data = await fetchBackendDatas();
-
-        //Log data in console to view
+      if (!finishedPullingData) {
         try {
-          const objData = {
-            saved_playlists: JSON.parse(data.saved_playlists),
-          };
-          console.log(objData);
-        } catch (e) {}
+          console.log("getting");
+          const data = await fetchBackendDatas();
 
-        try {
-          setSavedPlaylists(JSON.parse(data.saved_playlists));
-        } catch (e) {
-          console.log("Saved Playlists empty");
+          //Log data in console to view
+          try {
+            const objData = {
+              saved_playlists: JSON.parse(data.saved_playlists),
+            };
+            console.log(objData);
+          } catch (e) {}
+
+          try {
+            setSavedPlaylists(JSON.parse(data.saved_playlists));
+          } catch (e) {
+            console.log("Saved Playlists empty");
+          }
+
+
+          changeFinishedValue();
+        } catch (error) {
+          alert("Page failed fetching - would load backup data but we dont got that here");
+          console.error("Error fetching data:", error);
+          changeFinishedValue();
         }
-
-
-        changeFinishedValue();
-      } catch (error) {
-        alert("Page failed fetching - would load backup data but we dont got that here");
-        console.error("Error fetching data:", error);
-        changeFinishedValue();
       }
     };
 
@@ -181,6 +182,7 @@ const PlaylistRecommendation = () => {
 
 
   function generatePlaylists(masterPlaylists, finishedPullingData) {
+    console.log("not fetching but print playlists")
     console.log(masterPlaylists)
     if (finishedPullingData) {
         return (
@@ -240,7 +242,7 @@ const PlaylistRecommendation = () => {
       getSongRecommendations(selectedPlaylistID, selectedRecMethod).then((data) => {
         console.log("DATA: "+ data);
         if (data !== null && data !== undefined && data[1] !== "") {
-          setSongRecs(data);
+          setSongRecs(JSON.parse(data));
           setRefreshSongRecs(false);
         } else if (data[1] === "") {
           console.log("Your data is so empty man ):")
@@ -257,7 +259,7 @@ const PlaylistRecommendation = () => {
                           updateParentState = {updateParentState} />;
         </div>
       )
-    } else if (finishedPullingData && songRecs !== null) {
+    } else if (songRecs !== null) {
       return (
         <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
                           dataName={"songs_for_recs"} 
@@ -268,7 +270,7 @@ const PlaylistRecommendation = () => {
                           updateParentState = {updateParentState} />;
         </div>
       )
-    } else if (finishedPullingData) {
+    } else if (finishedPullingData && selectedPlaylistID === null) {
         return <p>Please click on a playlist to get recommendations for!</p>
     } else {
         return <p></p>;
@@ -301,6 +303,7 @@ const PlaylistRecommendation = () => {
   }
   const changeSelectedRecMethod= (e) => {
     setSelectedRecMethod(e.target.value);
+    setRefreshSongRecs(true)
   }
 
   return (
