@@ -1179,6 +1179,11 @@ def import_advanced_stats():
         has_error_in_file = False
         user_data = session['user']
         user = User.from_json(user_data)
+
+        for filepath in filepaths:
+            if not os.path.exists(filepath):
+                has_error_in_file = True
+                return jsonify(has_error_in_file)
     
         # Refresh token
         if not try_refresh(user):
