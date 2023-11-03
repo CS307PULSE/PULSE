@@ -1680,9 +1680,14 @@ def playlist_create():
         user = User.from_json(user_data)
         data = request.get_json()
         name = data.get('name')
+        public = data.get('public')
+        collaborative = data.get('collaborative')
+        genre = data.get('genre')
         try_refresh(user)
-        Playlist.create_playlist(user=user, name=name)
-
+        Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
+        playlist = playlist.get('id', None)
+        if genre != 'none' and playlist != None:
+            Playlist.playlist_generate(user=user, playlist=playlist, genre=genre)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1843,6 +1848,61 @@ def pull_songs():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return "successful completion"
+
+@app.route('/recommendations/get_playlist_dict', methods=['POST'])
+def get_playlist_dict():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        playlist_id = data.get('playlist')
+        playlist_dict = Playlist.playlist_genre_analysis(user, playlist_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(playlist_dict)
+    
+@app.route('/recommendations/get_songs_from_dict')
+def get_songs_dict():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        emotion = data.get('parameters')
+        genre = data.get('genre')
+        playlist_dict = Emotion.create_new_emotion(emotion[0])
+        playlist_dict["target_energy"] = emotion[1]
+        playlist_dict["target_popularity"] = emotion[2]
+        playlist_dict["target_acousticness"] = emotion[3]
+        playlist_dict["target_danceability"] = emotion[4]
+        playlist_dict["target_duration_ms"] = emotion[5]
+        playlist_dict["target_instrumentalness"] = emotion[6]
+        playlist_dict["target_liveness"] = emotion[7]
+        playlist_dict["target_loudness"] = emotion[8]
+        playlist_dict["target_mode"] = emotion[9]
+        playlist_dict["target_speechiness"] = emotion[10]
+        playlist_dict["target_tempo"] = emotion[11]
+        playlist_dict["target_valence"] = emotion[12]
+        recommendations = Emotion.get_emotion_recommendations(user, playlist_dict, track = [], artist = [], genre = [genre])
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(recommendations)
+
+@app.route('/emotions/get_emotions')
+def get_emotions():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        playlist_dict = Playlist.playlist_genre_analysis(user, playlist_id)
+        with DatabaseConnector(db_config) as conn:
+                    playlistcounter = conn.update_recommendation_params(user.spotify_id, )
+                    conn.update_playlist_counter(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(playlist_dict)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():

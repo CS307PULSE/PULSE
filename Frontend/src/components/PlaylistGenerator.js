@@ -5,6 +5,7 @@ import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
 import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
+import { hexToRGBA } from "../theme/Colors";
 
 const PlaylistGenerator = () => {
   const { state, dispatch } = useAppContext();
@@ -17,16 +18,29 @@ const PlaylistGenerator = () => {
     backgroundRepeat: "no-repeat", //Prevent image repetition
     backgroundAttachment: "fixed", //Keep the background fixed
   };
-
-  const friendContainerStyle = {
-    position: "fixed",
-    top: 100,
-    right: 0,
-    width: "20%",
-    height: "900",
-    backgroundColor: state.colorBackground,
+  const textStyle = {
+    color: state.colorText,
+    fontSize: textSizes.body,
+    fontStyle: "normal",
+    fontFamily: "'Poppins', sans-serif",
+    margin: "5px"
   };
-
+  const headerTextStyle = {
+    color: state.colorText,
+    fontFamily: "'Poppins', sans-serif",
+    fontSize: textSizes.header3,
+    fontStyle: "normal",
+    fontWeight: 600,
+    lineHeight: "normal"
+  };
+  const sectionContainerStyle = {
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+    width: "600px",
+    padding: "20px",
+    margin: "20px",
+    position: "relative",
+    overflow: "auto"
+  }
   const buttonContainerStyle = {
     display: "flex",
     flexDirection: "column",
@@ -53,7 +67,9 @@ const PlaylistGenerator = () => {
     <div className="wrapper">
       <div className="header"><Navbar /></div>
       <div className="content" style={bodyStyle}>
-        
+        <div style={sectionContainerStyle}>
+          <div style={buttonContainerStyle}></div>
+        </div>
       </div>
       <div className="footer"><SongPlayer /></div>
     </div>

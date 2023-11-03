@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { hexToRGBA } from "../theme/Colors";
 import { parameterInfo, presetEmotions } from "../theme/Emotions";
 import axios from "axios";
+import { genreList } from "../theme/Emotions";
 
 const ParameterRecommendations = () => {  
     const { state, dispatch } = useAppContext();
@@ -16,19 +17,38 @@ const ParameterRecommendations = () => {
     const [selectedEmotionIndex, setSelectedEmotionIndex] = useState(-1);
     const [playlists, setPlaylists] = useState([]);
     const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(0);
-    const [newEmotionName, setNewEmotionName] = useState("New Emotion");
+    const [emotionName, setEmotionName] = useState("New Emotion");
     const [derivedEmotionName, setDerivedEmotionName] = useState("New Derived Emotion");
+    const [genreSelection, setGenreSelection] = useState(genreList[0]);
 
     function updateParameter(newValue, index) {
-        setSelectedEmotionIndex(-1);
         var updatedValues = [...parameters];
         updatedValues[index] = newValue;
         setParameters(updatedValues);
+        if(selectedEmotionIndex >= 0) {
+            if (selectedEmotionIndex < 3) {
+                setSelectedEmotionIndex(-1);
+                setEmotionName(emotionName + " (edited)");
+            } else {
+                const tempEmotions = emotions;
+                tempEmotions[selectedEmotionIndex].parameters = updatedValues;
+                setEmotions(tempEmotions);
+            }
+        }
     };
+    useEffect(() => {
+        if (selectedEmotionIndex >= 3) {
+            const tempEmotions = emotions;
+            tempEmotions[selectedEmotionIndex].name = emotionName;
+            setEmotions(tempEmotions);
+        }
+    }, [emotionName])
     function retrieveEmotion(index) {
         setSelectedEmotionIndex(index);
+        setEmotionName("New Emotion");
         try {
             if (index >= 0) {
+                setEmotionName(emotions[index].name);
                 setParameters(emotions[index].parameters);
             }
         } catch (e) {
@@ -54,6 +74,7 @@ const ParameterRecommendations = () => {
             console.error("Error deleting  emotion: " + e);
         }
     }
+    
     async function getPlaylists() {
         const axiosInstance = axios.create({withCredentials: true});
         var response = await axiosInstance.get("http://127.0.0.1:5000/get_saved_playlists");
@@ -71,6 +92,24 @@ const ParameterRecommendations = () => {
         } else {
             return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
         }
+    }
+    async function getEmotions() {
+        var response = await axios.get("http://127.0.0.1:5000/get_saved_playlists", {withCredentials: true});
+        const parsedPlaylists = JSON.parse(response.data.saved_playlists);
+        setPlaylists(parsedPlaylists);
+    }
+    useEffect(() => {
+        //getEmotions();
+    }, []);
+    async function derivePlaylistEmotion(playlistID) {
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_playlist_dict", {playlist: playlistID});
+        console.log(response.data);
+    }
+    async function getEmotionRecommendations(name, parameters, genre) {
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
+        console.log(response.data);
     }
     
     const bodyStyle = {
@@ -166,6 +205,10 @@ const ParameterRecommendations = () => {
             <div style={{display: "flex"}}>
             <div>
                 <div style={sectionContainerStyle}>
+                    <div style={buttonContainerStyle}>
+                        <label style={textStyle}>Emotion Name</label>
+                        <input id="emotion-name" type="text" style={buttonStyle} value={emotionName} onChange={e => {setEmotionName(e.target.value)}}></input>
+                    </div>
                     <div style={{...buttonContainerStyle, width: "100%"}}>
                         <select style={buttonStyle} id="selectEmotion" value={selectedEmotionIndex} onChange={(e) => {retrieveEmotion(e.target.value)}}>
                             <option key={-1} value={-1}>Custom Emotion</option>
@@ -175,7 +218,7 @@ const ParameterRecommendations = () => {
                                 </option>
                             ))}
                         </select>
-                        <button onClick={() => {createEmotion("new one", parameters)}} style={buttonStyle}><p>Create</p></button>
+                        <button onClick={() => {createEmotion(emotionName, parameters)}} style={buttonStyle}><p>Create</p></button>
                         <button onClick={() => {deleteEmotion(selectedEmotionIndex)}} style={buttonStyle}><p>Delete</p></button>
                     </div>
                     {parameterInfo.map((item, index) => (
@@ -189,13 +232,29 @@ const ParameterRecommendations = () => {
                 </div>
             </div>
             <div>
+                <div style={sectionContainerStyle}>
+                    <div style={buttonContainerStyle}>
+                        <label style={textStyle}>Genre </label>
+                        <select style={buttonStyle} value={genreSelection} onChange={(e) => setGenreSelection(e.target.value)}>
+                        {genreList.map((item, index) => (
+                            <option key={index} value={item}>{item}</option>
+                        ))}
+                        </select>
+                    </div>
+                    <div style={buttonContainerStyle}>
+                        <button style={buttonStyle} onClick={() => {
+                            getEmotionRecommendations(emotionName, parameters, genreSelection)
+                        }}>Get [{emotionName}] Recommendations from [{genreSelection}]</button>
+                    </div>
+                </div>
                 <div style={{...sectionContainerStyle, height: "400px"}}>
                     <div style={buttonContainerStyle}>
                         <input type="text" style={buttonStyle} value={derivedEmotionName} onChange={e => {setDerivedEmotionName(e.target.value)}}></input>
-                        <button style={{...buttonStyle, width: "200px"}} onClick={() => {}}>Derive Emotion</button>
+                        <button style={{...buttonStyle, width: "200px"}} onClick={() => {derivePlaylistEmotion(playlists[selectedPlaylistIndex].id)}}>Derive Emotion</button>
                     </div>
                     {playlists.length > 0 && playlists.map((item, index) => (
-                    <div key={index} style={{...selectionDisplayStyle, borderColor: (index == selectedPlaylistIndex ? state.colorAccent : state.colorBorder), borderWidth: (index == selectedPlaylistIndex ?  "5px" : "1px")}} 
+                    <div key={index} style={{...selectionDisplayStyle, 
+                        border: (index == selectedPlaylistIndex ?  "5px" : "1px") + " solid " + (index == selectedPlaylistIndex ? state.colorAccent : state.colorBorder)}} 
                         onClick={() => {setSelectedPlaylistIndex(index)}}>
                         <img style={imageStyle} src={getPlaylistImage(index)}></img>
                         <div>
