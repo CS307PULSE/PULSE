@@ -26,13 +26,21 @@ const ChatBot = () => {
     }, []);
 
     useEffect(() => {
+        let isMounted = true;
         console.log("Updated songs:", songs);
         
         const sendSong = async () => {
             // Check if songs is not just empty spaces
                 try {
-                    // Use POST if you want to send data in the request body
-                    const response = await axios.get('http://127.0.0.1:5000/chatbot/pull_songs', { songs }, { withCredentials: true });
+                    const axiosInstance = axios.create({
+                        withCredentials: true,
+                      });
+                      const response = await axiosInstance.post(
+                        "http://127.0.0.1:5000/chatbot/pull_songs",
+                        {
+                          songlist: songs,
+                        }
+                      );
                     console.log(response.data); // Assuming the server sends back JSON
                 } catch (error) {
                     console.error('Error sending songs:', error.response ? error.response.data : error.message);
@@ -40,8 +48,13 @@ const ChatBot = () => {
         };
     
         // Call sendSong here
-        sendSong();
-    
+        if (isMounted) {
+            sendSong();
+        }
+        
+        return () => {
+            isMounted = false;
+        };
     }, [songs]); // This will run the effect every time `songs` state updates
     
 
