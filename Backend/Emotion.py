@@ -9,7 +9,7 @@ class Emotion:
     def getangry():
         angry = {
             "name" : "angry", 
-            "target_energy": 50,
+            "target_energy": .5,
             "target_popularity": 70,
             "target_acousticness": 0,
             "target_danceability": .5,
@@ -50,7 +50,7 @@ class Emotion:
             "target_acousticness": .6,
             "target_danceability": .3,
             "target_duration_ms": 120000,
-            "target_instrumentalness": 50,
+            "target_instrumentalness": .5,
             "target_liveness": 0,
             "target_loudness": -2,
             "target_mode": 0,
@@ -157,14 +157,14 @@ class Emotion:
         song_dict["target_valence"] = song_features.get("valence", 0)
         return song_dict
 
-    def update_and_average_dict(user, original_dict, song, popularity, duration):
+    def update_and_average_dict(user, original_dict, song, popularity = 0, duration = 0):
         song_dict = Emotion.convert_track(user, song, popularity, duration)
         for key in original_dict.keys():
             if key != "name":
                 original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
-
-    def find_song_emotion(user, song, popularity):
+    
+    def find_song_emotion(user, song, popularity = 0):
         song_dict = Emotion.convert_track(user, song, popularity)
         happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
         angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)
@@ -186,15 +186,15 @@ class Emotion:
                             seed_genres=genre, 
                             max_items=10,
                             target_energy=emotiondict["target_energy"],
-                            target_popularity=emotiondict["target_popularity"],
+                            target_popularity=int(round(emotiondict["target_popularity"])),
                             target_acousticness=emotiondict["target_acousticness"],
                             target_danceability=emotiondict["target_danceability"],
-                            target_duration_ms=emotiondict["target_duration_ms"],
+                            target_duration_ms=int(round(emotiondict["target_duration_ms"])),
                             target_instrumentalness=emotiondict["target_instrumentalness"],
                             target_liveness=emotiondict["target_liveness"],
                             target_loudness=emotiondict["target_loudness"],
-                            target_mode=emotiondict["target_mode"],
+                            target_mode=int(round(emotiondict["target_mode"])),
                             target_speechiness=emotiondict["target_speechiness"],
-                            target_tempo=emotiondict["target_tempo"],
+                            target_tempo=int(round(emotiondict["target_tempo"])),
                             target_valence=emotiondict["target_valence"],
                             extraparameters = True)
