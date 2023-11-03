@@ -1574,8 +1574,8 @@ def playlist_add_song():
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        playlist = data.get('selectedPlaylistId')
-        song.append(data.get('selectedSongId'))
+        playlist = data.get('selectedPlaylistID')
+        song.append(data.get('selectedSongURI'))
         try_refresh(user)
         Playlist.add_track(user=user, playlist=playlist, song=song)
     else:
