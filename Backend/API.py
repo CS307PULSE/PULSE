@@ -1567,6 +1567,22 @@ def get_requests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
+@app.route('/playlist/add_song', methods=['POST'])
+def playlist_add_song():
+    if 'user' in session:
+        song = []
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('selectedPlaylistId')
+        song.append(data.get('selectedSongId'))
+        try_refresh(user)
+        Playlist.add_track(user=user, playlist=playlist, song=song)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return "Added track!"
+
 @app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
     if 'user' in session:
