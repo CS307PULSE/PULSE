@@ -15,10 +15,10 @@ class Playlist:
           ErrorHandler.handle_error(e)
 
     def change_image(user, playlist, url):
+        jpegString = ""
         try:
             # Download the image from the URL
             response = requests.get(url, timeout=60)
-            jpegString = ""
             #print(response.content)
             if response.status_code == 200:
                 # Convert the image content to Base64
