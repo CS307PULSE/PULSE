@@ -1240,7 +1240,6 @@ def get_advanced_stats():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
             if response_data is None:
                 error_message = "Advanced stats has not been stored!"
@@ -1283,11 +1282,13 @@ def friend_get_advanced_stats():
 def get_emotions(user, tracks):
     emotions = {}
     for track_uri in tracks.keys():
-        uri = track_uri.split(":")[-1]
-        emotion = Emotion.find_song_emotion(user, uri)
-        if emotion not in emotions.keys():
-            emotions[emotion] = 0
-        emotions[emotion] += tracks[track_uri]["Number of Minutes"]
+        if "spotify:episode:" in track_uri:
+            uri = track_uri.split(":")[-1]
+            emotion = Emotion.find_song_emotion(user, uri)
+            if emotion is not None:
+                if emotion not in emotions.keys():
+                    emotions[emotion] = 0
+                emotions[emotion] += tracks[track_uri]["Number of Minutes"]
     
     total = 0
     for emotion in emotions.keys():
