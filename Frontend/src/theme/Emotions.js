@@ -1,6 +1,6 @@
 export const parameterInfo = [
     {min: 0, max: 1, step: 0.01, name: 'Energy', key: 'target_energy'},
-    {min: 0, max: 100, step: 1, name: 'Popularity', key: 'target_popularity'},
+    {min: 0, max: 1, step: 0.01, name: 'Popularity', key: 'target_popularity'},
     {min: 0, max: 1, step: 0.01, name: 'Acousticness', key: 'target_acousticness'},
     {min: 0, max: 1, step: 0.01, name: 'Danceability', key: 'target_danceability'},
     {min: 0, max: 10, step: 0.1, name: 'Duration (min)', key: 'target_duration_min'},
