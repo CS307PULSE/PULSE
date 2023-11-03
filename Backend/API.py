@@ -1806,6 +1806,7 @@ def get_playlist_dict():
 
 @app.route('/recommendations/get_songs_from_dict')
 def get_songs_dict():
+    print("wow")
 
 
 @app.route('/feedback', methods=['POST'])
