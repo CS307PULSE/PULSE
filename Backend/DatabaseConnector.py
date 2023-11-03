@@ -227,14 +227,14 @@ class DatabaseConnector(object):
         return string_to_array_row_by_col(self.resultset[0], 5, 5, True)
     
     # Returns the gender from DB as a string.
-    def get_gender_from_user_DB(self, spotify_id, data = None):
+    def get_gender_from_user_DB(self, spotify_id):
         sql = "SELECT gender from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
     # Returns the has_uploaded from DB as a string.
-    def get_has_uploaded_from_user_DB(self, spotify_id, data = None):
+    def get_has_uploaded_from_user_DB(self, spotify_id):
         sql = "SELECT has_uploaded from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()

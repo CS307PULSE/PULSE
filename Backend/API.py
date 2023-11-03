@@ -1157,6 +1157,18 @@ def get_saved_themes():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
 
+@app.route('/advanced_data_check')
+def advanced_data_check():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_has_uploaded_from_user_DB(user.spotify_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
     from datetime import datetime
@@ -1166,6 +1178,7 @@ def import_advanced_stats():
         filepaths = data.get('filepaths')
         print(filepaths)
         return "worked"
+        has_error_in_file = False
         filepaths = ["C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_16.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_15.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2023_14.json",
@@ -1198,18 +1211,21 @@ def import_advanced_stats():
             time.sleep(5)
             if filepath:
                 try: 
-                    DATA = user.stats.advanced_stats_import(filepath=filepath, 
+                    temp = user.stats.advanced_stats_import(filepath=filepath, 
                                                             token=user.login_token['access_token'], 
                                                             more_data=True, 
                                                             ADVANCED_STATS_DATA=DATA,
                                                             include_podcasts=True)
                 except Exception as e:
                     print(e)
+                    temp = DATA
                     error_message = f"Invalid file information for file {filepath}!"
-                    return make_response(jsonify({'error': error_message}), 6969)        
+                    has_error_in_file = True 
+                DATA = temp
             else:
                 error_message = f"Invalid filepath for filepath: {filepath}!"
-                return make_response(jsonify({'error': error_message}), 40)
+                has_error_in_file = True
+                
     
         # Store in DB
         end_time = datetime.now()
@@ -1224,6 +1240,9 @@ def import_advanced_stats():
             if (conn.update_advanced_stats(user.spotify_id, DATA) == -1):
                 error_message = "Advanced stats has not been stored!"
                 return make_response(jsonify({'error': error_message}), 6969)
+            if (conn.update_has_uploaded(user.spotify_id, True) == -1):
+                error_message = "Advanced stats has updated has not been toggled!"
+                return make_response(jsonify({'error': error_message}), 6969)
 
         end_time = datetime.now()
         time_elapsed = end_time - start_time
@@ -1233,7 +1252,8 @@ def import_advanced_stats():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-    return jsonify(response_data)
+    print(response_data)
+    return jsonify(has_error_in_file)
 
 @app.route('/get_advanced_stats')
 def get_advanced_stats():
