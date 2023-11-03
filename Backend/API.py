@@ -1665,13 +1665,13 @@ def playlist_create():
         return make_response(jsonify({'error': error_message}), 69)
     return "Created playlist!"
 
-@app.route('/playlist/get_tracks')
+@app.route('/playlist/get_tracks', methods = ['POST'])
 def playlist_get_tracks():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        playlist = data.get('playlistid')
+        playlist = data.get('playlist')
         try_refresh(user)
         response_data = Playlist.playlist_get_tracks(user=user, playlist=playlist)
     else:
@@ -1682,11 +1682,13 @@ def playlist_get_tracks():
 @app.route('/playlist/add_track', methods=['POST'])
 def playlist_add_track():
     if 'user' in session:
+        song = []
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        playlist = data.get('playlistid')
-        song = data.get('song')
+        playlist = data.get('playlist')
+        song.append(data.get('song'))
+        print(playlist)
         try_refresh(user)
         Playlist.add_track(user=user, playlist=playlist, song=song)
     else:
@@ -1701,9 +1703,9 @@ def playlist_remove_track():
         user = User.from_json(user_data)
         data = request.get_json()
         playlist = data.get('playlist')
-        uri = data.get('uri')
+        uri = data.get('song')
         try_refresh(user)
-        Playlist.track_remove(user=user, playlist=playlist, uri=uri)
+        Playlist.track_remove(user=user, playlist=playlist, spotify_uri=uri)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1717,6 +1719,7 @@ def playlist_change_image():
         data = request.get_json()
         playlist = data.get('playlist')
         url = data.get('url')
+        print(url)
         try_refresh(user)
         Playlist.change_image(user=user, playlist=playlist, url=url)
     else:
