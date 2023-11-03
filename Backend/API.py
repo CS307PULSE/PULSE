@@ -395,11 +395,15 @@ def get_friends_recent_songs():
     friend_ids = data.get('friend_ids')
     friend_songs = {}
     for friend_id in friend_ids.keys():
-        with DatabaseConnector(db_config) as conn:
-            user = conn.get_user_from_user_DB(spotify_id=friend_id)
-        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
-
         try:
+            with DatabaseConnector(db_config) as conn:
+                user_exists = conn.does_user_exist_in_user_DB(friend_id)
+                if user_exists:
+                    user = conn.get_user_from_user_DB(spotify_id=friend_id)
+                else:
+                    return "error"
+            user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
+
             update_data(user,
                 update_recent_history=True,
                 update_top_songs=False,
@@ -413,6 +417,7 @@ def get_friends_recent_songs():
 
         except Exception as e:
             print(e)
+            return "error"
             friend_songs[friend_id] = {}
 
     return jsonify(friend_songs)
@@ -1301,7 +1306,7 @@ def get_emotions(user, tracks):
         total = 1
 
     for emotion in emotions.keys():
-        emotions['emotion'] /= total
+        emotions[emotion] /= total
 
     return emotions
 
@@ -1671,7 +1676,7 @@ def playlist_create():
         collaborative = data.get('collaborative')
         genre = data.get('genre')
         try_refresh(user)
-        Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
+        playlist = Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
         playlist = playlist.get('id', None)
         if genre != 'none' and playlist != None:
             Playlist.playlist_generate(user=user, playlist=playlist, genre=genre)
@@ -1877,12 +1882,13 @@ def get_songs_dict():
     return jsonify(recommendations)
 
 @app.route('/emotions/get_emotions')
-def get_emotions():
+def analyze_emotions():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        playlist_dict = Playlist.playlist_genre_analysis(user, playlist_id)
+        playlist = data['playlist']
+        playlist_dict = Playlist.playlist_genre_analysis(user, playlist)
         with DatabaseConnector(db_config) as conn:
                     playlistcounter = conn.update_recommendation_params(user.spotify_id, )
                     conn.update_playlist_counter(user.spotify_id)
@@ -1895,10 +1901,23 @@ def get_emotions():
 def feedback():
     data = request.get_json()
     feedback = data.get('feedback')
+    send_feedback_email(data)
     with DatabaseConnector(db_config) as conn:
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
     return "Success"
+
+def send_feedback_email(feedback):
+    try:
+        msg = Message("New Feedback Submission", 
+                      recipients=["airplainfood@gmail.com"])
+        msg.body = f"New feedback received:\n\n{feedback}"
+        mail.send(msg)
+        print("Mail sent successfully.")
+    except Exception as e:
+        print(str(e))
+        print("failed sending email")
+        # Handle exceptions (e.g., email not sent)
 
 @app.route('/test')
 def test():
