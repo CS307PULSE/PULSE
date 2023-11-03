@@ -67,6 +67,9 @@ export const LineGraph = (props) => {
     if (props.data === undefined || props.data === null) {
       setData("Bad Data");
       return;
+    } else if (props.data === "Empty") {
+      setData("Advanced Data Failed to Load");
+      return;
     }
     try {
       if (props.dataName === "followers") {
@@ -78,6 +81,7 @@ export const LineGraph = (props) => {
         setData(fixFollowerData());
       } else if (
         props.dataName === "numMinutes" ||
+        props.dataName === "numStreams" ||
         props.dataName === "percentTimes"
       ) {
         const tempData = props.bothFriendAndOwnData
@@ -91,6 +95,7 @@ export const LineGraph = (props) => {
                 uri: key,
               }))
             );
+            setSelectionGraph(true);
             break;
           case "artists":
             setItemsSelectable(
@@ -99,6 +104,7 @@ export const LineGraph = (props) => {
                 uri: key,
               }))
             );
+            setSelectionGraph(true);
             break;
           case "genres":
             setItemsSelectable(
@@ -107,6 +113,7 @@ export const LineGraph = (props) => {
                 uri: key,
               }))
             );
+            setSelectionGraph(true);
             break;
           case "eras":
             setItemsSelectable(
@@ -115,11 +122,125 @@ export const LineGraph = (props) => {
                 uri: key,
               }))
             );
+            setSelectionGraph(true);
             break;
+          case "all":
+            setSelectionGraph(false);
+            const readVal =
+              props.dataName === "numMinutes"
+                ? "Number of Minutes"
+                : props.dataName === "percentTimes"
+                ? "Average Percentage of Streams"
+                : props.dataName === "numStreams"
+                ? "Number of Streams"
+                : "Number of Streams";
+            let years = props.bothFriendAndOwnData
+              ? Array.from(
+                  new Set([
+                    Object.keys(props.data[0].Yearly),
+                    Object.keys(props.data[1].Yearly),
+                  ])
+                )
+              : Object.keys(props.data.Yearly);
+            years.sort(function (a, b) {
+              return a - b;
+            });
+            const dataSource = props.bothFriendAndOwnData
+              ? [props.data[0], props.data[1]]
+              : props.data;
+            let months = [
+              "JANUARY",
+              "FEBRUARY",
+              "MARCH",
+              "APRIL",
+              "MAY",
+              "JUNE",
+              "JULY",
+              "AUGUST",
+              "SEPTEMBER",
+              "OCTOBER",
+              "NOVEMBER",
+              "DECEMBER",
+            ];
+            let DataOrder = ["Overall"];
+            for (const year of years) {
+              DataOrder.push(year);
+              for (const month of months) {
+                DataOrder.push(month + " " + year);
+              }
+            }
+
+            if (props.bothFriendAndOwnData) {
+              const itemName = [props.friendName, "User"];
+              let tempDataArr = [];
+              props.data.map((user, index) => {
+                let tempUserData = [];
+                //Overall data
+                tempUserData.push({
+                  x: "Overall",
+                  y: props.data[index][readVal],
+                });
+
+                //Yearly & monthly
+                for (const year of Object.keys(props.data[index].Yearly)) {
+                  tempUserData.push({
+                    x: year,
+                    y: props.data[index].Yearly[year][readVal],
+                  });
+
+                  //Monthly data
+                  for (const month of Object.keys(
+                    props.data[index].Yearly[year].Monthly
+                  )) {
+                    tempUserData.push({
+                      x: month + " " + year,
+                      y: props.data[index].Yearly[year].Monthly[month][readVal],
+                    });
+                  }
+                }
+                tempUserData.sort((a, b) => {
+                  return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
+                });
+                tempDataArr.push(tempUserData);
+              });
+              setData([
+                { id: itemName[0], data: tempDataArr[0] },
+                { id: itemName[1], data: tempDataArr[1] },
+              ]);
+            } else {
+              let tempDataArr = [];
+              //Overall data
+              const itemName =
+                props.friendName !== undefined ? props.friendName : "User";
+              tempDataArr.push({ x: "Overall", y: props.data[readVal] });
+
+              //Yearly & monthly
+              for (const year of Object.keys(props.data.Yearly)) {
+                tempDataArr.push({
+                  x: year,
+                  y: props.data.Yearly[year][readVal],
+                });
+
+                //Monthly data
+                for (const month of Object.keys(
+                  props.data.Yearly[year].Monthly
+                )) {
+                  tempDataArr.push({
+                    x: month + " " + year,
+                    y: props.data.Yearly[year].Monthly[month][readVal],
+                  });
+                }
+              }
+              tempDataArr.sort((a, b) => {
+                return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
+              });
+              setData([{ id: itemName, data: tempDataArr }]);
+            }
+            return;
           default:
             throw new Error("Bad DataVariation=" + props.dataVariation);
         }
-        setSelectionGraph(true);
+
         setData([
           {
             id: "",
@@ -390,6 +511,8 @@ export const LineGraph = (props) => {
           ? "Number of Minutes"
           : props.dataName === "percentTimes"
           ? "Average Percentage of Streams"
+          : props.dataName === "numStreams"
+          ? "Number of Streams"
           : "Skips";
       let itemType =
         props.dataVariation === "songs"
@@ -540,6 +663,8 @@ export const LineGraph = (props) => {
     return <>Still generating graph</>;
   } else if (data === "Bad Data") {
     return <p>Your data is empty!</p>;
+  } else if (data === "Advanced Data Failed to Load") {
+    return <p>Advanced Data is unavailable right now!</p>;
   }
 
   const xAxisTicks =
@@ -619,21 +744,31 @@ export const LineGraph = (props) => {
           useMesh={true}
           tooltip={
             props.dataName === "numMinutes" ||
+            props.dataName === "numStreams" ||
             props.dataName === "percentTimes" ||
             props.dataName === "percentTimePeriod" ||
             props.dataName === "numTimesSkipped"
               ? ({ point }) => {
+                  console.log(point);
                   if (point === undefined) {
                     return undefined;
                   } else {
                     return (
                       <div className="GraphTooltip">
-                        <div>{point.id.slice(0, -2)}</div>
+                        <div>
+                          {props.dataVariation === "all"
+                            ? point.id.slice(0, -2) +
+                              " " +
+                              point.data.xFormatted
+                            : point.id.slice(0, -2)}
+                        </div>
                         <div>
                           {props.dataName.includes("percent")
                             ? "% of time"
                             : props.dataName === "numMinutes"
                             ? "Minutes"
+                            : props.dataName === "numStreams"
+                            ? "Number of streams"
                             : "Times skipped"}
                           :{" "}
                           {point.data.yFormatted *
