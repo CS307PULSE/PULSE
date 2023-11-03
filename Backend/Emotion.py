@@ -143,6 +143,8 @@ class Emotion:
         }
         song_features = user.spotify_user.audio_features(song)
         song_features = song_features[0]
+        if song_features is None:
+            return None
         song_dict["target_energy"] = song_features.get("energy", 0)
         song_dict["target_popularity"] = popularity
         song_dict["target_acousticness"] = song_features.get("acousticness", 0)
@@ -166,6 +168,8 @@ class Emotion:
     
     def find_song_emotion(user, song, popularity = 0):
         song_dict = Emotion.convert_track(user, song, popularity)
+        if song_dict is None:
+            return None
         happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
         angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)
         saddistance = Emotion.calculate_total_distance(Emotion.getsad, song_dict)
