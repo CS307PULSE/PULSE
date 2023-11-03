@@ -180,7 +180,7 @@ if(!flag){
       <div style={boxStyle}>
         {!isStartClicked ? (
           <>
-            <h2 style={gameTitleStyle}>Heads Up: Who Listens To This Song</h2>
+            <h2 style={gameTitleStyle}> Who Listens To This Song</h2>
             <h4 style={gameSubTitleStyle}>
               <u>Rules of the Game:</u> The game can have 1-10 players and 1-10 rounds per game.
             </h4>
