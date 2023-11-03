@@ -1896,6 +1896,7 @@ def analyze_emotions():
         data = request.get_json()
         playlist = data['playlist']
         playlist_dict = Playlist.playlist_genre_analysis(user, playlist)
+        playlist_dict = list(playlist_dict.values())
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
