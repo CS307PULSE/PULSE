@@ -271,6 +271,7 @@ def friend_statistics():
     id = data.get('id')
     with DatabaseConnector(db_config) as conn:
         user = conn.get_user_from_user_DB(spotify_id=id)
+    user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
     if user is None:
         error_message = "The user is not found! Please try again!"
@@ -288,6 +289,7 @@ def friend_statistics():
 
     try:
         start_time2 = time.time()
+        try_refresh(user)
         update_data(user)
         end_time2 = time.time()
         execution_time2 = end_time2 - start_time2
@@ -394,6 +396,7 @@ def get_friends_recent_songs():
     for friend_id in friend_ids.keys():
         with DatabaseConnector(db_config) as conn:
             user = conn.get_user_from_user_DB(spotify_id=friend_id)
+        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
         try:
             update_data(user,
