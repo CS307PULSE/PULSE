@@ -47,63 +47,11 @@ async function sendSongToBeAdded(selectedPlaylistID, selectedSongURI) {
   return data;
 }
 
-const bodyStyle = {
-  backgroundColor: state.colorBackground
-};
 
-const searchContainerStyle = {
-    display: "flex",
-    marginLeft: "30px",
-    // justifyContent: 'center',
-    marginBottom: "20px",
-};
-
-const searchInputStyle = {
-    padding: "8px",
-    width: "75%",
-    display: "flex-grow",
-};
-
-
-const friendContainerStyle = {
-  position: "fixed",
-  top: 100,
-  right: 0,
-  width: "20%",
-  height: "900",
-  backgroundColor: state.colorBackground,
-};
-
-const buttonContainerStyle = {
-  position: "fixed",
-  left: 0,
-  display: "flex",
-  paddingTop: "270px",
-  flexDirection: "column",
-  justifyContent: "flex-start",
-  alignItems: "center",
-  margin: "auto",
-  marginTop: "100px",
-  height: "auto", // Take up the full height
-  width: "70%", // Adjust the width of the button container
-};
-
-const buttonStyle = {
-  backgroundColor: state.colorBackground,
-  color: state.colorButton,
-  padding: "20px 40px", // Increase the padding for taller buttons
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: state.colorText,
-  borderRadius: "10px",
-  cursor: "pointer",
-  margin: "5px",
-  width: "70%", // Adjust the width to take up the entire space available
-  textAlign: "center", // Center the text horizontally
-};
 
 
 const PlaylistRecommendation = () => {
+  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
@@ -117,6 +65,61 @@ const PlaylistRecommendation = () => {
   const [selectedSongURI, setselectedSongURI] = useState()
   const [selectedSongName, setSelectedSongName] = useState("No song selected")
   const [finishedGettingSongs, setFinishedGettingSongs] = useState(false);
+
+  const bodyStyle = {
+    backgroundColor: state.colorBackground
+  };
+  
+  const searchContainerStyle = {
+      display: "flex",
+      marginLeft: "30px",
+      // justifyContent: 'center',
+      marginBottom: "20px",
+  };
+  
+  const searchInputStyle = {
+      padding: "8px",
+      width: "75%",
+      display: "flex-grow",
+  };
+  
+  
+  const friendContainerStyle = {
+    position: "fixed",
+    top: 100,
+    right: 0,
+    width: "20%",
+    height: "900",
+    backgroundColor: state.colorBackground,
+  };
+  
+  const buttonContainerStyle = {
+    position: "fixed",
+    left: 0,
+    display: "flex",
+    paddingTop: "270px",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    margin: "auto",
+    marginTop: "100px",
+    height: "auto", // Take up the full height
+    width: "70%", // Adjust the width of the button container
+  };
+  
+  const buttonStyle = {
+    backgroundColor: state.colorBackground,
+    color: state.colorButton,
+    padding: "20px 40px", // Increase the padding for taller buttons
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: state.colorText,
+    borderRadius: "10px",
+    cursor: "pointer",
+    margin: "5px",
+    width: "70%", // Adjust the width to take up the entire space available
+    textAlign: "center", // Center the text horizontally
+  };
 
   //Get data from server & set top song/artists
   useEffect(() => {
