@@ -4,6 +4,7 @@
 #pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
 from flask_cors import CORS
+from flask_mail import Mail, Message
 # import firebase_admin
 # from firebase_admin import credentials, auth
 from User import User
@@ -52,6 +53,13 @@ CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0
 app.secret_key = 'your_secret_key'
 app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
 app.config['SESSION_COOKIE_SECURE'] = False
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'airplainfood@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Flyingfludoodle12'
+app.config['MAIL_DEFAULT_SENDER'] = 'airplainfood@gmail.com'
+mail = Mail(app)
 
 scopes = [
     #Images
@@ -395,11 +403,15 @@ def get_friends_recent_songs():
     friend_ids = data.get('friend_ids')
     friend_songs = {}
     for friend_id in friend_ids.keys():
-        with DatabaseConnector(db_config) as conn:
-            user = conn.get_user_from_user_DB(spotify_id=friend_id)
-        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
-
         try:
+            with DatabaseConnector(db_config) as conn:
+                user_exists = conn.does_user_exist_in_user_DB(friend_id)
+                if user_exists:
+                    user = conn.get_user_from_user_DB(spotify_id=friend_id)
+                else:
+                    return "error"
+            user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
+
             update_data(user,
                 update_recent_history=True,
                 update_top_songs=False,
@@ -413,6 +425,7 @@ def get_friends_recent_songs():
 
         except Exception as e:
             print(e)
+            return "error"
             friend_songs[friend_id] = {}
 
     return jsonify(friend_songs)
@@ -1895,10 +1908,23 @@ def get_emotions():
 def feedback():
     data = request.get_json()
     feedback = data.get('feedback')
+    send_feedback_email(data)
     with DatabaseConnector(db_config) as conn:
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
     return "Success"
+
+def send_feedback_email(feedback):
+    try:
+        msg = Message("New Feedback Submission", 
+                      recipients=["airplainfood@gmail.com"])
+        msg.body = f"New feedback received:\n\n{feedback}"
+        mail.send(msg)
+        print("Mail sent successfully.")
+    except Exception as e:
+        print(str(e))
+        print("failed sending email")
+        # Handle exceptions (e.g., email not sent)
 
 @app.route('/test')
 def test():
