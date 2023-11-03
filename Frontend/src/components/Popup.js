@@ -1,4 +1,17 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+async function fetchFriends() {
+  const response = await axios.get(
+    "http://127.0.0.1:5000/friends/get_friends",
+    {
+      withCredentials: true,
+    }
+  );
+  const data = response.data;
+  console.log(response);
+  return data;
+}
 
 //Popup passing through open and close functions
 export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
@@ -24,8 +37,13 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [barData, setBarData] = useState(false);
   const [lineData, setLineData] = useState(false);
   const [timesField, setTimesField] = useState(false);
+  const [friendsAvailable, setFriendsAvailable] = useState(false);
+  const [wantFriendData, setWantFriendData] = useState(false);
+  const [defaultFriend, setDefaultFriend] = useState();
+  const [advancedData, setAdvancedData] = useState(false);
 
   //Data variables
+  const [friends, setFriends] = useState();
   const [dataSelected, setDataSelected] = useState();
   const [dataOptions, setDataOptions] = useState([
     { value: "bar1", label: "Sample Data1", visible: true },
@@ -79,20 +97,36 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     },
   ]);
 
+  //Update friends
+  useEffect(() => {
+    fetchFriends()
+      .then((result) => {
+        setDefaultFriend(result[0].spotify_id);
+        setFriendsAvailable(true);
+        setFriends(result);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, []);
+
   //Update Data info
   useEffect(() => {
     if (dataSelected === "numMinutes" || dataSelected === "percentTimes") {
       setSpecTimesDataSelected(true);
       setTimesField(true);
+      setAdvancedData(true);
     } else if (
       dataSelected === "percentTimePeriod" ||
       dataSelected === "numTimesSkipped"
     ) {
       setSpecTimesDataSelected(false);
       setTimesField(true);
+      setAdvancedData(true);
     } else {
       setSpecTimesDataSelected(false);
       setTimesField(false);
+      setAdvancedData(false);
     }
     if (imageGraph) {
       setTimesField(true);
@@ -190,6 +224,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     setLineData(false);
     switch (e.target.value) {
       case "ImageGraph":
+      case "Text":
         setImageGraph(true);
         setDisableTheme(true);
         break;
@@ -201,13 +236,15 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           setBarData(true);
         } else {
           setLineData(true);
+          setMultiDataEN(true);
+          setTimesDataEN(true);
+          setFollowerData(true);
         }
         setAxisTitlesEN(true);
         setLegendEN(true);
-        setTimesDataEN(true);
-        setFollowerData(true);
         break;
       case "RadBar":
+        setMultiDataEN(true);
         setLineData(true);
         setTimesDataEN(true);
         setFollowerData(true);
@@ -224,8 +261,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
       case "Radar":
         setRadarData(true);
         break;
-      case "Text":
-        break;
+
       case "Calendar":
         setFollowerData(true);
         setDisableTheme(true);
@@ -265,6 +301,12 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     if (formJson.data === "numTimesSkipped") {
       formJson.dataVariation = "songs";
     }
+    if (formJson.friendID !== undefined) {
+      const friendIndex = friends.findIndex((element, index) => {
+        return element.spotify_id === formJson.friendID;
+      });
+      formJson.friendName = friends[friendIndex].name;
+    }
 
     if (validName) {
       onClose();
@@ -274,6 +316,14 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     } else {
       alert("Invalid graph name! Enter a better name!");
     }
+  }
+
+  if (friends === undefined) {
+    return (
+      <div className="PopupOverlay">
+        <div className="PopupContent">Loading data</div>
+      </div>
+    );
   }
 
   return (
@@ -417,6 +467,42 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
           <div>
             Legend Enabled:
             <input name="legendEnabled" type="checkbox" disabled={!legendEN} />
+          </div>
+          <div>
+            Display Friend's Data? :
+            <input
+              name="friendDataOn"
+              type="checkbox"
+              checked={wantFriendData}
+              onChange={(e) => {
+                setWantFriendData(e.target.checked);
+              }}
+              disabled={!friendsAvailable}
+            />
+          </div>
+          <div>
+            Which friend?:
+            <select
+              name="friendID"
+              defaultValue={defaultFriend}
+              disabled={!wantFriendData}
+            >
+              {friendsAvailable
+                ? friends.map((friend) => (
+                    <option key={friend.spotify_id} value={friend.spotify_id}>
+                      {friend.name}
+                    </option>
+                  ))
+                : null}
+            </select>
+          </div>
+          <div>
+            Display both own data and friend's data? :
+            <input
+              name="bothFriendAndOwnData"
+              type="checkbox"
+              disabled={!multiDataEN || !wantFriendData}
+            />
           </div>
           <div>
             Link Click Action:{" "}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { Tooltip } from "react-tooltip";
-import { line1, bar1, pie1, pie2 } from "./Graphs/Graphs";
+import { line1, bar1, pie1, pie2, nameFromDataName } from "./Graphs/Graphs";
 import BarGraph from "./Graphs/BarGraph";
 import LineGraph from "./Graphs/LineGraph";
 import PieGraph from "./Graphs/PieGraph";
@@ -10,12 +10,14 @@ import ImageGraph from "./Graphs/ImageGraph";
 import CalendarGraph from "./Graphs/CalendarGraph";
 import ScatterGraph from "./Graphs/ScatterGraph";
 import RadialBarGraph from "./Graphs/RadialBarGraph";
+import RadarGraph from "./Graphs/RadarGraph.js";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
 import tempBasicData from "./TempData/BasicStats.js";
 import tempAdvancedData from "./TempData/AdvancedStats";
 import defaultLayout from "./TempData/defaultLayout";
+import TextGraph from "./Graphs/TextGraph.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -26,6 +28,34 @@ async function fetchBasicData() {
   const data = response.data;
   console.log(response);
   return data;
+}
+
+async function fetchBasicFriendData(spotify_id) {
+  const response = await axios.post("http://127.0.0.1:5000/friend_statistics", {
+    id: spotify_id,
+  });
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
+async function fetchAdvancedFriendData(spotify_id) {
+  try {
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    const response = await axiosInstance.post(
+      "http://127.0.0.1:5000/friend_get_advanced_stats",
+      {
+        id: spotify_id,
+      }
+    );
+    const data = response.data;
+    console.log(response);
+    return data;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function fetchAdvancedData() {
@@ -69,6 +99,8 @@ export default function GraphGrid() {
   const [followedArtists, setFollowedArtists] = useState();
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
+  const [friendDatas, setFriendDatas] = useState([]);
+  const [friendDataUpdated, setFriendDataUpdated] = useState(true);
   const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
@@ -176,15 +208,15 @@ export default function GraphGrid() {
         try {
           console.log("Got below data");
           const objData = {
-            top_artists: JSON.parse(data.top_artists),
-            top_songs: JSON.parse(data.top_songs),
-            recent_history: JSON.parse(data.recent_history),
-            saved_songs: JSON.parse(data.saved_songs),
-            saved_albums: JSON.parse(data.saved_albums),
-            followed_artists: JSON.parse(data.followed_artists),
-            layout_data: JSON.parse(data.layout_data),
+            top_artists: data.top_artists,
+            top_songs: data.top_songs,
+            recent_history: data.recent_history,
+            saved_songs: data.saved_songs,
+            saved_albums: data.saved_albums,
+            followed_artists: data.followed_artists,
+            layout_data: data.layout_data,
             follower_data: data.follower_data,
-            saved_playlists: JSON.parse(data.saved_playlists),
+            saved_playlists: data.saved_playlists,
           };
           console.log(objData);
         } catch (e) {
@@ -193,41 +225,41 @@ export default function GraphGrid() {
 
         //Try catch for each data for parsing failure when data field empty
         try {
-          setTopArtists(JSON.parse(data.top_artists));
+          setTopArtists(data.top_artists);
         } catch (e) {
           console.log("Top Artist empty");
         }
         try {
-          setTopSongs(JSON.parse(data.top_songs));
+          setTopSongs(data.top_songs);
         } catch (e) {
           console.log("Top Song empty");
         }
         try {
-          setRecentSongs(JSON.parse(data.recent_history));
+          setRecentSongs(data.recent_history);
         } catch (e) {
           console.log("Recent songs empty");
         }
 
         try {
-          setSavedSongs(JSON.parse(data.saved_songs));
+          setSavedSongs(data.saved_songs);
         } catch (e) {
           console.log("Saved Songs empty");
         }
 
         try {
-          setSavedAlbums(JSON.parse(data.saved_albums));
+          setSavedAlbums(data.saved_albums);
         } catch (e) {
           console.log("Saved Albums empty");
         }
 
         try {
-          setSavedPlaylists(JSON.parse(data.saved_playlists));
+          setSavedPlaylists(data.saved_playlists);
         } catch (e) {
           console.log("Saved Playlists empty");
         }
 
         try {
-          setFollowedArtists(JSON.parse(data.followed_artists));
+          setFollowedArtists(data.followed_artists);
         } catch (e) {
           console.log("Followed Artists empty");
         }
@@ -245,7 +277,7 @@ export default function GraphGrid() {
         } else {
           console.log("Getting databse layouts");
           //Set local storage of layouts
-          const layout_data = JSON.parse(data.layout_data);
+          const layout_data = data.layout_data;
           let newLayouts = layout_data.layouts;
           console.log(newLayouts);
 
@@ -294,6 +326,9 @@ export default function GraphGrid() {
           setAdvancedData(data);
         }
       } catch (error) {
+        alert(
+          "Page failed fetching advanced data - loading backup advanced data"
+        );
         console.log(
           "Page failed fetching advanced data - loading backup advanced data"
         );
@@ -322,6 +357,11 @@ export default function GraphGrid() {
       data: newGraphData.data,
       timeRange: newGraphData.timeRange,
       dataVariation: newGraphData.dataVariation,
+      friendDataOn: newGraphData.friendDataOn === "on" ? true : false,
+      friendName: newGraphData.friendName,
+      friendID: newGraphData.friendID,
+      bothFriendAndOwnData:
+        newGraphData.bothFriendAndOwnData === "on" ? true : false,
       graphSettings: {
         graphTheme: newGraphData.graphTheme,
         clickAction: newGraphData.clickAction,
@@ -342,66 +382,262 @@ export default function GraphGrid() {
       );
     }
 
+    if (newGraphData.friendDataOn === "on") {
+      if (
+        !friendDatas.some((element) => element.id === newGraphData.friendID)
+      ) {
+        setFriendDataUpdated(false);
+        fetchBasicFriendData(newGraphData.friendID).then((basicFriendData) => {
+          fetchAdvancedFriendData(newGraphData.friendID).then(
+            (advancedFriendData) => {
+              if (advancedFriendData !== null) {
+                setFriendDatas([
+                  ...friendDatas,
+                  {
+                    id: newGraphData.friendID,
+                    name: newGraphData.friendName,
+                    basicData: basicFriendData,
+                    advancedData: advancedFriendData,
+                  },
+                ]);
+              } else {
+                alert(
+                  "Page failed fetching friend advanced data - loading backup advanced data"
+                );
+                console.log(
+                  "Page failed fetching friend advanced data - loading backup advanced data"
+                );
+                setFriendDatas([
+                  ...friendDatas,
+                  {
+                    id: newGraphData.friendID,
+                    name: newGraphData.friendName,
+                    basicData: basicFriendData,
+                    advancedData: advancedData,
+                  },
+                ]);
+              }
+              setFriendDataUpdated(true);
+            }
+          );
+        });
+      }
+    }
     console.log("New Layout item added:");
     console.log(newGraph);
     AddContainer(newGraph);
   };
 
-  function getData(dataName, dataVariation, timeRange) {
-    //console.log("Got this data: " + dataName);
+  function getData(props) {
+    switch (props.data) {
+      case "bar1":
+        return bar1;
+      case "line1":
+        return line1;
+      case "pie1":
+        return pie1;
+      case "pie2":
+        return pie2;
+      case "justReturn":
+        return;
+      case "emotion":
+        return;
+      default:
+        break;
+    }
     try {
-      switch (dataName) {
-        case "bar1":
-          return bar1;
-        case "line1":
-          return line1;
-        case "pie1":
-          return pie1;
-        case "pie2":
-          return pie2;
-        case "top_songs":
-          switch (timeRange) {
-            case "4week":
-              return topSongs[0];
-            case "6month":
-              return topSongs[1];
-            case "all":
-              return topSongs[2];
-            default:
-              return topSongs;
-          }
-        case "top_artists":
-          switch (timeRange) {
-            case "4week":
-              return topArtists[0];
-            case "6month":
-              return topArtists[1];
-            case "all":
-              return topArtists[2];
-            default:
-              return topArtists;
-          }
-        case "followers":
-          return followers;
-        case "recent_songs":
-          return recentSongs;
-        case "saved_songs":
-          return savedSongs;
-        case "saved_albums":
-          return savedAlbums;
-        case "saved_playlists":
-          return savedPlaylists;
-        case "followed_artists":
-          return followedArtists;
-        case "numMinutes":
-        case "percentTimes":
-        case "percentTimePeriod":
-        case "numTimesSkipped":
-        case "emotion":
-          return advancedData;
-        default:
+      //Get data for friend if not gotten before
+      if (props.friendName !== undefined) {
+        console.log(props);
+
+        const friendIndex = friendDatas.findIndex((element, index) => {
+          return element.id === props.friendID;
+        });
+
+        if (friendIndex === -1) {
           return null;
+        }
+
+        if (props.bothFriendAndOwnData) {
+          switch (props.data) {
+            case "top_songs":
+              switch (props.timeRange) {
+                case "4week":
+                  return [
+                    topSongs[0],
+                    friendDatas[friendIndex].basicData.top_songs[0],
+                  ];
+                case "6month":
+                  return [
+                    topSongs[1],
+                    friendDatas[friendIndex].basicData.top_songs[2],
+                  ];
+                case "all":
+                  return [
+                    topSongs[1],
+                    friendDatas[friendIndex].basicData.top_songs[2],
+                  ];
+                default:
+                  return [
+                    topSongs,
+                    friendDatas[friendIndex].basicData.top_songs,
+                  ];
+              }
+            case "top_artists":
+              switch (props.timeRange) {
+                case "4week":
+                  return [
+                    topArtists[0],
+                    friendDatas[friendIndex].basicData.top_artists[0],
+                  ];
+                case "6month":
+                  return [
+                    topArtists[1],
+                    friendDatas[friendIndex].basicData.top_artists[1],
+                  ];
+                case "all":
+                  return [
+                    topArtists[2],
+                    friendDatas[friendIndex].basicData.top_artists[2],
+                  ];
+                default:
+                  return [
+                    topArtists,
+                    friendDatas[friendIndex].basicData.top_artists,
+                  ];
+              }
+            case "followers":
+              return [
+                followers,
+                friendDatas[friendIndex].basicData.follower_data,
+              ];
+            case "recent_songs":
+              return [
+                recentSongs,
+                friendDatas[friendIndex].basicData.recent_history,
+              ];
+            case "saved_songs":
+              return [
+                savedSongs,
+                friendDatas[friendIndex].basicData.saved_songs,
+              ];
+            case "saved_albums":
+              return [
+                savedAlbums,
+                friendDatas[friendIndex].basicData.saved_albums,
+              ];
+            case "saved_playlists":
+              return [
+                savedPlaylists,
+                friendDatas[friendIndex].basicData.saved_playlists,
+              ];
+            case "followed_artists":
+              return [
+                followedArtists,
+                friendDatas[friendIndex].basicData.followed_artists,
+              ];
+            case "numMinutes":
+            case "percentTimes":
+            case "percentTimePeriod":
+            case "numTimesSkipped":
+            case "emotion":
+              return [advancedData, friendDatas[friendIndex].advancedData];
+            default:
+              return null;
+          }
+        } else {
+          switch (props.data) {
+            case "top_songs":
+              switch (props.timeRange) {
+                case "4week":
+                  return friendDatas[friendIndex].basicData.top_songs[0];
+                case "6month":
+                  return friendDatas[friendIndex].basicData.top_songs[1];
+                case "all":
+                  return friendDatas[friendIndex].basicData.top_songs[2];
+                default:
+                  return friendDatas[friendIndex].basicData.top_songs;
+              }
+            case "top_artists":
+              switch (props.timeRange) {
+                case "4week":
+                  return friendDatas[friendIndex].basicData.top_artists[0];
+                case "6month":
+                  return friendDatas[friendIndex].basicData.top_artists[1];
+                case "all":
+                  return friendDatas[friendIndex].basicData.top_artists[2];
+                default:
+                  return friendDatas[friendIndex].basicData.top_artists;
+              }
+            case "followers":
+              return friendDatas[friendIndex].basicData.follower_data;
+            case "recent_songs":
+              return friendDatas[friendIndex].basicData.recent_history;
+            case "saved_songs":
+              return friendDatas[friendIndex].basicData.saved_songs;
+            case "saved_albums":
+              return friendDatas[friendIndex].basicData.saved_albums;
+            case "saved_playlists":
+              return friendDatas[friendIndex].basicData.saved_playlists;
+            case "followed_artists":
+              return friendDatas[friendIndex].basicData.followed_artists;
+            case "numMinutes":
+            case "percentTimes":
+            case "percentTimePeriod":
+            case "numTimesSkipped":
+            case "emotion":
+              return friendDatas[friendIndex].advancedData;
+            default:
+              return null;
+          }
+        }
+      } else {
+        switch (props.data) {
+          case "top_songs":
+            switch (props.timeRange) {
+              case "4week":
+                return topSongs[0];
+              case "6month":
+                return topSongs[1];
+              case "all":
+                return topSongs[2];
+              default:
+                return topSongs;
+            }
+          case "top_artists":
+            switch (props.timeRange) {
+              case "4week":
+                return topArtists[0];
+              case "6month":
+                return topArtists[1];
+              case "all":
+                return topArtists[2];
+              default:
+                return topArtists;
+            }
+          case "followers":
+            return followers;
+          case "recent_songs":
+            return recentSongs;
+          case "saved_songs":
+            return savedSongs;
+          case "saved_albums":
+            return savedAlbums;
+          case "saved_playlists":
+            return savedPlaylists;
+          case "followed_artists":
+            return followedArtists;
+          case "numMinutes":
+          case "percentTimes":
+          case "percentTimePeriod":
+          case "numTimesSkipped":
+          case "emotion":
+            return advancedData;
+          default:
+            return null;
+        }
       }
+      //console.log("Got this data: " + dataName);
     } catch (e) {
       console.log(e);
       return "";
@@ -430,140 +666,207 @@ export default function GraphGrid() {
           onLayoutChange={handleLayoutChange}
           draggableCancel=".custom-draggable-cancel"
         >
-          {layout.map((container) => (
-            <div className="graphContainer" key={container.i}>
-              <div style={{ marginBottom: "10px" }}>
-                <div
-                  style={{ fontSize: "var(--title-text-size)" }}
-                  data-tooltip-id="title-tooltip"
-                  data-tooltip-content={
-                    container.graphType + " of " + container.data
-                  }
-                >
-                  {container.i}
+          {layout.map((container) => {
+            if (container.friendDataOn) {
+              if (!friendDataUpdated) {
+                return (
+                  <div className="graphContainer" key={container.i}>
+                    <div style={{ marginBottom: "10px" }}>
+                      <div
+                        style={{ fontSize: "var(--title-text-size)" }}
+                        data-tooltip-id={container.i + "-tooltip"}
+                        data-tooltip-content={
+                          container.graphType +
+                          ' of "' +
+                          nameFromDataName(container.data) +
+                          '"' +
+                          (container.data === "numMinutes" ||
+                          container.data === "percentTimes"
+                            ? " for " + container.dataVariation
+                            : "") +
+                          (container.data.includes("num") ||
+                          container.data.includes("percent") ||
+                          (container.data.includes("top") &&
+                            !(container.graphType === "Bump"))
+                            ? " for " + container.timeRange
+                            : "")
+                        }
+                      >
+                        {container.i}
+                      </div>
+                      <button
+                        className="GraphCloseButton custom-draggable-cancel"
+                        onClick={() => RemoveContainer(container.i)}
+                      >
+                        X
+                      </button>
+                      <Tooltip id={container.i + "-tooltip"} />
+                    </div>
+                    <div>Loading graph data</div>
+                  </div>
+                );
+              }
+              //console.log(getData(container));
+            }
+            return (
+              <div className="graphContainer" key={container.i}>
+                <div style={{ marginBottom: "10px" }}>
+                  <div
+                    style={{ fontSize: "var(--title-text-size)" }}
+                    data-tooltip-id={container.i + "-tooltip"}
+                    data-tooltip-content={
+                      container.graphType +
+                      ' of "' +
+                      nameFromDataName(container.data) +
+                      '"' +
+                      (container.data === "numMinutes" ||
+                      container.data === "percentTimes"
+                        ? " for " + container.dataVariation
+                        : "") +
+                      (container.data.includes("num") ||
+                      container.data.includes("percent") ||
+                      (container.data.includes("top") &&
+                        !(container.graphType === "Bump"))
+                        ? " for " + container.timeRange
+                        : "")
+                    }
+                  >
+                    {container.i}
+                  </div>
+                  <button
+                    className="GraphCloseButton custom-draggable-cancel"
+                    onClick={() => RemoveContainer(container.i)}
+                  >
+                    X
+                  </button>
+                  <Tooltip id={container.i + "-tooltip"} />
                 </div>
-                <button
-                  className="GraphCloseButton custom-draggable-cancel"
-                  onClick={() => RemoveContainer(container.i)}
-                >
-                  X
-                </button>
-                <Tooltip id="title-tooltip" />
+                {container.graphType === "VertBar" ||
+                container.graphType === "HortBar" ? (
+                  <BarGraph
+                    graphName={container.graphType}
+                    data={getData(container)}
+                    dataName={container.data}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    graphKeys={container.graphSettings.graphKeys}
+                    graphIndexBy={container.graphSettings.graphIndexBy}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Line" ? (
+                  <LineGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    dataVariation={container.dataVariation}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    friendName={container.friendName}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Pie" ? (
+                  <PieGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "ImageGraph" ? (
+                  <ImageGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    clickAction={container.graphSettings.clickAction}
+                  />
+                ) : container.graphType === "Bump" ? (
+                  <BumpGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Calendar" ? (
+                  <CalendarGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Scatter" ? (
+                  <ScatterGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "RadBar" ? (
+                  <RadialBarGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Radar" ? (
+                  <RadarGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Text" ? (
+                  <TextGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    friendName={container.friendName}
+                  />
+                ) : (
+                  <p> Invalid Graph Type</p>
+                )}
               </div>
-              {container.graphType === "VertBar" ||
-              container.graphType === "HortBar" ? (
-                <BarGraph
-                  graphName={container.graphType}
-                  data={getData(
-                    container.data,
-                    container.dataVariation,
-                    container.timeRange
-                  )}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphKeys={container.graphSettings.graphKeys}
-                  graphIndexBy={container.graphSettings.graphIndexBy}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Line" ? (
-                <LineGraph
-                  data={getData(
-                    container.data,
-                    container.dataVariation,
-                    container.timeRange
-                  )}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Pie" ? (
-                <PieGraph
-                  data={getData(
-                    container.data,
-                    container.dataVariation,
-                    container.timeRange
-                  )}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "ImageGraph" ? (
-                <ImageGraph
-                  data={getData(
-                    container.data,
-                    container.dataVariation,
-                    container.timeRange
-                  )}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  clickAction={container.graphSettings.clickAction}
-                />
-              ) : container.graphType === "Bump" ? (
-                <BumpGraph
-                  data={getData(container.data)}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Calendar" ? (
-                <CalendarGraph
-                  data={getData(container.data)}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Scatter" ? (
-                <ScatterGraph
-                  data={getData(
-                    container.data,
-                    container.dataVariation,
-                    container.timeRange
-                  )}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "RadBar" ? (
-                <RadialBarGraph
-                  data={getData(
-                    container.data,
-                    container.dataVariation,
-                    container.timeRange
-                  )}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : (
-                <p> Invalid Graph Type</p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </ResponsiveGridLayout>
         <div>
           <p> Current layout is {layoutNumber}</p>
