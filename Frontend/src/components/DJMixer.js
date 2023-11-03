@@ -12,7 +12,11 @@ const DJMixer = () => {
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const bodyStyle = {
-    backgroundColor: state.colorBackground
+    backgroundColor: state.colorBackground,
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
   };
   
   const friendContainerStyle = {
@@ -71,12 +75,6 @@ const DJMixer = () => {
             Song Recommendation
           </Link>
           <Link
-            to="/DJmixer/ArtistRecommendation"
-            style={{ ...buttonStyle, textDecoration: "none" }}
-          >
-            Artist Recommendation
-          </Link>
-          <Link
             to="/DJmixer/PlaylistRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
@@ -87,6 +85,12 @@ const DJMixer = () => {
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
             Playlist Manager
+          </Link>
+          <Link
+            to="/DJmixer/PlaylistGenerator"
+            style={{ ...buttonStyle, textDecoration: "none" }}
+          >
+            Playlist Generator
           </Link>
         </div>
       </div>

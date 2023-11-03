@@ -106,6 +106,20 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
 
+    #Creates a a new row in advanced stats DB containing only the username with all other values being null. Expects spotify_id and returns None    
+    def create_new_user_in_advanced_stats_DB(self, spotify_id):
+        try:
+            sql_store_new_user_query = """INSERT INTO pulse.advanced_stats (spotify_id) VALUES (%s)"""
+            self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
+            self.db_conn.commit()
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error creating new user in advanced stats table:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
     
@@ -114,7 +128,7 @@ class DatabaseConnector(object):
         sql_get_advanced_stats_query = "SELECT advanced_stats from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
@@ -129,12 +143,34 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
-    # Returns the color_palettes from DB an 2D array with 5 rows and 4 columns.
-    def get_color_palettes_from_user_DB(self, spotify_id,):
-        sql_get_color_palettes_query = "SELECT color_palettes from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_color_palettes_query, (spotify_id,))
+    # Returns the color_palette from DB an 2D array with 5 rows and 5 columns.
+    def get_color_palette_from_user_DB(self, spotify_id,):
+        sql_get_color_palette_query = "SELECT color_palette from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_color_palette_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 4)
+        twod = string_to_array_row_by_col(self.resultset[0], 1, 4, False)
+        return [twod[0][0], twod[0][1], twod[0][2], twod[0][3]]
+    
+    # Returns the saved_themes from DB an 2D array with 5 rows and 5 columns.
+    def get_saved_themes_from_user_DB(self, spotify_id,):
+        sql_get_saved_themes_query = "SELECT saved_themes from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql_get_saved_themes_query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        packed_str = self.resultset[0]
+        if (packed_str is None):
+            return []
+        count = 0
+        for i in range(0, len(packed_str)):
+            if packed_str[i] == ' ':
+                count +=1
+        row = 0
+        if count == 4:
+            row = 1
+        elif count == 0:
+            return []
+        else:
+            row = int(1 + (count - 4) / 5)
+        return string_to_array_row_by_col(self.resultset[0], row, 5, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
@@ -155,7 +191,7 @@ class DatabaseConnector(object):
         sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
         results = self.db_cursor.fetchone()
-        if (results[0] is None or results is [] or results is "[]"):
+        if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
         if (self.resultset == []) or (self.resultset is None):
@@ -188,7 +224,7 @@ class DatabaseConnector(object):
         sql_get_game_settings_query = "SELECT game_settings from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_game_settings_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return string_to_array_row_by_col(self.resultset[0], 5, 5)
+        return string_to_array_row_by_col(self.resultset[0], 5, 5, True)
     
     # Returns the gender from DB as a string.
     def get_gender_from_user_DB(self, spotify_id, data = None):
@@ -317,8 +353,66 @@ class DatabaseConnector(object):
     # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
     def update_advanced_stats(self, spotify_id, new_advanced_stats):
         try:
-            sql_update_advanced_stats_query = """UPDATE pulse.base_stats SET advanced_stats = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
+            yearly = new_advanced_stats["Yearly"]
+            new_advanced_stats["Yearly"] = {}
+            years = [None] * 18
+            
+            
+            for year in yearly.keys():
+                year_int = int(year)
+                years[year_int - 2008] = yearly[str(year_int)]
+            
+            yearly_values = [json.dumps(value) for value in yearly[:18]]
+        except Exception as e:
+            print("Error while processing")
+            print(str(e))
+        
+        try:
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats
+                                        SET 
+                                        advanced_stats_header = %s,
+                                        advanced_stats_2008 = %s,
+                                        advanced_stats_2009 = %s,
+                                        advanced_stats_2010 = %s,
+                                        advanced_stats_2011 = %s,
+                                        advanced_stats_2012 = %s,
+                                        advanced_stats_2013 = %s,
+                                        advanced_stats_2014 = %s,
+                                        advanced_stats_2015 = %s,
+                                        advanced_stats_2016 = %s,
+                                        advanced_stats_2017 = %s,
+                                        advanced_stats_2018 = %s,
+                                        advanced_stats_2019 = %s,
+                                        advanced_stats_2020 = %s,
+                                        advanced_stats_2021 = %s,
+                                        advanced_stats_2022 = %s,
+                                        advanced_stats_2023 = %s,
+                                        advanced_stats_2024 = %s,
+                                        advanced_stats_2025 = %s
+                                    WHERE spotify_id = %s
+                                """
+            self.db_cursor.execute(sql_update_advanced_stats_query, (
+                json.dumps(new_advanced_stats),
+                            json.dumps(years[0]),  # 2008
+                            json.dumps(years[1]),  # 2009
+                            json.dumps(years[2]),  # 2010
+                            json.dumps(years[3]),  # 2011
+                            json.dumps(years[4]),  # 2012
+                            json.dumps(years[5]),  # 2013
+                            json.dumps(years[6]),  # 2014
+                            json.dumps(years[7]),  # 2015
+                            json.dumps(years[8]),  # 2016
+                            json.dumps(years[9]),  # 2017
+                            json.dumps(years[10]),  # 2018
+                            json.dumps(years[11]),  # 2019
+                            json.dumps(years[12]),  # 2020
+                            json.dumps(years[13]),  # 2021
+                            json.dumps(years[14]),  # 2022
+                            json.dumps(years[15]),  # 2023
+                            json.dumps(years[16]),  # 2024
+                            json.dumps(years[17]),  # 2025
+                            spotify_id,))
+            
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -326,7 +420,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating advanced stats:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         
@@ -347,11 +441,30 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
 
         
-    # Updates color palettes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
-    def update_color_palettes(self, spotify_id, new_color_palettes):
+    # Updates saved_themes (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    def update_saved_themes(self, spotify_id, new_saved_themes):
         try:
-            sql_update_color_palettes = """UPDATE pulse.users SET color_palettes = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_color_palettes, (array_to_string(new_color_palettes), spotify_id,))
+            sql_update_saved_themes = """UPDATE pulse.users SET saved_themes = %s WHERE spotify_id = %s"""
+            if (new_saved_themes == []):
+                self.db_cursor.execute(sql_update_saved_themes, ("", spotify_id,))
+            else:
+                self.db_cursor.execute(sql_update_saved_themes, (array_to_string(new_saved_themes), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating followers:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    # Updates color_palette (expected row x col array) in user DB. Returns 1 if sucessful, -1 if not
+    def update_color_palette(self, spotify_id, new_color_palette):
+        try:
+            sql_update_color_palette_query = """UPDATE pulse.users SET color_palette = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_color_palette_query, (array_to_string(new_color_palette), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -707,10 +820,13 @@ def array_to_string(game_settings_input_array):
     flattened = [str(item) for sublist1 in game_settings_input_array for item in sublist1]
     return ' '.join(flattened)
 
-def string_to_array_row_by_col(game_settings_input_string, row, col):
+def string_to_array_row_by_col(game_settings_input_string, row, col, is_int):
     # Convert the string back to a 2D array
     elements = game_settings_input_string.split()
-    flat_list = [int(element) for element in elements]
+    if (is_int):
+        flat_list = [int(element) for element in elements]
+    else:
+        flat_list = [str(element) for element in elements]
     
     # Create a 3D array from the flattened
     arr = []

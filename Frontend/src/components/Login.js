@@ -3,24 +3,27 @@ import { useNavigate } from "react-router-dom";
 import Background from "../../src/assets/Background.png";
 import Logo from "../../src/assets/LogoLogin.png";
 import axios from "axios";
-
 import TextSize from "../theme/TextSize";
-import Colors from "../theme/Colors";
+import { pulseColors } from "../theme/Colors";
+
+// document.body.style.overflow = "hidden"
+// for the login call for fetch
+
 const textSizes = TextSize(1); //Obtain text size values
-const themeColors = Colors("light"); //Obtain color values
 
 const loginMainStyle = {
   paddding: "0px",
   margin: "0px",
-  backgroundColor: "#6EEB4D",
+  backgroundColor: pulseColors.green,
   backgroundImage: `url(${Background})`,
   width: "100%", // Set width to 100% to cover the entire width of the screen
   height: "100vh", // Set height to 100vh to cover the entire height of the screen
   backgroundSize: "cover", // Cover the entire container with the image
   backgroundRepeat: "no-repeat",
 };
+
 const loginStyle = {
-  backgroundColor: "#000",
+  backgroundColor: pulseColors.black,
   width: "500px", // Set a specific width for the login section
   height: "100%",
   borderTopLeftRadius: "40px", // Rounded corner on the top-left
@@ -31,7 +34,7 @@ const loginStyle = {
 
 const loginText = {
   paddingTop: "150px",
-  color: "#6EEB4D",
+  color: pulseColors.green,
   textRendering: "optimizeLegibility", // To mimic "text-edge: cap;"
   fontFamily: "Rajdhani-SemiBold, Helvetica",
   fontSize: "50px",
@@ -41,7 +44,7 @@ const loginText = {
 };
 
 const loginSubText = {
-  color: "#6EEB4D",
+  color: pulseColors.backgroundColor,
   fontFamily: "Poppins-Regular, Helvetica",
   fontSize: "16px",
   fontStyle: "normal",
@@ -50,7 +53,7 @@ const loginSubText = {
 };
 
 const loginButton = {
-  backgroundColor: "#6eeb4d",
+  backgroundColor: pulseColors.green,
   borderRadius: "30px",
   height: "52px",
   width: "364px",
@@ -66,8 +69,6 @@ const padding = {
   paddingBottom: "10px",
 };
 
-// document.body.style.overflow = "hidden"
-// for the login call for fetch
 async function fetchDataLogin() {
   const response = await axios.get("http://127.0.0.1:5000/login", {
     withCredentials: true,
@@ -78,6 +79,7 @@ async function fetchDataLogin() {
 }
 
 function Login({ onLoginClick }) {
+
   const [isLoginURL, setIsLoginURL] = useState(" ");
   //check if rthe user is logged in
   const navigate = useNavigate();

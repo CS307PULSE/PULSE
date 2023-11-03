@@ -180,7 +180,7 @@ export const LineGraph = (props) => {
         setData(props.data);
       }
     } catch (e) {
-      console.Error(e);
+      console.error(e);
       setData("Bad Data");
     }
     console.log(itemsSelectable);
