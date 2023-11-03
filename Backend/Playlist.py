@@ -17,27 +17,30 @@ class Playlist:
     def change_image(user, playlist, url):
         try:
             # Download the image from the URL
-            response = requests.get(url)
-    
+            response = requests.get(url, timeout=60)
+            jpegString = ""
+            #print(response.content)
             if response.status_code == 200:
                 # Convert the image content to Base64
                 image_data = response.content
                 base64_image = base64.b64encode(image_data).decode('utf-8')
 
                 # Check the image format (you may need to modify this part based on your needs)
-                if url.endswith('.jpg'):
-                    image_format = 'jpeg'
-                else:
-                    # Handle other image formats as needed
-                    raise ValueError("Unsupported image format")
+                #if url.endswith('.jpg'):
+                #    image_format = 'jpeg'
+                #else:
+                #    # Handle other image formats as needed
+                #    raise ValueError("Unsupported image format")
 
                 # Construct the data URI with the Base64-encoded image
-                jpegString = f'data:image/{image_format};base64,{base64_image}'
+                jpegString = base64_image
             else:
                 print("Failed to retrieve the image from the URL.")
         except Exception as e:
             print(f"An error occurred: {e}")
         try:
+            print(playlist)
+            print(jpegString)
             user.spotify_user.playlist_upload_cover_image(playlist, jpegString)
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
@@ -50,7 +53,9 @@ class Playlist:
     
     def track_remove(user, playlist, spotify_uri):
         try:
-            user.spotify_user.user_playlist_remove_all_occurrences_of_items(playlist, spotify_uri)
+            print(playlist)
+            print(spotify_uri)
+            user.spotify_user.user_playlist_remove_all_occurrences_of_tracks(user.spotify_id, playlist, [spotify_uri])
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
@@ -62,7 +67,9 @@ class Playlist:
 
     def track_reorder(user, playlist):
         try:
-            user.spotify_user.user_playlist_reorder_tracks(user, playlist, 0, 0)
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
+            length = len(analysis['items'])
+            user.spotify_user.user_playlist_reorder_tracks(user, playlist, range_start = round(length/2), insert_before = 0, range_length = round(length/2))
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
@@ -89,18 +96,18 @@ class Playlist:
     def playlist_recommendations(user, playlist, field):
         try:
             track = []
+            recommendations = []
             if field == "genres":
                 genresdict = Playlist.playlist_genre_analysis(user, playlist)
                 track.append(user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['uri'])
-                print(track)
                 recommendations = Emotion.get_emotion_recommendations(user, genresdict, track=track)
-                print(recommendations)
-            elif field == "aritsts":
+            elif field == "artists":
                 artists = Playlist.playlist_artist_analysis(user, playlist)
-                recommendations = user.get_recommendations(seed_artists = artists)
+                recommendations = user.get_recommendations(seed_artists = artists, max_items = 10)
             elif field == "albums":
-                albumtracks = Playlist.playlist_album_analysis(user, playlist)
-                recommendations = user.spotify_user.get_recommendations(seed_tracks = albumtracks)
+                albumdict = Playlist.playlist_album_analysis(user, playlist)
+                track.append(user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['uri'])
+                recommendations = Emotion.get_emotion_recommendations(user, albumdict, track=track)
             return recommendations
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
@@ -119,7 +126,6 @@ class Playlist:
                     first_iteration = False
                 else:
                     genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
-            print("\n\n\nreturned\n\n\n")
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
@@ -129,24 +135,31 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             artistarray = []
             for item in analysis['items']:
-                artist = item['track'].get('artists',{})[0].get('id',None)
-                if artist not in artistarray and artist is not None:
-                    artistarray.append(artist)
+                if len(artistarray) < 5:
+                    artist = item['track'].get('artists',{})[0].get('id',None)
+                    if artist not in artistarray and artist is not None:
+                        artistarray.append(artist)
             return artistarray
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
     
     def playlist_album_analysis(user, playlist):
         try:
-            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
-            albumarray = []
-            for item in analysis['items']:
-                album_id = item['album']['id']
-                albumtracks = user.spotify_user.album_tracks(album_id, limit=10)
-                for song in albumtracks:
-                    if song not in albumarray:
-                        albumarray.append(song)
-            return albumarray
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 10)
+            first_iteration = True    
+            genredict = None
+            for song in analysis['items']:
+                album = song['track']['album']['id']
+                albumsongs = user.spotify_user.album_tracks(album, limit=5)
+                for song in albumsongs['items']:
+                    track = song['id']
+                    popularity = 0
+                    if first_iteration:
+                        genredict = Emotion.convert_track(user, track, popularity)
+                        first_iteration = False
+                    else:
+                        genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
+            return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
     

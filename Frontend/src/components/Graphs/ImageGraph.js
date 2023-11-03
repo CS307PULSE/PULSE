@@ -180,7 +180,12 @@ export const ImageGraph = (props) => {
                 playlist.name + " created by " + playlist.owner.display_name
               }
               onClick={() => {
-                props.updateParentState(null, null, playlist.id, playlist.name);
+                if (props.selectedSongID !== null && props.selectedSongID !== playlist.id) {
+                  props.updateParentState(null, null, playlist.id, playlist.name);
+                  props.setRefreshSongRecs(true);
+                } else {
+                  props.setRefreshSongRecs(false);
+                }
               }}
               style={{ cursor: "pointer" }}
               key={playlist.id + index}
@@ -197,27 +202,25 @@ export const ImageGraph = (props) => {
             </span>
           ))
         ) : props.dataName.includes("songs_for_recs") ? (
-          props.data.map((trackObj, index) => (
+          props.data.map((track, index) => (
             <span
               data-tooltip-id="body-tooltip"
-              data-tooltip-content={
-                trackObj.track.name + " by " + trackObj.track.artists[0].name
-              }
+              data-tooltip-content={track.name + " by " + track.artists[0].name}
               onClick={() => {
-                sendSongRequest(trackObj.track.uri);
+                sendSongRequest(track.uri);
                 props.updateParentState(
-                  trackObj.track.id,
-                  trackObj.track.name,
+                  track.uri,
+                  track.name,
                   null,
                   null
                 );
               }}
               style={{ cursor: "pointer" }}
-              key={trackObj.track.id + index}
+              key={track.id + index}
             >
               <img
-                src={trackObj.track.album.images[0].url}
-                alt={trackObj.track.name}
+                src={track.album.images[0].url}
+                alt={track.name}
                 className="ImageGraphImage"
               />
             </span>
