@@ -1624,7 +1624,10 @@ def pullsongs():
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        songlist = data.get('songlist')
+        try:
+            songlist = data.get('songlist')
+        except Exception as e:
+            return "empty data"
         playlistcounter = 0    
         # Split the string into an array using regular expressions
         #titles = re.split(r'\d+\.', songlist)
