@@ -167,19 +167,35 @@ function Profile({testParameter}){
     function getColorArray() {
         return [state.colorBackground, state.colorText, state.colorBorder, state.colorAccent];
     }
+
+    function createTheme(name, colors) {
+        var newSavedThemes = state.savedThemes;
+        newSavedThemes.push([name, ...colors]);
+        dispatch({ type: 'UPDATE_SAVED_THEMES', payload: newSavedThemes });
+    }
     function retrieveTheme(index) {
-        console.log(state.savedThemes[index]);
+        if (state.savedThemes[index] == undefined) {
+            return;
+        }
         var newColors = state.savedThemes[index].slice(1);
         dispatch({ type: 'UPDATE_COLOR_ALL', payload: newColors });        
     }
     function deleteTheme(index) {
+        console.log(index);
+        if (state.savedThemes[index] == undefined) {
+            return;
+        }
+        setSelectedTheme(0);
         var newSavedThemes = state.savedThemes;
         newSavedThemes.splice(index, 1);
         dispatch({ type: 'UPDATE_SAVED_THEMES', payload: newSavedThemes });    
     }
-    function updateSavedThemes(index, name, newColors) {
-        setSelectedTheme(index);
+    function updateTheme(index, newColors) {
+        if (state.savedThemes[index] == undefined) {
+            return;
+        }
         var newSavedThemes = state.savedThemes;
+        var name = newSavedThemes[index][0];
         newSavedThemes[index] = [name, ...newColors];
         dispatch({ type: 'UPDATE_SAVED_THEMES', payload: newSavedThemes });
     }
@@ -276,7 +292,7 @@ function Profile({testParameter}){
                     </div>
                 </div>
                 <div style={textFieldContainerStyle}>
-                    <button onClick={() => {updateSavedThemes(state.savedThemes.length, newThemeName, getColorArray())}} 
+                    <button onClick={() => {createTheme(newThemeName, getColorArray())}} 
                         style={{...buttonStyle, width: "200px"}}><p>Create New Theme</p></button>
                     <input id="save-theme-name-input" type="text" style={textFieldStyle} value={newThemeName} onChange={e => {setNewThemeName(e.target.value)}}></input>
                 </div>
@@ -293,7 +309,7 @@ function Profile({testParameter}){
                 </div>
                 <div style={buttonContainerStyle}>
                     <button onClick={() => {retrieveTheme(selectedTheme)}} style={buttonStyle}><p>Use Theme</p></button>
-                    <button onClick={() => {updateSavedThemes(selectedTheme, state.savedThemes[selectedTheme][0], getColorArray())}} style={buttonStyle}><p>Save Changes</p></button>
+                    <button onClick={() => {updateTheme(selectedTheme, getColorArray())}} style={buttonStyle}><p>Save Changes</p></button>
                     <button onClick={() => {deleteTheme(selectedTheme)}} style={buttonStyle}><p>Delete Theme</p></button>
                 </div>
                 <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Background</p>

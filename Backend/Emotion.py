@@ -107,7 +107,11 @@ class Emotion:
         return total_distance
     
     def get_percentage(user, song, popularity):
-        percentage = []
+        percentage = {
+            "percent_happy": 0,
+            "percent_angry": 0,
+            "percent_sad": 0
+        }
         tractdict = Emotion.convert_track(user, song, popularity)
         happy = Emotion.gethappy()
         angry = Emotion.getangry()
@@ -116,12 +120,9 @@ class Emotion:
         angrydist = Emotion.calculate_total_distance(tractdict, angry)
         saddist = Emotion.calculate_total_distance(tractdict, sad)
         totaldist = saddist + angrydist + happydist
-        percentage.append(happydist/totaldist)
-        percentage.append(angrydist/totaldist)
-        percentage.append(saddist/totaldist)
-        percentage[0] = 1 - percentage[0] 
-        percentage[1] = 1 - percentage[1] 
-        percentage[2] = 1 - percentage[2] 
+        percentage["percent_happy"] = 1 - (happydist/totaldist)
+        percentage["percent_angry"] = 1 - (angrydist/totaldist)
+        percentage["percent_sad"] = 1 - (saddist/totaldist)
         return percentage
         
     def convert_track(user, song, popularity = 0, duration = 0):
