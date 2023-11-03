@@ -1790,6 +1790,24 @@ def pull_songs():
         return make_response(jsonify({'error': error_message}), 69)
     return "successful completion"
 
+@app.route('/recommendations/get_playlist_dict', methods=['POST'])
+def get_playlist_dict():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data) 
+        data = request.get_json()
+        playlist_id = data.get('playlist')
+        playlist_dict = Playlist.playlist_genre_analysis(user, playlist_id)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(playlist_dict)
+    
+
+@app.route('/recommendations/get_songs_from_dict')
+def get_songs_dict():
+
+
 @app.route('/feedback', methods=['POST'])
 def feedback():
     data = request.get_json()
