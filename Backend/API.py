@@ -1816,6 +1816,7 @@ def get_songs_dict():
         user = User.from_json(user_data) 
         data = request.get_json()
         emotion = data.get('parameters')
+        genre = data.get('genre')
         playlist_dict = Emotion.create_new_emotion(emotion[0])
         playlist_dict["target_energy"] = emotion[1]
         playlist_dict["target_popularity"] = emotion[2]
@@ -1829,11 +1830,11 @@ def get_songs_dict():
         playlist_dict["target_speechiness"] = emotion[10]
         playlist_dict["target_tempo"] = emotion[11]
         playlist_dict["target_valence"] = emotion[12]
-        Emotion.get_emotion_recommendations(user, playlist_dict, track = [], artist = [], genre = [])
+        recommendations = Emotion.get_emotion_recommendations(user, playlist_dict, track = [], artist = [], genre = [genre])
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return jsonify(playlist_dict)
+    return jsonify(recommendations)
 
 @app.route('/emotions/get_emotions')
 def get_emotions():

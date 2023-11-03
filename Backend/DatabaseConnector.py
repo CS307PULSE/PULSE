@@ -671,8 +671,8 @@ class DatabaseConnector(object):
     # Update recommendation (expected array) in user DB. Returns 1 if successful, -1 if not.
     def update_recommendation_params(self, spotify_id, new_rec_params):
         try:
-            sql_update_rec_params_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_rec_params_query, (create_rec_params_string_for_DB(new_rec_params), spotify_id,))
+            sql_update_rec_params_query = """UPDATE pulse.users SET recommendation_params = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_rec_params_query, (json.dumps(new_rec_params), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
