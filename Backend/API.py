@@ -1301,7 +1301,7 @@ def get_emotions(user, tracks):
         total = 1
 
     for emotion in emotions.keys():
-        emotions['emotion'] /= total
+        emotions[emotion] /= total
 
     return emotions
 
@@ -1877,12 +1877,13 @@ def get_songs_dict():
     return jsonify(recommendations)
 
 @app.route('/emotions/get_emotions')
-def get_emotions():
+def analyze_emotions():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
-        playlist_dict = Playlist.playlist_genre_analysis(user, playlist_id)
+        playlist = data['playlist']
+        playlist_dict = Playlist.playlist_genre_analysis(user, playlist)
         with DatabaseConnector(db_config) as conn:
                     playlistcounter = conn.update_recommendation_params(user.spotify_id, )
                     conn.update_playlist_counter(user.spotify_id)
