@@ -180,7 +180,12 @@ export const ImageGraph = (props) => {
                 playlist.name + " created by " + playlist.owner.display_name
               }
               onClick={() => {
-                props.updateParentState(null, null, playlist.id, playlist.name);
+                if (props.selectedSongID !== null && props.selectedSongID !== playlist.id) {
+                  props.updateParentState(null, null, playlist.id, playlist.name);
+                  props.setRefreshSongRecs(true);
+                } else {
+                  props.setRefreshSongRecs(false);
+                }
               }}
               style={{ cursor: "pointer" }}
               key={playlist.id + index}

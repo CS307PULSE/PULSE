@@ -191,6 +191,7 @@ const PlaylistRecommendation = () => {
                           setSelectedPlaylistID = {setSelectedPlaylistID}
                           selectedPlaylistName = {selectedPlaylistName}
                           setSelectedPlaylistName = {setSelectedPlaylistName}
+                          setRefreshSongRecs = {setRefreshSongRecs}
                           updateParentState = {updateParentState} />
         </div>
           )
@@ -218,43 +219,57 @@ const PlaylistRecommendation = () => {
     }
   }
 
-  function updateParentState(selectedSongIDParam, selectedSongNameParam, selectedPlaylistIDParam, selectedPlaylistNameParam) {
-    if (selectedSongIDParam !== null && selectedSongNameParam !== null && selectedSongID!== selectedSongIDParam) {
-      setSelectedSongID(selectedSongIDParam);
-      setSelectedSongName(selectedSongNameParam);
-    } else if (selectedPlaylistIDParam !== null && selectedPlaylistNameParam !== null && selectedPlaylistID !== selectedPlaylistIDParam){
-      setSelectedPlaylistID(selectedPlaylistIDParam);
-      setSelectedPlaylistName(selectedPlaylistNameParam)
+  function updateParentState(selectedSongID, selectedSongName, selectedPlaylistID, selectedPlaylistName, refreshSongRecs) {
+    if (selectedSongID !== null && selectedSongName !== null) {
+      setSelectedSongID(selectedSongID);
+      setSelectedSongName(selectedSongName);
+    } else if (selectedPlaylistID !== null && selectedPlaylistName !== null){
+      setSelectedPlaylistID(selectedPlaylistID);
+      setSelectedPlaylistName(selectedPlaylistName)
       console.log("selectedPlaylistID: " + selectedPlaylistID);
       console.log("selectedPlaylistName: " + selectedPlaylistName);
-    }
+    } 
+    console.log("your right here mf")
   }
 
   function generateSongs() {
     console.log("here");
     console.log("selectedPlaylistID: " + selectedPlaylistID);
     console.log("selectedPlaylistName: " + selectedPlaylistName);
-    if (finishedPullingData && selectedPlaylistID !== undefined && selectedPlaylistID !== null && selectedPlaylistID !== lastSelectedPlaylistID) {
-    getSongRecommendations(selectedPlaylistID, selectedRecMethod).then((data) => {
-      console.log("DATA: "+ data);
-      if (data !== null && data !== undefined && data[1] !== "") {
-        setSongRecs(data);
-      } if (data[1] === "") {
-        console.log("Your data is so empty man ):")
-      }
-    });
-    return (
-      <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
-                        dataName={"songs_for_recs"} 
-                        selectedSongID ={selectedSongID} 
-                        setSelectedSongID = {setSelectedSongID}
-                        selectedSongName ={selectedSongName} 
-                        setSelectedSongName = {setSelectedSongName}
-                        updateParentState = {updateParentState} />;
-      </div>
-    )
+    if (finishedPullingData && selectedPlaylistID !== undefined && selectedPlaylistID !== null && refreshSongRecs) {
+      getSongRecommendations(selectedPlaylistID, selectedRecMethod).then((data) => {
+        console.log("DATA: "+ data);
+        if (data !== null && data !== undefined && data[1] !== "") {
+          setSongRecs(data);
+          setRefreshSongRecs(false);
+        } else if (data[1] === "") {
+          console.log("Your data is so empty man ):")
+          setRefreshSongRecs(false);
+        }
+      });
+      return (
+        <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
+                          dataName={"songs_for_recs"} 
+                          selectedSongID ={selectedSongID} 
+                          setSelectedSongID = {setSelectedSongID}
+                          selectedSongName ={selectedSongName} 
+                          setSelectedSongName = {setSelectedSongName}
+                          updateParentState = {updateParentState} />;
+        </div>
+      )
+    } else if (finishedPullingData && songRecs !== null) {
+      return (
+        <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
+                          dataName={"songs_for_recs"} 
+                          selectedSongID ={selectedSongID} 
+                          setSelectedSongID = {setSelectedSongID}
+                          selectedSongName ={selectedSongName} 
+                          setSelectedSongName = {setSelectedSongName}
+                          updateParentState = {updateParentState} />;
+        </div>
+      )
     } else if (finishedPullingData) {
-      return <p>Please click on a playlist to get recommendations for!</p>
+        return <p>Please click on a playlist to get recommendations for!</p>
     } else {
         return <p></p>;
     }
