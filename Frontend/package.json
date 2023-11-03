@@ -11,7 +11,10 @@
     "@nivo/radar": "^0.83.0",
     "@nivo/radial-bar": "^0.83.0",
     "@nivo/scatterplot": "^0.83.0",
-    "axios": "^1.5.1",
+
+
+    "axios": "^1.6.0",
+
     "openai": "^4.14.2",
     "react": "^18.2.0",
     "react-grid-layout": "^1.4.2",

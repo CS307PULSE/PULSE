@@ -419,7 +419,7 @@ def get_friends_recent_songs():
             print(e)
             return "error"
             friend_songs[friend_id] = {}
-
+    print("GOT HERE")
     return jsonify(friend_songs)
 
 @app.route('/statistics/set_layout', methods=['POST'])
@@ -569,13 +569,16 @@ def playback():
 def random_friend():
     data = request.get_json()
     id_dict = data.get('friend_songs')
+    print(id_dict)
     random_id = random.choice(list(id_dict.keys()))
     return jsonify(random_id)
 
 @app.route('/games/playback_friends', methods=['POST'])
 def playback_friends():
     data = request.get_json()
-    songs = data.get('songs')
+    f_songs = data.get('songs')
+    id = data.get("id")
+    songs = f_songs[id]
     timestamp_ms = 20000 #20 seconds playback
     if 'user' in session:
         user_data = session['user']
@@ -583,7 +586,11 @@ def playback_friends():
         random_track = random.choice(songs)
         track_uri = random_track['track']['uri']
                 
-        user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        try_refresh(user)
+        try:
+            user.spotify_user.start_playback(uris=[track_uri], position_ms=timestamp_ms)
+        except Exception as e:
+            return "fail"
         return jsonify("Success!")
     else:
         error_message = "The user is not in the session! Please try logging in again!"
