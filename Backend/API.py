@@ -1570,15 +1570,12 @@ def get_requests():
 @app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
     if 'user' in session:
-        songarray = {
-            "songs": ""
-        }
         user_data = session['user']
         user = User.from_json(user_data) 
         data = request.get_json()
         field = data.get('selectedRecMethod')
         playlist_id = data.get('selectedPlaylistID')
-        songarray['songs'] = Playlist.playlist_recommendations(user, playlist_id, field)
+        songarray = Playlist.playlist_recommendations(user, playlist_id, field)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
