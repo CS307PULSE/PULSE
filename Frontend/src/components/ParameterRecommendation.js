@@ -4,27 +4,51 @@ import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
 import { useState } from "react";
 import { hexToRGBA } from "../theme/Colors";
+import { parameterInfo, presetEmotions } from "../theme/Emotions";
 
 const ParameterRecommendations = () => {  
     const { state, dispatch } = useAppContext();
     const textSizes = TextSize(state.settingTextSize); //Obtain text size values
     
-    const [parameters, setParameters] = useState([
-        {value: 50, name: 'Energy', key: 'target_energy'},
-        {value: 50, name: 'Popularity', key: 'target_popularity'},
-        {value: 50, name: 'Acousticness', key: 'target_acousticness'},
-        {value: 50, name: 'Danceability', key: 'target_danceability'},
-        {value: 50, name: 'Duration (ms)', key: 'target_duration_ms'},
-        {value: 50, name: 'Instrumentalness', key: 'target_instrumentalness'},
-        {value: 50, name: 'Key', key: 'target_key'},
-        {value: 50, name: 'Liveness', key: 'target_liveness'},
-        {value: 50, name: 'Loudness', key: 'target_loudness'},
-        {value: 50, name: 'Mode', key: 'target_mode'},
-        {value: 50, name: 'Speechiness', key: 'target_speechiness'},
-        {value: 50, name: 'Tempo', key: 'target_tempo'},
-        {value: 50, name: 'Time Signature', key: 'target_time_signature'},
-        {value: 50, name: 'Valence', key: 'target_valence'},
-    ]);
+    const [parameters, setParameters] = useState([0,0,0,0,0,0,0,0,0,0,0,0]);
+    const [emotions, setEmotions] = useState([...presetEmotions]);
+    const [selectedEmotionIndex, setSelectedEmotionIndex] = useState(-1);
+
+    function updateParameter(newValue, index) {
+        setSelectedEmotionIndex(-1);
+        var updatedValues = [...parameters];
+        updatedValues[index] = newValue;
+        setParameters(updatedValues);
+    };
+    function retrieveEmotion(index) {
+        setSelectedEmotionIndex(index);
+        try {
+            if (index >= 0) {
+                setParameters(emotions[index].parameters);
+            }
+        } catch (e) {
+            console.error("Error retrieving emotion: " + e);
+        }
+    }
+    function createEmotion(name, parameters) {
+        var newEmotion = {name: name, parameters: parameters};
+        var tempEmotions = emotions;
+        tempEmotions.push(newEmotion);
+        setEmotions(tempEmotions);
+        setSelectedEmotionIndex(emotions.length - 1);
+    }
+    function deleteEmotion(index) {
+        try {
+            if (index >= presetEmotions.length) {
+                setSelectedEmotionIndex(-1);
+                var tempEmotions = emotions;
+                tempEmotions.splice(index, 1);
+                setEmotions(tempEmotions);
+            }
+        } catch (e) {
+            console.error("Error deleting  emotion: " + e);
+        }
+    }
     
     const bodyStyle = {
         backgroundColor: state.colorBackground,
@@ -37,8 +61,7 @@ const ParameterRecommendations = () => {
         backgroundColor: hexToRGBA(state.colorBackground, 0.5),
         width: "500px",
         position: "relative",
-        left: "50%",
-        transform: "translate(-50%, 0)",
+        left: "10%",
         padding: "20px"
     }
     const sliderStyle = {
@@ -61,32 +84,56 @@ const ParameterRecommendations = () => {
         alignItems: "center",
     }
 
-    const updateParameter = (newValue, index) => {
-        var updatedValues = [...parameters];
-        updatedValues[index].value = newValue;
-        setParameters(updatedValues);
+    const buttonContainerStyle = {
+        display: 'flex',
+        alignItems: 'center', // Center buttons horizontally
+        marginTop: '5px', // Space between cards and buttons
+        width: "600px"
     };
-    const addElement = (element) => {
-        setParameters([...parameters, element]);
+    
+    const buttonStyle = {
+        backgroundColor: state.colorBackground,
+        color: state.colorText,
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: state.colorBorder,
+        borderRadius: '10px',
+        cursor: 'pointer',
+        margin: '5px', // Small space between buttons
+        width: '100%',
+        height: "50px",
+        fontSize: textSizes.body
     };
 
     return (
-    <div class="wrapper">
-        <div class="header"><Navbar /></div>
-        <div class="content" style={bodyStyle}>
-        
+    <div className="wrapper">
+        <div className="header"><Navbar /></div>
+        <div className="content" style={bodyStyle}>
             <div style={sliderContainerStyle}>
-                {parameters.map((item, index) => (
+                <div style={{...buttonContainerStyle, width: "100%"}}>
+                    <select style={buttonStyle} id="selectEmotion" value={selectedEmotionIndex} onChange={(e) => {retrieveEmotion(e.target.value)}}>
+                        <option key={-1} value={-1}>Custom Emotion</option>
+                        {emotions.map((item, index) => (
+                            <option key={index} value={index}>
+                                {item.name}
+                            </option>
+                        ))}
+                    </select>
+                    <button onClick={() => {createEmotion("new one", parameters)}} style={buttonStyle}><p>Create</p></button>
+                    <button onClick={() => {deleteEmotion(selectedEmotionIndex)}} style={buttonStyle}><p>Delete</p></button>
+                </div>
+                {parameterInfo.map((item, index) => (
                     <div style={sliderRowStyle} key={index}>
                         <span style={{...sliderTextStyle, textAlign: "right", width: "150px"}}>{item.name}</span>
-                        <input style={sliderStyle} type="range" id="mySlider" min="0" max="100" value={item.value} step="1" onChange={(e) => {updateParameter(e.target.value, index)}}></input>
-                        <span style={{...sliderTextStyle, textAlign: "left", width: "100px"}}>Value: {item.value}</span>
+                        <input style={sliderStyle} type="range" id="mySlider" min={item.min} max={item.max} step={item.step} 
+                            value={parameters[index]} onChange={(e) => {updateParameter(e.target.value, index)}}></input>
+                        <span style={{...sliderTextStyle, textAlign: "left", width: "100px"}}>Value: {parameters[index]}</span>
                     </div>
                 ))}
             </div>
         
         </div>
-        <div class="footer"><SongPlayer /></div>
+        <div className="footer"><SongPlayer /></div>
     </div>
     );
   };

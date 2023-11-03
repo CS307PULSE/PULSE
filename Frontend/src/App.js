@@ -19,6 +19,7 @@ import FriendRequests from "./components/FriendRequests";
 import SongRecommendation from "./components/SongRecommendation";
 import DJMixer from "./components/DJMixer";
 import PlaylistManager from "./components/PlaylistManager";
+import PlaylistGenerator from "./components/PlaylistGenerator";
 import PlaylistRecommendation from "./components/PlaylistRecommendation";
 import SongRecommendations from "./components/SongRecommendation";
 import ParameterRecommendations from "./components/ParameterRecommendation";
@@ -93,6 +94,7 @@ function App() {
         <Route path="/DJmixer/ParameterRecommendation" element={<ParameterRecommendations />} />
         <Route path="/DJmixer/PlaylistRecommendation" element={<PlaylistRecommendation />} />
         <Route path="/DJmixer/PlaylistManager" element={<PlaylistManager />} />
+        <Route path="/DJmixer/PlaylistGenerator" element={<PlaylistGenerator />} />
         <Route path="/uploader" element={<Uploader />} />
         <Route path="/friends/addFriends" element={<AddFriends />} />
         <Route path="/friends/friendRequests" element={<FriendRequests />} />
