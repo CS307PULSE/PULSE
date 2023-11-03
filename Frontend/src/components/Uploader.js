@@ -63,8 +63,7 @@ const buttonStyle = {
 
 //TODO put array into response 
 async function sendFilepaths(filepaths) {
-  console.log("filepaths sent" + filepaths)
-  /*
+  console.log("sending filepaths")
   const axiosInstance = axios.create({
     withCredentials: true,
   });
@@ -73,8 +72,8 @@ async function sendFilepaths(filepaths) {
     { filepaths : filepaths }
   );
   const data = response.data;
+  console.log("DATA:" + data);
   return data;
-  */
 }
 
 
@@ -87,6 +86,8 @@ const Uploader = () => {
   const [hasDataInDB, setHasDataInDB] = useState(hasDataInDBInitial);
   const [inputValue, setInputValue] = useState("");
 
+
+
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       if (filepaths[0] === "") {
@@ -95,6 +96,7 @@ const Uploader = () => {
         temp.shift();
         setFilepaths(temp);
         setInputValue("");
+        console.log('Filepath saved');
       } else {
         var temp = filepaths;
         temp.push(event.target.value);
@@ -107,9 +109,14 @@ const Uploader = () => {
 
   const doneTypingPaths = () => {
     setHasData(true);
-    sendFilepaths(filepaths);
-    setFilepaths([]);
-    setHasDataInDB(true);
+    if (!sendFilepaths(filepaths)) {
+      setFilepaths([]);
+      setHasDataInDB(true);
+    } else {
+      setFilepaths([]);
+      setHasDataInDB(false);
+      alert("One or more of the filepaths you entered do not work. Please try again")
+    }
   }
 
 

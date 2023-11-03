@@ -360,7 +360,7 @@ class DatabaseConnector(object):
     # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
     def update_advanced_stats(self, spotify_id, new_advanced_stats):
         try:
-            yearly = new_advanced_stats["Yearly"]
+            yearly = new_advanced_stats.get("Yearly", "")
             new_advanced_stats["Yearly"] = {}
             years = [None] * 18
             
