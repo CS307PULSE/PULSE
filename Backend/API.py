@@ -1615,7 +1615,7 @@ def emotion_percent():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(emotionarray)
 
-@app.route('/chatbot/pull_songs', methods=['GET'])
+@app.route('/chatbot/pull_songs', methods=['POST'])
 def pullsongs():
     if 'user' in session:
         user_data = session['user']
