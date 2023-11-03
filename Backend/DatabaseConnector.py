@@ -346,7 +346,6 @@ class DatabaseConnector(object):
                          spotify_id=row[3],                                                             
                          friends=create_friends_array_from_DB(row[4]),        
                          theme=Theme(row[5]),                                                         
-                         recommendation_params=create_rec_params_string_for_DB(row[7]),
                          location = row[9],
                          gender = row[10],
                          chosen_song = row[15],)       
