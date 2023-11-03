@@ -71,13 +71,14 @@ const MusicPlayerName = ({
   numberOfRounds,
   gameCode,
   selectedArtist,
+  friendsRecentSongs,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [players, setPlayers] = useState([]);
-  const [currentNumberOfRounds, setCurrentNumberOfRounds] =
-    useState(numberOfRounds);
+  const [currentNumberOfRounds, setCurrentNumberOfRounds] = useState(numberOfRounds);
   const [showScores, setShowScores] = useState(false);
   const [playButtonDisabled, setPlayButtonDisabled] = useState(false);
+  const [randomFriendId, setRandomFriendId] = useState(null);
 
   useEffect(() => {
     // Initialize players using names from playerNames prop
@@ -94,25 +95,41 @@ const MusicPlayerName = ({
     // Reset play button state at the start of each round
     setIsPlaying(false);
     setPlayButtonDisabled(false);
+    getRandomFriend(friendsRecentSongs);
   }, [currentNumberOfRounds]);
 
   const handlePlayButtonClick = () => {
-    const axiosInstance = axios.create({ withCredentials: true });
-    axiosInstance
-      .post("http://127.0.0.1:5000/games/playback", { artist: selectedArtist })
-      .then((response) => {
-        // Handle the response from the backend if needed
-        console.log("Playback initiated successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error initiating playback:", error);
-      });
-
-    // Add logic for playing music
-    if (!isPlaying) {
-      setIsPlaying(true);
-      setPlayButtonDisabled(true);
+  // playback 
+    // Check if songs data is not undefined or null
+    if (randomFriendId && friendsRecentSongs ) {
+      try {
+        console.log(randomFriendId);
+        const axiosInstance = axios.create({
+          withCredentials: true,
+        });
+        const payload = {
+            id: randomFriendId ,
+          songs: friendsRecentSongs 
+          // Payload adjusted to match the expected format by the API
+        };
+        const response =  axiosInstance.post('http://127.0.0.1:5000/games/playback_friends', payload);
+        console.log('Playback started successfully:', response.data);
+        // Additional logic after successful playback can be added here
+      } catch (error) {
+        if (error.response) {
+          // Handle responses sent from the backend explicitly (like the custom status code 69)
+          console.error(`Error during playback: ${error.response.data.error}`, error.response.status);
+        } else {
+          // Handle errors that occurred during the request setup or due to network issues
+          console.error('Error starting playback with friends:', error.message);
+        }
+      }
+    } else {
+      // Handle the case where songs data is undefined
+      console.log('Songs data is undefined, cannot start playback.');
+      // Additional logic to handle this case, like state updates or retries, can be added here
     }
+    
   };
 
   const handleCheckboxChange = (playerId) => {
@@ -124,6 +141,31 @@ const MusicPlayerName = ({
       )
     );
   };
+  async function getRandomFriend(friendSongsData) {
+    // Check if friendSongsData is not undefined or null
+    if (friendSongsData) {
+      try {
+        console.log(friendSongsData);
+        const axiosInstance = axios.create({
+          withCredentials: true,
+        });
+        const payload = {
+          friend_songs: friendSongsData,
+        };
+        const response = await axiosInstance.post('http://127.0.0.1:5000/games/random_friend', payload);
+        const randomId = response.data;
+        console.log(randomId);
+        setRandomFriendId(randomId);
+      } catch (error) {
+        console.error('Error getting random friend ID:', error);
+      }
+    } else {
+      // Handle the undefined data, maybe by setting a state to show an error or to retry
+      console.log('friendSongsData is undefined, waiting for data...');
+    }
+  }
+
+
 
   const handleEveryoneWrongClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
