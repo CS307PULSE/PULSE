@@ -123,9 +123,105 @@ class DatabaseConnector(object):
     
     # Returns a user's advanced stats from DB as a JSON object
     def get_advanced_stats_from_DB(self, spotify_id):
-        sql_get_advanced_stats_query = "SELECT advanced_stats from pulse.base_stats WHERE spotify_id = %s"
+        sql_get_advanced_stats_query = """SELECT advanced_stats_header FROM pulse.advanced_stats WHERE spotify_id = %s"""
         self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
-        results = self.db_cursor.fetchone()
+        header = self.db_cursor.fetchone() 
+        DATA = json.loads(header[0])
+        Yearly = {}
+        
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2008 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2008'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2009 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2009'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2010 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2010'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2011 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2011'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2012 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2012'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2013 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2013'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2014 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2014'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2015 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2015'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2016 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2016'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2017 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2017'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2018 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2018'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2019 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2019'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2020 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2020'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2021 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2021'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2022 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2022'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2023 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2023'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2024 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2024'] = json.loads(year[0])
+
+        sql_get_advanced_stats_query = """SELECT advanced_stats_2025 FROM pulse.advanced_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(sql_get_advanced_stats_query, (spotify_id,))
+        year = self.db_cursor.fetchone() 
+        Yearly['2025'] = json.loads(year[0])
+
+
+        DATA['Yearly'] = Yearly
+        return DATA
         if (results[0] is None or results == [] or results == "[]"):
             return None
         self.resultset = json.loads(results[0])
@@ -225,8 +321,15 @@ class DatabaseConnector(object):
         return string_to_array_row_by_col(self.resultset[0], 5, 5, True)
     
     # Returns the gender from DB as a string.
-    def get_gender_from_user_DB(self, spotify_id, data = None):
+    def get_gender_from_user_DB(self, spotify_id):
         sql = "SELECT gender from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    
+    # Returns the has_uploaded from DB as a string.
+    def get_has_uploaded_from_user_DB(self, spotify_id):
+        sql = "SELECT has_uploaded from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
@@ -345,7 +448,7 @@ class DatabaseConnector(object):
                          login_token=json.loads(row[2]),                                                               
                          spotify_id=row[3],                                                             
                          friends=create_friends_array_from_DB(row[4]),        
-                         theme=Theme(row[5]),                                                         
+                         theme=Theme(row[5]),
                          location = row[9],
                          gender = row[10],
                          chosen_song = row[15],)       
@@ -356,67 +459,79 @@ class DatabaseConnector(object):
 
     # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
     def update_advanced_stats(self, spotify_id, new_advanced_stats):
+        yearly_values = [{}] * 18
         try:
-            yearly = new_advanced_stats["Yearly"]
+            yearly = new_advanced_stats.get("Yearly", {})
             new_advanced_stats["Yearly"] = {}
             years = [None] * 18
             
             
             for year in yearly.keys():
                 year_int = int(year)
-                years[year_int - 2008] = yearly[str(year_int)]
+                years[year_int - 2008] = yearly[year]
             
-            yearly_values = [json.dumps(value) for value in yearly[:18]]
+            yearly_values = [json.dumps(value) for value in years[:18]]
         except Exception as e:
             print("Error while processing")
             print(str(e))
         
         try:
-            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats
-                                        SET 
-                                        advanced_stats_header = %s,
-                                        advanced_stats_2008 = %s,
-                                        advanced_stats_2009 = %s,
-                                        advanced_stats_2010 = %s,
-                                        advanced_stats_2011 = %s,
-                                        advanced_stats_2012 = %s,
-                                        advanced_stats_2013 = %s,
-                                        advanced_stats_2014 = %s,
-                                        advanced_stats_2015 = %s,
-                                        advanced_stats_2016 = %s,
-                                        advanced_stats_2017 = %s,
-                                        advanced_stats_2018 = %s,
-                                        advanced_stats_2019 = %s,
-                                        advanced_stats_2020 = %s,
-                                        advanced_stats_2021 = %s,
-                                        advanced_stats_2022 = %s,
-                                        advanced_stats_2023 = %s,
-                                        advanced_stats_2024 = %s,
-                                        advanced_stats_2025 = %s
-                                    WHERE spotify_id = %s
-                                """
-            self.db_cursor.execute(sql_update_advanced_stats_query, (
-                json.dumps(new_advanced_stats),
-                            json.dumps(years[0]),  # 2008
-                            json.dumps(years[1]),  # 2009
-                            json.dumps(years[2]),  # 2010
-                            json.dumps(years[3]),  # 2011
-                            json.dumps(years[4]),  # 2012
-                            json.dumps(years[5]),  # 2013
-                            json.dumps(years[6]),  # 2014
-                            json.dumps(years[7]),  # 2015
-                            json.dumps(years[8]),  # 2016
-                            json.dumps(years[9]),  # 2017
-                            json.dumps(years[10]),  # 2018
-                            json.dumps(years[11]),  # 2019
-                            json.dumps(years[12]),  # 2020
-                            json.dumps(years[13]),  # 2021
-                            json.dumps(years[14]),  # 2022
-                            json.dumps(years[15]),  # 2023
-                            json.dumps(years[16]),  # 2024
-                            json.dumps(years[17]),  # 2025
-                            spotify_id,))
-            
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_header = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2008 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[0]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2009 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[1]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2010 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[2]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2011 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[3]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2012 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[4]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2013 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[5]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2014 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[6]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2015 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[7]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2016 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[8]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2017 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[9]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2018 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[10]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2019 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[11]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2020 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[12]), spotify_id,))           
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2021 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[13]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2022 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[14]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2023 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[15]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2024 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[16]), spotify_id,))
+            self.db_conn.commit()
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2025 = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[17]), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -578,6 +693,22 @@ class DatabaseConnector(object):
         try:
             sql_update_gender_query = """UPDATE pulse.users SET gender = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_gender_query, (new_gender, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating gender:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+    # Update has_uploaded (expected int 0 or 1) in user DB. Returns 1 if successful, -1 if not.
+    def update_has_uploaded(self, spotify_id, bool):
+        try:
+            sql_has_uploaded_query = """UPDATE pulse.users SET has_uploaded = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_has_uploaded_query, (bool, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
