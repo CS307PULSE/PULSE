@@ -96,7 +96,7 @@ class Emotion:
             value1 = dict1[param]
             value2 = dict2[param]
 
-            if param != "name":
+            if param != "name" and param != "target_duration_ms":
                 # Calculate the percentage difference
                 if abs(value1 + value2) == 0:
                     percentage_difference = 0
@@ -106,9 +106,13 @@ class Emotion:
                 total_distance += percentage_difference
         return total_distance
     
-    def get_percentage(user, song):
-        percentage = []
-        tractdict = Emotion.convert_track(user, song)
+    def get_percentage(user, song, popularity):
+        percentage = {
+            "percent_happy": 0,
+            "percent_angry": 0,
+            "percent_sad": 0
+        }
+        tractdict = Emotion.convert_track(user, song, popularity)
         happy = Emotion.gethappy()
         angry = Emotion.getangry()
         sad = Emotion.getsad()
@@ -116,15 +120,12 @@ class Emotion:
         angrydist = Emotion.calculate_total_distance(tractdict, angry)
         saddist = Emotion.calculate_total_distance(tractdict, sad)
         totaldist = saddist + angrydist + happydist
-        percentage.append(happydist/totaldist)
-        percentage.append(angrydist/totaldist)
-        percentage.append(saddist/totaldist)
-        percentage[0] = 1 - percentage[0] 
-        percentage[1] = 1 - percentage[1] 
-        percentage[2] = 1 - percentage[2] 
+        percentage["percent_happy"] = 1 - (happydist/totaldist)
+        percentage["percent_angry"] = 1 - (angrydist/totaldist)
+        percentage["percent_sad"] = 1 - (saddist/totaldist)
         return percentage
         
-    def convert_track(user, song):
+    def convert_track(user, song, popularity = 0, duration = 0):
         song_dict = {
             "name" : "songdict",
             "target_energy": 0,
@@ -140,14 +141,13 @@ class Emotion:
             "target_tempo": 0,
             "target_valence": 0
         }
-        song_features = user.spotify_user.audio_features(song['id'])
+        song_features = user.spotify_user.audio_features(song)
         song_features = song_features[0]
-        print(song_features)
         song_dict["target_energy"] = song_features.get("energy", 0)
-        song_dict["target_popularity"] = song["popularity"]
+        song_dict["target_popularity"] = popularity
         song_dict["target_acousticness"] = song_features.get("acousticness", 0)
         song_dict["target_danceability"] = song_features.get("danceability", 0)
-        song_dict["target_duration_ms"] = song["duration_ms"]
+        song_dict["target_duration_ms"] = duration
         song_dict["target_instrumentalness"] = song_features.get("instrumentalness", 0)
         song_dict["target_liveness"] = song_features.get("liveness", 0)
         song_dict["target_loudness"] = song_features.get("loudness", 0)
@@ -157,15 +157,15 @@ class Emotion:
         song_dict["target_valence"] = song_features.get("valence", 0)
         return song_dict
 
-    def update_and_average_dict(user, original_dict, song):
-        song_dict = Emotion.convert_track(user, song)
+    def update_and_average_dict(user, original_dict, song, popularity, duration):
+        song_dict = Emotion.convert_track(user, song, popularity, duration)
         for key in original_dict.keys():
             if key != "name":
                 original_dict[key] = (original_dict[key] + song_dict[key]) / 2
         return original_dict
 
-    def find_song_emotion(user, song):
-        song_dict = Emotion.convert_track(user, song)
+    def find_song_emotion(user, song, popularity):
+        song_dict = Emotion.convert_track(user, song, popularity)
         happydistance = Emotion.calculate_total_distance(Emotion.gethappy, song_dict)
         angrydistance = Emotion.calculate_total_distance(Emotion.getangry, song_dict)
         saddistance = Emotion.calculate_total_distance(Emotion.getsad, song_dict)

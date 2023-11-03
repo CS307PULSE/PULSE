@@ -271,6 +271,7 @@ def friend_statistics():
     id = data.get('id')
     with DatabaseConnector(db_config) as conn:
         user = conn.get_user_from_user_DB(spotify_id=id)
+    user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
     if user is None:
         error_message = "The user is not found! Please try again!"
@@ -288,6 +289,7 @@ def friend_statistics():
 
     try:
         start_time2 = time.time()
+        try_refresh(user)
         update_data(user)
         end_time2 = time.time()
         execution_time2 = end_time2 - start_time2
@@ -296,8 +298,6 @@ def friend_statistics():
         print(e)
         return jsonify(data)
     
-    with DatabaseConnector(db_config) as conn:
-        layout = conn.get_layout_from_DB(user.spotify_id)
     with DatabaseConnector(db_config) as conn:
         followers = conn.get_followers_from_DB(user.spotify_id)
 
@@ -309,9 +309,6 @@ def friend_statistics():
     data['saved_songs'] = user.stringify(user.stats.saved_songs)
     data['saved_albums'] = user.stringify(user.stats.saved_albums)
     data['saved_playlists'] = user.stringify(user.stats.saved_playlists)
-
-    if layout is not None:
-        data['layout_data'] = layout
 
     if followers is not None:
         data['follower_data'] = followers
@@ -399,6 +396,7 @@ def get_friends_recent_songs():
     for friend_id in friend_ids.keys():
         with DatabaseConnector(db_config) as conn:
             user = conn.get_user_from_user_DB(spotify_id=friend_id)
+        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
         try:
             update_data(user,
@@ -930,25 +928,6 @@ def upload_image():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
-# def upload_image():
-#     print("IN PROFILE/UPLOAD")
-#     if 'user' in session:
-#         data = request.get_json()
-#         image_og = data['filepath']
-#         user_data = session['user']
-#         user = User.from_json(user_data)
-#         #open image named uncompressed_image.jpg
-#         # image_og = secure_filename(image_og.filename)
-#         # if image_og.lower().endswith(('.png')) :
-#         #     im = Image.open(image_og)
-#         #     im.convert('RGB').save("image_name.jpg","JPEG") #this converts png image as jpeg
-#         storage_loc = os.getcwd() + "\\Icons\\" + user.spotify_id + ".jpeg"
-#         os.rename(image_og, storage_loc)
-#         #save image locally
-#         response_data = 'Found and uploaded profile.'
-#     else:
-#         response_data = 'User session not found. Please log in again.'
-#     return jsonify(response_data)
 
 @app.route('/profile/get_image', methods=['GET'])
 def get_image():
@@ -961,16 +940,6 @@ def get_image():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(response_data)
-
-# def get_image():
-#     if 'user' in session:
-#         user_data = session['user']
-#         user = User.from_json(user_data)
-#         storage_loc = os.getcwd().removesuffix('Backend\\') + "\\Icons\\" + user.spotify_id + ".jpeg"
-#         response_data =  #storage_loc
-#     else:
-#         response_data = 'User session not found. Please log in again.'
-#     return jsonify(response_data)
 
 @app.route('/profile/change_displayname', methods=['POST'])
 def change_displayname():
@@ -1275,7 +1244,11 @@ def get_advanced_stats():
         with DatabaseConnector(db_config) as conn:
             # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
-        response_data["Emotions"] = get_emotions(user, response_data["Tracks"])
+        emotions = get_emotions(user, response_data["Tracks"])
+        if emotions is None:
+            response_data["Emotions"] = {}
+        else:
+            response_data["Emotions"] = emotions
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1629,7 +1602,6 @@ def get_requests():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(jsonarray)
 
-
 @app.route('/playlist/get_recs', methods=['POST'])
 def getPlaylistRecs():
     if 'user' in session:
@@ -1644,7 +1616,21 @@ def getPlaylistRecs():
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
 
-app.route('/chatbot/pull_songs', methods=['GET'])
+@app.route('/stats/emotion_percent', methods=['GET'])
+def emotion_percent():
+    if 'user' in session:
+        user_data = session['user']
+        data = request.get_json()
+        user = User.from_json(user_data) 
+        trackid = data.get('trackid')
+        popularity = data.get('popularity')
+        emotionarray = Emotion.get_percentage(user, trackid, popularity)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(emotionarray)
+
+@app.route('/chatbot/pull_songs', methods=['POST'])
 def pullsongs():
     if 'user' in session:
         user_data = session['user']
@@ -1655,7 +1641,7 @@ def pullsongs():
         # Split the string into an array using regular expressions
         titles = re.split(r'\d+\.', songlist)
         # Remove any leading or trailing whitespace from each item
-        titles = [item.strip() for item in items if item.strip()]
+        titles = [item.strip() for item in titles if item.strip()]
         # Display the resulting array
         trackids = []
         if len(titles) == 1:
@@ -1693,8 +1679,7 @@ def pullsongs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return "created playlist"
-
+    return "successful completion"
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
@@ -1704,7 +1689,6 @@ def feedback():
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed"
     return "Success"
-    
 
 @app.route('/test')
 def test():
