@@ -4,7 +4,6 @@
 #pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
 from flask_cors import CORS
-from flask_mail import Mail, Message
 # import firebase_admin
 # from firebase_admin import credentials, auth
 from User import User
@@ -53,13 +52,6 @@ CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0
 app.secret_key = 'your_secret_key'
 app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
 app.config['SESSION_COOKIE_SECURE'] = False
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'airplainfood@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Flyingfludoodle12'
-app.config['MAIL_DEFAULT_SENDER'] = 'airplainfood@gmail.com'
-mail = Mail(app)
 
 scopes = [
     #Images
@@ -1684,7 +1676,7 @@ def playlist_create():
         collaborative = data.get('collaborative')
         genre = data.get('genre')
         try_refresh(user)
-        Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
+        playlist = Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
         playlist = playlist.get('id', None)
         if genre != 'none' and playlist != None:
             Playlist.playlist_generate(user=user, playlist=playlist, genre=genre)
