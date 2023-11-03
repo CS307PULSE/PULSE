@@ -106,6 +106,20 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
 
+    #Creates a a new row in advanced stats DB containing only the username with all other values being null. Expects spotify_id and returns None    
+    def create_new_user_in_advanced_stats_DB(self, spotify_id):
+        try:
+            sql_store_new_user_query = """INSERT INTO pulse.advanced_stats (spotify_id) VALUES (%s)"""
+            self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
+            self.db_conn.commit()
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error creating new user in advanced stats table:", str(e))
+            self.db_conn.rollback()
+            return 0  # Indicate that the update failed
+
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
     
@@ -339,8 +353,66 @@ class DatabaseConnector(object):
     # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
     def update_advanced_stats(self, spotify_id, new_advanced_stats):
         try:
-            sql_update_advanced_stats_query = """UPDATE pulse.base_stats SET advanced_stats = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
+            yearly = new_advanced_stats["Yearly"]
+            new_advanced_stats["Yearly"] = {}
+            years = [None] * 18
+            
+            
+            for year in yearly.keys():
+                year_int = int(year)
+                years[year_int - 2008] = yearly[str(year_int)]
+            
+            yearly_values = [json.dumps(value) for value in yearly[:18]]
+        except Exception as e:
+            print("Error while processing")
+            print(str(e))
+        
+        try:
+            sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats
+                                        SET 
+                                        advanced_stats_header = %s,
+                                        advanced_stats_2008 = %s,
+                                        advanced_stats_2009 = %s,
+                                        advanced_stats_2010 = %s,
+                                        advanced_stats_2011 = %s,
+                                        advanced_stats_2012 = %s,
+                                        advanced_stats_2013 = %s,
+                                        advanced_stats_2014 = %s,
+                                        advanced_stats_2015 = %s,
+                                        advanced_stats_2016 = %s,
+                                        advanced_stats_2017 = %s,
+                                        advanced_stats_2018 = %s,
+                                        advanced_stats_2019 = %s,
+                                        advanced_stats_2020 = %s,
+                                        advanced_stats_2021 = %s,
+                                        advanced_stats_2022 = %s,
+                                        advanced_stats_2023 = %s,
+                                        advanced_stats_2024 = %s,
+                                        advanced_stats_2025 = %s
+                                    WHERE spotify_id = %s
+                                """
+            self.db_cursor.execute(sql_update_advanced_stats_query, (
+                json.dumps(new_advanced_stats),
+                            json.dumps(years[0]),  # 2008
+                            json.dumps(years[1]),  # 2009
+                            json.dumps(years[2]),  # 2010
+                            json.dumps(years[3]),  # 2011
+                            json.dumps(years[4]),  # 2012
+                            json.dumps(years[5]),  # 2013
+                            json.dumps(years[6]),  # 2014
+                            json.dumps(years[7]),  # 2015
+                            json.dumps(years[8]),  # 2016
+                            json.dumps(years[9]),  # 2017
+                            json.dumps(years[10]),  # 2018
+                            json.dumps(years[11]),  # 2019
+                            json.dumps(years[12]),  # 2020
+                            json.dumps(years[13]),  # 2021
+                            json.dumps(years[14]),  # 2022
+                            json.dumps(years[15]),  # 2023
+                            json.dumps(years[16]),  # 2024
+                            json.dumps(years[17]),  # 2025
+                            spotify_id,))
+            
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -348,7 +420,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
+            print("Error updating advanced stats:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         

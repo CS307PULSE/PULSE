@@ -179,6 +179,7 @@ def callback():
             if not user_exists:
                 conn.create_new_user_in_user_DB(user)
                 conn.create_new_user_in_stats_DB(user.spotify_id)
+                conn.create_new_user_in_advanced_stats_DB(user.spotify_id)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
@@ -1158,7 +1159,7 @@ def get_saved_themes():
 
 @app.route('/import_advanced_stats')
 def import_advanced_stats():
-    from datetime import datetime, timedelta
+    from datetime import datetime
     start_time = datetime.now()
     if 'user' in session:
         #data = request.get_json()
@@ -1179,7 +1180,7 @@ def import_advanced_stats():
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2020_3.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019-2020_2.json",
                      "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2019_1.json",
-                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2018-2019_0.json",
+                     "C://Users//noahs//Desktop//MyData//Streaming_History_Audio_2018-2019_0.json"
                      ]
         user_data = session['user']
         user = User.from_json(user_data)
@@ -1189,11 +1190,7 @@ def import_advanced_stats():
             error_message = "Failed to reauthenticate token"
             return make_response(jsonify({'error': error_message}), 10)
     
-        # Get data from DB
-        # with DatabaseConnector(db_config) as conn:
-        #  DATA = conn.get_advanced_stats_from_DB(user.spotify_id)
         DATA = None
-
         time.sleep(30)
         for filepath in filepaths: 
             time.sleep(5)
@@ -1276,48 +1273,16 @@ def get_emotions(user, tracks):
 
     return emotions
 
-@app.route('/api_only/get_advanced_stats_db')
-def api_only_get_advanced_stats():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data) 
-        with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
-    return Response(json.dumps(response_data, indent=4), mimetype='application/json')
-
-@app.route('/api_only/import_advanced_stats_multiple_files')
-def api_import_advanced_stats_multiple_files():
-    return
-
-@app.route('/api_only/get_advanced_stats')
-def api_import_get_advanced_stats():
-    if 'user' in session:
-        with DatabaseConnector(db_config) as conn:
-            user_exists = conn.does_user_exist_in_user_DB("0ajzwwwmv2hwa3k1bj2z19obr")
-            if user_exists:
-                user = conn.get_user_from_user_DB(spotify_id="0ajzwwwmv2hwa3k1bj2z19obr")
-                session['user'] = user.to_json()
-        filepath = request.args.get('filepath')
-        if filepath:
-            if (try_refresh(user)):
-                user = User.from_json(session['user'])
-                response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
-                response_data = json.dumps(response_data, indent=4)
-            else:
-                response_data = user.stats.advanced_stats_import(filepath=filepath, token=user.login_token['access_token'], more_data=True)
-                response_data = json.dumps(response_data, indent=4)
-            #json_data = json.dumps(response_data, indent=4)
-            response = Response(response_data, mimetype='application/json')
-        else:
-            response = "Filepath not provided."
-
-    else:
-        response = 'User session not found. Please log in again.'
-    
-    return response
+@app.route('/store_advanced_stats')
+def store_advanced_stats():
+    id = "0ajzwwwmv2hwa3k1bj2z19obr"
+    file_path = "advanced_stats_output.json"
+    with open(file_path, 'r') as file:
+        DATA = json.load(file)
+    with DatabaseConnector(db_config) as conn:
+        if (conn.update_advanced_stats(id, DATA) == -1):
+            error_message = "Advanced stats has not been stored!"
+            return make_response(jsonify({'error': error_message}), 6969)
 
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
