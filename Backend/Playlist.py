@@ -10,7 +10,7 @@ import json
 class Playlist:
     def add_track(user, playlist, song):
         try:
-            user.spotify_user.playlist_add_items(playlistid, song)
+            user.spotify_user.playlist_add_items(playlist, song)
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
