@@ -1640,7 +1640,7 @@ def playlist_get_tracks():
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        playlist = data.get('playlistid')
+        playlist = data.get('playlist')
         try_refresh(user)
         response_data = Playlist.playlist_get_tracks(user=user, playlist=playlist)
     else:
@@ -1655,9 +1655,9 @@ def playlist_add_track():
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        playlist = data.get('playlistid')
+        playlist = data.get('playlist')
         song.append(data.get('song'))
-        print(song)
+        print(playlist)
         try_refresh(user)
         Playlist.add_track(user=user, playlist=playlist, song=song)
     else:
@@ -1688,6 +1688,7 @@ def playlist_change_image():
         data = request.get_json()
         playlist = data.get('playlist')
         url = data.get('url')
+        print(url)
         try_refresh(user)
         Playlist.change_image(user=user, playlist=playlist, url=url)
     else:
