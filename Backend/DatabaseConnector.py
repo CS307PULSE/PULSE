@@ -359,17 +359,18 @@ class DatabaseConnector(object):
 
     # Updates advanced_stats (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
     def update_advanced_stats(self, spotify_id, new_advanced_stats):
+        yearly_values = [{}] * 18
         try:
-            yearly = new_advanced_stats.get("Yearly", "")
+            yearly = new_advanced_stats.get("Yearly", {})
             new_advanced_stats["Yearly"] = {}
             years = [None] * 18
             
             
             for year in yearly.keys():
                 year_int = int(year)
-                years[year_int - 2008] = yearly[str(year_int)]
+                years[year_int - 2008] = yearly[year]
             
-            yearly_values = [json.dumps(value) for value in yearly[:18]]
+            yearly_values = [json.dumps(value) for value in years[:18]]
         except Exception as e:
             print("Error while processing")
             print(str(e))
@@ -400,24 +401,24 @@ class DatabaseConnector(object):
                                 """
             self.db_cursor.execute(sql_update_advanced_stats_query, (
                 json.dumps(new_advanced_stats),
-                            json.dumps(years[0]),  # 2008
-                            json.dumps(years[1]),  # 2009
-                            json.dumps(years[2]),  # 2010
-                            json.dumps(years[3]),  # 2011
-                            json.dumps(years[4]),  # 2012
-                            json.dumps(years[5]),  # 2013
-                            json.dumps(years[6]),  # 2014
-                            json.dumps(years[7]),  # 2015
-                            json.dumps(years[8]),  # 2016
-                            json.dumps(years[9]),  # 2017
-                            json.dumps(years[10]),  # 2018
-                            json.dumps(years[11]),  # 2019
-                            json.dumps(years[12]),  # 2020
-                            json.dumps(years[13]),  # 2021
-                            json.dumps(years[14]),  # 2022
-                            json.dumps(years[15]),  # 2023
-                            json.dumps(years[16]),  # 2024
-                            json.dumps(years[17]),  # 2025
+                            json.dumps(yearly_values[0]),  # 2008
+                            json.dumps(yearly_values[1]),  # 2009
+                            json.dumps(yearly_values[2]),  # 2010
+                            json.dumps(yearly_values[3]),  # 2011
+                            json.dumps(yearly_values[4]),  # 2012
+                            json.dumps(yearly_values[5]),  # 2013
+                            json.dumps(yearly_values[6]),  # 2014
+                            json.dumps(yearly_values[7]),  # 2015
+                            json.dumps(yearly_values[8]),  # 2016
+                            json.dumps(yearly_values[9]),  # 2017
+                            json.dumps(yearly_values[10]),  # 2018
+                            json.dumps(yearly_values[11]),  # 2019
+                            json.dumps(yearly_values[12]),  # 2020
+                            json.dumps(yearly_values[13]),  # 2021
+                            json.dumps(yearly_values[14]),  # 2022
+                            json.dumps(yearly_values[15]),  # 2023
+                            json.dumps(yearly_values[16]),  # 2024
+                            json.dumps(yearly_values[17]),  # 2025
                             spotify_id,))
             
             self.db_conn.commit()

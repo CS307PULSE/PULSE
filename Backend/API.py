@@ -31,7 +31,7 @@ run_connected = True
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
-with open(current_dir + '\\Code\\PULSE\\Testing\\' + 'ClientData.txt', 'r') as file:
+with open(current_dir + '\\Testing\\' + 'ClientData.txt', 'r') as file:
     for line in file:
         lines.append(line.strip())
 
@@ -1190,6 +1190,8 @@ def import_advanced_stats():
         for filepath in filepaths: 
             #time.sleep(5)
             if filepath:
+                if filepath.startswith('"') and filepath.endswith('"'):
+                    filepath = filepath[1:-1]
                 try: 
                     temp = user.stats.advanced_stats_import(filepath=filepath, 
                                                             token=user.login_token['access_token'], 
@@ -1213,7 +1215,7 @@ def import_advanced_stats():
         minutes = time_elapsed.total_seconds() / 60
         DATA["TIME"] = minutes
         
-        if DATA != {}:
+        if 'Yearly' in DATA:
             with open("advanced_stats_output.json", "w") as json_file:
                 json.dump(DATA, json_file, indent=4)
 
