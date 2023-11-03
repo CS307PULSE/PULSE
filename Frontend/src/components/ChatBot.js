@@ -193,14 +193,14 @@ const ChatBot = () => {
             // Set the awaitingFeedback state to true
             setAwaitingFeedback(true);
             // Ask for feedback
-            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Could you please tell me more about your thoughts?" }]);
+            // setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Could you please tell me more about your thoughts?" }]);
         } else if (awaitingFeedback) {
             // Overwrite the existing feedback with the new message
             setFeedback(inputValue);
             // Reset the awaitingFeedback state
             setAwaitingFeedback(false);
             // Send a thank you message to the user
-            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Thank you for your feedback!" }]);
+            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Thank you for your feedback! It has been forwarded to our team."}]);
             // Here, you would handle the feedback, e.g., sending it to a server or logging it
         } else {
             // Normal message handling if the user is not providing feedback
