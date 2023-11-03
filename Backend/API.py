@@ -1651,11 +1651,13 @@ def playlist_get_tracks():
 @app.route('/playlist/add_track', methods=['POST'])
 def playlist_add_track():
     if 'user' in session:
+        song = []
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
         playlist = data.get('playlistid')
-        song = data.get('song')
+        song.append(data.get('song'))
+        print(song)
         try_refresh(user)
         Playlist.add_track(user=user, playlist=playlist, song=song)
     else:

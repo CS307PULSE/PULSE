@@ -181,7 +181,7 @@ const PlaylistManager = () => {
             </div>
             {songSearchResults.length > 0 && songSearchResults.map((item, index) => (
               <div key={index} style={selectionDisplayStyle}>
-                <button style={{...buttonStyle, width: "80px"}} onClick={() => {playlistPost("add_track", {song: item.id, playlist: playlists[selectedPlaylistIndex].id})}}>Add</button>
+                <button style={{...buttonStyle, width: "80px"}} onClick={() => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id})}}>Add</button>
                 <img style={imageStyle} src={item.album.images[2].url}></img>
                 <div>
                   <p style={textStyle}>{item.name}</p>
