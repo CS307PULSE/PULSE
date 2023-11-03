@@ -87,9 +87,9 @@ class Playlist:
 
     def playlist_generate(user, playlist, genre):
         try:
-            recommendations = user.spotify_user.get_recommendations(seed_genres = genre, max_items = 30)
+            recommendations = user.get_recommendations(seed_genres = genre, max_items = 5)
             for song in recommendations:
-                Playlist.add_track(user, playlist, song['id'])
+                Playlist.add_track(user, playlist, [song['uri']])
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
         

@@ -1672,14 +1672,14 @@ def playlist_create():
         user = User.from_json(user_data)
         data = request.get_json()
         name = data.get('name')
-        public = data.get('public')
-        collaborative = data.get('collaborative')
+        #public = data.get('public')
+        #collaborative = data.get('collaborative')
         genre = data.get('genre')
         try_refresh(user)
-        playlist = Playlist.create_playlist(user=user, name=name, public=public, collaborative=collaborative)
+        playlist = Playlist.create_playlist(user=user, name=name)
         playlist = playlist.get('id', None)
         if genre != 'none' and playlist != None:
-            Playlist.playlist_generate(user=user, playlist=playlist, genre=genre)
+            Playlist.playlist_generate(user=user, playlist=playlist, genre=[genre])
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
