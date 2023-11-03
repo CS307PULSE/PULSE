@@ -1611,22 +1611,36 @@ def playlist_create():
         return make_response(jsonify({'error': error_message}), 69)
     return "Created playlist!"
 
-@app.route('/playlist/add_track')
+@app.route('/playlist/get_tracks')
+def playlist_get_tracks():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        playlist = data.get('playlistid')
+        try_refresh(user)
+        response_data = Playlist.playlist_get_tracks(user=user, playlist=playlist)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(response_data)
+
+@app.route('/playlist/add_track', methods=['POST'])
 def playlist_add_track():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        playlistid = data.get('playlistid')
+        playlist = data.get('playlistid')
         song = data.get('song')
         try_refresh(user)
-        Playlist.add_track(user=user, playlistid=playlistid, song=song)
+        Playlist.add_track(user=user, playlist=playlist, song=song)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return "Added track!"
 
-@app.route('/playlist/remove_track')
+@app.route('/playlist/remove_track', methods=['POST'])
 def playlist_remove_track():
     if 'user' in session:
         user_data = session['user']
@@ -1641,7 +1655,7 @@ def playlist_remove_track():
         return make_response(jsonify({'error': error_message}), 69)
     return "Removed track!"
 
-@app.route('/playlist/change_image')
+@app.route('/playlist/change_image', methods=['POST'])
 def playlist_change_image():
     if 'user' in session:
         user_data = session['user']
@@ -1656,7 +1670,7 @@ def playlist_change_image():
         return make_response(jsonify({'error': error_message}), 69)
     return "Changed image!"
 
-@app.route('/playlist/reorder_tracks')
+@app.route('/playlist/reorder_tracks', methods=['POST'])
 def playlist_reorder_tracks():
     if 'user' in session:
         user_data = session['user']
@@ -1670,7 +1684,7 @@ def playlist_reorder_tracks():
         return make_response(jsonify({'error': error_message}), 69)
     return "Reordered tracks!"
 
-@app.route('/playlist/follow')
+@app.route('/playlist/follow', methods=['POST'])
 def playlist_follow():
     if 'user' in session:
         user_data = session['user']
@@ -1682,9 +1696,9 @@ def playlist_follow():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return "Playlist followed!!"
+    return "Playlist followed!"
 
-@app.route('/playlist/unfollow')
+@app.route('/playlist/unfollow', methods=['POST'])
 def playlist_unfollow():
     if 'user' in session:
         user_data = session['user']
@@ -1696,7 +1710,7 @@ def playlist_unfollow():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return "Playlist unfollowed!!"
+    return "Playlist unfollowed!"
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
 def pull_songs():
