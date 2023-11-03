@@ -42,7 +42,8 @@ async function saveUserField(route, payload) {
 function Profile({testParameter}){
 
     const { state, dispatch } = useAppContext();
-
+    const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+    
     const [imagePath, setImagePath] = useState(storedUserFields.icon);
     const [username, setUsername] = useState(storedUserFields.username);
     const [gender, setGender] = useState(storedUserFields.gender);
@@ -54,7 +55,6 @@ function Profile({testParameter}){
     const updateTextSize = (newSetting) => {
         dispatch({ type: 'UPDATE_TEXT_SIZE', payload: newSetting });
     };
-    const textSizes = TextSize(state.settingTextSize); //Obtain text size values
     
     const updateColor = (colorType, newColor) => {
         switch (colorType) {
@@ -103,16 +103,17 @@ function Profile({testParameter}){
         fontStyle: "normal",
         fontFamily: "'Poppins', sans-serif"
     };
+    
+    const customThemeContainerStyle = {
+        display: 'grid',
+        gridTemplateColumns: "repeat(4, 1fr)",
+        width: "500px"
+    };
     const buttonContainerStyle = {
         display: 'flex',
         alignItems: 'center', // Center buttons horizontally
         marginTop: '5px', // Space between cards and buttons
         width: "600px"
-    };
-    const customThemeContainerStyle = {
-        display: 'grid',
-        gridTemplateColumns: "repeat(4, 1fr)",
-        width: "500px"
     };
     const buttonStyle = {
         backgroundColor: state.colorBackground,
