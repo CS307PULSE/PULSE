@@ -405,7 +405,11 @@ def get_friends_recent_songs():
     for friend_id in friend_ids.keys():
         try:
             with DatabaseConnector(db_config) as conn:
-                user = conn.get_user_from_user_DB(spotify_id=friend_id)
+                user_exists = conn.does_user_exist_in_user_DB(friend_id)
+                if user_exists:
+                    user = conn.get_user_from_user_DB(spotify_id=friend_id)
+                else:
+                    return "error"
             user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
             update_data(user,
