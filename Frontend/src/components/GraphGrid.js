@@ -10,6 +10,7 @@ import ImageGraph from "./Graphs/ImageGraph";
 import CalendarGraph from "./Graphs/CalendarGraph";
 import ScatterGraph from "./Graphs/ScatterGraph";
 import RadialBarGraph from "./Graphs/RadialBarGraph";
+import RadarGraph from "./Graphs/RadarGraph.js";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
@@ -79,6 +80,7 @@ export default function GraphGrid() {
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
   const [friendDatas, setFriendDatas] = useState([]);
+  const [friendDataUpdated, setFriendDataUpdated] = useState(true);
   const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
@@ -364,6 +366,7 @@ export default function GraphGrid() {
       if (
         !friendDatas.some((element) => element.id === newGraphData.friendID)
       ) {
+        setFriendDataUpdated(false);
         fetchBasicFriendData(newGraphData.friendID).then((friendData) => {
           setFriendDatas([
             ...friendDatas,
@@ -373,6 +376,7 @@ export default function GraphGrid() {
               data: friendData,
             },
           ]);
+          setFriendDataUpdated(true);
         });
       }
     }
@@ -394,6 +398,8 @@ export default function GraphGrid() {
         return pie2;
       case "justReturn":
         return;
+      case "emotion":
+        return;
       default:
         break;
     }
@@ -410,7 +416,7 @@ export default function GraphGrid() {
           return null;
         }
 
-        if (!props.bothFriendAndOwnData) {
+        if (props.bothFriendAndOwnData) {
           switch (props.data) {
             case "top_songs":
               switch (props.timeRange) {
@@ -590,11 +596,6 @@ export default function GraphGrid() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finishedPullingData]);
 
-  useEffect(() => {
-    // Call the getData function when the component mounts or when container changes
-    getData({ data: "justReturn" });
-  }, [friendDatas]);
-
   if (!finishedPullingData) {
     return <>Still Loading...</>;
   } else if (!finishedPullingAdvancedData) {
@@ -611,137 +612,192 @@ export default function GraphGrid() {
           onLayoutChange={handleLayoutChange}
           draggableCancel=".custom-draggable-cancel"
         >
-          {layout.map((container) => (
-            <div className="graphContainer" key={container.i}>
-              <div style={{ marginBottom: "10px" }}>
-                <div
-                  style={{ fontSize: "var(--title-text-size)" }}
-                  data-tooltip-id={container.i + "-tooltip"}
-                  data-tooltip-content={
-                    container.graphType +
-                    ' of "' +
-                    nameFromDataName(container.data) +
-                    '"' +
-                    (container.data === "numMinutes" ||
-                    container.data === "percentTimes"
-                      ? " for " + container.dataVariation
-                      : "") +
-                    (container.data.includes("num") ||
-                    container.data.includes("percent") ||
-                    (container.data.includes("top") &&
-                      !(container.graphType === "Bump"))
-                      ? " for " + container.timeRange
-                      : "")
-                  }
-                >
-                  {container.i}
+          {layout.map((container) => {
+            if (container.friendDataOn) {
+              if (!friendDataUpdated) {
+                return (
+                  <div className="graphContainer" key={container.i}>
+                    <div style={{ marginBottom: "10px" }}>
+                      <div
+                        style={{ fontSize: "var(--title-text-size)" }}
+                        data-tooltip-id={container.i + "-tooltip"}
+                        data-tooltip-content={
+                          container.graphType +
+                          ' of "' +
+                          nameFromDataName(container.data) +
+                          '"' +
+                          (container.data === "numMinutes" ||
+                          container.data === "percentTimes"
+                            ? " for " + container.dataVariation
+                            : "") +
+                          (container.data.includes("num") ||
+                          container.data.includes("percent") ||
+                          (container.data.includes("top") &&
+                            !(container.graphType === "Bump"))
+                            ? " for " + container.timeRange
+                            : "")
+                        }
+                      >
+                        {container.i}
+                      </div>
+                      <button
+                        className="GraphCloseButton custom-draggable-cancel"
+                        onClick={() => RemoveContainer(container.i)}
+                      >
+                        X
+                      </button>
+                      <Tooltip id={container.i + "-tooltip"} />
+                    </div>
+                    <div>Loading graph data</div>
+                  </div>
+                );
+              }
+              //console.log(getData(container));
+            }
+            return (
+              <div className="graphContainer" key={container.i}>
+                <div style={{ marginBottom: "10px" }}>
+                  <div
+                    style={{ fontSize: "var(--title-text-size)" }}
+                    data-tooltip-id={container.i + "-tooltip"}
+                    data-tooltip-content={
+                      container.graphType +
+                      ' of "' +
+                      nameFromDataName(container.data) +
+                      '"' +
+                      (container.data === "numMinutes" ||
+                      container.data === "percentTimes"
+                        ? " for " + container.dataVariation
+                        : "") +
+                      (container.data.includes("num") ||
+                      container.data.includes("percent") ||
+                      (container.data.includes("top") &&
+                        !(container.graphType === "Bump"))
+                        ? " for " + container.timeRange
+                        : "")
+                    }
+                  >
+                    {container.i}
+                  </div>
+                  <button
+                    className="GraphCloseButton custom-draggable-cancel"
+                    onClick={() => RemoveContainer(container.i)}
+                  >
+                    X
+                  </button>
+                  <Tooltip id={container.i + "-tooltip"} />
                 </div>
-                <button
-                  className="GraphCloseButton custom-draggable-cancel"
-                  onClick={() => RemoveContainer(container.i)}
-                >
-                  X
-                </button>
-                <Tooltip id={container.i + "-tooltip"} />
+                {container.graphType === "VertBar" ||
+                container.graphType === "HortBar" ? (
+                  <BarGraph
+                    graphName={container.graphType}
+                    data={getData(container)}
+                    dataName={container.data}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    graphKeys={container.graphSettings.graphKeys}
+                    graphIndexBy={container.graphSettings.graphIndexBy}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Line" ? (
+                  <LineGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    dataVariation={container.dataVariation}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Pie" ? (
+                  <PieGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "ImageGraph" ? (
+                  <ImageGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    clickAction={container.graphSettings.clickAction}
+                  />
+                ) : container.graphType === "Bump" ? (
+                  <BumpGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Calendar" ? (
+                  <CalendarGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Scatter" ? (
+                  <ScatterGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "RadBar" ? (
+                  <RadialBarGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : container.graphType === "Radar" ? (
+                  <RadarGraph
+                    data={getData(container)}
+                    dataName={container.data}
+                    bothFriendAndOwnData={container.bothFriendAndOwnData}
+                    dataVariation={container.dataVariation}
+                    timeRange={container.timeRange}
+                    graphTheme={container.graphSettings.graphTheme}
+                    hortAxisTitle={container.graphSettings.hortAxisTitle}
+                    vertAxisTitle={container.graphSettings.vertAxisTitle}
+                    legendEnabled={container.graphSettings.legendEnabled}
+                  />
+                ) : (
+                  <p> Invalid Graph Type</p>
+                )}
               </div>
-              {container.graphType === "VertBar" ||
-              container.graphType === "HortBar" ? (
-                <BarGraph
-                  graphName={container.graphType}
-                  data={getData(container)}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  graphKeys={container.graphSettings.graphKeys}
-                  graphIndexBy={container.graphSettings.graphIndexBy}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Line" ? (
-                <LineGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  dataVariation={container.dataVariation}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Pie" ? (
-                <PieGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "ImageGraph" ? (
-                <ImageGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  clickAction={container.graphSettings.clickAction}
-                />
-              ) : container.graphType === "Bump" ? (
-                <BumpGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Calendar" ? (
-                <CalendarGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "Scatter" ? (
-                <ScatterGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : container.graphType === "RadBar" ? (
-                <RadialBarGraph
-                  data={getData(container)}
-                  dataName={container.data}
-                  bothFriendAndOwnData={container.bothFriendAndOwnData}
-                  dataVariation={container.dataVariation}
-                  timeRange={container.timeRange}
-                  graphTheme={container.graphSettings.graphTheme}
-                  hortAxisTitle={container.graphSettings.hortAxisTitle}
-                  vertAxisTitle={container.graphSettings.vertAxisTitle}
-                  legendEnabled={container.graphSettings.legendEnabled}
-                />
-              ) : (
-                <p> Invalid Graph Type</p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </ResponsiveGridLayout>
         <div>
           <p> Current layout is {layoutNumber}</p>

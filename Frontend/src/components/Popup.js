@@ -40,6 +40,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
   const [friendsAvailable, setFriendsAvailable] = useState(false);
   const [wantFriendData, setWantFriendData] = useState(false);
   const [defaultFriend, setDefaultFriend] = useState();
+  const [advancedData, setAdvancedData] = useState(false);
 
   //Data variables
   const [friends, setFriends] = useState();
@@ -114,15 +115,18 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
     if (dataSelected === "numMinutes" || dataSelected === "percentTimes") {
       setSpecTimesDataSelected(true);
       setTimesField(true);
+      setAdvancedData(true);
     } else if (
       dataSelected === "percentTimePeriod" ||
       dataSelected === "numTimesSkipped"
     ) {
       setSpecTimesDataSelected(false);
       setTimesField(true);
+      setAdvancedData(true);
     } else {
       setSpecTimesDataSelected(false);
       setTimesField(false);
+      setAdvancedData(false);
     }
     if (imageGraph) {
       setTimesField(true);
@@ -232,11 +236,11 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
         } else {
           setLineData(true);
           setMultiDataEN(true);
+          setTimesDataEN(true);
+          setFollowerData(true);
         }
         setAxisTitlesEN(true);
         setLegendEN(true);
-        setTimesDataEN(true);
-        setFollowerData(true);
         break;
       case "RadBar":
         setMultiDataEN(true);
@@ -473,7 +477,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
               onChange={(e) => {
                 setWantFriendData(e.target.checked);
               }}
-              disabled={!friendsAvailable}
+              disabled={!friendsAvailable || advancedData}
             />
           </div>
           <div>
@@ -481,7 +485,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             <select
               name="friendID"
               defaultValue={defaultFriend}
-              disabled={!wantFriendData}
+              disabled={!wantFriendData || advancedData}
             >
               {friendsAvailable
                 ? friends.map((friend) => (
@@ -497,7 +501,7 @@ export default function Popup({ isOpen, onClose, addGraph, graphNames }) {
             <input
               name="bothFriendAndOwnData"
               type="checkbox"
-              disabled={!multiDataEN || !wantFriendData}
+              disabled={!multiDataEN || !wantFriendData || advancedData}
             />
           </div>
           <div>

@@ -49,7 +49,7 @@ export const BumpGraph = (props) => {
       console.log(dataTemp);
       setData(dataTemp);
     } catch (e) {
-      console.Error(e);
+      console.error(e);
       setData("Bad Data");
     }
   }, []);

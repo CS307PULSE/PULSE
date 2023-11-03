@@ -1,8 +1,18 @@
 import { ResponsiveRadialBar } from "@nivo/radial-bar";
 import graphThemes from "./Graphs.js";
 import { useEffect, useState } from "react";
+import FilterPopup from "./FilterPopup.js";
 
 export const RadialBarGraph = (props) => {
+  //Functions to enable opening and closing of the "Filter" menu
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const openPopup = () => {
+    setIsPopupOpen(true);
+  };
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
   const [data, setData] = useState();
   const [itemsSelectable, setItemsSelectable] = useState([]);
   const [itemsSelected, setItemsSelected] = useState([]);
@@ -180,7 +190,7 @@ export const RadialBarGraph = (props) => {
         setData(props.data);
       }
     } catch (e) {
-      console.Error(e);
+      console.error(e);
       setData("Bad Data");
     }
     console.log(itemsSelectable);
@@ -293,32 +303,20 @@ export const RadialBarGraph = (props) => {
     return (
       <>
         {selectionGraph ? (
-          <div className="custom-draggable-cancel">
-            <select
-              style={{ maxWidth: "90%" }}
-              name="items"
-              value={itemsSelected}
-              onChange={(e) => {
-                const selectedOptions = Array.from(
-                  e.target.selectedOptions
-                ).map((option) => option.value);
-                setItemsSelected(selectedOptions);
-              }}
-              multiple={true}
+          <>
+            <FilterPopup
+              isOpen={isPopupOpen}
+              onClose={closePopup}
+              setItems={setItemsSelected}
+              itemsSelectable={itemsSelectable}
+            />
+            <button
+              className="PopupCloseButton custom-draggable-cancel"
+              onClick={openPopup}
             >
-              {itemsSelectable.map((item) => {
-                return (
-                  <option
-                    key={item.uri}
-                    value={item.uri}
-                    selected={itemsSelected.includes(item.uri)}
-                  >
-                    {item.name}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+              Filter
+            </button>
+          </>
         ) : (
           <></>
         )}
@@ -329,7 +327,7 @@ export const RadialBarGraph = (props) => {
           margin={{
             top: 30,
             right: props.legendEnabled ? 110 : 50,
-            bottom: selectionGraph ? 170 : 75,
+            bottom: selectionGraph ? 95 : 75,
             left: 60,
           }}
           xScale={xScale}
@@ -378,13 +376,7 @@ export const RadialBarGraph = (props) => {
                     return undefined;
                   } else {
                     return (
-                      <div
-                        style={{
-                          background: "white",
-                          padding: "9px 12px",
-                          border: "1px solid #ccc",
-                        }}
-                      >
+                      <div className="GraphTooltip">
                         <div>{point.bar.groupId}</div>
                         <div>
                           {props.dataName.includes("percent")

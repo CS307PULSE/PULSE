@@ -1582,7 +1582,7 @@ def getPlaylistRecs():
     return json.dumps(songarray)
 
 
-@app.route('/stats/emotion_percent', methods=['GET'])
+@app.route('/stats/emotion_percent', methods=['POST'])
 def emotion_percent():
     if 'user' in session:
         user_data = session['user']
