@@ -1244,6 +1244,8 @@ def get_advanced_stats():
         with DatabaseConnector(db_config) as conn:
             # "0ajzwwwmv2hwa3k1bj2z19obr"
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
+            if response_data is None:
+                return None
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
             response_data["Emotions"] = {}
