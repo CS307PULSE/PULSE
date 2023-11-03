@@ -13,17 +13,23 @@ const ParameterRecommendations = () => {
     const [parameters, setParameters] = useState([0,0,0,0,0,0,0,0,0,0,0,0]);
     const [emotions, setEmotions] = useState([...presetEmotions]);
     const [selectedEmotionIndex, setSelectedEmotionIndex] = useState(-1);
+    const [newEmotionName, setNewEmotionName] = useState("New Emotion");
 
     function updateParameter(newValue, index) {
-        setSelectedEmotionIndex(-1);
+        if(selectedEmotionIndex >= 0) {
+            setSelectedEmotionIndex(-1);
+            setNewEmotionName(newEmotionName + " (edited)");
+        }
         var updatedValues = [...parameters];
         updatedValues[index] = newValue;
         setParameters(updatedValues);
     };
     function retrieveEmotion(index) {
         setSelectedEmotionIndex(index);
+        setNewEmotionName("New Emotion");
         try {
             if (index >= 0) {
+                setNewEmotionName(emotions[index].name);
                 setParameters(emotions[index].parameters);
             }
         } catch (e) {
@@ -56,6 +62,10 @@ const ParameterRecommendations = () => {
         backgroundSize: "cover", //Adjust the image size to cover the element
         backgroundRepeat: "no-repeat", //Prevent image repetition
         backgroundAttachment: "fixed", //Keep the background fixed
+    };
+    const textStyle = {
+        color: state.colorText,
+        fontSize: textSizes.body
     };
     const sliderContainerStyle = {
         backgroundColor: hexToRGBA(state.colorBackground, 0.5),
@@ -105,11 +115,34 @@ const ParameterRecommendations = () => {
         fontSize: textSizes.body
     };
 
+    const textFieldContainerStyle = {
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        padding: "10px",
+        height: "40px"
+    }
+    const textFieldStyle = {
+        backgroundColor: state.colorBackground,
+        border: "1px " + state.colorBorder + " solid",
+        borderRadius: "10px",
+        height: "20px",
+        width: "300px",
+        color: state.colorText,
+        padding: "10px",
+        position: "absolute",
+        right: "20px"
+    };
+
     return (
     <div className="wrapper">
         <div className="header"><Navbar /></div>
         <div className="content" style={bodyStyle}>
             <div style={sliderContainerStyle}>
+                <div style={textFieldContainerStyle}>
+                    <label style={textStyle}>Emotion Name</label>
+                    <input id="emotion-name" type="text" style={textFieldStyle} value={newEmotionName} onChange={e => {setNewEmotionName(e.target.value)}}></input>
+                </div>
                 <div style={{...buttonContainerStyle, width: "100%"}}>
                     <select style={buttonStyle} id="selectEmotion" value={selectedEmotionIndex} onChange={(e) => {retrieveEmotion(e.target.value)}}>
                         <option key={-1} value={-1}>Custom Emotion</option>
@@ -119,7 +152,7 @@ const ParameterRecommendations = () => {
                             </option>
                         ))}
                     </select>
-                    <button onClick={() => {createEmotion("new one", parameters)}} style={buttonStyle}><p>Create</p></button>
+                    <button onClick={() => {createEmotion(newEmotionName, parameters)}} style={buttonStyle}><p>Create</p></button>
                     <button onClick={() => {deleteEmotion(selectedEmotionIndex)}} style={buttonStyle}><p>Delete</p></button>
                 </div>
                 {parameterInfo.map((item, index) => (
