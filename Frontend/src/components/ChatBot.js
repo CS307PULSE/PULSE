@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import OpenAI from "openai";
 import Navbar from './NavBar';
 import axios from 'axios';
+import { useAppContext } from './Context';
 
 const OPENAI_API_KEY = "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";
 const openai = new OpenAI({
@@ -13,18 +14,14 @@ const openai = new OpenAI({
 });
 
 const ChatBot = () => {
+    const { state, dispatch } = useAppContext();
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState([{ type: 'bot', content: "Hey! Welcome to pulse bot" }]);
     const [songs, setSongs] = useState([]);
     const [feedback, setFeedback] = useState('');
     const [awaitingFeedback, setAwaitingFeedback] = useState(false);
 
-    // the use effect hook for thr chatBot 
-    useEffect(() => {
-        // Add opening message when component mounts
-        setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "How can I assist you with songs today?" }]);
-    }, []);
-
+  
     useEffect(() => {
         let isMounted = true;
         console.log("Updated songs:", songs);
@@ -81,6 +78,18 @@ const ChatBot = () => {
 
  
     const styles = {
+        linkStyle: {
+            color: state.colorText,
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            fontFamily: "'Poppins', sans-serif",
+            textDecoration: 'none', 
+            margin: '0 1rem',
+            padding: '0.5rem 1rem',
+            borderRadius: 20,
+            border: '1px solid white',
+            backgroundColor: state.colorBackground,
+          },
         title:{
             color: "#FFF",
             textAlign: "center",
@@ -143,17 +152,19 @@ const ChatBot = () => {
         setInputValue(e.target.value);
     };
 
-    const handleSendMessage = async () => {
-        if (inputValue.trim() === '') return;
+    const handleSendMessage = async (customInput) => {
+        const messageToSend = customInput || inputValue;
+
+        if (messageToSend.trim() === '') return;
 
     // Check if the message is about feedback
     const feedbackKeywords = ['feedback', 'comment', 'suggestion', 'recommendation'];
     const isFeedback = feedbackKeywords.some(keyword => inputValue.toLowerCase().includes(keyword));
    
 
-        setMessages([...messages, { type: 'user', content: inputValue }]);
+        setMessages([...messages, { type: 'user', content: messageToSend }]);
         try {
-            const promptText = `The following is a conversation with a song helper assistant.The webiste the assistant is running on is called PULSE. The website has 5 main sections: the dashboard, the statistics page, the games page, a DJ mixer page and the uploader page. The games futher divided into: Guess the song, Guess the artist, Guess who listens to the song, guess the next lyric and heads up. You can change the dark/light mode and text size in the profile under the setting section. Given partial lyrics ALWAYS send a link to the full lyrics as url. When asked for songs based on any criteria give it in list format with numbers. \n\nHuman: ${inputValue}\nAI: `;
+            const promptText = `The following is a conversation with a song helper assistant.The webiste the assistant is running on is called PULSE. The website has 5 main sections: the dashboard, the statistics page, the games page, a DJ mixer page and the uploader page. The games futher divided into: Guess the song, Guess the artist, Guess who listens to the song, guess the next lyric and heads up. You can change the dark/light mode and text size in the profile under the setting section. Given partial lyrics ALWAYS send a link to the full lyrics as url. When asked for songs based on any criteria each song name with be in its oen seperate pair of quotes. \n\nHuman: ${messageToSend}\nAI: `;
             
             const response = await openai.completions.create({
                 model: "gpt-3.5-turbo-instruct",
@@ -182,14 +193,14 @@ const ChatBot = () => {
             // Set the awaitingFeedback state to true
             setAwaitingFeedback(true);
             // Ask for feedback
-            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Could you please tell me more about your thoughts?" }]);
+            // setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Could you please tell me more about your thoughts?" }]);
         } else if (awaitingFeedback) {
             // Overwrite the existing feedback with the new message
             setFeedback(inputValue);
             // Reset the awaitingFeedback state
             setAwaitingFeedback(false);
             // Send a thank you message to the user
-            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Thank you for your feedback!" }]);
+            setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Thank you for your feedback! It has been forwarded to our team."}]);
             // Here, you would handle the feedback, e.g., sending it to a server or logging it
         } else {
             // Normal message handling if the user is not providing feedback
@@ -202,7 +213,9 @@ const ChatBot = () => {
             setMessages(prevMessages => [...prevMessages, { type: 'bot', content: "Sorry, I faced an error fetching a response." }]);
         }
     
-        setInputValue(''); // Clear the input after sending the message
+        if (!customInput) {
+            setInputValue(''); // Clear the input only if it's not a custom input from a button
+        }
     };
 
     const handleKeyPress = (event) => {
@@ -211,6 +224,10 @@ const ChatBot = () => {
         }
     };
    
+    const handleButtonPrompt = (prompt) => {
+        handleSendMessage(prompt);
+         setInputValue('');
+    };
 
     return (
         <div style={styles.container}>
@@ -225,6 +242,14 @@ const ChatBot = () => {
                     </div>
                 ))}
             </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List popular songs")}>Popular Songs</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List newly released songs ")}>New Releases</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List songs for for working out")}>Workout Playlist</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List Taylor Swift songs")}>Taylor Swift Playlist</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("How do I cahnge the text size or light and dark mode?")}>Custom themes</button>
+            </div>
+            <div style={{padding:5}}/>
             <div style={styles.chatInput}>
                 <input style={styles.inputField} value={inputValue} onChange={handleInputChange} onKeyPress={handleKeyPress}  />
                 <button style={styles.sendButton} onClick={handleSendMessage}>Send</button>

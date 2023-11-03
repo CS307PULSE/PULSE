@@ -18,6 +18,7 @@ import FriendRequests from "./components/FriendRequests";
 import SongRecommendation from "./components/SongRecommendation";
 import DJMixer from "./components/DJMixer";
 import PlaylistManager from "./components/PlaylistManager";
+import PlaylistGenerator from "./components/PlaylistGenerator";
 import PlaylistRecommendation from "./components/PlaylistRecommendation";
 import SongRecommendations from "./components/SongRecommendation";
 import ParameterRecommendations from "./components/ParameterRecommendation";

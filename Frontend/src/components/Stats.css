@@ -81,6 +81,16 @@
   height: inherit;
 }
 
+.TextGraph {
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  white-space: nowrap;
+  overscroll-behavior: none;
+  height: inherit;
+}
+
 .ImageGraphImage {
   max-width: 70%;
   max-height: 100%;
@@ -88,6 +98,12 @@
   height: auto;
   margin: 0 auto;
   object-fit: contain;
+}
+
+.GraphTooltip {
+  background: --tooltip;
+  padding: "9px 12px";
+  border: "1px solid #ccc";
 }
 
 html {

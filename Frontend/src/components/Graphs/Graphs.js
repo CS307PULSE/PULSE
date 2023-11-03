@@ -356,6 +356,47 @@ export const pie2 = [
   },
 ];
 
+//Returns name from dataName
+export const nameFromDataName = (name) => {
+  switch (name) {
+    case "numMinutes":
+      return "Number of minutes listened to";
+    case "numStreams":
+      return "Number of streams listened to";
+    case "percentTimes":
+      return "% of music listened to";
+    case "percentTimePeriod":
+      return "Times listened to per time period";
+    case "numTimesSkipped":
+      return "Times listened to or skipped or repeated";
+    case "emotion":
+      return "Emotion of music listened to";
+    case "followers":
+      return "Followers";
+    case "top_songs":
+      return "Top Songs";
+    case "top_artists":
+      return "Top Artists";
+    case "recent_songs":
+      return "Recent Songs";
+    case "saved_songs":
+      return "Saved Songs";
+    case "saved_albums":
+      return "Saved Albums";
+    case "saved_playlists":
+      return "Saved Playlists";
+    case "followed_artists":
+      return "Followed Artists";
+    case "bar1":
+    case "line1":
+    case "pie1":
+    case "pie2":
+      return "Sample data";
+    default:
+      return "I dont know what " + name + " is";
+  }
+};
+
 //Modify graph text color here
 export const graphThemes = {
   text: {

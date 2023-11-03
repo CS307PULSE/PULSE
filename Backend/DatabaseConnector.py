@@ -399,6 +399,13 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset
     
+        # Returns a rec params as dict
+    def get_recommendation_params_from_user_DB(self, spotify_id, data = None):
+        sql = "SELECT recommendation_params from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return json.loads(self.resultset[0])
+    
     # Returns score array from DB in the form of a 5x10x10 array.
     def get_scores_from_DB(self, spotify_id):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
@@ -799,8 +806,8 @@ class DatabaseConnector(object):
     # Update recommendation (expected array) in user DB. Returns 1 if successful, -1 if not.
     def update_recommendation_params(self, spotify_id, new_rec_params):
         try:
-            sql_update_rec_params_query = """UPDATE pulse.users SET theme = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_rec_params_query, (create_rec_params_string_for_DB(new_rec_params), spotify_id,))
+            sql_update_rec_params_query = """UPDATE pulse.users SET recommendation_params = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_update_rec_params_query, (json.dumps(new_rec_params), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
