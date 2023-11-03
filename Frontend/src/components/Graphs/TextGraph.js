@@ -2,7 +2,7 @@ export const TextGraph = (props) => {
   try {
     return (
       <div
-        className="TextGraph"
+        className="TextGraph custom-draggable-cancel"
         onWheel={(e) => {
           if (e.deltaY === 0) return;
           e.cancelable && e.preventDefault();

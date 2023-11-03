@@ -361,6 +361,8 @@ export const nameFromDataName = (name) => {
   switch (name) {
     case "numMinutes":
       return "Number of minutes listened to";
+    case "numStreams":
+      return "Number of streams listened to";
     case "percentTimes":
       return "% of music listened to";
     case "percentTimePeriod":

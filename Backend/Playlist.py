@@ -15,10 +15,10 @@ class Playlist:
           ErrorHandler.handle_error(e)
 
     def change_image(user, playlist, url):
+        jpegString = ""
         try:
             # Download the image from the URL
             response = requests.get(url, timeout=60)
-            jpegString = ""
             #print(response.content)
             if response.status_code == 200:
                 # Convert the image content to Base64
@@ -87,9 +87,9 @@ class Playlist:
 
     def playlist_generate(user, playlist, genre):
         try:
-            recommendations = user.spotify_user.get_recommendations(seed_genres = genre, max_items = 30)
+            recommendations = user.get_recommendations(seed_genres = genre, max_items = 30)
             for song in recommendations:
-                Playlist.add_track(user, playlist, song['id'])
+                Playlist.add_track(user, playlist, [song['uri']])
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
         
