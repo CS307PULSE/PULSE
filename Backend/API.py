@@ -1605,12 +1605,23 @@ def getPlaylistRecs():
 @app.route('/stats/emotion_percent', methods=['GET'])
 def emotion_percent():
     if 'user' in session:
-        user_data = session['user']
-        data = request.get_json()
-        user = User.from_json(user_data) 
-        trackid = data.get('trackid')
-        popularity = data.get('popularity')
-        emotionarray = Emotion.get_percentage(user, trackid, popularity)
+        try:
+            user_data = session['user']
+            data = request.get_json()
+            user = User.from_json(user_data) 
+            trackid = data.get('trackid')
+            popularity = data.get('popularity')
+            emotionarray = Emotion.get_percentage(user, trackid, popularity)
+        except Exception as e:
+                if (try_refresh(user, e)):
+                    user_data = session['user']
+                    data = request.get_json()
+                    user = User.from_json(user_data) 
+                    trackid = data.get('trackid')
+                    popularity = data.get('popularity')
+                    emotionarray = Emotion.get_percentage(user, trackid, popularity)
+                else:
+                    return "Failed to reauthenticate token"
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)

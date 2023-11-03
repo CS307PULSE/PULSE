@@ -92,9 +92,7 @@ class Playlist:
             if field == "genres":
                 genresdict = Playlist.playlist_genre_analysis(user, playlist)
                 track.append(user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 1)['items'][0]['track']['uri'])
-                print(track)
                 recommendations = Emotion.get_emotion_recommendations(user, genresdict, track=track)
-                print(recommendations)
             elif field == "aritsts":
                 artists = Playlist.playlist_artist_analysis(user, playlist)
                 recommendations = user.get_recommendations(seed_artists = artists)
