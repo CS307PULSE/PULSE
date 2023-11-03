@@ -65,7 +65,9 @@ class Playlist:
 
     def track_reorder(user, playlist):
         try:
-            user.spotify_user.user_playlist_reorder_tracks(user, playlist, 0, 0)
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
+            length = len(analysis['items'])
+            user.spotify_user.user_playlist_reorder_tracks(user, playlist, range_start = round(length/2), insert_before = 0, range_length = round(length/2))
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
