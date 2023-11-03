@@ -8,9 +8,9 @@ import requests
 import base64
 import json
 class Playlist:
-    def add_track(user, playlistid, song):
+    def add_track(user, playlist, song):
         try:
-            user.spotify_user.playlist_add_items(playlistid, song)
+            user.spotify_user.playlist_add_items(playlist, song)
         except spotipy.exceptions.SpotifyException as e:
           ErrorHandler.handle_error(e)
 
@@ -149,6 +149,6 @@ class Playlist:
     
     def playlist_get_tracks(user, playlist):
         try: 
-            user.spotify_user.user_playlist_tracks(playlist_id = playlist)
+            return user.spotify_user.user_playlist_tracks(playlist_id = playlist)
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
