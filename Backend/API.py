@@ -271,6 +271,7 @@ def friend_statistics():
     id = data.get('id')
     with DatabaseConnector(db_config) as conn:
         user = conn.get_user_from_user_DB(spotify_id=id)
+    user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
     if user is None:
         error_message = "The user is not found! Please try again!"
@@ -395,6 +396,7 @@ def get_friends_recent_songs():
     for friend_id in friend_ids.keys():
         with DatabaseConnector(db_config) as conn:
             user = conn.get_user_from_user_DB(spotify_id=friend_id)
+        user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
         try:
             update_data(user,
@@ -1613,6 +1615,20 @@ def getPlaylistRecs():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return json.dumps(songarray)
+
+@app.route('/stats/emotion_percent', methods=['GET'])
+def emotion_percent():
+    if 'user' in session:
+        user_data = session['user']
+        data = request.get_json()
+        user = User.from_json(user_data) 
+        trackid = data.get('trackid')
+        popularity = data.get('popularity')
+        emotionarray = Emotion.get_percentage(user, trackid, popularity)
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(emotionarray)
 
 @app.route('/chatbot/pull_songs', methods=['GET'])
 def pullsongs():
