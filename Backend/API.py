@@ -1849,7 +1849,7 @@ def get_playlist_dict():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(playlist_dict)
     
-@app.route('/recommendations/get_songs_from_dict')
+@app.route('/recommendations/get_songs_from_dict', methods=['POST'])
 def get_songs_dict():
     if 'user' in session:
         user_data = session['user']
