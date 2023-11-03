@@ -116,14 +116,14 @@ async function getSongRecommendations(selectedPlaylistID, selectedRecMethod) {
   return data;
 }
 
-async function sendSongToBeAdded(selectedPlaylistID, selectedSongID) {
+async function sendSongToBeAdded(selectedPlaylistID, selectedSongURI) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
   const response = await axiosInstance.post(
     "http://127.0.0.1:5000/playlist/add_song",
     { selectedPlaylistID: selectedPlaylistID,
-      selectedSongID : selectedSongID}
+      selectedSongURI : selectedSongURI}
   );
   const data = response.data;
   console.log("Got song recommendations for the chosen playlist");
@@ -140,9 +140,9 @@ const PlaylistRecommendation = () => {
     const [refreshSongRecs, setRefreshSongRecs] = useState(false)
     const [selectedRecMethod, setSelectedRecMethod] = useState("genres");
     const [songRecs, setSongRecs] = useState(null);
-    const [selectedSongID, setSelectedSongID] = useState()
+    const [selectedSongURI, setselectedSongURI] = useState()
     const [selectedSongName, setSelectedSongName] = useState("No song selected")
-
+    const [finishedGettingSongs, setFinishedGettingSongs] = useState(false);
   //Get data from server & set top song/artists
   useEffect(() => {
     const fetchData = async () => {
@@ -198,7 +198,7 @@ const PlaylistRecommendation = () => {
         </div>
           )
     } else {
-        return <p>Please wait while we pull your playlists</p>;
+        return <p>Please wait while we pull your playlists</p>
     }
   }
 
@@ -217,13 +217,13 @@ const PlaylistRecommendation = () => {
         </div>
           )
     } else {
-      return <p></p>;
+      return <p></p>
     }
   }
 
-  function updateParentState(selectedSongID, selectedSongName, selectedPlaylistID, selectedPlaylistName, refreshSongRecs) {
-    if (selectedSongID !== null && selectedSongName !== null) {
-      setSelectedSongID(selectedSongID);
+  function updateParentState(selectedSongURI, selectedSongName, selectedPlaylistID, selectedPlaylistName, refreshSongRecs) {
+    if (selectedSongURI !== null && selectedSongName !== null) {
+      setselectedSongURI(selectedSongURI);
       setSelectedSongName(selectedSongName);
     } else if (selectedPlaylistID !== null && selectedPlaylistName !== null){
       setSelectedPlaylistID(selectedPlaylistID);
@@ -240,57 +240,65 @@ const PlaylistRecommendation = () => {
     console.log("selectedPlaylistName: " + selectedPlaylistName);
     if (finishedPullingData && selectedPlaylistID !== undefined && selectedPlaylistID !== null && refreshSongRecs) {
       getSongRecommendations(selectedPlaylistID, selectedRecMethod).then((data) => {
-        console.log("DATA: "+ data);
-        if (data !== null && data !== undefined && data[1] !== "") {
-          setSongRecs(JSON.parse(data));
-          setRefreshSongRecs(false);
-        } else if (data[1] === "") {
-          console.log("Your data is so empty man ):")
+        console.log("In getSongRecommendations");
+        console.log(data);
+        if (data !== null && data !== undefined) {
+  
+
+          setSongRecs(data);
+          setFinishedGettingSongs(true);
           setRefreshSongRecs(false);
         }
       });
+      if (!setFinishedGettingSongs) {
+        return <p>Getting recs</p>
+      }
+      console.log("Before graph");
+      console.log(songRecs);
       return (
         <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
                           dataName={"songs_for_recs"} 
-                          selectedSongID ={selectedSongID} 
-                          setSelectedSongID = {setSelectedSongID}
+                          selectedSongURI ={selectedSongURI} 
+                          setselectedSongURI = {setselectedSongURI}
                           selectedSongName ={selectedSongName} 
                           setSelectedSongName = {setSelectedSongName}
-                          updateParentState = {updateParentState} />;
+                          updateParentState = {updateParentState} />
         </div>
       )
     } else if (songRecs !== null) {
+      console.log("Before graph 2");
+      console.log(songRecs);
       return (
         <div style={{ height: "300px", overflowY: "scroll" }}><ImageGraph data={songRecs} 
                           dataName={"songs_for_recs"} 
-                          selectedSongID ={selectedSongID} 
-                          setSelectedSongID = {setSelectedSongID}
+                          selectedSongURI ={selectedSongURI} 
+                          setselectedSongURI = {setselectedSongURI}
                           selectedSongName ={selectedSongName} 
                           setSelectedSongName = {setSelectedSongName}
-                          updateParentState = {updateParentState} />;
+                          updateParentState = {updateParentState} />
         </div>
       )
     } else if (finishedPullingData && selectedPlaylistID === null) {
         return <p>Please click on a playlist to get recommendations for!</p>
     } else {
-        return <p></p>;
+        return <p></p>
     }
   }
 
   function generateAddSongsButton() {
-    if (selectedSongID !== null && selectedSongID !== undefined) {
+    if (selectedSongURI !== null && selectedSongURI !== undefined) {
       return (
         <button
           style={{ ...buttonStyle, textDecoration: 'none' }}
           onClick={() => {
-            sendSongToBeAdded(selectedPlaylistID, selectedSongID)
+            sendSongToBeAdded(selectedPlaylistID, selectedSongURI)
               .then(data => {
-                if (!data.success) {
-                  alert("This song is already in your playlist");
+                if (data !== "Added track!") {
+                  alert("This song could not be added");
                 }
               });
           }}
-        ></button>
+        >Add "{selectedSongName}" to {selectedPlaylistName}</button>
       );
     } else {
       return <p></p>
