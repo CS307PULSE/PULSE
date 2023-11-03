@@ -95,10 +95,12 @@ const gameButtonText = {
   fontSize: "14px",
 };
 const GuessWhoListens = () => {
+  const [friendsRecentSongs, setFriendsRecentSongs] = useState({});
   const [playerNames, setPlayerNames] = useState([]);
   const [numberOfPlayers, setNumberOfPlayers] = useState(0);
   const [numberOfRounds, setNumberOfRounds] = useState(0);
   const [isStartClicked, setIsStartClicked] = useState(false);
+  const [flag, setFlag] = useState(true);
 
   useEffect(() => {
     document.title = "PULSE - Guess the Artist";
@@ -126,10 +128,12 @@ const GuessWhoListens = () => {
     if (numberOfPlayers !== 0 && numberOfRounds !== 0) {
       sendFriendIds(playerNames);
       setIsStartClicked(true);
+      setFlag(false);
     } else {
       alert("Please enter valid input");
     }
   };
+
   async function sendFriendIds(playerNamesArray) {
     try {
       const axiosInstance = axios.create({
@@ -141,6 +145,8 @@ const GuessWhoListens = () => {
       const response = await axiosInstance.post('http://127.0.0.1:5000/get_friends_recent_songs', payload);
       const data = response.data;
       console.log(data);
+      setFriendsRecentSongs(data);
+      setFlag(true);
       return data;
     } catch (error) {
       console.error('Error sending friend IDs:', error);
@@ -162,7 +168,9 @@ const GuessWhoListens = () => {
     </div>
   ));
 
-
+if(!flag){
+  return (<div> Loading content</div>);
+}
   return (
     <div style={bodyStyle}>
       <Navbar />
@@ -229,6 +237,7 @@ const GuessWhoListens = () => {
             numberOfRounds={numberOfRounds}
             gameCode={2}
             selectedArtist={""}
+            friendsRecentSongs={friendsRecentSongs}
           />
         )}
       </div>
