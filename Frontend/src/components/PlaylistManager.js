@@ -5,6 +5,8 @@ import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { genreList } from "../theme/Emotions";
 
 const PlaylistManager = () => {
   const { state, dispatch } = useAppContext();
@@ -15,7 +17,12 @@ const PlaylistManager = () => {
   const [songSearchString, setSongSearchString] = useState("");
   const [songSearchResults, setSongSearchResults] = useState([]);
   const [playlistSongs, setPlaylistSongs] = useState([]);
+
   const [playlistName, setPlaylistName] = useState("New Playlist");
+  const [playlistPublic, setPlaylistPublic] = useState(true);
+  const [playlistCollaborative, setPlaylistCollaborative] = useState(true);
+  const [playlistGenre, setPlaylistGenre] = useState(genreList[0]);
+
   const [imagePath, setImagePath] = useState("");
 
   async function searchForSongs(searchString) {
@@ -125,7 +132,9 @@ const PlaylistManager = () => {
       height: "20px",
       width: "300px",
       color: state.colorText,
-      padding: "10px"
+      padding: "10px",
+      position: "absolute",
+      right: "20px"
   };
   
   const sectionContainerStyle = {
@@ -161,10 +170,29 @@ const PlaylistManager = () => {
           <div style={sectionContainerStyle}>
             <div style={buttonContainerStyle}>
                 <label style={textStyle}>Playlist Name </label>
-                <input type="text" style={textFieldStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
+                <input type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
-                <button style={buttonStyle} onClick={() => {playlistPost("create", {name: playlistName})}}>Create Playlist</button>
+                <label style={textStyle}>Public </label>
+                <input type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
+            </div>
+            <div style={buttonContainerStyle}>
+                <label style={textStyle}>Collaborative </label>
+                <input type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
+            </div>
+            <div style={buttonContainerStyle}>
+                <label style={textStyle}>Genre </label>
+                <select style={buttonStyle} value={playlistGenre} onChange={(e) => setPlaylistGenre(e.target.value)}>
+                  <option key={-1} value={"none"}>Blank Playlist</option>
+                  {genreList.map((item, index) => (
+                    <option key={index} value={item}>{item}</option>
+                  ))}
+                </select>
+            </div>
+            <div style={buttonContainerStyle}>
+                <button style={buttonStyle} onClick={() => {
+                  playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre})
+                }}>Generate Playlist</button>
             </div>
           </div>
           <div style={{...sectionContainerStyle, height: "400px"}}>
@@ -186,12 +214,13 @@ const PlaylistManager = () => {
             <p style={headerTextStyle}>Selected Playlist: {playlists.length > 0 ? playlists[selectedPlaylistIndex].name : "None"}</p>
             <div style={buttonContainerStyle}>
                 <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
-                <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>Update Icon (.jpeg)</button>
+                <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>
             </div>
             <div style={buttonContainerStyle}>
                 <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button>
                 <button style={buttonStyle} onClick={() => {playlistPost("follow", {playlist: playlists[selectedPlaylistIndex].id})}}>Follow</button>
                 <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
+                <Link to="/DJmixer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
             </div>
             {playlistSongs.length > 0 && playlistSongs.map((item, index) => (
               <div key={index} style={selectionDisplayStyle}>
