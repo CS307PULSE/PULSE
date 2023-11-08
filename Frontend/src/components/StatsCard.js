@@ -7,11 +7,11 @@ import TextSize from "../theme/TextSize";
 var textSizeSetting, themeSetting;
 try {
   var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
+    "http://127.0.0.1:5000/profile/get_text_size",
     { withCredentials: true }
   );
   textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
+  var themeResponse = await axios.get("http://127.0.0.1:5000/profile/get_theme", {
     withCredentials: true,
   });
   themeSetting = themeResponse.data;
@@ -31,7 +31,7 @@ const cardContent = {
 
 //Update follower data
 async function updateFollowers() {
-  const response = await axios.get("http://127.0.0.1:5000/update_followers", {
+  const response = await axios.get("http://127.0.0.1:5000/stats/update_followers", {
     withCredentials: true,
   });
   const data = response.data;

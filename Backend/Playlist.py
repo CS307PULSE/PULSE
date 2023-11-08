@@ -12,44 +12,32 @@ class Playlist:
         try:
             user.spotify_user.playlist_add_items(playlist, song)
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def change_image(user, playlist, url):
         jpegString = ""
         try:
             # Download the image from the URL
             response = requests.get(url, timeout=60)
-            #print(response.content)
             if response.status_code == 200:
                 # Convert the image content to Base64
                 image_data = response.content
                 base64_image = base64.b64encode(image_data).decode('utf-8')
-
-                # Check the image format (you may need to modify this part based on your needs)
-                #if url.endswith('.jpg'):
-                #    image_format = 'jpeg'
-                #else:
-                #    # Handle other image formats as needed
-                #    raise ValueError("Unsupported image format")
-
-                # Construct the data URI with the Base64-encoded image
                 jpegString = base64_image
             else:
                 print("Failed to retrieve the image from the URL.")
         except Exception as e:
             print(f"An error occurred: {e}")
         try:
-            print(playlist)
-            print(jpegString)
             user.spotify_user.playlist_upload_cover_image(playlist, jpegString)
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def create_playlist(user, name, public = True, collaborative = False, description = ''):
         try:
             return user.spotify_user.user_playlist_create(user.spotify_id, name, public, collaborative, description)
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
     
     def track_remove(user, playlist, spotify_uri):
         try:
@@ -57,13 +45,13 @@ class Playlist:
             print(spotify_uri)
             user.spotify_user.user_playlist_remove_all_occurrences_of_tracks(user.spotify_id, playlist, [spotify_uri])
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def track_replace(user, playlist, spotify_uri):
         try:
             user.spotify_user.user_playlist_replace_items(playlist, spotify_uri)
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def track_reorder(user, playlist):
         try:
@@ -71,19 +59,19 @@ class Playlist:
             length = len(analysis['items'])
             user.spotify_user.user_playlist_reorder_tracks(user, playlist, range_start = round(length/2), insert_before = 0, range_length = round(length/2))
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def playlist_follow(user, playlist):
         try:
             user.spotify_user.user_playlist_follow_playlist(user, playlist)
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def playlist_unfollow(user, playlist):
         try:
             user.spotify_user.user_playlist_unfollow(user, playlist)
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def playlist_generate(user, playlist, genre):
         try:
@@ -91,7 +79,7 @@ class Playlist:
             for song in recommendations:
                 Playlist.add_track(user, playlist, [song['uri']])
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
         
     def playlist_recommendations(user, playlist, field):
         try:
@@ -110,7 +98,7 @@ class Playlist:
                 recommendations = Emotion.get_emotion_recommendations(user, albumdict, track=track)
             return recommendations
         except spotipy.exceptions.SpotifyException as e:
-          ErrorHandler.handle_error(e)
+            ErrorHandler.handle_error(e)
 
     def playlist_genre_analysis(user, playlist):
         try:

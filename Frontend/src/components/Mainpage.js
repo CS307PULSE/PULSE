@@ -82,7 +82,7 @@ function Mainpage() {
   
   //Update follower data
   async function updateFollowers() {
-    const response = await axios.get("http://127.0.0.1:5000/update_followers", {
+    const response = await axios.get("http://127.0.0.1:5000/stats/update_followers", {
       withCredentials: true,
     });
     const data = response.data;

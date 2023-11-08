@@ -203,18 +203,18 @@ function Profile({testParameter}){
 
     async function saveUserInfo() {
         const savePromises = [
-            saveUserField("http://127.0.0.1:5000/profile/change_displayname", {displayname: username}),
-            saveUserField("http://127.0.0.1:5000/profile/change_gender", {gender: gender}),
-            saveUserField("http://127.0.0.1:5000/profile/change_location", {location: location}),
-            saveUserField("http://127.0.0.1:5000/profile/upload", {filepath: imagePath}),
-            saveUserField("http://127.0.0.1:5000/profile/change_chosen_song", {chosen_song: favoriteSong})
+            saveUserField("http://127.0.0.1:5000/profile/set_displayname", {displayname: username}),
+            saveUserField("http://127.0.0.1:5000/profile/set_gender", {gender: gender}),
+            saveUserField("http://127.0.0.1:5000/profile/set_location", {location: location}),
+            saveUserField("http://127.0.0.1:5000/profile/set_image", {filepath: imagePath}),
+            saveUserField("http://127.0.0.1:5000/profile/set_chosen_song", {chosen_song: favoriteSong})
         ]
         await Promise.all(savePromises);
         window.location.reload();
     }
     async function saveUserSettings() {
         const savePromises = [
-            saveUserField("http://127.0.0.1:5000/set_text_size", {text_size: state.settingTextSize}),
+            saveUserField("http://127.0.0.1:5000/profile/set_text_size", {text_size: state.settingTextSize}),
             saveUserField("http://127.0.0.1:5000/profile/set_background_image", {background: state.backgroundImage}),
             saveUserField("http://127.0.0.1:5000/profile/set_color_palette", {color_palette: [getColorArray()]}),
             saveUserField("http://127.0.0.1:5000/profile/set_saved_themes", {themes: state.savedThemes})
