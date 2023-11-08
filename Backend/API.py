@@ -230,7 +230,7 @@ def statistics():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     
-@app.route('/friend_statistics', methods=['POST'])
+@app.route('/statistics/friend', methods=['POST'])
 def friend_statistics():
     start_time = time.time()
     data = request.get_json()
@@ -282,7 +282,7 @@ def friend_statistics():
     print(f"Execution time: {execution_time} seconds")
     return jsonify(data)
     
-@app.route('/statistics/shortened')
+@app.route('/statistics/short')
 def statistics_short():
     start_time = time.time()
     if 'user' in session:
@@ -324,7 +324,7 @@ def statistics_short():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/stats/update_followers')
+@app.route('/statistics/update_followers')
 def update_followers():
     start_time = time.time()
     if 'user' in session:
@@ -347,7 +347,7 @@ def update_followers():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/get_saved_playlists')
+@app.route('/statistics/get_saved_playlists')
 def get_saved_playlists():
     if 'user' in session:
         user_data = session['user']
@@ -378,7 +378,7 @@ def get_saved_playlists():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('/get_friends_recent_songs', methods=['POST'])
+@app.route('statistics/get_friends_recent_songs', methods=['POST'])
 def get_friends_recent_songs():
     data = request.get_json()
     friend_ids = data.get('friend_ids')

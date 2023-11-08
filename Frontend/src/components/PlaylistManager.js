@@ -38,7 +38,7 @@ const PlaylistManager = () => {
   }
   async function getPlaylists() {
     const axiosInstance = axios.create({withCredentials: true});
-    var response = await axiosInstance.get("http://127.0.0.1:5000/get_saved_playlists");
+    var response = await axiosInstance.get("http://127.0.0.1:5000/statistics/get_saved_playlists");
     const parsedPlaylists = JSON.parse(response.data.saved_playlists);
     setPlaylists(parsedPlaylists);
   }

@@ -9,7 +9,7 @@ import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
 
 async function fetchBackendDatas() {
-    const response = await axios.get("http://127.0.0.1:5000/get_saved_playlists", {
+    const response = await axios.get("http://127.0.0.1:5000/statistics/get_saved_playlists", {
       withCredentials: true,
     });
     const data = response.data;

@@ -142,7 +142,7 @@ const GuessWhoListens = () => {
       const payload = {
         friend_ids: playerNamesArray.reduce((acc, name) => ({ ...acc, [name]: true }), {}),
       };
-      const response = await axiosInstance.post('http://127.0.0.1:5000/get_friends_recent_songs', payload);
+      const response = await axiosInstance.post('http://127.0.0.1:5000statistics/get_friends_recent_songs', payload);
       const data = response.data;
       console.log(data);
       setFriendsRecentSongs(data);

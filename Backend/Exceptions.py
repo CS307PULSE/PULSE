@@ -2,6 +2,7 @@ import spotipy
 
 class ErrorHandler:
     def handle_error(e):
+        print(f"Error: {e}")
         if isinstance(e, spotipy.exceptions.SpotifyException):
 
             if (e.http_status == 401):

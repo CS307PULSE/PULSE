@@ -31,7 +31,7 @@ const cardContent = {
 
 //Update follower data
 async function updateFollowers() {
-  const response = await axios.get("http://127.0.0.1:5000/stats/update_followers", {
+  const response = await axios.get("http://127.0.0.1:5000/statistics/update_followers", {
     withCredentials: true,
   });
   const data = response.data;
@@ -50,7 +50,7 @@ export default function StatsCard() {
     updateFollowers();
     const fetchData = async () => {
       const response = await axios.get(
-        "http://127.0.0.1:5000/statistics/shortened",
+        "http://127.0.0.1:5000/statistics/short",
         {
           withCredentials: true,
         }
