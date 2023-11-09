@@ -378,7 +378,7 @@ def get_saved_playlists():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
 
-@app.route('statistics/get_friends_recent_songs', methods=['POST'])
+@app.route('/statistics/get_friends_recent_songs', methods=['POST'])
 def get_friends_recent_songs():
     data = request.get_json()
     friend_ids = data.get('friend_ids')
@@ -1838,6 +1838,115 @@ def analyze_emotions():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(emotion)
+
+@app.route('/song_matcher/get_next_song')
+def get_next_song():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        refresh_token(user)
+        # recommendation_queue = get_from_DB()
+        # if recommendation_queue empty or recommendation_queue expired (using reference time):
+            # parameters_from_songs = get_params_based on favorite songs and recent songs
+            # parameters_from_swiping = get_params_from_swiping_from_DB
+            # recommendation_queue = get_songs_from_parameters(params_songs, params_swiping)
+        # first_song = recommendation_queue.pop()
+
+        # song = first_song
+        # rejected_songs = get_rejected_from_DB()
+        # while song in rejected_songs:
+            # if song is expired in our list:
+                #update_DB_rejected_songs_by_removing(song)
+            # else if recommendation_queue is not none
+                # song = recommendation_queue.pop()
+            # else
+                # song = first_song
+                #update_DB_rejected_songs_by_removing(song)
+        song = None
+        # update_DB_with_queue(new recommendation_queue)
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(song)
+
+@app.route('/song_matcher/swipe_left', methods=['POST'])
+def song_swipe_left():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        rejected_song = data.get('song')
+        refresh_token(user)
+
+        # parameters_from_swiping = get_params_from_swiping_from_DB
+        # parameters_from_swiping = update_with_bias_from(rejected_song, against)
+        # update_DB_params(parameters_from_swiping)
+
+        # update_list_of_skipped_songs([rejected_song, timestamp])
+
+        resp = "Updated!"
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(resp)
+
+@app.route('/song_matcher/swipe_right', methods=['POST'])
+def song_swipe_right():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        swiped_song = data.get('song')
+        refresh_token(user)
+
+        # parameters_from_swiping = get_params_from_swiping_from_DB
+        # parameters_from_swiping = update_with_bias_from(swiped_song, towards)
+        # update_DB(parameters_from_swiping)
+
+        # add_song_to_swiped_songs_list_in_DB(swiped_song)
+        resp = "Updated!"
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(resp)
+
+@app.route('/song_matcher/view_swiped_songs')
+def view_swiped_songs():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        refresh_token(user)
+
+        # songs = get_swiped_from_DB()
+        # data = get_track_data_in_batches_of_50
+
+        data = None
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(data)
+
+@app.route('/song_matcher/removed_swiped_song', methods=['POST'])
+def removed_swiped_song():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        song = data.get('song')
+        refresh_token(user)
+
+        # remove_swiped_song_from_DB(song)
+
+        data = None
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(data)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():

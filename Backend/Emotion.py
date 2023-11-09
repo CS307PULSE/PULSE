@@ -198,6 +198,7 @@ class Emotion:
         return song_dict
 
     def update_and_average_dict(user, original_dict, song, popularity = 0, duration = 0):
+        #TODO FIX AVERAGEEEEEE
         song_dict = Emotion.convert_track(user, song, popularity, duration)
         for key in original_dict.keys():
             if key != "name":
