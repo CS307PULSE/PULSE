@@ -1847,9 +1847,13 @@ def get_next_song():
         refresh_token(user)
         # recommendation_queue = get_from_DB()
         # if recommendation_queue empty or recommendation_queue expired (using reference time):
-            # parameters_from_songs = get_params_based on favorite songs and recent songs
+            # seed_tracks = get_user_seed_tracks(user)                                                            !!!!!
             # parameters_from_swiping = get_params_from_swiping_from_DB
-            # recommendation_queue = get_songs_from_parameters(params_songs, params_swiping)
+            # if parameters_from_swiping is none
+                # params_swiping = initialize_swiping_perferences(user, seed_tracks)                              !!!!!
+                # update_DB_params(params_swiping)
+            # params_swiping['seed_tracks'] = seed_tracks                                                         !!!!!
+            # recommendations = user.spotify_user.recommendations(**params_swiping, limit=50).get('tracks', [])   !!!!!
         # first_song = recommendation_queue.pop()
 
         # song = first_song
@@ -1864,6 +1868,8 @@ def get_next_song():
                 #update_DB_rejected_songs_by_removing(song)
         song = None
         # update_DB_with_queue(new recommendation_queue)
+        # update_DB_swiped_songs(song)
+        #return song
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -1879,11 +1885,11 @@ def song_swipe_left():
         rejected_song = data.get('song')
         refresh_token(user)
 
-        # parameters_from_swiping = get_params_from_swiping_from_DB
+        # parameters_from_swiping = get_params_from_swiping_from_DB()
         # parameters_from_swiping = update_with_bias_from(rejected_song, against)
         # update_DB_params(parameters_from_swiping)
 
-        # update_list_of_skipped_songs([rejected_song, timestamp])
+        # update_list_of_skipped_songs([rejected_song::: string timestamp])
 
         resp = "Updated!"
 
@@ -2018,6 +2024,59 @@ def update_data(user,
             if (retries > max_retries):
                 raise Exception
             return update_data(user, retries=retries+1)
+
+def get_user_seed_tracks(user):
+    # Two seed tracks from past month and three from recent history
+    update_data(user)
+    recent_history = user.stats.recent_history
+    top_songs = user.stats.top_songs
+
+    seed_tracks = []
+
+    if top_songs is not None:
+        if len(top_songs) > 2:
+            for song in top_songs[0]:
+                if len(seed_tracks) < 2:
+                    seed_tracks.append(song.get('uri', ':'))
+    if recent_history is not None:
+        for history in recent_history:
+            if len(seed_tracks) < 5:
+                seed_tracks.append(history.get('track', {}).get('uri', ':'))
+    for i, seed_track in enumerate(seed_tracks):
+        seed_tracks[i] = seed_track.split(":")[-1]
+    return seed_tracks
+
+def initialize_swiping_perferences(user, seed_tracks):
+    audio_features_list = []
+    for track_uri in seed_tracks:
+        audio_features = user.spotify_user.audio_features(track_uri)
+        if audio_features:
+            audio_features_list.append(audio_features[0])
+
+    average_audio_features = {}
+    if audio_features_list:
+        num_tracks = len(audio_features_list)
+        for key in audio_features_list[0].keys():
+            if not isinstance(audio_features_list[0][key], str) and key != 'duration_ms':
+                total = sum([af[key] for af in audio_features_list])
+                average_audio_features[key] = total / num_tracks
+
+        return average_audio_features
+    else:
+        return {
+                "danceability": 0.5,         # Typical range: 0 to 1
+                "energy": 0.5,              # Typical range: 0 to 1
+                "key": 0,                   # Typical range: 0 to 11 (representing different musical keys)
+                "loudness": -10,            # Typical range: -60 to 0 (measured in decibels)
+                "mode": 0,                  # 0 for minor key, 1 for major key
+                "speechiness": 0.5,         # Typical range: 0 to 1
+                "acousticness": 0.5,        # Typical range: 0 to 1
+                "instrumentalness": 0.5,    # Typical range: 0 to 1
+                "liveness": 0.5,            # Typical range: 0 to 1
+                "valence": 0.5,             # Typical range: 0 to 1
+                "tempo": 120,               # Typical range: 60 to 200 (beats per minute)
+                "time_signature": 4         # Typical values: 3, 4, 5
+                }
 
 def refresh_token(user, e=None):
     sp_oauth = SpotifyOAuth(client_id=client_id, 
