@@ -477,61 +477,61 @@ class DatabaseConnector(object):
         
         try:
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_header = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (new_advanced_stats, spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2008 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[0]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[0], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2009 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[1]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[1], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2010 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[2]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[2], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2011 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[3]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[3], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2012 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[4]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[4], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2013 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[5]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[5], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2014 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[6]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[6], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2015 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[7]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[7], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2016 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[8]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[8], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2017 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[9]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[9], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2018 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[10]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[10], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2019 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[11]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[11], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2020 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[12]), spotify_id,))           
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[12], spotify_id,))           
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2021 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[13]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[13], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2022 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[14]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[14], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2023 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[15]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[15], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2024 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[16]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[16], spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2025 = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(yearly_values[17]), spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[17], spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
