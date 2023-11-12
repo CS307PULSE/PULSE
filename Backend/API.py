@@ -1846,62 +1846,71 @@ def get_next_song():
         refresh_token(user)
 
         # Get Recommendation Queue
-        # recommendation_queue = get_recommendation_queue_from_DB(user.user_id)
-        # if recommendation_queue is None:
-        #   recommendation_queue = {}
-        # queue = recommendation_queue.get('tracks', [])
-        # is_queue_empty = queue == []
+        with DatabaseConnector(db_config) as conn:
+            recommendation_queue = conn.get_song_recommendation_queue_from_DB(user.spotify_id)
+        if recommendation_queue is None:
+            recommendation_queue = {}
+        queue = recommendation_queue.get('tracks', [])
+        is_queue_empty = queue == []
 
         # Check if the Queue Expired
-        # recommendation_expiration_length = 5 # Every five days the recommendation queue is remade
-        # current_timestamp = datetime.now()
-        # previous_timestamp_str = recommendation_queue.get('timestamp', datetime(2020, 1, 1).isoformat())
-        # previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
-        # time_difference = current_timestamp - previous_timestamp
-        # is_queue_expired = time_difference.days > recommendation_expiration_length
+        recommendation_expiration_length = 5 # Every five days the recommendation queue is remade
+        current_timestamp = datetime.now()
+        previous_timestamp_str = recommendation_queue.get('timestamp', datetime(2020, 1, 1).isoformat())
+        previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
+        time_difference = current_timestamp - previous_timestamp
+        is_queue_expired = time_difference.days > recommendation_expiration_length
 
         # If Queue is Empty or it Expired, we get a New Queue with Combination of Swiping Preferences and Seed Tracks
-        # if is_queue_empty or is_queue_expired:
-            # seed_tracks = get_user_seed_tracks(user)
-            # parameters_from_swiping = get_swiping_preferences_from_DB(user.user_id)
-            # if parameters_from_swiping is None
-                # parameters_from_swiping = initialize_swiping_perferences(user, seed_tracks)
-                # update_swiping_preferences(user.user_id, parameters_from_swiping)
-            # parameters_from_swiping['seed_tracks'] = seed_tracks
-            # recommendations = user.spotify_user.recommendations(**parameters_from_swiping, limit=50).get('tracks', [])
+        if is_queue_empty or is_queue_expired:
+            seed_tracks = get_user_seed_tracks(user)
+            with DatabaseConnector(db_config) as conn:
+                parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
+            if parameters_from_swiping is None:
+                parameters_from_swiping = initialize_swiping_perferences(user, seed_tracks)
+                if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
+                    error_message = "Swiping preferences not stored!"
+                    return make_response(jsonify({'error': error_message}), 6969)
+            parameters_from_swiping['seed_tracks'] = seed_tracks
+            queue = user.spotify_user.recommendations(**parameters_from_swiping, limit=50).get('tracks', [])
 
         # We get the First Song in the Queue
-        # first_song = queue.pop()
-        # song = first_song
-        # rejected_songs = get_rejected_songs_from_DB(user.user_id)
-        # if rejected_songs is None:
-        #   rejected_songs = {}
-        # song_expiration_length = 2 # If you reject a song, in two days you can be recommended it again
+        first_song = queue.pop()
+        song = first_song
+        with DatabaseConnector(db_config) as conn:
+            rejected_songs = conn.get_rejected_songs_from_DB(user.spotify_id)
+        if rejected_songs is None:
+            rejected_songs = {}
+        song_expiration_length = 2 # If you reject a song, in two days you can be recommended it again
 
         # Attempt to get a Song that Wasn't Recently Rejected by User
-        # while song.get('id', '') in rejected_songs.keys():
-            # previous_timestamp_str = rejected_songs.get(song.get('id', ''), datetime(2020, 1, 1).isoformat())
-            # previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
-            # time_difference = current_timestamp - previous_timestamp
-            # is_song_expired = time_difference.days > song_expiration_length
+        while song.get('id', '') in rejected_songs.keys():
+            previous_timestamp_str = rejected_songs.get(song.get('id', ''), datetime(2020, 1, 1).isoformat())
+            previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
+            time_difference = current_timestamp - previous_timestamp
+            is_song_expired = time_difference.days > song_expiration_length
 
-            # if is_song_expired:
-                # rejected_songs.pop(song.get('id', ''))
+            if is_song_expired:
+                rejected_songs.pop(song.get('id', ''))
 
-            # elif len(queue) > 0:
-                # song = queue.pop()
+            elif len(queue) > 0:
+                song = queue.pop()
 
-            # else
-                # song = first_song
-                # rejected_songs.pop(song.get('id', ''))
+            else:
+                song = first_song
+                rejected_songs.pop(song.get('id', ''))
 
         # Update DB Parameters
-        # recommendation_queue['tracks'] = queue
-        # recommendation_queue['timestamp'] = current_timestamp.isoformat()
-        # update_recommendation_queue(user.user_id, recommendation_queue)
-        # update_rejected_songs(user.user_id, rejected_songs)
-        song = None
-
+        recommendation_queue['tracks'] = queue
+        recommendation_queue['timestamp'] = current_timestamp.isoformat()
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_song_recommendation_queue(user.spotify_id, recommendation_queue) == -1):
+                error_message = "Recommendation queue not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+            if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
+                error_message = "Rejected songs not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+        
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
@@ -1916,22 +1925,31 @@ def song_swipe_left():
         rejected_song = data.get('song')
         refresh_token(user)
 
-        # n = get_number_swiped_from_DB(user_id)
-        # update_number_swiped(user_id, n + 1)
-        # parameters_from_swiping = get_swiping_preferences_from_DB(user.user_id)
+        with DatabaseConnector(db_config) as conn:
+            n = conn.get_number_swiped_from_user_DB(user.spotify_id)
+            if (conn.update_song_match_number_swiped(user.spotify_id, n + 1) == -1):
+                error_message = "Number of songs swiped on not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+            parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping away from Song Features
-        # weight = 1 / n
-        # audio_features = user.spotify_user.audio_features(rejected_song.get('uri', ''))
-        # for key in parameters_from_swiping.keys():
-            # if key not in audio_features:
-            #   audio_features[key] = weight * parameters_from_swiping[key] / (1 - weight)
-            # parameters_from_swiping[key] = (1 - weight) * parameters_from_swiping[key] + (1 - weight) * audio_features[key]
-        # update_swiping_preferences(user.user_id, parameters_from_swiping)
+        weight = 1 / n
+        audio_features = user.spotify_user.audio_features(rejected_song.get('uri', ''))
+        for key in parameters_from_swiping.keys():
+            if key not in audio_features:
+                audio_features[key] = weight * parameters_from_swiping[key] / (1 - weight)
+            parameters_from_swiping[key] = (1 - weight) * parameters_from_swiping[key] + (1 - weight) * audio_features[key]
 
-        # rejected_songs = get_rejected_songs_from_DB(user.user_id)
-        # rejected_songs[rejected_song.get('id', '')] = datetime.now().isoformat()
-        # update_rejected_songs(user.user_id, rejected_songs)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
+                error_message = "Swiping preferences not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+            rejected_songs = conn.get_rejected_songs_from_DB(user.spotify_id)
+            rejected_songs[rejected_song.get('id', '')] = datetime.now().isoformat()
+            if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
+                error_message = "Rejected songs not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
 
         resp = "Updated!"
 
@@ -1949,23 +1967,32 @@ def song_swipe_right():
         swiped_song = data.get('song')
         refresh_token(user)
 
-        # n = get_number_swiped_from_DB(user_id)
-        # n = n + 1
-        # update_number_swiped(user_id, n)
-        # parameters_from_swiping = get_swiping_preferences_from_DB(user.user_id)
+        with DatabaseConnector(db_config) as conn:
+            n = conn.get_number_swiped_from_user_DB(user.spotify_id)
+            if (conn.update_song_match_number_swiped(user.spotify_id, n + 1) == -1):
+                error_message = "Number of songs swiped on not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+            parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping towards Song Features
-        # weight = 1 / n
-        # audio_features = user.spotify_user.audio_features(swiped_song.get('uri', ''))
-        # for key in parameters_from_swiping.keys():
-            # if key not in audio_features:
-            #   audio_features[key] = parameters_from_swiping[key]
-            # parameters_from_swiping[key] = (1 - weight) * parameters_from_swiping[key] + (weight) * audio_features[key]
-        # update_swiping_preferences(user.user_id, parameters_from_swiping)
+        weight = 1 / n
+        audio_features = user.spotify_user.audio_features(swiped_song.get('uri', ''))
+        for key in parameters_from_swiping.keys():
+            if key not in audio_features:
+                audio_features[key] = parameters_from_swiping[key]
+            parameters_from_swiping[key] = (1 - weight) * parameters_from_swiping[key] + (weight) * audio_features[key]
 
-        # swiped_songs = get_swiped_songs_from_DB(user.user_id)
-        # swiped_songs.append(swiped_song)
-        # update_swiped_songs(user.user_id, swiped_songs)
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
+                error_message = "Swiping preferences not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+            swiped_songs = conn.get_swiped_songs_from_DB(user.spotify_id)
+            swiped_songs.append(swiped_song)
+            if (conn.update_swiped_songs(user.spotify_id, swiped_songs) == -1):
+                error_message = "Swiped songs not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
         resp = "Updated!"
 
     else:
@@ -1980,8 +2007,8 @@ def view_swiped_songs():
         user = User.from_json(user_data)
         refresh_token(user)
 
-        # songs = get_swiped_songs_from_DB(user_id)
-        songs = None
+        with DatabaseConnector(db_config) as conn:
+            songs = conn.get_swiped_songs_from_DB(user.spotify_id)
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"

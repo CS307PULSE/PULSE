@@ -822,7 +822,7 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
         
     # Update song_match_number_swiped (expected int) in user DB. Returns 1 if successful, -1 if not.
-    def update_location(self, spotify_id, new_number_swiped):
+    def update_song_match_number_swiped(self, spotify_id, new_number_swiped):
         try:
             sql_number_swiped_query = """UPDATE pulse.base_stats SET song_match_number_swiped = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_number_swiped_query, (new_number_swiped, spotify_id,))
@@ -938,7 +938,7 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed   
         
     # Updates song_match_swiped (expected JSON) in base_stats DB. Returns 1 if successful, -1 if not. 
-    def update_swiping_songs(self, spotify_id, new_swiped):
+    def update_swiped_songs(self, spotify_id, new_swiped):
         try:
             sql_update_song_match_swiped_query = """UPDATE pulse.base_stats SET song_match_swiped = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_song_match_swiped_query, (new_swiped, spotify_id,))
