@@ -8,7 +8,8 @@ import Emotion
 class Emotion:
     def getangry():
         angry = {
-            "name" : "angry", 
+            "name": "angry",
+            "amount_songs": 1, 
             "target_energy": .5,
             "target_popularity": 70,
             "target_acousticness": 0,
@@ -26,7 +27,8 @@ class Emotion:
     
     def gethappy():
         happy = {
-            "name" : "happy", 
+            "name": "happy",
+            "amount_songs": 1, 
             "target_energy": .7,
             "target_popularity": 1,
             "target_acousticness": .5,
@@ -44,7 +46,8 @@ class Emotion:
     
     def getsad():   
         sad = {
-            "name" : "sad", 
+            "name": "sad",
+            "amount_songs": 1, 
             "target_energy": .3,
             "target_popularity": .7,
             "target_acousticness": .6,
@@ -62,7 +65,8 @@ class Emotion:
     
     def create_new_emotion(name = "new emotion"):
         emptydict = {
-            "name" : name, 
+            "name" : name,
+            "amount_songs": 0, 
             "target_energy": 0,
             "target_popularity": 0,
             "target_acousticness": 0,
@@ -96,7 +100,7 @@ class Emotion:
             value1 = dict1[param]
             value2 = dict2[param]
 
-            if param != "name" and param != "target_duration_ms":
+            if param != "name" and param != "target_duration_ms" and param != "amount_songs":
                 # Calculate the percentage difference
                 if abs(value1 + value2) == 0:
                     percentage_difference = 0
@@ -124,7 +128,7 @@ class Emotion:
         percentage["percent_angry"] = 1 - (angrydist/totaldist)
         percentage["percent_sad"] = 1 - (saddist/totaldist)
         return percentage
-        
+    """
     def spoof():
         import random
         parameters = [
@@ -161,11 +165,12 @@ class Emotion:
             random_values[key] = random_value
         random_values["name"] = "songdict"
         return random_values
-
-    def convert_track(user, song, popularity = 0, duration = 0):
-        return Emotion.spoof()
+    """
+    def convert_track(user, song_list, popularity = 0, duration = 0):
+        #return Emotion.spoof()
         song_dict = {
             "name" : "songdict",
+            "amount_songs": 0,
             "target_energy": 0,
             "target_popularity": 0,
             "target_acousticness": 0,
@@ -179,30 +184,29 @@ class Emotion:
             "target_tempo": 0,
             "target_valence": 0
         }
-        song_features = user.spotify_user.audio_features(song)
-        song_features = song_features[0]
+        song_features = user.spotify_user.audio_features(song_list)
         if song_features is None:
             return None
-        song_dict["target_energy"] = song_features.get("energy", 0)
-        song_dict["target_popularity"] = popularity
-        song_dict["target_acousticness"] = song_features.get("acousticness", 0)
-        song_dict["target_danceability"] = song_features.get("danceability", 0)
-        song_dict["target_duration_ms"] = duration
-        song_dict["target_instrumentalness"] = song_features.get("instrumentalness", 0)
-        song_dict["target_liveness"] = song_features.get("liveness", 0)
-        song_dict["target_loudness"] = song_features.get("loudness", 0)
-        song_dict["target_mode"] = song_features.get("mode", 0)
-        song_dict["target_speechiness"] = song_features.get("speechiness", 0)
-        song_dict["target_tempo"] = song_features.get("tempo", 0)
-        song_dict["target_valence"] = song_features.get("valence", 0)
+        for song in songlist:
+            song_dict["target_energy"] = song.get("energy", 0)
+            song_dict["target_popularity"] = popularity
+            song_dict["target_acousticness"] = song.get("acousticness", 0)
+            song_dict["target_danceability"] = song.get("danceability", 0)
+            song_dict["target_duration_ms"] = duration
+            song_dict["target_instrumentalness"] = song.get("instrumentalness", 0)
+            song_dict["target_liveness"] = song.get("liveness", 0)
+            song_dict["target_loudness"] = song.get("loudness", 0)
+            song_dict["target_mode"] = song.get("mode", 0)
+            song_dict["target_speechiness"] = song.get("speechiness", 0)
+            song_dict["target_tempo"] = song.get("tempo", 0)
+            song_dict["target_valence"] = song.get("valence", 0)
+            song_dict["amount_songs"] = song_dict["amount_songs"] + 1
         return song_dict
 
-    def update_and_average_dict(user, original_dict, song, popularity = 0, duration = 0):
-        #TODO FIX AVERAGEEEEEE
-        song_dict = Emotion.convert_track(user, song, popularity, duration)
+    def update_and_average_dict(user, original_dict, song_dict, popularity = 0, duration = 0):
         for key in original_dict.keys():
-            if key != "name":
-                original_dict[key] = (original_dict[key] + song_dict[key]) / 2
+            if key != "name" and key != "amount_songs":
+                original_dict[key] = (original_dict[key] + song_dict[key]) / original_dict
         return original_dict
     
     def find_song_emotion(user, song, popularity = 0):
