@@ -482,7 +482,6 @@ def playback():
 def random_friend():
     data = request.get_json()
     id_dict = data.get('friend_songs')
-    print(id_dict)
     random_id = random.choice(list(id_dict.keys()))
     return jsonify(random_id)
 
@@ -1930,6 +1929,8 @@ def song_swipe_left():
 
         with DatabaseConnector(db_config) as conn:
             n = conn.get_number_swiped_from_user_DB(user.spotify_id)
+            if n == 0:
+                n = 1
 
         n = n + 1
         with DatabaseConnector(db_config) as conn:
@@ -1939,7 +1940,7 @@ def song_swipe_left():
             parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping away from Song Features
-        weight = 1 / n
+        weight = max(1 / n, 1 / 100) # One we hit 100 swipes we don't want updates to be irrelevant
         audio_features = user.spotify_user.audio_features(rejected_song.get('uri', ['']))[0]
         for key in parameters_from_swiping.keys():
             if key not in audio_features.keys():
@@ -1980,6 +1981,8 @@ def song_swipe_right():
 
         with DatabaseConnector(db_config) as conn:
             n = conn.get_number_swiped_from_user_DB(user.spotify_id)
+            if n == 0:
+                n = 1
 
         n = n + 1
         with DatabaseConnector(db_config) as conn:
@@ -1989,7 +1992,7 @@ def song_swipe_right():
             parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping towards Song Features
-        weight = 1 / n
+        weight = max(1 / n, 1 / 100) # One we hit 100 swipes we don't want updates to be irrelevant
         audio_features = user.spotify_user.audio_features(swiped_song.get('uri', ['']))[0]
         for key in parameters_from_swiping.keys():
             if key not in audio_features.keys():
@@ -2209,8 +2212,9 @@ def initialize_swiping_perferences(user, seed_tracks):
     audio_features_list = []
     for track_uri in seed_tracks:
         audio_features = user.spotify_user.audio_features(track_uri)
-        if audio_features:
-            audio_features_list.append(audio_features[0])
+        if audio_features is not None:
+            if audio_features[0] is not None:
+                audio_features_list.append(audio_features[0])
 
     average_audio_features = {}
     if audio_features_list:
