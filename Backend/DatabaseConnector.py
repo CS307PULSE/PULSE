@@ -412,21 +412,30 @@ class DatabaseConnector(object):
         sql = "SELECT recommendation_params from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return json.loads(self.resultset[0])
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     # Returns a song_match_rejected as a JSON
     def get_rejected_songs_from_DB(self, spotify_id):
         sql = "SELECT song_match_rejected from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     # Returns a song_recommendation_queue from db as a JSON
     def get_song_recommendation_queue_from_DB(self, spotify_id):
         sql = "SELECT song_match_queue from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     # Returns score array from DB in the form of a 5x10x10 array.
     def get_scores_from_DB(self, spotify_id):
@@ -450,14 +459,20 @@ class DatabaseConnector(object):
         sql_get_song_match_swiped_query = "SELECT song_match_swiped from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_song_match_swiped_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     # Returns swiping preferences from DB in the form of a JSON.
     def get_swiping_preferences_from_DB(self, spotify_id):
         sql_get_song_match_preferences_query = "SELECT song_match_preferences from pulse.base_stats WHERE spotify_id = %s"
         self.db_cursor.execute(sql_get_song_match_preferences_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
@@ -855,7 +870,7 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
 
 
-    # Update recommendation (expected array) in user DB. Returns 1 if successful, -1 if not.
+    # Update recommendation (expected JSON) in user DB. Returns 1 if successful, -1 if not.
     def update_recommendation_params(self, spotify_id, new_rec_params):
         try:
             sql_update_rec_params_query = """UPDATE pulse.users SET recommendation_params = %s WHERE spotify_id = %s"""
@@ -871,11 +886,11 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed        
         
-    # Update song_match_rejected (expected JSON) in base_stats DB. Returns 1 if successful, -1 if not.
+    # Update song_match_rejected (expected 1D Array) in base_stats DB. Returns 1 if successful, -1 if not.
     def update_rejected_songs(self, spotify_id, new_rejected):
         try:
             sql_update_song_match_rejected_query = """UPDATE pulse.base_stats SET song_match_rejected = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_song_match_rejected_query, (new_rejected, spotify_id,))
+            self.db_cursor.execute(sql_update_song_match_rejected_query, (json.dumps(new_rejected), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -891,7 +906,7 @@ class DatabaseConnector(object):
     def update_song_recommendation_queue(self, spotify_id, new_queue):
         try:
             sql_update_song_match_queue_query = """UPDATE pulse.base_stats SET song_match_queue = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_song_match_queue_query, (new_queue, spotify_id,))
+            self.db_cursor.execute(sql_update_song_match_queue_query, (json.dumps(new_queue), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -925,7 +940,7 @@ class DatabaseConnector(object):
     def update_swiping_preferences(self, spotify_id, new_preferences):
         try:
             sql_update_song_match_preferences_query = """UPDATE pulse.base_stats SET song_match_preferences = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_song_match_preferences_query, (new_preferences, spotify_id,))
+            self.db_cursor.execute(sql_update_song_match_preferences_query, (json.dumps(new_preferences), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -941,7 +956,7 @@ class DatabaseConnector(object):
     def update_swiped_songs(self, spotify_id, new_swiped):
         try:
             sql_update_song_match_swiped_query = """UPDATE pulse.base_stats SET song_match_swiped = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_song_match_swiped_query, (new_swiped, spotify_id,))
+            self.db_cursor.execute(sql_update_song_match_swiped_query, (json.dumps(new_swiped), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
