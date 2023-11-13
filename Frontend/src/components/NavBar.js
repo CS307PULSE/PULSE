@@ -73,8 +73,8 @@ const Navbar = () => {
           </Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/uploader" style={linkStyle}>
-            Uploader
+          <Link to="/match" style={linkStyle}>
+            Match It
           </Link>
         </div>
       </div>
