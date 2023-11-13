@@ -23,6 +23,7 @@ import PlaylistRecommendation from "./components/PlaylistRecommendation";
 import SongRecommendations from "./components/SongRecommendation";
 import ParameterRecommendations from "./components/ParameterRecommendation";
 import HeadsUp from "./components/HeadsUp";
+import MatchIt from "./components/MatchIt";
 
 import {
   Navigate,
@@ -96,6 +97,7 @@ function App() {
         <Route path="/friends/addFriends" element={<AddFriends />} />
         <Route path="/friends/friendRequests" element={<FriendRequests />} />
         <Route path="/friends" element={<Friends />} />
+        <Route path="/match" element={<MatchIt />} />
       </Routes>
     </Router>
     </AppContextProvider>
