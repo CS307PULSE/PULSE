@@ -1929,6 +1929,8 @@ def song_swipe_left():
 
         with DatabaseConnector(db_config) as conn:
             n = conn.get_number_swiped_from_user_DB(user.spotify_id)
+            if n == 0:
+                n = 1
 
         n = n + 1
         with DatabaseConnector(db_config) as conn:
@@ -1979,6 +1981,8 @@ def song_swipe_right():
 
         with DatabaseConnector(db_config) as conn:
             n = conn.get_number_swiped_from_user_DB(user.spotify_id)
+            if n == 0:
+                n = 1
 
         n = n + 1
         with DatabaseConnector(db_config) as conn:
