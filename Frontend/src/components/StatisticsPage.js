@@ -4,37 +4,18 @@ import GraphGrid from "./GraphGrid";
 import Navbar from "./NavBar";
 import SongPlayer from "./SongPlayer";
 import TextSize from "../theme/TextSize";
-
-import axios from "axios";
+import { useAppContext } from "./Context";
 
 // Access the CSS variable
 const root = document.documentElement;
 
-var textSizeSetting, themeSetting;
-try {
-  var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-const textSizes = TextSize(textSizeSetting);
+const themeSetting = 0;
+const textSizes = TextSize(1);
 
-document.documentElement.style.setProperty(
-  "--graph-text-size",
-  textSizes.small
-);
+document.documentElement.style.setProperty("--graph-text-size", textSizes.body);
 document.documentElement.style.setProperty(
   "--title-text-size",
-  textSizes.small
+  textSizes.header3
 );
 
 // Modify the CSS variable
@@ -51,12 +32,22 @@ if (themeSetting === 1) {
 }
 
 export default function StatisticsPage() {
+  const { state, dispatch } = useAppContext();
+  const bodyStyle = {
+    backgroundColor: state.colorBackground,
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
+    textAlign: "center",
+  };
+
   useEffect(() => {
     document.title = "PULSE - Statistics Page";
   }, []);
 
   return (
-    <div className="App">
+    <div style={bodyStyle}>
       <Navbar />
       <div style={{ padding: "20px" }} />
       <GraphGrid />

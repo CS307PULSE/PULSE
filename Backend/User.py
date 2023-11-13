@@ -26,7 +26,9 @@ class User:
                  stats=None, 
                  recommendation_params=None,
                  gender=None,
-                 location=None):
+                 location=None,
+                 chosen_song = "Not Yet Chosen"
+                ):
     
         self.display_name = display_name                                                                   # String
         self.login_token = login_token                                                                     # Token Info Object
@@ -39,6 +41,7 @@ class User:
         self.recommendation_params= recommendation_params if recommendation_params is not None else []     # Array of Doubles
         self.gender = gender                                                                               # String                                   
         self.location = location                                                                           # String
+        self.chosen_song = chosen_song                                                                     # String
 
     def stringify(self, obj):
         if obj is None:
@@ -329,7 +332,7 @@ class User:
                             target_instrumentalness=0,
                             min_key=0,
                             max_key=1,
-                            target_key=0,
+                            #target_key=0,
                             min_liveness=0,
                             max_liveness=1,
                             target_liveness=0,
@@ -347,14 +350,14 @@ class User:
                             target_tempo=0,
                             #min_time_signature,
                             #max_time_signature,
-                            target_time_signature=0,
+                            #target_time_signature=0,
                             min_valence=0,
                             max_valence=1,
                             target_valence=0,
                             extraparameters = False
                             ):
         try:
-            if(extraparameters):
+            if extraparameters and target_duration_ms == 0:
                 recommendations = self.spotify_user.recommendations(seed_tracks=seed_tracks, 
                                                                     seed_artists=seed_artists, 
                                                                     seed_genres=seed_genres, 
@@ -379,7 +382,7 @@ class User:
                                                                     target_instrumentalness=target_instrumentalness,
                                                                     #min_key=min_key,
                                                                     #max_key=max_key,
-                                                                    target_key=target_key,
+                                                                    #target_key=target_key,
                                                                     #min_liveness=min_liveness,
                                                                     #max_liveness=max_liveness,
                                                                     target_liveness=target_liveness,
@@ -397,7 +400,55 @@ class User:
                                                                     target_tempo=target_tempo,
                                                                     #min_time_signature=min_time_signature,
                                                                     #max_time_signature=max_time_signature,
-                                                                    target_time_signature=target_time_signature,
+                                                                    #target_time_signature=target_time_signature,
+                                                                    #min_valence=min_valence,
+                                                                    #max_valence=max_valence,
+                                                                    target_valence=target_valence
+                                                                    )
+            elif extraparameters:
+                recommendations = self.spotify_user.recommendations(seed_tracks=seed_tracks, 
+                                                                    seed_artists=seed_artists, 
+                                                                    seed_genres=seed_genres, 
+                                                                    max_items=max_items,
+                                                                    #min_energy=min_energy,
+                                                                    #max_energy=max_energy,
+                                                                    target_energy=target_energy,
+                                                                    #min_popularity=min_popularity,
+                                                                    #max_popularity=max_popularity,
+                                                                    target_popularity=target_popularity,
+                                                                    #min_acousticness=min_acousticness,
+                                                                    #max_acousticness=max_acousticness,
+                                                                    target_acousticness=target_acousticness,
+                                                                    #min_danceability=min_danceability,
+                                                                    #max_danceability=max_danceability,
+                                                                    target_danceability=target_danceability,
+                                                                    #min_duration_ms=min_duration_ms,
+                                                                    #max_duration_ms=max_duration_ms,
+                                                                    #target_duration_ms=target_duration_ms,
+                                                                    #min_instrumentalness=min_instrumentalness,
+                                                                    #max_instrumentalness=max_instrumentalness,
+                                                                    target_instrumentalness=target_instrumentalness,
+                                                                    #min_key=min_key,
+                                                                    #max_key=max_key,
+                                                                    #target_key=target_key,
+                                                                    #min_liveness=min_liveness,
+                                                                    #max_liveness=max_liveness,
+                                                                    target_liveness=target_liveness,
+                                                                    #min_loudness=min_loudness,
+                                                                    #max_loudness=max_loudness,
+                                                                    target_loudness=target_loudness,
+                                                                    #min_mode=min_mode,
+                                                                    #max_mode=max_mode,
+                                                                    target_mode=target_mode,
+                                                                    #min_speechiness=min_speechiness,
+                                                                    #max_speechiness=max_speechiness,
+                                                                    target_speechiness=target_speechiness,
+                                                                    #min_tempo=min_tempo,
+                                                                    #max_tempo=max_tempo,
+                                                                    target_tempo=target_tempo,
+                                                                    #min_time_signature=min_time_signature,
+                                                                    #max_time_signature=max_time_signature,
+                                                                    #target_time_signature=target_time_signature,
                                                                     #min_valence=min_valence,
                                                                     #max_valence=max_valence,
                                                                     target_valence=target_valence
@@ -454,3 +505,6 @@ class User:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
             return ['' for _ in range(max_items)]
+        
+    def get_genres(self):
+        return self.spotify_user.recommendation_genre_seeds()

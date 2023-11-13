@@ -10,7 +10,7 @@
 .GraphCloseButton {
   outline: 0 0 0;
   position: absolute;
-  top: 10px;
+  top: 5px;
   right: 10px;
   cursor: pointer;
 }
@@ -19,7 +19,7 @@
   outline: 0 0 0;
   position: relative;
   top: -10px;
-  right: -40px;
+  right: -110px;
   cursor: pointer;
 }
 
@@ -72,7 +72,7 @@
   background: var(--container-background);
 }
 
-.TopGraph {
+.ImageGraph {
   max-height: 90%;
   overflow-y: hidden;
   overflow-x: scroll;
@@ -81,13 +81,29 @@
   height: inherit;
 }
 
-.TopGraphImage {
+.TextGraph {
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  white-space: nowrap;
+  overscroll-behavior: none;
+  height: inherit;
+}
+
+.ImageGraphImage {
   max-width: 70%;
   max-height: 100%;
   width: auto;
   height: auto;
   margin: 0 auto;
   object-fit: contain;
+}
+
+.GraphTooltip {
+  background: --tooltip;
+  padding: "9px 12px";
+  border: "1px solid #ccc";
 }
 
 html {

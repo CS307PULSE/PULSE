@@ -4,6 +4,9 @@ Frontend/node_modules/*
 StatisticsPage/node_modules/*
 Backend/node_modules/*
 functions/*
-node_modules/*
 package.json
 Testing/shaffeblasta.jpg
+node_modules/*
+Backend/advanced_stats_output.json
+package-lock.json
+package-lock.json
