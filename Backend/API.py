@@ -164,11 +164,8 @@ def callback():
 
         session['user'] = user.to_json()
 
-        global run_connected
-        if not run_connected:
-            resp = make_response(redirect(url_for('index')))
-        else:
-            resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
+
+        resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
@@ -1762,14 +1759,14 @@ def pull_songs():
                 playlistid = Playlist.create_playlist(user, playlistname)['id']
                 for title in songlist:
                     trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)[0]['uri']) 
-                Playlist.add_track(user, playlistid=playlistid, song=trackids)
+                Playlist.add_track(user, playlist=playlistid, song=trackids)
             except Exception as e:
                 if (refresh_token(user, e)):
                     playlistname = 'chatbot ' + str(playlistcounter)
                     playlistid = Playlist.create_playlist(user, playlistname)['id']
                     for title in songlist:
                         trackids.append(user.search_for_items(max_items=1, items_type="track", query=title)[0]['uri']) 
-                    Playlist.add_track(user, playlistid=playlistid, song=trackids)
+                    Playlist.add_track(user, playlist=playlistid, song=trackids)
                 else:
                     return "Failed to reauthenticate token"
     else:
