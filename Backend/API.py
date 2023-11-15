@@ -2045,7 +2045,6 @@ def remove_swiped_song():
         data = request.get_json()
         song = data.get('song')
         song_id = song.get('id', '')
-        refresh_token(user)
 
         resp = "Didn't find the song!"
         with DatabaseConnector(db_config) as conn:
@@ -2066,53 +2065,143 @@ def remove_swiped_song():
         return make_response(jsonify({'error': error_message}), 69)
     return jsonify(resp)
 
-@app.route('/user_matcher/register', methods=['POST'])
-def user_matcher_register():
-    pass
-
 @app.route('/user_matcher/get_next_user')
 def get_next_user():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        data = request.get_json()
-        next_user = {}
         refresh_token(user)
 
-        # users_queue = get_from_DB()
-        # if users_queue empty or users_queue expired (using reference time):
-            # genre_group = get_genre_group_from_DB(user_id)
-            # if genre_group is none
-                # throw error
-            # users_queue = get_users_from_group(genre_group)
-        # first_song = recommendation_queue.pop()
+        # Get Users Queue
+        with DatabaseConnector(db_config) as conn:
+            queue = conn.get_user_queue_from_DB(user.spotify_id)
 
-        # song = first_song
-        # rejected_songs = get_rejected_from_DB()
-        # while song in rejected_songs:
-            # if song is expired in our list:
-                #update_DB_rejected_songs_by_removing(song)
-            # else if recommendation_queue is not none
-                # song = recommendation_queue.pop()
-            # else
-                # song = first_song
-                #update_DB_rejected_songs_by_removing(song)
-        # update_DB_with_queue(new recommendation_queue)
-        # update_DB_swiped_songs(song)
-        #return song
+        # If Queue is Empty, we get a New Queue
+        if queue is None or queue == []:
+            with DatabaseConnector(db_config) as conn:
+                genre_groups = conn.get_user_genre_groups_from_DB(user.spotify_id)
+            if genre_groups is None or genre_groups == []:
+                genre_groups = get_genre_groups(user)
+                with DatabaseConnector(db_config) as conn:
+                    if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
+                        error_message = "Genre group not stored!"
+                        return make_response(jsonify({'error': error_message}), 6969)
+                    if (conn.update_entire_genre_groups(user.spotify_id, genre_groups) == -1):
+                        error_message = "Genre group not updated!"
+                        return make_response(jsonify({'error': error_message}), 6969)
+            with DatabaseConnector(db_config) as conn:
+                queue = conn.get_entire_genre_groups_from_DB(user.spotify_id, genre_groups)
+                if queue is None or queue == []:
+                    return {}
+
+        # We get the First User in the Queue
+        first_user = queue.pop()
+        user = first_user
+        with DatabaseConnector(db_config) as conn:
+            rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
+        if rejected_users is None:
+            rejected_users = {}
+        user_expiration_length = 2 # If you reject a user, in two days you can be recommended it again
+
+        # Attempt to get a User that Wasn't Recently Rejected by Current User
+        while user in rejected_users.keys():
+            current_timestamp = datetime.now()
+            previous_timestamp_str = rejected_users.get(user, datetime(2020, 1, 1).isoformat())
+            previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
+            time_difference = current_timestamp - previous_timestamp
+            is_user_expired = time_difference.days > user_expiration_length
+
+            if is_user_expired:
+                rejected_users.pop(user)
+
+            elif len(queue) > 0:
+                user = queue.pop()
+
+            else:
+                return {}
+
+        # Update DB Parameters
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_user_queue(user.spotify_id, queue) == -1):
+                error_message = "User queue not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_rejected_users(user.spotify_id, rejected_users) == -1):
+                error_message = "Rejected users not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69)
-    return jsonify(next_user)
+    return jsonify(user)
 
 @app.route('/user_matcher/swipe_left', methods=['POST'])
 def user_swipe_left():
-    pass
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        rejected_user = data.get('user')
+
+        with DatabaseConnector(db_config) as conn:
+            rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
+            if rejected_users is None:
+                rejected_users = []
+            rejected_users.append(rejected_user)
+
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_rejected_users(user.spotify_id, rejected_users) == -1):
+                error_message = "Rejected user not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        resp = "Updated!"
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(resp)
 
 @app.route('/user_matcher/swipe_right', methods=['POST'])
 def user_swipe_right():
-    pass
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        swiped_user = data.get('user')
+
+        with DatabaseConnector(db_config) as conn:
+            swiped_users = conn.get_swiped_users_from_DB(user.spotify_id)
+            if swiped_users is None:
+                swiped_users = []
+            swiped_users.append(swiped_user)
+
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiped_users(user.spotify_id, swiped_users) == -1):
+                error_message = "Swiped user not stored!"
+                return make_response(jsonify({'error': error_message}), 6969)
+
+        resp = "Updated!"
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(resp)
+
+@app.route('/user_matcher/view_swiped_users')
+def view_swiped_users():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        refresh_token(user)
+
+        with DatabaseConnector(db_config) as conn:
+            songs = conn.get_swiped_users_from_DB(user.spotify_id)
+
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69)
+    return jsonify(songs)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
@@ -2240,6 +2329,29 @@ def initialize_swiping_perferences(user, seed_tracks):
                 "tempo": 120,               # Typical range: 60 to 200 (beats per minute)
                 "time_signature": 4         # Typical values: 3, 4, 5
                 }
+
+def get_genre_groups(user):
+    update_data(user)
+    top_artists = user.stats.top_artists
+
+    seed_genres = []
+
+    if top_artists is not None:
+        if len(top_artists) > 2:
+            for artist in top_artists[1]:
+                if len(seed_genres) < 100:
+                    seed_genres.extend(artist.get('genres', []))
+    
+    from GenreGroups import GenreGroups
+    GENRES = GenreGroups.get_genres()
+
+    genre_group_tally = [0] * 11
+    for genre in seed_genres:
+        for i, genre_set in enumerate(GENRES):
+            if genre in genre_set:
+                genre_group_tally[i] += 1
+
+    return sorted(range(len(genre_group_tally)), key=lambda i: genre_group_tally[i], reverse=True)[:3]
 
 def refresh_token(user, e=None):
     sp_oauth = SpotifyOAuth(client_id=client_id, 
