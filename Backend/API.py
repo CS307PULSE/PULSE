@@ -13,7 +13,8 @@ from .DatabaseConnector import db_config
 from .Emotion import Emotion
 from .Playlist import Playlist
 import json
-import Exceptions
+from .Exceptions import TokenExpiredError
+from .Exceptions import UserNotFoundError
 import os
 from .Playback import Playback
 import random
@@ -2163,7 +2164,7 @@ def update_data(user,
         return "Updated Data!"
         
 
-    except Exceptions.TokenExpiredError as e:
+    except TokenExpiredError as e:
         max_retries = 3
         success = refresh_token(user, e)
         print(success)
@@ -2251,7 +2252,7 @@ def refresh_token(user, e=None):
                 #Update token
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_token(user.spotify_id, user.login_token) == -1):
-                        raise Exceptions.UserNotFoundError
+                        raise UserNotFoundError
                 session["user"] = user.to_json()
                 print("Token successfully refreshed!")
                 return True
