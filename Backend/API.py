@@ -6,17 +6,17 @@ from flask import Flask, redirect, request, session, url_for, make_response, ren
 from flask_cors import CORS
 # import firebase_admin
 # from firebase_admin import credentials, auth
-from User import User
-from Game import GameType, Game
+from .User import User
+from .Game import GameType, Game
 from datetime import datetime, timedelta
-from DatabaseConnector import DatabaseConnector
-from DatabaseConnector import db_config
-from Emotion import Emotion
-from Playlist import Playlist
+from .DatabaseConnector import DatabaseConnector
+from .DatabaseConnector import db_config
+from .Emotion import Emotion
+from .Playlist import Playlist
 import json
 import Exceptions
 import os
-from Playback import Playback
+from .Playback import Playback
 from PIL import Image
 import random
 import io
