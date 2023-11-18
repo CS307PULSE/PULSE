@@ -1,5 +1,3 @@
-import Emotion
-
 class Emotion:
     def getangry():
         angry = {
