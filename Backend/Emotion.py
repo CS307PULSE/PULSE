@@ -1,7 +1,7 @@
 import spotipy
 import multiprocessing
 import time
-import User
+from .User import User
 from .Exceptions import ErrorHandler
 import Emotion
 
