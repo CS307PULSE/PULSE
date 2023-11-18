@@ -1,8 +1,3 @@
-import spotipy
-import multiprocessing
-import time
-from .User import User
-from .Exceptions import ErrorHandler
 import Emotion
 
 class Emotion:

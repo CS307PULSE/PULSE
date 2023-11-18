@@ -1,7 +1,6 @@
 import spotipy
 import multiprocessing
 import time
-import User
 import webbrowser
 from .Exceptions import ErrorHandler
 

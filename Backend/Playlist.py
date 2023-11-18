@@ -1,12 +1,8 @@
 import spotipy
-import multiprocessing
-import time
-from .User import User
 from .Exceptions import ErrorHandler
 from .Emotion import Emotion
 import requests
 import base64
-import json
 class Playlist:
     def add_track(user, playlist, song):
         try:

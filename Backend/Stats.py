@@ -1,7 +1,4 @@
-import spotipy
-import multiprocessing
 import time
-from .User import User
 import json
 from .Exceptions import ErrorHandler
 from datetime import datetime
