@@ -1,4 +1,4 @@
-from Stats import Stats
+from .Stats import Stats
 from enum import Enum
 from array import array
 from Exceptions import ErrorHandler

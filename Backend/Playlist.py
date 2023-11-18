@@ -2,8 +2,8 @@ import spotipy
 import multiprocessing
 import time
 import User
-from Exceptions import ErrorHandler
-from Emotion import Emotion
+from .Exceptions import ErrorHandler
+from .Emotion import Emotion
 import requests
 import base64
 import json

@@ -3,7 +3,7 @@ import multiprocessing
 import time
 import User
 import webbrowser
-from Exceptions import ErrorHandler
+from .Exceptions import ErrorHandler
 
 class Playback:
     def __init__(self, user = None):

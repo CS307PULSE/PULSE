@@ -1,6 +1,6 @@
 import mysql.connector
-from User import User
-from User import Theme
+from .User import User
+from .User import Theme
 import json
 from types import SimpleNamespace
 import datetime
