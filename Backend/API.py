@@ -26,7 +26,7 @@ run_firebase = False
 
 current_dir = os.path.dirname(os.getcwd())
 lines = []
-with open(current_dir +'/Testing/' + 'ClientData.txt', 'r') as file:
+with open(current_dir +'Testing/' + 'ClientData.txt', 'r') as file:
     for line in file:
         lines.append(line.strip())
 
