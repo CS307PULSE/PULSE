@@ -93,7 +93,7 @@ scopes = [
 scope = ' '.join(scopes)
 @app.route('/')
 def index():
-    return app.send_static_file('../../Frontend/build/index.html')
+    return app.send_static_file('index.html')
 
 
 @app.route('/boot')
