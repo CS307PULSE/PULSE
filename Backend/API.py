@@ -99,7 +99,7 @@ def index():
 
 @app.route('/boot')
 @cross_origin()
-def index():
+def boot():
     user_id = request.cookies.get('user_id_cookie')
     if (user_id):
         user_exists = False
