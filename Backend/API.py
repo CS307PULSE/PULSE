@@ -39,7 +39,7 @@ if not run_firebase:
 #cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
 #firebase_admin.initialize_app(cred)
 
-app = Flask(__name__, static_folder='../../Frontend/build', static_url_path='')
+app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
