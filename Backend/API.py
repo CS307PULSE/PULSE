@@ -1256,7 +1256,7 @@ def store_advanced_stats():
             error_message = "Advanced stats has not been stored!"
             return make_response(jsonify({'error': error_message}), 6969)
     return "Stored!"
-
+"""
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
     if 'user' in session:
@@ -1387,6 +1387,7 @@ def api_advanced_stats_test():
             
     else:
         return 'User session not found. Please log in again.'
+"""
 
 @app.route('/friends/friend_request', methods=['POST'])
 def friend_requests():
