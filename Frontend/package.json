@@ -1,6 +1,7 @@
 {
   "name": "pulse",
   "version": "0.1.0",
+  "proxy": "https://spotify-pulse-efa1395c58ba.herokuapp.com/",
   "private": true,
   "dependencies": {
     "@nivo/bar": "^0.83.0",

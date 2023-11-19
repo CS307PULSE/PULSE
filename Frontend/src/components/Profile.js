@@ -14,11 +14,11 @@ const customBackgrounds = [ "https://images.pexels.com/photos/2382325/pexels-pho
 var storedUserFields;
 try {
     storedUserFields = {
-        username: await getUserField("http://127.0.0.1:5000/profile/get_displayname"),
-        gender: await getUserField("http://127.0.0.1:5000/profile/get_gender"),
-        location: await getUserField("http://127.0.0.1:5000/profile/get_location"),
-        icon: await getUserField("http://127.0.0.1:5000/profile/get_image"),
-        favoriteSong: await getUserField("http://127.0.0.1:5000/profile/get_chosen_song")
+        username: await getUserField("/profile/get_displayname"),
+        gender: await getUserField("/profile/get_gender"),
+        location: await getUserField("/profile/get_location"),
+        icon: await getUserField("/profile/get_image"),
+        favoriteSong: await getUserField("/profile/get_chosen_song")
     }
 } catch (e) {
   console.log("User info fetch failed: " + e);
@@ -203,21 +203,21 @@ function Profile({testParameter}){
 
     async function saveUserInfo() {
         const savePromises = [
-            saveUserField("http://127.0.0.1:5000/profile/set_displayname", {displayname: username}),
-            saveUserField("http://127.0.0.1:5000/profile/set_gender", {gender: gender}),
-            saveUserField("http://127.0.0.1:5000/profile/set_location", {location: location}),
-            saveUserField("http://127.0.0.1:5000/profile/set_image", {filepath: imagePath}),
-            saveUserField("http://127.0.0.1:5000/profile/set_chosen_song", {chosen_song: favoriteSong})
+            saveUserField("/profile/set_displayname", {displayname: username}),
+            saveUserField("/profile/set_gender", {gender: gender}),
+            saveUserField("/profile/set_location", {location: location}),
+            saveUserField("/profile/set_image", {filepath: imagePath}),
+            saveUserField("/profile/set_chosen_song", {chosen_song: favoriteSong})
         ]
         await Promise.all(savePromises);
         window.location.reload();
     }
     async function saveUserSettings() {
         const savePromises = [
-            saveUserField("http://127.0.0.1:5000/profile/set_text_size", {text_size: state.settingTextSize}),
-            saveUserField("http://127.0.0.1:5000/profile/set_background_image", {background: state.backgroundImage}),
-            saveUserField("http://127.0.0.1:5000/profile/set_color_palette", {color_palette: [getColorArray()]}),
-            saveUserField("http://127.0.0.1:5000/profile/set_saved_themes", {themes: state.savedThemes})
+            saveUserField("/profile/set_text_size", {text_size: state.settingTextSize}),
+            saveUserField("/profile/set_background_image", {background: state.backgroundImage}),
+            saveUserField("/profile/set_color_palette", {color_palette: [getColorArray()]}),
+            saveUserField("/profile/set_saved_themes", {themes: state.savedThemes})
         ]
         await Promise.all(savePromises);
         window.location.reload();

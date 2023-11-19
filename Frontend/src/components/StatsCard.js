@@ -7,11 +7,11 @@ import TextSize from "../theme/TextSize";
 var textSizeSetting, themeSetting;
 try {
   var textSizeResponse = await axios.get(
-    "http://127.0.0.1:5000/profile/get_text_size",
+    "/profile/get_text_size",
     { withCredentials: true }
   );
   textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("http://127.0.0.1:5000/profile/get_theme", {
+  var themeResponse = await axios.get("/profile/get_theme", {
     withCredentials: true,
   });
   themeSetting = themeResponse.data;
@@ -31,7 +31,7 @@ const cardContent = {
 
 //Update follower data
 async function updateFollowers() {
-  const response = await axios.get("http://127.0.0.1:5000/statistics/update_followers", {
+  const response = await axios.get("/statistics/update_followers", {
     withCredentials: true,
   });
   const data = response.data;
@@ -50,7 +50,7 @@ export default function StatsCard() {
     updateFollowers();
     const fetchData = async () => {
       const response = await axios.get(
-        "http://127.0.0.1:5000/statistics/short",
+        "/statistics/short",
         {
           withCredentials: true,
         }

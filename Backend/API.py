@@ -3,7 +3,7 @@
 #pip install flask-cors
 #pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 # import firebase_admin
 # from firebase_admin import credentials, auth
 from .User import User
@@ -39,8 +39,8 @@ if not run_firebase:
 #cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
 #firebase_admin.initialize_app(cred)
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000"]}}, supports_credentials=True)
+app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
 app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
@@ -91,9 +91,14 @@ scopes = [
 ]
 
 scope = ' '.join(scopes)
-
 @app.route('/')
 def index():
+    app.logger.info("Route '/' is being accessed.")
+    return app.send_static_file('index.html')
+
+
+@app.route('/boot')
+def boot():
     user_id = request.cookies.get('user_id_cookie')
     if (user_id):
         user_exists = False
@@ -1250,7 +1255,7 @@ def store_advanced_stats():
             error_message = "Advanced stats has not been stored!"
             return make_response(jsonify({'error': error_message}), 6969)
     return "Stored!"
-
+"""
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
     if 'user' in session:
@@ -1381,6 +1386,7 @@ def api_advanced_stats_test():
             
     else:
         return 'User session not found. Please log in again.'
+"""
 
 @app.route('/friends/friend_request', methods=['POST'])
 def friend_requests():
@@ -2265,7 +2271,9 @@ def refresh_token(user, e=None):
     print("Couldn't refresh token")
     return False
 
+"""
 if __name__ == '__main__':
     #app.run(debug=True)
     app.run(host='127.0.0.1', port=5000)
+"""
 
