@@ -326,7 +326,7 @@ export default function Popup({
 
     //Set dataVariation to song if below data
     if (formJson.data === "numTimesSkipped") {
-      formJson.dataVariation = "songs";
+      formJson.dataVariation = "Tracks";
     }
     if (formJson.friendID !== undefined) {
       const friendIndex = friends.findIndex((element, index) => {
@@ -408,10 +408,10 @@ export default function Popup({
           <div>
             Type of Data:{" "}
             <select name="dataVariation" disabled={!specTimesDataEN}>
-              <option value="songs">Songs</option>
-              <option value="artists">Artists</option>
+              <option value="Tracks">Songs</option>
+              <option value="Artists">Artists</option>
               <option value="genres">Genres</option>
-              <option value="eras">Eras</option>
+              <option value="Eras">Eras</option>
               <option value="all">All</option>
             </select>
           </div>

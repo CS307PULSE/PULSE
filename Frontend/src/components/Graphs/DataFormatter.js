@@ -46,7 +46,7 @@ export function formatFollowerData(props) {
   }
 }
 
-export function formatAdvancedData(props) {
+export function setupAdvancedData(props) {
   const emptyData = [
     {
       id: "",
@@ -60,187 +60,127 @@ export function formatAdvancedData(props) {
   ];
   let data = "Bad Data";
   let itemsSelectable = [];
-  let itemsSelected = [];
   let selectionGraph = false;
-  if (props.data === undefined || props.data === null) {
-    data = "Bad Data";
-    return { data: data };
-  } else if (props.data === "Empty") {
-    data = "Advanced Data Failed to Load";
-    return { data: data };
-  }
   try {
-    const tempData = props.bothFriendAndOwnData ? props.data[0] : props.data;
     if (
       props.dataName === "numMinutes" ||
       props.dataName === "numStreams" ||
       props.dataName === "percentTimes"
     ) {
-      switch (props.dataVariation) {
-        case "songs":
-          setItemsSelectable(
-            Object.keys(tempData.Tracks).map((key) => ({
-              name: tempData.Tracks[key].Name,
-              uri: key,
-            }))
-          );
-          setSelectionGraph(true);
-          break;
-        case "artists":
-          setItemsSelectable(
-            Object.keys(tempData.Artists).map((key) => ({
-              name: tempData.Artists[key].Name,
-              uri: key,
-            }))
-          );
-          setSelectionGraph(true);
-          break;
-        case "genres":
-          setItemsSelectable(
-            Object.keys(tempData.Genres).map((key) => ({
-              name: key,
-              uri: key,
-            }))
-          );
-          setSelectionGraph(true);
-          break;
-        case "eras":
-          setItemsSelectable(
-            Object.keys(tempData.Eras).map((key) => ({
-              name: key,
-              uri: key,
-            }))
-          );
-          setSelectionGraph(true);
-          break;
-        case "all":
-          setSelectionGraph(false);
-          const readVal =
-            props.dataName === "numMinutes"
-              ? "Number of Minutes"
-              : props.dataName === "percentTimes"
-              ? "Average Percentage of Streams"
-              : props.dataName === "numStreams"
-              ? "Number of Streams"
-              : "Number of Streams";
-          let years = props.bothFriendAndOwnData
-            ? Array.from(
-                new Set([
-                  Object.keys(props.data[0].Yearly),
-                  Object.keys(props.data[1].Yearly),
-                ])
-              )
-            : Object.keys(props.data.Yearly);
-          years.sort(function (a, b) {
-            return a - b;
-          });
-          const dataSource = props.bothFriendAndOwnData
-            ? [props.data[0], props.data[1]]
-            : props.data;
-          let months = [
-            "JANUARY",
-            "FEBRUARY",
-            "MARCH",
-            "APRIL",
-            "MAY",
-            "JUNE",
-            "JULY",
-            "AUGUST",
-            "SEPTEMBER",
-            "OCTOBER",
-            "NOVEMBER",
-            "DECEMBER",
-          ];
-          let DataOrder = ["Overall"];
-          for (const year of years) {
-            DataOrder.push(year);
-            for (const month of months) {
-              DataOrder.push(month + " " + year);
-            }
+      if (props.dataVariation === "all") {
+        selectionGraph = false;
+        const readVal =
+          props.dataName === "numMinutes"
+            ? "Number of Minutes"
+            : props.dataName === "percentTimes"
+            ? "Average Percentage of Streams"
+            : props.dataName === "numStreams"
+            ? "Number of Streams"
+            : "Number of Streams";
+        let years = props.bothFriendAndOwnData
+          ? Array.from(
+              new Set(props.data.map((item) => Object.keys(item.Yearly)).flat())
+            )
+          : Object.keys(props.data.Yearly);
+        years.sort(function (a, b) {
+          return a - b;
+        });
+        let months = [
+          "JANUARY",
+          "FEBRUARY",
+          "MARCH",
+          "APRIL",
+          "MAY",
+          "JUNE",
+          "JULY",
+          "AUGUST",
+          "SEPTEMBER",
+          "OCTOBER",
+          "NOVEMBER",
+          "DECEMBER",
+        ];
+        let DataOrder = ["Overall"];
+        for (const year of years) {
+          DataOrder.push(year);
+          for (const month of months) {
+            DataOrder.push(month + " " + year);
           }
+        }
 
-          if (props.bothFriendAndOwnData) {
-            const itemName = [props.friendName, "User"];
-            let tempDataArr = [];
-            props.data.map((user, index) => {
-              let tempUserData = [];
-              //Overall data
-              tempUserData.push({
-                x: "Overall",
-                y: props.data[index][readVal],
-              });
-
-              //Yearly & monthly
-              for (const year of Object.keys(props.data[index].Yearly)) {
-                tempUserData.push({
-                  x: year,
-                  y: props.data[index].Yearly[year][readVal],
-                });
-
-                //Monthly data
-                for (const month of Object.keys(
-                  props.data[index].Yearly[year].Monthly
-                )) {
-                  tempUserData.push({
-                    x: month + " " + year,
-                    y: props.data[index].Yearly[year].Monthly[month][readVal],
-                  });
-                }
-              }
-              tempUserData.sort((a, b) => {
-                return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
-              });
-              tempDataArr.push(tempUserData);
-            });
-            setData([
-              { id: itemName[0], data: tempDataArr[0] },
-              { id: itemName[1], data: tempDataArr[1] },
-            ]);
-          } else {
-            let tempDataArr = [];
+        if (props.bothFriendAndOwnData) {
+          const itemName = [props.friendName, "User"];
+          let tempDataArr = [];
+          props.data.map((user, index) => {
+            let tempUserData = [];
             //Overall data
-            const itemName =
-              props.friendName !== undefined ? props.friendName : "User";
-            tempDataArr.push({ x: "Overall", y: props.data[readVal] });
+            tempUserData.push({
+              x: "Overall",
+              y: props.data[index][readVal],
+            });
 
             //Yearly & monthly
-            for (const year of Object.keys(props.data.Yearly)) {
-              tempDataArr.push({
+            for (const year of Object.keys(props.data[index].Yearly)) {
+              tempUserData.push({
                 x: year,
-                y: props.data.Yearly[year][readVal],
+                y: props.data[index].Yearly[year][readVal],
               });
 
               //Monthly data
               for (const month of Object.keys(
-                props.data.Yearly[year].Monthly
+                props.data[index].Yearly[year].Monthly
               )) {
-                tempDataArr.push({
+                tempUserData.push({
                   x: month + " " + year,
-                  y: props.data.Yearly[year].Monthly[month][readVal],
+                  y: props.data[index].Yearly[year].Monthly[month][readVal],
                 });
               }
             }
-            tempDataArr.sort((a, b) => {
+            tempUserData.sort((a, b) => {
               return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
             });
-            setData([{ id: itemName, data: tempDataArr }]);
-          }
-          return;
-        default:
-          throw new Error("Bad DataVariation=" + props.dataVariation);
-      }
+            tempDataArr.push(tempUserData);
+          });
+          setData([
+            { id: itemName[0], data: tempDataArr[0] },
+            { id: itemName[1], data: tempDataArr[1] },
+          ]);
+        } else {
+          let tempDataArr = [];
+          //Overall data
+          const itemName =
+            props.friendName !== undefined ? props.friendName : "User";
+          tempDataArr.push({ x: "Overall", y: props.data[readVal] });
 
-      setData([
-        {
-          id: "",
-          data: [
-            {
-              x: "",
-              y: 0,
-            },
-          ],
-        },
-      ]);
+          //Yearly & monthly
+          for (const year of Object.keys(props.data.Yearly)) {
+            tempDataArr.push({
+              x: year,
+              y: props.data.Yearly[year][readVal],
+            });
+
+            //Monthly data
+            for (const month of Object.keys(props.data.Yearly[year].Monthly)) {
+              tempDataArr.push({
+                x: month + " " + year,
+                y: props.data.Yearly[year].Monthly[month][readVal],
+              });
+            }
+          }
+          tempDataArr.sort((a, b) => {
+            return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
+          });
+          setData([{ id: itemName, data: tempDataArr }]);
+        }
+        return;
+      } else {
+        itemsSelectable = formatSelectableItems(
+          props.data,
+          props.bothFriendAndOwnData,
+          props.dataVariation
+        );
+        selectionGraph = true;
+      }
+      data = emptyData;
     } else if (props.dataName === "percentTimePeriod") {
       selectionGraph = false;
       //Yearly -> Monthly
@@ -256,22 +196,168 @@ export function formatAdvancedData(props) {
         );
       }
     } else if (props.dataName === "numTimesSkipped") {
-      itemsSelectable = Object.keys(tempData.Tracks).map((key) => ({
-        name: tempData.Tracks[key].Name,
-        uri: key,
-      }));
+      itemsSelectable = formatSelectableItems(
+        props.data,
+        props.bothFriendAndOwnData,
+        props.dataVariation
+      );
       selectionGraph = true;
       data = emptyData;
     }
   } catch (e) {
     console.error(e);
   }
+
   return {
     data: data,
     itemsSelectable: itemsSelectable,
-    itemsSelected: itemsSelected,
     selectionGraph: selectionGraph,
   };
+}
+
+export function formatSelectionGraphData(props) {
+  const readVal =
+    props.dataName === "numMinutes"
+      ? "Number of Minutes"
+      : props.dataName === "percentTimes"
+      ? "Average Percentage of Streams"
+      : props.dataName === "numStreams"
+      ? "Number of Streams"
+      : "Skips";
+  let itemType = props.dataVariation;
+  const years = props.bothFriendAndOwnData
+    ? Array.from(
+        new Set(props.data.map((item) => Object.keys(item.Yearly)).flat())
+      ).sort(function (a, b) {
+        return a - b;
+      })
+    : Object.keys(props.data.Yearly).sort(function (a, b) {
+        return a - b;
+      });
+  const highestYear = Math.max(...years.map(Number));
+  const dataSource = props.bothFriendAndOwnData
+    ? props.timeRange === "year"
+      ? [props.data[0].Yearly, props.data[1].Yearly]
+      : [
+          props.data[0].Yearly[highestYear].Monthly,
+          props.data[1].Yearly[highestYear].Monthly,
+        ]
+    : props.timeRange === "year"
+    ? props.data.Yearly
+    : props.data.Yearly[highestYear].Monthly;
+  const monthsOrder = [
+    "JANUARY",
+    "FEBRUARY",
+    "MARCH",
+    "APRIL",
+    "MAY",
+    "JUNE",
+    "JULY",
+    "AUGUST",
+    "SEPTEMBER",
+    "OCTOBER",
+    "NOVEMBER",
+    "DECEMBER",
+  ];
+  let DataOrder = ["Overall"];
+  for (const year of years) {
+    DataOrder.push(year);
+    for (const month of monthsOrder) {
+      DataOrder.push(month + " " + year);
+    }
+  }
+
+  if (itemType === "all") {
+  } else {
+    return itemsSelected.map((item) => ({
+      id: props.bothFriendAndOwnData
+        ? props.dataVariation === "Tracks" || props.dataVariation === "Artists"
+          ? props.data[0][itemType][item] !== undefined
+            ? props.data[0][itemType][item].Name
+            : props.data[1][itemType][item].Name
+          : item
+        : props.dataVariation === "Tracks" || props.dataVariation === "Artists"
+        ? props.data[itemType][item].Name
+        : item,
+      data:
+        props.timeRange === "all"
+          ? [
+              props.bothFriendAndOwnData
+                ? ({
+                    x: "User All",
+                    y: props.data[0][itemType][item][readVal],
+                  },
+                  {
+                    x: props.friendName + "All",
+                    y:
+                      props.data[1][itemType][item] !== undefined
+                        ? props.data[1][itemType][item][readVal]
+                        : 0,
+                  })
+                : {
+                    x:
+                      props.friendName !== undefined
+                        ? props.friendName + "All"
+                        : "User All",
+                    y: props.data[itemType][item][readVal],
+                  },
+            ]
+          : props.bothFriendAndOwnData
+          ? Object.entries(dataSource[0])
+              .map(([timePeriod, timeItems]) => {
+                if (timeItems[itemType][item] === undefined) {
+                  return {
+                    x: timePeriod,
+                    y: 0,
+                  };
+                } else {
+                  return {
+                    x: timePeriod,
+                    y: timeItems[itemType][item][readVal],
+                  };
+                }
+              })
+              .sort((a, b) => {
+                return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
+              })
+              .concat(
+                Object.entries(dataSource[1])
+                  .map(([timePeriod, timeItems]) => {
+                    if (timeItems[itemType][item] === undefined) {
+                      return {
+                        x: timePeriod,
+                        y: 0,
+                      };
+                    } else {
+                      return {
+                        x: timePeriod,
+                        y: timeItems[itemType][item][readVal],
+                      };
+                    }
+                  })
+                  .sort((a, b) => {
+                    return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
+                  })
+              )
+          : Object.entries(dataSource)
+              .map(([timePeriod, timeItems]) => {
+                if (timeItems[itemType][item] === undefined) {
+                  return {
+                    x: timePeriod,
+                    y: 0,
+                  };
+                } else {
+                  return {
+                    x: timePeriod,
+                    y: timeItems[itemType][item][readVal],
+                  };
+                }
+              })
+              .sort((a, b) => {
+                return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
+              }),
+    }));
+  }
 }
 
 function formatPercentTimePeriod(
@@ -312,4 +398,43 @@ function formatPercentTimePeriod(
     }
   }
   return tempDataArr;
+}
+
+function formatSelectableItems(data, bothFriendAndOwnData, dataVariation) {
+  const uniqueObjSet = new Set();
+  const itemsSelectable = [];
+  const validDataVariation = ["Tracks", "Artists", "Genres", "Eras"];
+
+  if (!validDataVariation.includes(dataVariation)) {
+    throw new Error("Bad DataVariation=" + props.dataVariation);
+  }
+
+  if (bothFriendAndOwnData) {
+    tempData.forEach((userData) => {
+      Object.keys(userData[dataVariation]).forEach((key) => {
+        const obj = {
+          name:
+            dataVariation === "Tracks" || dataVariation === "Artists"
+              ? userData[dataVariation][key].Name
+              : key,
+          uri: key,
+        };
+
+        if (!uniqueObjSet.has(key)) {
+          uniqueObjSet.add(key);
+          itemsSelectable.push(obj);
+        }
+      });
+    });
+  } else {
+    itemsSelectable = Object.keys(tempData[dataVariation]).map((key) => ({
+      name:
+        dataVariation === "Tracks" || dataVariation === "Artists"
+          ? tempData[dataVariation][key].Name
+          : key,
+      uri: key,
+    }));
+  }
+
+  return itemsSelectable;
 }

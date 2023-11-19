@@ -85,7 +85,7 @@ export const ScatterGraph = (props) => {
           ? props.data[0]
           : props.data;
         switch (props.dataVariation) {
-          case "songs":
+          case "Tracks":
             setItemsSelectable(
               Object.keys(tempData.Tracks).map((key) => ({
                 name: tempData.Tracks[key].Name,
@@ -93,7 +93,7 @@ export const ScatterGraph = (props) => {
               }))
             );
             break;
-          case "artists":
+          case "Artists":
             setItemsSelectable(
               Object.keys(tempData.Artists).map((key) => ({
                 name: tempData.Artists[key].Name,
@@ -101,7 +101,7 @@ export const ScatterGraph = (props) => {
               }))
             );
             break;
-          case "genres":
+          case "Genres":
             setItemsSelectable(
               Object.keys(tempData.Genres).map((key) => ({
                 name: key,
@@ -109,7 +109,7 @@ export const ScatterGraph = (props) => {
               }))
             );
             break;
-          case "eras":
+          case "Eras":
             setItemsSelectable(
               Object.keys(tempData.Eras).map((key) => ({
                 name: key,
@@ -395,11 +395,11 @@ export const ScatterGraph = (props) => {
           ? "Number of Streams"
           : "Skips";
       let itemType =
-        props.dataVariation === "songs"
+        props.dataVariation === "Tracks"
           ? "Tracks"
-          : props.dataVariation === "artists"
+          : props.dataVariation === "Artists"
           ? "Artists"
-          : props.dataVariation === "genres"
+          : props.dataVariation === "Genres"
           ? "Genres"
           : "Eras";
       const years = props.bothFriendAndOwnData
@@ -443,14 +443,14 @@ export const ScatterGraph = (props) => {
       setData(
         itemsSelected.map((item) => ({
           id: props.bothFriendAndOwnData
-            ? props.dataVariation === "songs" ||
-              props.dataVariation === "artists"
+            ? props.dataVariation === "Tracks" ||
+              props.dataVariation === "Artists"
               ? props.data[0][itemType][item] !== undefined
                 ? props.data[0][itemType][item].Name
                 : props.data[1][itemType][item].Name
               : item
-            : props.dataVariation === "songs" ||
-              props.dataVariation === "artists"
+            : props.dataVariation === "Tracks" ||
+              props.dataVariation === "Artists"
             ? props.data[itemType][item].Name
             : item,
           data:
