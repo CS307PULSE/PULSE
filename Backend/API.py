@@ -92,7 +92,7 @@ scopes = [
 
 scope = ' '.join(scopes)
 @app.route('/')
-@cross_origin
+@cross_origin()
 def index():
     return app.send_static_file('../../frontend/build/index.html')
 
