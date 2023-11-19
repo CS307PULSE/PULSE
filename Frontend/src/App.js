@@ -37,7 +37,7 @@ import ChatBot from "./components/ChatBot";
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
-  const response = await axios.get("http://127.0.0.1:5000/", {
+  const response = await axios.get("http://127.0.0.1:5000/boot", {
     withCredentials: true,
   });
   const data = response.data;

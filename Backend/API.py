@@ -3,7 +3,7 @@
 #pip install flask-cors
 #pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 # import firebase_admin
 # from firebase_admin import credentials, auth
 from .User import User
@@ -39,7 +39,7 @@ if not run_firebase:
 #cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
 #firebase_admin.initialize_app(cred)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../../frontend/build', static_url_path='')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
@@ -91,8 +91,14 @@ scopes = [
 ]
 
 scope = ' '.join(scopes)
-
 @app.route('/')
+@cross_origin
+def index():
+    return app.send_static_file('../../frontend/build/index.html')
+
+
+@app.route('/boot')
+@cross_origin()
 def index():
     user_id = request.cookies.get('user_id_cookie')
     if (user_id):
