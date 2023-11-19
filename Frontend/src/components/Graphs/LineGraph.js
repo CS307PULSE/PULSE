@@ -2,6 +2,7 @@ import { ResponsiveLine } from "@nivo/line";
 import graphThemes from "./Graphs.js";
 import { useEffect, useState } from "react";
 import FilterPopup from "./FilterPopup.js";
+import formatFollowerData from "./DataFormatter.js";
 
 export const LineGraph = (props) => {
   //Functions to enable opening and closing of the "Filter" menu
@@ -18,47 +19,6 @@ export const LineGraph = (props) => {
   const [itemsSelected, setItemsSelected] = useState([]);
   const [selectionGraph, setSelectionGraph] = useState(false);
   const [xScale, setXScale] = useState({ type: "point" });
-  const fixFollowerData = () => {
-    if (props.bothFriendAndOwnData) {
-      let tempData = {
-        id: "User Followers",
-        data: Object.keys(props.data[0]).map((key) => ({
-          x: key,
-          y: props.data[key],
-        })),
-      };
-      let tempData2 = {
-        id: props.friendName + " Followers",
-        data: Object.keys(props.data[1]).map((key) => ({
-          x: key,
-          y: props.data[key],
-        })),
-      };
-      console.log([tempData, tempData2]);
-      return [tempData, tempData2];
-    } else if (props.friendName !== undefined) {
-      let tempData = {
-        id: props.friendName + " Followers",
-        data: Object.keys(props.data).map((key) => ({
-          x: key,
-          y: props.data[key],
-        })),
-      };
-      console.log([tempData]);
-      return [tempData];
-    } else {
-      let tempData = {
-        id: "User Followers",
-        data: Object.keys(props.data).map((key) => ({
-          x: key,
-          y: props.data[key],
-        })),
-      };
-      console.log([tempData]);
-      return [tempData];
-    }
-    //console.log(tempData);
-  };
 
   //Setup Data per selected values
   useEffect(() => {
@@ -78,7 +38,7 @@ export const LineGraph = (props) => {
           format: "%Y-%m-%d %H:%M:%S",
           precision: "millisecond",
         });
-        setData(fixFollowerData());
+        setData(formatFollowerData(props));
       } else if (
         props.dataName === "numMinutes" ||
         props.dataName === "numStreams" ||
