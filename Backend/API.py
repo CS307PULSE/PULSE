@@ -92,13 +92,11 @@ scopes = [
 
 scope = ' '.join(scopes)
 @app.route('/')
-@cross_origin()
 def index():
     return app.send_static_file('../../Frontend/build/index.html')
 
 
 @app.route('/boot')
-@cross_origin()
 def boot():
     user_id = request.cookies.get('user_id_cookie')
     if (user_id):
