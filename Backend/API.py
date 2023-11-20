@@ -821,7 +821,7 @@ def get_theme():
             return jsonify(conn.get_theme_from_DB(user.spotify_id)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_text_size', methods=['POST'])
 def set_text_size():
@@ -1001,7 +1001,7 @@ def get_location():
             response_data = conn.get_location_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_background_image', methods=['POST'])
@@ -1030,7 +1030,7 @@ def get_background_image():
             response_data = conn.get_custom_background_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_saved_themes', methods=['POST'])
@@ -1512,7 +1512,7 @@ def get_friends():
                 jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/get_requests', methods=['GET'])
@@ -1535,7 +1535,7 @@ def get_requests():
                 jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/add_song', methods=['POST'])
