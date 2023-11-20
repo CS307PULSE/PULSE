@@ -3,3 +3,4 @@ b005853164f14338a36718c31b6f4ece
 https://spotify-pulse-400915.firebaseapp.com/callback
 http://127.0.0.1:5000/callback
 http://127.0.0.1:5000/callback
+https://spotify-pulse-efa1395c58ba.herokuapp.com/callback
