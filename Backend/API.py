@@ -846,7 +846,7 @@ def get_text_size():
             return jsonify(conn.get_text_size_from_DB(user.spotify_id)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_image', methods=['POST'])
 def set_image():
@@ -905,7 +905,7 @@ def get_displayname():
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_display_name_from_user_DB(user.spotify_id)
     else:
-        response_data = 'User session not found. Please log in again.'
+        response_data = 'User session not found. Please log in again.', 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_gender', methods=['POST'])
@@ -934,10 +934,10 @@ def get_gender():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_gender_from_user_DB(user.spotify_id)
+            response_data = conn.get_gender_from_user_DB(user.spotify_id), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_chosen_song', methods=['POST'])
@@ -1102,7 +1102,7 @@ def advanced_data_check():
             response_data = conn.get_has_uploaded_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/import_advanced_stats', methods=['POST'])
@@ -1406,7 +1406,7 @@ def friend_requests():
             conn.update_friend_requests(friendid, user.spotify_id, True)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "added request", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/remove_friend', methods=['POST'])
