@@ -7,6 +7,7 @@ import { hexToRGBA } from "../theme/Colors";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { genreList } from "../theme/Emotions";
+import ItemList from "./ItemList";
 
 const PlaylistManager = () => {
   const { state, dispatch } = useAppContext();
@@ -197,16 +198,12 @@ const PlaylistManager = () => {
           </div>
           <div style={{...sectionContainerStyle, height: "400px"}}>
             <p style={headerTextStyle}>Playlists</p>
-            {playlists.length > 0 && playlists.map((item, index) => (
-              <div key={index} style={{...selectionDisplayStyle, 
-                border: (index == selectedPlaylistIndex ?  "5px" : "1px") + " solid " + (index == selectedPlaylistIndex ? state.colorAccent : state.colorBorder)}} 
-                onClick={() => {setSelectedPlaylistIndex(index)}}>
-                <img style={imageStyle} src={getPlaylistImage(index)}></img>
-                <div>
-                  <p style={textStyle}>{item.name}</p>
-                </div>
-              </div>
-            ))}
+            <ItemList 
+              type="playlists" data={playlists} 
+              selectedIndex={selectedPlaylistIndex} setSelectedIndex={setSelectedPlaylistIndex}
+              buttons={[
+                {text: "Add", width: "80px", onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id})}}
+              ]}/>
           </div>
         </div>
         <div>
