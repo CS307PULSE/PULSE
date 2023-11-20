@@ -165,7 +165,7 @@ def callback():
         session['user'] = user.to_json()
 
 
-        resp = make_response(redirect("http://127.0.0.1:3000/dashboard"))
+        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
 
         return resp
