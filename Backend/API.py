@@ -30,10 +30,7 @@ with open('Testing/' + 'ClientData.txt', 'r') as file:
     for line in file:
         lines.append(line.strip())
 
-client_id, client_secret, redirect_uri, redirect_uri2, redirect_uri3 = lines
-
-if not run_firebase:
-    redirect_uri = redirect_uri3
+client_id, client_secret, redirect_uri = lines
 
 # Initialize Firebase Admin SDK
 #cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
