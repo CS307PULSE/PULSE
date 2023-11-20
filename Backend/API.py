@@ -226,7 +226,7 @@ def statistics():
         
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     
 @app.route('/statistics/friend', methods=['POST'])
 def friend_statistics():
@@ -320,7 +320,7 @@ def statistics_short():
         
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/statistics/update_followers')
 def update_followers():
@@ -343,7 +343,7 @@ def update_followers():
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/statistics/get_saved_playlists')
 def get_saved_playlists():
@@ -374,7 +374,7 @@ def get_saved_playlists():
         
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/statistics/get_friends_recent_songs', methods=['POST'])
 def get_friends_recent_songs():
@@ -420,7 +420,7 @@ def set_layout():
             return jsonify(conn.update_layout(user.spotify_id, layout)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/search_bar', methods=['POST'])
 def search_bar():
@@ -435,7 +435,7 @@ def search_bar():
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/games/playback', methods=['POST'])
 def playback():
@@ -473,7 +473,7 @@ def playback():
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/games/random_friend', methods=['POST'])
 def random_friend():
@@ -503,7 +503,7 @@ def playback_friends():
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/games/store_scores', methods=['POST'])
 def store_scores():
@@ -524,7 +524,7 @@ def store_scores():
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     
 @app.route('/games/get_scores')
 def get_scores():
@@ -542,7 +542,7 @@ def get_scores():
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     
 @app.route('/games/get_settings')
 def get_settings():
@@ -557,7 +557,7 @@ def get_settings():
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/games/set_settings', methods=['POST'])
 def set_settings():
@@ -576,7 +576,7 @@ def set_settings():
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play')
 def play():
@@ -593,7 +593,7 @@ def play():
         response_data = 'Music Playing started.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/pause')
@@ -611,7 +611,7 @@ def pause():
         response_data = 'Music player paused.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/skip')
@@ -629,7 +629,7 @@ def skip():
         response_data = 'Music skipping.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/prev')
@@ -646,7 +646,7 @@ def prev():
         response_data = "Music skipping backwards."
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/shuffle')
@@ -663,7 +663,7 @@ def shuffle():
         response_data = 'Music changing shuffle.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/repeat')
@@ -680,7 +680,7 @@ def repeat():
         response_data = 'Music changing repeat.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/volume', methods=['POST'])
@@ -699,7 +699,7 @@ def volume_change():
         response_data = 'volume changed to ' + str(volume)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_playlist', methods=['POST'])
@@ -718,7 +718,7 @@ def play_playlist():
         response_data = 'Artist played with URL ' + str(playlist_uri)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_artist', methods=['POST'])
@@ -737,7 +737,7 @@ def play_artist():
         response_data = 'Song playing'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_album', methods=['POST'])
@@ -756,7 +756,7 @@ def play_album():
         response_data = 'Album playing'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_song', methods=['POST'])
@@ -775,7 +775,7 @@ def play_song():
         response_data = 'Song playing'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/djmixer/songrec', methods=['POST'])
@@ -795,7 +795,7 @@ def songrec():
         response_data = suggested_tracks
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_theme', methods=['POST'])
@@ -810,7 +810,7 @@ def set_theme():
             return jsonify(conn.update_theme(user.spotify_id, theme)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_theme')
 def get_theme():
@@ -835,7 +835,7 @@ def set_text_size():
             return jsonify(conn.update_text_size(user.spotify_id, text_size)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_text_size')
 def get_text_size():
@@ -862,7 +862,7 @@ def set_image():
         response_data = 'username updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_image', methods=['GET'])
@@ -874,7 +874,7 @@ def get_image():
             response_data = conn.get_icon_from_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_displayname', methods=['POST'])
@@ -894,7 +894,7 @@ def set_displayname():
         response_data = 'username updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_displayname', methods=['GET'])
@@ -925,7 +925,7 @@ def set_gender():
         response_data = 'gender updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_gender', methods=['GET'])
@@ -957,7 +957,7 @@ def set_chosen_song():
         response_data = 'chosen_song updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_chosen_song', methods=['GET'])
@@ -969,7 +969,7 @@ def get_chosen_song():
             response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_location', methods=['POST'])
@@ -989,7 +989,7 @@ def set_location():
         response_data = 'location updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_location', methods=['GET'])
@@ -1018,7 +1018,7 @@ def set_background_image():
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_background_image')
@@ -1049,7 +1049,7 @@ def set_saved_themes():
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_saved_themes')
@@ -1061,7 +1061,7 @@ def get_saved_themes():
             response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_color_palette', methods=['POST'])
@@ -1079,7 +1079,7 @@ def set_color_palette():
         response_data = 'Palette updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_color_palette', methods=['GET'])
@@ -1157,10 +1157,10 @@ def import_advanced_stats():
             with DatabaseConnector(db_config) as conn:
                 if (conn.update_advanced_stats(user.spotify_id, DATA) == -1):
                     error_message = "Advanced stats has not been stored!"
-                    return make_response(jsonify({'error': error_message}), 6969)
+                    return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
                 if (conn.update_has_uploaded(user.spotify_id, 1) == -1):
                     error_message = "Advanced stats has updated has not been toggled!"
-                    return make_response(jsonify({'error': error_message}), 6969)
+                    return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
         end_time = datetime.now()
         time_elapsed = end_time - start_time
@@ -1168,7 +1168,7 @@ def import_advanced_stats():
         response_data = f"File imported in {minutes} minutes!"
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
     print(response_data)
     return jsonify(has_error_in_file), 200, {'Reason-Phrase': 'OK'}
@@ -1191,7 +1191,7 @@ def get_advanced_stats():
             response_data["Emotions"] = emotions
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friend_get_advanced_stats', methods=['POST'])
@@ -1215,7 +1215,7 @@ def friend_get_advanced_stats():
             response_data["Emotions"] = emotions
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 def get_emotions(user, tracks):
@@ -1253,7 +1253,7 @@ def store_advanced_stats():
     with DatabaseConnector(db_config) as conn:
         if (conn.update_advanced_stats(id, DATA) == -1):
             error_message = "Advanced stats has not been stored!"
-            return make_response(jsonify({'error': error_message}), 6969)
+            return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
     return "Stored!", 200, {'Reason-Phrase': 'OK'}
 """
 @app.route('/advanced_stats_test')
@@ -1433,7 +1433,7 @@ def remove_friend():
                 jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/friend_request_choice', methods=['POST'])
@@ -1466,7 +1466,7 @@ def request_choice():
                 jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/add_friends_search', methods=['POST'])
@@ -1489,7 +1489,7 @@ def friend_request_search():
                 jsonarray = []
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/get_friends', methods=['GET'])
@@ -1551,7 +1551,7 @@ def playlist_add_song():
         Playlist.add_track(user=user, playlist=playlist, song=song)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Added track!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/get_recs', methods=['POST'])
@@ -1566,7 +1566,7 @@ def get_playlist_recs():
         song_array = Playlist.playlist_recommendations(user, playlist_id, field)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(song_array), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/stats/emotion_percent', methods=['POST'])
@@ -1597,7 +1597,7 @@ def emotion_percent():
         return json.dumps(emotionarray), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/create', methods=['POST'])
 def playlist_create():
@@ -1616,7 +1616,7 @@ def playlist_create():
             Playlist.playlist_generate(user=user, playlist=playlist, genre=[genre])
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Created playlist!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/get_tracks', methods = ['POST'])
@@ -1630,7 +1630,7 @@ def playlist_get_tracks():
         response_data = Playlist.playlist_get_tracks(user=user, playlist=playlist)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/add_track', methods=['POST'])
@@ -1646,7 +1646,7 @@ def playlist_add_track():
         Playlist.add_track(user=user, playlist=playlist, song=song)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Added track!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/remove_track', methods=['POST'])
@@ -1661,7 +1661,7 @@ def playlist_remove_track():
         Playlist.track_remove(user=user, playlist=playlist, spotify_uri=uri)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Removed track!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/change_image', methods=['POST'])
@@ -1676,7 +1676,7 @@ def playlist_change_image():
         Playlist.change_image(user=user, playlist=playlist, url=url)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Changed image!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/reorder_tracks', methods=['POST'])
@@ -1690,7 +1690,7 @@ def playlist_reorder_tracks():
         Playlist.track_reorder(user=user, playlist=playlist)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Reordered tracks!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/follow', methods=['POST'])
@@ -1704,7 +1704,7 @@ def playlist_follow():
         Playlist.playlist_follow(user=user, playlist=playlist)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Playlist followed!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/unfollow', methods=['POST'])
@@ -1718,7 +1718,7 @@ def playlist_unfollow():
         Playlist.playlist_unfollow(user=user, playlist=playlist)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "Playlist unfollowed!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
@@ -1772,7 +1772,7 @@ def pull_songs():
                     return "Failed to reauthenticate token", 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return "successful completion", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/recommendations/get_playlist_dict', methods=['POST'])
@@ -1786,7 +1786,7 @@ def get_playlist_dict():
         playlist_dict = Playlist.playlist_genre_analysis(user, playlist_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(playlist_dict), 200, {'Reason-Phrase': 'OK'}
     
 @app.route('/recommendations/get_songs_from_dict', methods=['POST'])
@@ -1815,7 +1815,7 @@ def get_songs_dict():
         recommendations = Emotion.get_emotion_recommendations(user, playlist_dict, track = [], artist = [], genre = [genre])
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(recommendations), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/emotions/get_emotions')
@@ -1832,7 +1832,7 @@ def analyze_emotions():
             emotion[i] = round(playlist_dict[key], 2)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(emotion), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/get_next_song')
@@ -1868,7 +1868,7 @@ def get_next_song():
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                         error_message = "Swiping preferences not stored!"
-                        return make_response(jsonify({'error': error_message}), 6969)
+                        return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
             parameters_from_swiping['seed_tracks'] = seed_tracks
             queue = user.spotify_user.recommendations(**parameters_from_swiping, limit=50).get('tracks', [])
 
@@ -1904,16 +1904,16 @@ def get_next_song():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_song_recommendation_queue(user.spotify_id, recommendation_queue) == -1):
                 error_message = "Recommendation queue not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
                 error_message = "Rejected songs not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
         
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(song), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/swipe_left', methods=['POST'])
@@ -1934,7 +1934,7 @@ def song_swipe_left():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_song_match_number_swiped(user.spotify_id, n) == -1):
                 error_message = "Number of songs swiped on not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
             parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping away from Song Features
@@ -1948,7 +1948,7 @@ def song_swipe_left():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                 error_message = "Swiping preferences not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
             rejected_songs = conn.get_rejected_songs_from_DB(user.spotify_id)
@@ -1959,13 +1959,13 @@ def song_swipe_left():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
                 error_message = "Rejected songs not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
         resp = "Updated!"
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/swipe_right', methods=['POST'])
@@ -1986,7 +1986,7 @@ def song_swipe_right():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_song_match_number_swiped(user.spotify_id, n) == -1):
                 error_message = "Number of songs swiped on not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
             parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping towards Song Features
@@ -2000,7 +2000,7 @@ def song_swipe_right():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                 error_message = "Swiping preferences not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
             swiped_songs = conn.get_swiped_songs_from_DB(user.spotify_id)
@@ -2011,13 +2011,13 @@ def song_swipe_right():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_swiped_songs(user.spotify_id, swiped_songs) == -1):
                 error_message = "Swiped songs not stored!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
         resp = "Updated!"
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/view_swiped_songs')
@@ -2032,7 +2032,7 @@ def view_swiped_songs():
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(songs), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/remove_swiped_song', methods=['POST'])
@@ -2057,11 +2057,11 @@ def remove_swiped_song():
         with DatabaseConnector(db_config) as conn:
             if (conn.update_swiped_songs(user.spotify_id, new_songs) == -1):
                 error_message = "Songs not removed!"
-                return make_response(jsonify({'error': error_message}), 6969)
+                return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/user_matcher/register', methods=['POST'])
@@ -2101,7 +2101,7 @@ def get_next_user():
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
-        return make_response(jsonify({'error': error_message}), 69)
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(next_user), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/user_matcher/swipe_left', methods=['POST'])
