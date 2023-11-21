@@ -90,7 +90,7 @@ scopes = [
 scope = ' '.join(scopes)
 @app.route('/')
 def index():
-    app.logger.info("Route '/' is being accessed.")
+    print("RIGHT HERE RIGHT HERE RIGHT HERE")
     return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
 
 
