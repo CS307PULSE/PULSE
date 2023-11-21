@@ -31,7 +31,7 @@ try {
 }
 async function getUserField(route) {
     var response = await axios.get(route, { withCredentials: true });
-    return response.data[0];
+    return response.data;
 }
 async function saveUserField(route, payload) {
     const axiosInstance = axios.create({withCredentials: true});

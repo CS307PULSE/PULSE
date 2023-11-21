@@ -931,7 +931,7 @@ def get_gender():
         user_data = session['user']
         user = User.from_json(user_data) 
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_gender_from_user_DB(user.spotify_id), 200, {'Reason-Phrase': 'OK'}
+            response_data = conn.get_gender_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
