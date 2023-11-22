@@ -25,98 +25,6 @@ class DatabaseConnector(object):
            print("Not closable")
            return True # exception handled successfully
 
-    # Deletes a row in user DB. Expects spotify_id and returns None
-    def delete_row_in_user_DB_TESTING_ONLY(self, spotify_id):
-        sql_delete_user_query = "DELETE FROM pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_delete_user_query, (spotify_id,))
-        self.db_conn.commit()
-        return None
-    
-    #--------------------------------------------------------------------------------------------------------
-    # Existence checks
-
-    # Checks if user exists in user DB. Expects spotify_id and returns True or False.
-    def does_user_exist_in_user_DB(self, spotify_id):
-        sql_check_user_exists_query = "SELECT COUNT(*) AS row_count FROM pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_check_user_exists_query, (spotify_id,))
-        result = self.db_cursor.fetchone()
-        row_count = result[0]
-        if (row_count == 0):
-            return False
-        else: 
-            return True
-        
-    # Checks if user exists in stats DB. Expects spotify_id and returns True or False.    
-    def does_user_exist_in_stats_DB(self, spotify_id):
-        sql_check_user_exists_query = "SELECT COUNT(*) AS row_count FROM pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_check_user_exists_query, (spotify_id,))
-        result = self.db_cursor.fetchone()
-        row_count = result[0]
-        if (row_count == 0):
-            return False
-        else: 
-            return True
-
-    #--------------------------------------------------------------------------------------------------------
-    # User creation
-
-    #Stores a new user in the user DB given the user object. Returns 1 if successful, -1 if not.
-    def create_new_user_in_user_DB(self, new_user):
-        try:
-            sql_store_new_user_query = """INSERT INTO pulse.users (display_name, 
-                                login_token, 
-                                spotify_id, 
-                                friends, 
-                                theme, 
-                                location,
-                                gender) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
-        
-               
-            self.db_cursor.execute(sql_store_new_user_query, (new_user.display_name, 
-                                                json.dumps(new_user.login_token),
-                                                new_user.spotify_id,
-                                                create_friends_string_for_DB(new_user.friends),
-                                                int(new_user.theme.value),
-                                                new_user.location,
-                                                new_user.gender,))
-
-            self.db_conn.commit()
-            affected_rows = self.db_cursor.rowcount
-            return affected_rows
-        except Exception as e:
-            # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
-            self.db_conn.rollback()
-            return -1  # Indicate that the update failed
-        
-    #Creates a a new row in stats DB containing only the username with all other values being null. Expects spotify_id and returns None
-    def create_new_user_in_stats_DB(self, spotify_id):
-        try:
-            sql_store_new_user_query = """INSERT INTO pulse.base_stats (spotify_id) VALUES (%s)"""
-            self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
-            self.db_conn.commit()
-            affected_rows = self.db_cursor.rowcount
-            return affected_rows
-        except Exception as e:
-            # Handle any exceptions that may occur during the database operation.
-            print("Error updating token:", str(e))
-            self.db_conn.rollback()
-            return -1  # Indicate that the update failed
-
-    #Creates a a new row in advanced stats DB containing only the username with all other values being null. Expects spotify_id and returns None    
-    def create_new_user_in_advanced_stats_DB(self, spotify_id):
-        try:
-            sql_store_new_user_query = """INSERT INTO pulse.advanced_stats (spotify_id) VALUES (%s)"""
-            self.db_cursor.execute(sql_store_new_user_query, (spotify_id,))
-            self.db_conn.commit()
-            affected_rows = self.db_cursor.rowcount
-            return affected_rows
-        except Exception as e:
-            # Handle any exceptions that may occur during the database operation.
-            print("Error creating new user in advanced stats table:", str(e))
-            self.db_conn.rollback()
-            return 0  # Indicate that the update failed
-
     #--------------------------------------------------------------------------------------------------------
     # Database retrieval
     
@@ -228,14 +136,7 @@ class DatabaseConnector(object):
             return None
         return self.resultset
     
-    
-    # Returns the chosen song from DB as a string.
-    def get_chosen_song_from_user_DB(self, spotify_id,):
-        sql_get_chosen_song_query = "SELECT chosen_song from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_chosen_song_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-    
+
     # Returns the color_palette from DB an 2D array with 5 rows and 5 columns.
     def get_color_palette_from_user_DB(self, spotify_id,):
         sql_get_color_palette_query = "SELECT color_palette from pulse.users WHERE spotify_id = %s"
@@ -265,31 +166,6 @@ class DatabaseConnector(object):
             row = int(1 + (count - 4) / 5)
         return string_to_array_row_by_col(self.resultset[0], row, 5, False)
     
-    # Returns the custom background from DB as a string.
-    def get_custom_background_from_user_DB(self, spotify_id,):
-        sql_get_custom_background_query = "SELECT custom_background from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_custom_background_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-
-    # Returns the display name from DB as a string.
-    def get_display_name_from_user_DB(self, spotify_id, data = None):
-        sql_get_display_name_query = "SELECT display_name from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_display_name_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-
-    # Returns followers from DB. Returns None if the follower dict is empty, and returns the json object if not
-    def get_followers_from_DB(self, spotify_id):
-        sql_get_followers_query = "SELECT followers from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_followers_query, (spotify_id,))
-        results = self.db_cursor.fetchone()
-        if (results[0] is None or results == [] or results == "[]"):
-            return None
-        self.resultset = json.loads(results[0])
-        if (self.resultset == []) or (self.resultset is None):
-            return None
-        return self.resultset
     
     # Returns friends array from DB in the form of an array.
     def get_friends_from_DB(self, spotify_id):
@@ -319,86 +195,6 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return string_to_array_row_by_col(self.resultset[0], 5, 5, True)
     
-    # Returns the gender from DB as a string.
-    def get_gender_from_user_DB(self, spotify_id):
-        sql = "SELECT gender from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-    
-    # Returns the has_uploaded from DB as a string.
-    def get_has_uploaded_from_user_DB(self, spotify_id):
-        sql = "SELECT has_uploaded from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-    
-    # Returns icon string from DB. Returns None if no icon exists, and a string if it does
-    def get_icon_from_DB(self, spotify_id):
-        sql_fetch_icon_string_query = """SELECT icon from pulse.users where spotify_id = %s"""
-        self.db_cursor.execute(sql_fetch_icon_string_query, (spotify_id,))
-        icon = self.db_cursor.fetchone()
-        return icon[0]
-        """
-        sql_fetch_blob_query = SELECT icon from pulse.users where spotify_id = %s
-        self.db_cursor.execute(sql_fetch_blob_query, (spotify_id,))
-        icon = self.db_cursor.fetchall()
-        if (icon[0] is None):
-            #print ("No icon exists")
-            return None
-        # Icon exists
-        else:
-            #print("sending icon \n")
-            # Convert binary data to proper format and write it on Hard Disk
-            #with open(storage_loc, 'wb') as file:
-            #file.write(image)
-            return icon[0]
-        """
-
-    # Returns the feedback from DB as a string.
-    def get_most_recent_individual_feedback_from_feedback_DB(self):
-        sql = "SELECT individual_feedback FROM pulse.feedback ORDER BY feedback_idx1 DESC LIMIT 1;"
-        self.db_cursor.execute(sql)
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-
-        
-
-    # Returns layout from DB. Returns None if no layout exists, or the JSON obect if one does.
-    def get_layout_from_DB(self, spotify_id):
-        sql_get_layout_query = "SELECT layout from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_layout_query, (spotify_id,))
-        results = self.db_cursor.fetchone()
-        if (results is [(None,)] or results == "" or results[0] is None):
-            return None
-        self.resultset = results[0]
-        if (self.resultset is None or self.resultset == ""):
-            return None
-        
-        return self.resultset
-    
-    # Returns the location from DB as a string.
-    def get_location_from_user_DB(self, spotify_id):
-        sql_get_location_query = "SELECT location from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_location_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-    
-
-    # Returns the song_match_number_swiped from DB as an int.
-    def get_number_swiped_from_user_DB(self, spotify_id):
-        sql_get_number_swiped_query = "SELECT song_match_number_swiped from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_number_swiped_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-    
-    # Returns the playlist counter from DB as an int
-    def get_playlist_counter_from_base_stats_DB(self, spotify_id):
-        sql_get_playlist_counter_query = "SELECT playlist_counter from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_playlist_counter_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return self.resultset[0]
-
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   
     def get_row_from_user_DB(self, spotify_id, data = None):
         sql = "SELECT from pulse.users WHERE spotify_id = %s"
@@ -406,36 +202,7 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset
     
-        # Returns a rec params as dict
-    def get_recommendation_params_from_user_DB(self, spotify_id, data = None):
-        sql = "SELECT recommendation_params from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        results = self.resultset
-        if (results[0] is None or results == [] or results == "[]"):
-            return None
-        return json.loads(results[0])
-    
-    # Returns a song_match_rejected as a JSON
-    def get_rejected_songs_from_DB(self, spotify_id):
-        sql = "SELECT song_match_rejected from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        results = self.resultset
-        if (results[0] is None or results == [] or results == "[]"):
-            return None
-        return json.loads(results[0])
-    
-    # Returns a song_recommendation_queue from db as a JSON
-    def get_song_recommendation_queue_from_DB(self, spotify_id):
-        sql = "SELECT song_match_queue from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        results = self.resultset
-        if (results[0] is None or results == [] or results == "[]"):
-            return None
-        return json.loads(results[0])
-    
+
     # Returns score array from DB in the form of a 5x10x10 array.
     def get_scores_from_DB(self, spotify_id):
         sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
@@ -453,56 +220,6 @@ class DatabaseConnector(object):
             spotify_ids.append(row[0])
         return spotify_ids
     
-    # Returns song_match_swiped from DB in the form of a JSON.
-    def get_swiped_songs_from_DB(self, spotify_id):
-        sql_get_song_match_swiped_query = "SELECT song_match_swiped from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_song_match_swiped_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        results = self.resultset
-        if (results[0] is None or results == [] or results == "[]"):
-            return None
-        return json.loads(results[0])
-    
-    # Returns swiping preferences from DB in the form of a JSON.
-    def get_swiping_preferences_from_DB(self, spotify_id):
-        sql_get_song_match_preferences_query = "SELECT song_match_preferences from pulse.base_stats WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_song_match_preferences_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        results = self.resultset
-        if (results[0] is None or results == [] or results == "[]"):
-            return None
-        return json.loads(results[0])
-    
-    # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
-    def get_text_size_from_DB(self,spotify_id):
-        sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_text_size_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return int(self.resultset[0])
-    
-    # Returns theme from DB when given spotify_id. Returns 0, or 1.          
-    def get_theme_from_DB(self, spotify_id):
-        sql_get_theme_query = "SELECT theme from pulse.users WHERE spotify_id = %s"
-        self.db_cursor.execute(sql_get_theme_query, (spotify_id,))
-        self.resultset = self.db_cursor.fetchone()
-        return int(self.resultset[0])
-
-    # Returns a newly created user object recreated from the user database given spotify_id
-    def get_user_from_user_DB(self, spotify_id):
-        sql_get_full_user_query = """SELECT * from pulse.users where spotify_id = %s"""
-        self.db_cursor.execute(sql_get_full_user_query, (spotify_id,))
-        record = self.db_cursor.fetchall()
-        #TODO no need for loop
-        for row in record:
-            userFromDB = User(display_name=row[1],                                                              
-                         login_token=json.loads(row[2]),                                                               
-                         spotify_id=row[3],                                                             
-                         friends=create_friends_array_from_DB(row[4]),        
-                         theme=Theme(row[5]),
-                         location = row[9],
-                         gender = row[10],
-                         chosen_song = row[15],)       
-            return userFromDB
 
     #--------------------------------------------------------------------------------------------------------
     # Database storage/update 
