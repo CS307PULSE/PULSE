@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 async function fetchFriends() {
-  const response = await axios.get(
-    "/friends/get_friends",
-    {
-      withCredentials: true,
-    }
-  );
+  const response = await axios.get("/friends/get_friends", {
+    withCredentials: true,
+  });
   const data = response.data;
   console.log(response);
   return data;
@@ -195,6 +192,7 @@ export default function Popup({
         }
       })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     timesDataEN,
     followerData,
@@ -410,7 +408,7 @@ export default function Popup({
             <select name="dataVariation" disabled={!specTimesDataEN}>
               <option value="Tracks">Songs</option>
               <option value="Artists">Artists</option>
-              <option value="genres">Genres</option>
+              <option value="Genres">Genres</option>
               <option value="Eras">Eras</option>
               <option value="all">All</option>
             </select>

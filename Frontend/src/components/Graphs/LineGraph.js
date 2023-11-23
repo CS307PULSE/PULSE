@@ -53,7 +53,7 @@ export const LineGraph = (props) => {
       ) {
         const recievedData = setupAdvancedData(props);
         setSelectionGraph(recievedData.selectionGraph);
-        setItemsSelectable(itemsSelectable);
+        setItemsSelectable(recievedData.itemsSelectable);
         setData(recievedData.data);
       } else {
         //Sample data
@@ -65,6 +65,7 @@ export const LineGraph = (props) => {
     }
 
     console.log(itemsSelectable);
+    console.log(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -75,7 +76,7 @@ export const LineGraph = (props) => {
     }
     //console.log(itemsSelected);
     if (selectionGraph) {
-      formatSelectionGraphData(props, itemsSelected);
+      setData(formatSelectionGraphData(props, itemsSelected));
       console.log(data);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -171,7 +172,7 @@ export const LineGraph = (props) => {
             props.dataName === "percentTimePeriod" ||
             props.dataName === "numTimesSkipped"
               ? ({ point }) => {
-                  console.log(point);
+                  //console.log(point);
                   if (point === undefined) {
                     return undefined;
                   } else {

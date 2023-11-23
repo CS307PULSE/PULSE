@@ -44,12 +44,9 @@ async function fetchAdvancedFriendData(spotify_id) {
     const axiosInstance = axios.create({
       withCredentials: true,
     });
-    const response = await axiosInstance.post(
-      "/friend_get_advanced_stats",
-      {
-        id: spotify_id,
-      }
-    );
+    const response = await axiosInstance.post("/friend_get_advanced_stats", {
+      id: spotify_id,
+    });
     const data = response.data;
     console.log(response);
     return data;
@@ -71,12 +68,9 @@ async function sendLayouts(layouts, defaultLayout) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "/statistics/set_layout",
-    {
-      layout: { layouts: layouts, defaultLayout: defaultLayout },
-    }
-  );
+  const response = await axiosInstance.post("/statistics/set_layout", {
+    layout: { layouts: layouts, defaultLayout: defaultLayout },
+  });
   const data = response.data;
   console.log(response);
   return data;
@@ -329,18 +323,15 @@ export default function GraphGrid() {
           setAdvancedData(data);
         }
       } catch (error) {
+        /*
         alert("Page failed fetching advanced data");
         setAdvancedData("Empty");
-        /*
+        */
         alert(
-          "Page failed fetching advanced data - loading backup advanced data"
-        );
-        console.log(
           "Page failed fetching advanced data - loading backup advanced data"
         );
         console.error("Error fetching advanced data:", error);
         setAdvancedData(tempAdvancedData);
-        */
       }
     };
     fetchData();

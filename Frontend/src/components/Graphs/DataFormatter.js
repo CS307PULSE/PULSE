@@ -85,7 +85,7 @@ export function setupAdvancedData(props) {
         years.sort(function (a, b) {
           return a - b;
         });
-        let months = [
+        const months = [
           "JANUARY",
           "FEBRUARY",
           "MARCH",
@@ -109,8 +109,7 @@ export function setupAdvancedData(props) {
 
         if (props.bothFriendAndOwnData) {
           const itemName = [props.friendName, "User"];
-          let tempDataArr = [];
-          props.data.map((user, index) => {
+          let tempDataArr = props.data.map((user, index) => {
             let tempUserData = [];
             //Overall data
             tempUserData.push({
@@ -138,12 +137,12 @@ export function setupAdvancedData(props) {
             tempUserData.sort((a, b) => {
               return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
             });
-            tempDataArr.push(tempUserData);
+            return tempUserData;
           });
-          setData([
+          data = [
             { id: itemName[0], data: tempDataArr[0] },
             { id: itemName[1], data: tempDataArr[1] },
-          ]);
+          ];
         } else {
           let tempDataArr = [];
           //Overall data
@@ -169,9 +168,8 @@ export function setupAdvancedData(props) {
           tempDataArr.sort((a, b) => {
             return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
           });
-          setData([{ id: itemName, data: tempDataArr }]);
+          data = [{ id: itemName, data: tempDataArr }];
         }
-        return;
       } else {
         itemsSelectable = formatSelectableItems(
           props.data,
@@ -179,8 +177,8 @@ export function setupAdvancedData(props) {
           props.dataVariation
         );
         selectionGraph = true;
+        data = emptyData;
       }
-      data = emptyData;
     } else if (props.dataName === "percentTimePeriod") {
       selectionGraph = false;
       //Yearly -> Monthly
@@ -267,7 +265,7 @@ export function formatSelectionGraphData(props, itemsSelected) {
     }
   }
   let dataOrders = [];
-  for (item of dataOrder) {
+  for (const item of dataOrder) {
     dataOrders.push("User " + item);
     dataOrders.push(props.friendName + " " + item);
   }
@@ -277,6 +275,7 @@ export function formatSelectionGraphData(props, itemsSelected) {
     itemsSelected: itemsSelected,
     readVal: readVal,
     dataOrder: dataOrders,
+    dataSource: dataSource,
   };
 
   return formatSelectionGraphDataLine(props, params);
@@ -299,16 +298,18 @@ function formatSelectionGraphDataLine(props, params) {
 
   let itemsData = [];
 
-  for (item of params.itemsSelected) {
+  for (const item of params.itemsSelected) {
     let id = "";
     let data = [];
     if (props.dataVariation === "Tracks" || props.dataVariation === "Artists") {
       if (props.bothFriendAndOwnData) {
-        if ((id = props.data[0][itemType][item] !== undefined)) {
-          id = props.data[0][itemType][item].Name;
+        if ((id = props.data[0][params.itemType][item] !== undefined)) {
+          id = props.data[0][params.itemType][item].Name;
         } else {
-          id = props.data[1][itemType][item].Name;
+          id = props.data[1][params.itemType][item].Name;
         }
+      } else {
+        id = props.data[params.itemType][item].Name;
       }
     } else {
       id = item;
@@ -347,7 +348,7 @@ function formatSelectionGraphDataLine(props, params) {
       }
     } else {
       if (props.bothFriendAndOwnData) {
-        data = Object.entries(dataSource[0])
+        data = Object.entries(params.dataSource[0])
           .map(([timePeriod, timeItems]) => {
             return formatXYData(
               "User " + timePeriod,
@@ -363,7 +364,7 @@ function formatSelectionGraphDataLine(props, params) {
             );
           })
           .concat(
-            Object.entries(dataSource[1])
+            Object.entries(params.dataSource[1])
               .map(([timePeriod, timeItems]) => {
                 return formatXYData(
                   props.friendName + " " + timePeriod,
@@ -380,7 +381,7 @@ function formatSelectionGraphDataLine(props, params) {
               })
           );
       } else {
-        data = Object.entries(dataSource)
+        data = Object.entries(params.dataSource)
           .map(([timePeriod, timeItems]) => {
             return formatXYData(
               +timePeriod,
@@ -430,7 +431,7 @@ function formatPercentTimePeriod(
         });
       }
       if (monthData) {
-        for (const month of Object.keys(props.data[1].Yearly[year].Monthly)) {
+        for (const month of Object.keys(data.Yearly[year].Monthly)) {
           tempDataArr.push({
             id: name + year + " " + month,
             data: formatData(data.Yearly[year].Monthly[month]),
@@ -444,15 +445,15 @@ function formatPercentTimePeriod(
 
 function formatSelectableItems(data, bothFriendAndOwnData, dataVariation) {
   const uniqueObjSet = new Set();
-  const itemsSelectable = [];
+  let itemsSelectable = [];
   const validDataVariation = ["Tracks", "Artists", "Genres", "Eras"];
 
   if (!validDataVariation.includes(dataVariation)) {
-    throw new Error("Bad DataVariation=" + props.dataVariation);
+    throw new Error("Bad DataVariation=" + dataVariation);
   }
 
   if (bothFriendAndOwnData) {
-    tempData.forEach((userData) => {
+    data.forEach((userData) => {
       Object.keys(userData[dataVariation]).forEach((key) => {
         const obj = {
           name:
@@ -469,10 +470,10 @@ function formatSelectableItems(data, bothFriendAndOwnData, dataVariation) {
       });
     });
   } else {
-    itemsSelectable = Object.keys(tempData[dataVariation]).map((key) => ({
+    itemsSelectable = Object.keys(data[dataVariation]).map((key) => ({
       name:
         dataVariation === "Tracks" || dataVariation === "Artists"
-          ? tempData[dataVariation][key].Name
+          ? data[dataVariation][key].Name
           : key,
       uri: key,
     }));
