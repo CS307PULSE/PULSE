@@ -215,7 +215,7 @@ export function setupAdvancedData(props) {
   };
 }
 
-export function formatSelectionGraphData(props) {
+export function formatSelectionGraphData(props, itemsSelected) {
   const readVal =
     props.dataName === "numMinutes"
       ? "Number of Minutes"
@@ -259,105 +259,147 @@ export function formatSelectionGraphData(props) {
     "NOVEMBER",
     "DECEMBER",
   ];
-  let DataOrder = ["Overall"];
+  let dataOrder = ["Overall"];
   for (const year of years) {
-    DataOrder.push(year);
+    dataOrder.push(year);
     for (const month of monthsOrder) {
-      DataOrder.push(month + " " + year);
+      dataOrder.push(month + " " + year);
     }
   }
-
-  if (itemType === "all") {
-  } else {
-    return itemsSelected.map((item) => ({
-      id: props.bothFriendAndOwnData
-        ? props.dataVariation === "Tracks" || props.dataVariation === "Artists"
-          ? props.data[0][itemType][item] !== undefined
-            ? props.data[0][itemType][item].Name
-            : props.data[1][itemType][item].Name
-          : item
-        : props.dataVariation === "Tracks" || props.dataVariation === "Artists"
-        ? props.data[itemType][item].Name
-        : item,
-      data:
-        props.timeRange === "all"
-          ? [
-              props.bothFriendAndOwnData
-                ? ({
-                    x: "User All",
-                    y: props.data[0][itemType][item][readVal],
-                  },
-                  {
-                    x: props.friendName + "All",
-                    y:
-                      props.data[1][itemType][item] !== undefined
-                        ? props.data[1][itemType][item][readVal]
-                        : 0,
-                  })
-                : {
-                    x:
-                      props.friendName !== undefined
-                        ? props.friendName + "All"
-                        : "User All",
-                    y: props.data[itemType][item][readVal],
-                  },
-            ]
-          : props.bothFriendAndOwnData
-          ? Object.entries(dataSource[0])
-              .map(([timePeriod, timeItems]) => {
-                if (timeItems[itemType][item] === undefined) {
-                  return {
-                    x: timePeriod,
-                    y: 0,
-                  };
-                } else {
-                  return {
-                    x: timePeriod,
-                    y: timeItems[itemType][item][readVal],
-                  };
-                }
-              })
-              .sort((a, b) => {
-                return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
-              })
-              .concat(
-                Object.entries(dataSource[1])
-                  .map(([timePeriod, timeItems]) => {
-                    if (timeItems[itemType][item] === undefined) {
-                      return {
-                        x: timePeriod,
-                        y: 0,
-                      };
-                    } else {
-                      return {
-                        x: timePeriod,
-                        y: timeItems[itemType][item][readVal],
-                      };
-                    }
-                  })
-                  .sort((a, b) => {
-                    return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
-                  })
-              )
-          : Object.entries(dataSource)
-              .map(([timePeriod, timeItems]) => {
-                if (timeItems[itemType][item] === undefined) {
-                  return {
-                    x: timePeriod,
-                    y: 0,
-                  };
-                } else {
-                  return {
-                    x: timePeriod,
-                    y: timeItems[itemType][item][readVal],
-                  };
-                }
-              })
-              .sort((a, b) => {
-                return monthsOrder.indexOf(a.x) - monthsOrder.indexOf(b.x);
-              }),
-    }));
+  let dataOrders = [];
+  for (item of dataOrder) {
+    dataOrders.push("User " + item);
+    dataOrders.push(props.friendName + " " + item);
   }
+
+  let params = {
+    itemType: itemType,
+    itemsSelected: itemsSelected,
+    readVal: readVal,
+    dataOrder: dataOrders,
+  };
+
+  return formatSelectionGraphDataLine(props, params);
+}
+
+function formatSelectionGraphDataLine(props, params) {
+  const formatXYData = (id, data, itemType, item, readVal) => {
+    if (data[itemType][item] !== undefined) {
+      return {
+        x: id,
+        y: data[itemType][item][readVal],
+      };
+    } else {
+      return {
+        x: id,
+        y: 0,
+      };
+    }
+  };
+
+  let itemsData = [];
+
+  for (item of params.itemsSelected) {
+    let id = "";
+    let data = [];
+    if (props.dataVariation === "Tracks" || props.dataVariation === "Artists") {
+      if (props.bothFriendAndOwnData) {
+        if ((id = props.data[0][itemType][item] !== undefined)) {
+          id = props.data[0][itemType][item].Name;
+        } else {
+          id = props.data[1][itemType][item].Name;
+        }
+      }
+    } else {
+      id = item;
+    }
+
+    if (props.timeRange === "all") {
+      if (props.bothFriendAndOwnData) {
+        data = [
+          formatXYData(
+            "User All",
+            props.data[0],
+            params.itemType,
+            item,
+            params.readVal
+          ),
+          formatXYData(
+            props.friendName + " All",
+            props.data[1],
+            params.itemType,
+            item,
+            params.readVal
+          ),
+        ];
+      } else {
+        data = [
+          formatXYData(
+            props.friendName !== undefined
+              ? props.friendName + "All"
+              : "User All",
+            props.data,
+            params.itemType,
+            item,
+            params.readVal
+          ),
+        ];
+      }
+    } else {
+      if (props.bothFriendAndOwnData) {
+        data = Object.entries(dataSource[0])
+          .map(([timePeriod, timeItems]) => {
+            return formatXYData(
+              "User " + timePeriod,
+              timeItems,
+              params.itemType,
+              item,
+              params.readVal
+            );
+          })
+          .sort((a, b) => {
+            return (
+              params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x)
+            );
+          })
+          .concat(
+            Object.entries(dataSource[1])
+              .map(([timePeriod, timeItems]) => {
+                return formatXYData(
+                  props.friendName + " " + timePeriod,
+                  timeItems,
+                  params.itemType,
+                  item,
+                  params.readVal
+                );
+              })
+              .sort((a, b) => {
+                return (
+                  params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x)
+                );
+              })
+          );
+      } else {
+        data = Object.entries(dataSource)
+          .map(([timePeriod, timeItems]) => {
+            return formatXYData(
+              +timePeriod,
+              timeItems,
+              params.itemType,
+              item,
+              params.readVal
+            );
+          })
+          .sort((a, b) => {
+            return (
+              params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x)
+            );
+          });
+      }
+    }
+    itemsData.push({ id: id, data: data });
+  }
+  return itemsData;
 }
 
 function formatPercentTimePeriod(

@@ -6,10 +6,9 @@ import TextSize from "../theme/TextSize";
 
 var textSizeSetting, themeSetting;
 try {
-  var textSizeResponse = await axios.get(
-    "/profile/get_text_size",
-    { withCredentials: true }
-  );
+  var textSizeResponse = await axios.get("/profile/get_text_size", {
+    withCredentials: true,
+  });
   textSizeSetting = textSizeResponse.data;
   var themeResponse = await axios.get("/profile/get_theme", {
     withCredentials: true,
@@ -49,14 +48,9 @@ export default function StatsCard() {
   useEffect(() => {
     updateFollowers();
     const fetchData = async () => {
-      const response = await axios.get(
-        "/statistics/short",
-        {
-          withCredentials: true,
-        }
-      );
-      console.log("response to stats card");
-      console.log(response);
+      const response = await axios.get("/statistics/short", {
+        withCredentials: true,
+      });
       const data = response.data;
       try {
         setTopArtists(JSON.parse(data.top_artists));

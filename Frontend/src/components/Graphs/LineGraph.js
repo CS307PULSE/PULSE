@@ -75,7 +75,7 @@ export const LineGraph = (props) => {
     }
     //console.log(itemsSelected);
     if (selectionGraph) {
-      formatSelectionGraphData(props);
+      formatSelectionGraphData(props, itemsSelected);
       console.log(data);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
