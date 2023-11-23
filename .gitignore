@@ -1,6 +1,7 @@
 *.cache
 *.pyc
 Frontend/node_modules/*
+Frontend/build/*
 StatisticsPage/node_modules/*
 Backend/node_modules/*
 functions/*
