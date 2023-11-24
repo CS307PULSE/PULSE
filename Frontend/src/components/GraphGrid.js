@@ -102,14 +102,18 @@ export default function GraphGrid() {
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
   //Remove container function
-  const RemoveContainer = (containerName) => {
+  const removeContainer = (containerName) => {
     let updatedLayout = layout;
     updatedLayout = updatedLayout.filter((item) => item.i !== containerName);
     setLayout(updatedLayout);
   };
 
+  const getContainer = (containerName) => {
+    return layout.filter((item) => item.i === containerName)[0];
+  };
+
   //Add container function
-  const AddContainer = (container) => {
+  const addContainer = (container) => {
     setLayout([...layout, container]);
   };
 
@@ -192,6 +196,15 @@ export default function GraphGrid() {
     }
     setGraphNames(graphNames);
     setLayout(updatedLayout);
+  };
+
+  //Save selected data to layout for saving
+  const selectData = (selected, graphName) => {
+    let container = getContainer(graphName);
+    container.selectedData = selected;
+    let updatedLayout = layout;
+    updatedLayout = updatedLayout.filter((item) => item.i !== graphName);
+    setLayout([...updatedLayout, container]);
   };
 
   //Get data from server & set top song/artists
@@ -360,6 +373,7 @@ export default function GraphGrid() {
       friendID: newGraphData.friendID,
       bothFriendAndOwnData:
         newGraphData.bothFriendAndOwnData === "on" ? true : false,
+      selectedData: [],
       graphSettings: {
         graphTheme: newGraphData.graphTheme,
         clickAction: newGraphData.clickAction,
@@ -367,6 +381,7 @@ export default function GraphGrid() {
         vertAxisTitle: newGraphData.vertAxisTitle,
         legendEnabled: newGraphData.legendEnabled,
       },
+
       x: 0,
       y: 0,
       w: 1,
@@ -425,7 +440,7 @@ export default function GraphGrid() {
     }
     console.log("New Layout item added:");
     console.log(newGraph);
-    AddContainer(newGraph);
+    addContainer(newGraph);
   };
 
   function getData(props) {
@@ -700,7 +715,7 @@ export default function GraphGrid() {
                       </div>
                       <button
                         className="GraphCloseButton custom-draggable-cancel"
-                        onClick={() => RemoveContainer(container.i)}
+                        onClick={() => removeContainer(container.i)}
                       >
                         X
                       </button>
@@ -750,7 +765,7 @@ export default function GraphGrid() {
                   </div>
                   <button
                     className="GraphCloseButton custom-draggable-cancel"
-                    onClick={() => RemoveContainer(container.i)}
+                    onClick={() => removeContainer(container.i)}
                   >
                     X
                   </button>
@@ -759,7 +774,7 @@ export default function GraphGrid() {
                 {container.graphType === "VertBar" ||
                 container.graphType === "HortBar" ? (
                   <BarGraph
-                    graphName={container.graphType}
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     dataVariation={container.dataVariation}
@@ -773,9 +788,12 @@ export default function GraphGrid() {
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Line" ? (
                   <LineGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     dataVariation={container.dataVariation}
@@ -787,9 +805,12 @@ export default function GraphGrid() {
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Pie" ? (
                   <PieGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -799,9 +820,12 @@ export default function GraphGrid() {
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "ImageGraph" ? (
                   <ImageGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -810,9 +834,12 @@ export default function GraphGrid() {
                     timeRange={container.timeRange}
                     clickAction={container.graphSettings.clickAction}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Bump" ? (
                   <BumpGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -824,9 +851,12 @@ export default function GraphGrid() {
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Calendar" ? (
                   <CalendarGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -836,9 +866,12 @@ export default function GraphGrid() {
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Scatter" ? (
                   <ScatterGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -850,9 +883,12 @@ export default function GraphGrid() {
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "RadBar" ? (
                   <RadialBarGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -864,9 +900,12 @@ export default function GraphGrid() {
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Radar" ? (
                   <RadarGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -878,13 +917,18 @@ export default function GraphGrid() {
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Text" ? (
                   <TextGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : (
                   <p> Invalid Graph Type</p>

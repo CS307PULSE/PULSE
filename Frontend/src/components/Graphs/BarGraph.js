@@ -51,6 +51,7 @@ export const BarGraph = (props) => {
       console.error(e);
       setData("Bad Data");
     }
+    setItemsSelected(props.selectedData);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -63,6 +64,7 @@ export const BarGraph = (props) => {
     //console.log(itemsSelected);
     if (selectionGraph) {
       setData(formatAdvancedGraphData(props, itemsSelected));
+      props.selectData(itemsSelected, props.graphName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsSelected]);
@@ -101,7 +103,7 @@ export const BarGraph = (props) => {
         data={data}
         keys={props.graphKeys}
         indexBy={props.graphIndexBy}
-        layout={props.graphName === "VertBar" ? "vertical" : "horizontal"}
+        layout={props.graphType === "VertBar" ? "vertical" : "horizontal"}
         margin={{
           top: 30,
           right: props.legendEnabled ? 110 : 50,

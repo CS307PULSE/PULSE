@@ -63,6 +63,7 @@ export const LineGraph = (props) => {
       console.error(e);
       setData("Bad Data");
     }
+    setItemsSelected(props.selectedData);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,6 +76,7 @@ export const LineGraph = (props) => {
     //console.log(itemsSelected);
     if (selectionGraph) {
       setData(formatAdvancedGraphData(props, itemsSelected));
+      props.selectData(itemsSelected, props.graphName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsSelected]);

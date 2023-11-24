@@ -30,7 +30,12 @@ export const RadarGraph = (props) => {
 
   const [data, setData] = useState();
   const [keys, setKeys] = useState([]);
-  const [itemsSelected, setItemsSelected] = useState();
+  const [itemsSelected, setItemsSelected] = useState([]);
+
+  useEffect(() => {
+    setItemsSelected(props.selectedData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     console.log(itemsSelected);
@@ -59,6 +64,7 @@ export const RadarGraph = (props) => {
         }
       );
     }
+    props.selectData(itemsSelected, props.graphName);
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsSelected]);
 
