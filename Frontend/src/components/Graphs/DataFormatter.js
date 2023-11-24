@@ -100,24 +100,8 @@ export function setupAdvancedData(props) {
     console.error(e);
   }
 
-  if (props.graphType === "Pie") {
-    let pieData = [];
-    for (const item of data) {
-      pieData.push(
-        ...item.data.map((itemDataPoints) => {
-          return {
-            id: itemDataPoints.x + " - " + item.id,
-            label: itemDataPoints.x + " - " + item.id,
-            value: itemDataPoints.y,
-          };
-        })
-      );
-    }
-    data = pieData;
-  }
-
   return {
-    data: data,
+    data: formatForDifferentGraphs(props, data),
     itemsSelectable: itemsSelectable,
     selectionGraph: selectionGraph,
   };
@@ -195,23 +179,42 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     data = formatSelectionGraphData(props, params);
   }
 
-  if (props.graphType === "Pie") {
-    let pieData = [];
-    for (const item of data) {
-      pieData.push(
-        ...item.data.map((itemDataPoints) => {
-          return {
-            id: itemDataPoints.x + " - " + item.id,
-            label: itemDataPoints.x + " - " + item.id,
-            value: itemDataPoints.y,
-          };
-        })
-      );
-    }
-    data = pieData;
-  }
+  return formatForDifferentGraphs(props, data);
+}
 
-  return data;
+function formatForDifferentGraphs(props, data) {
+  switch (props.graphType) {
+    case "Pie":
+      let pieData = [];
+      for (const item of data) {
+        pieData.push(
+          ...item.data.map((itemDataPoints) => {
+            return {
+              id: itemDataPoints.x + " - " + item.id,
+              label: itemDataPoints.x + " - " + item.id,
+              value: itemDataPoints.y,
+            };
+          })
+        );
+      }
+      return pieData;
+    case "VertBar":
+    case "HortBar":
+      let barData = [];
+      for (const item of data) {
+        barData.push(
+          ...item.data.map((itemDataPoints) => {
+            return {
+              id: itemDataPoints.x + " - " + item.id,
+              value: itemDataPoints.y,
+            };
+          })
+        );
+      }
+      return barData;
+    default:
+      return data;
+  }
 }
 
 function formatSelectionGraphData(props, params) {

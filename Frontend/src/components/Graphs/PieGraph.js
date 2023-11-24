@@ -92,7 +92,7 @@ export const PieGraph = (props) => {
               className="PopupCloseButton custom-draggable-cancel"
               onClick={openPopup}
             >
-              Filter
+              ¥
             </button>
           </>
         ) : (

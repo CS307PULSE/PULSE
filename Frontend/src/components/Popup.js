@@ -259,6 +259,7 @@ export default function Popup({
       case "Scatter":
         if (e.target.value.includes("Bar")) {
           setBarData(true);
+          setTimesDataEN(true);
         } else {
           setLineData(true);
           setMultiDataEN(true);

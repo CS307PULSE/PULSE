@@ -110,7 +110,7 @@ export const LineGraph = (props) => {
               className="PopupCloseButton custom-draggable-cancel"
               onClick={openPopup}
             >
-              Filter
+              ¥
             </button>
           </>
         ) : (

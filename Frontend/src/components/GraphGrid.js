@@ -374,10 +374,17 @@ export default function GraphGrid() {
     };
 
     if (newGraph.graphType === "VertBar" || newGraph.graphType === "HortBar") {
-      newGraph.graphSettings = Object.assign(
-        { graphKeys: ["degrees"], graphIndexBy: "day" },
-        newGraph.graphSettings
-      );
+      if (newGraph.data.includes("bar")) {
+        newGraph.graphSettings = Object.assign(
+          { graphKeys: ["degrees"], graphIndexBy: "day" },
+          newGraph.graphSettings
+        );
+      } else {
+        newGraph.graphSettings = Object.assign(
+          { graphKeys: ["value"], graphIndexBy: "id" },
+          newGraph.graphSettings
+        );
+      }
     }
 
     if (newGraphData.friendDataOn === "on") {
