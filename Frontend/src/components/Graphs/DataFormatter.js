@@ -65,111 +65,13 @@ export function setupAdvancedData(props) {
     if (
       props.dataName === "numMinutes" ||
       props.dataName === "numStreams" ||
-      props.dataName === "percentTimes"
+      props.dataName === "percentTimes" ||
+      props.dataName === "numTimesSkipped"
     ) {
       if (props.dataVariation === "all") {
         selectionGraph = false;
-        const readVal =
-          props.dataName === "numMinutes"
-            ? "Number of Minutes"
-            : props.dataName === "percentTimes"
-            ? "Average Percentage of Streams"
-            : props.dataName === "numStreams"
-            ? "Number of Streams"
-            : "Number of Streams";
-        let years = props.bothFriendAndOwnData
-          ? Array.from(
-              new Set(props.data.map((item) => Object.keys(item.Yearly)).flat())
-            )
-          : Object.keys(props.data.Yearly);
-        years.sort(function (a, b) {
-          return a - b;
-        });
-        const months = [
-          "JANUARY",
-          "FEBRUARY",
-          "MARCH",
-          "APRIL",
-          "MAY",
-          "JUNE",
-          "JULY",
-          "AUGUST",
-          "SEPTEMBER",
-          "OCTOBER",
-          "NOVEMBER",
-          "DECEMBER",
-        ];
-        let DataOrder = ["Overall"];
-        for (const year of years) {
-          DataOrder.push(year);
-          for (const month of months) {
-            DataOrder.push(month + " " + year);
-          }
-        }
-
-        if (props.bothFriendAndOwnData) {
-          const itemName = [props.friendName, "User"];
-          let tempDataArr = props.data.map((user, index) => {
-            let tempUserData = [];
-            //Overall data
-            tempUserData.push({
-              x: "Overall",
-              y: props.data[index][readVal],
-            });
-
-            //Yearly & monthly
-            for (const year of Object.keys(props.data[index].Yearly)) {
-              tempUserData.push({
-                x: year,
-                y: props.data[index].Yearly[year][readVal],
-              });
-
-              //Monthly data
-              for (const month of Object.keys(
-                props.data[index].Yearly[year].Monthly
-              )) {
-                tempUserData.push({
-                  x: month + " " + year,
-                  y: props.data[index].Yearly[year].Monthly[month][readVal],
-                });
-              }
-            }
-            tempUserData.sort((a, b) => {
-              return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
-            });
-            return tempUserData;
-          });
-          data = [
-            { id: itemName[0], data: tempDataArr[0] },
-            { id: itemName[1], data: tempDataArr[1] },
-          ];
-        } else {
-          let tempDataArr = [];
-          //Overall data
-          const itemName =
-            props.friendName !== undefined ? props.friendName : "User";
-          tempDataArr.push({ x: "Overall", y: props.data[readVal] });
-
-          //Yearly & monthly
-          for (const year of Object.keys(props.data.Yearly)) {
-            tempDataArr.push({
-              x: year,
-              y: props.data.Yearly[year][readVal],
-            });
-
-            //Monthly data
-            for (const month of Object.keys(props.data.Yearly[year].Monthly)) {
-              tempDataArr.push({
-                x: month + " " + year,
-                y: props.data.Yearly[year].Monthly[month][readVal],
-              });
-            }
-          }
-          tempDataArr.sort((a, b) => {
-            return DataOrder.indexOf(a.x) - DataOrder.indexOf(b.x);
-          });
-          data = [{ id: itemName, data: tempDataArr }];
-        }
+        data = formatAdvancedGraphData(props, []);
+        //Num time skipped goes always down to this one
       } else {
         itemsSelectable = formatSelectableItems(
           props.data,
@@ -193,17 +95,25 @@ export function setupAdvancedData(props) {
           props.data
         );
       }
-    } else if (props.dataName === "numTimesSkipped") {
-      itemsSelectable = formatSelectableItems(
-        props.data,
-        props.bothFriendAndOwnData,
-        props.dataVariation
-      );
-      selectionGraph = true;
-      data = emptyData;
     }
   } catch (e) {
     console.error(e);
+  }
+
+  if (props.graphType === "Pie") {
+    let pieData = [];
+    for (const item of data) {
+      pieData.push(
+        ...item.data.map((itemDataPoints) => {
+          return {
+            id: itemDataPoints.x + " - " + item.id,
+            label: itemDataPoints.x + " - " + item.id,
+            value: itemDataPoints.y,
+          };
+        })
+      );
+    }
+    data = pieData;
   }
 
   return {
@@ -213,7 +123,7 @@ export function setupAdvancedData(props) {
   };
 }
 
-export function formatSelectionGraphData(props, itemsSelected) {
+export function formatAdvancedGraphData(props, itemsSelected) {
   const readVal =
     props.dataName === "numMinutes"
       ? "Number of Minutes"
@@ -278,11 +188,35 @@ export function formatSelectionGraphData(props, itemsSelected) {
     dataSource: dataSource,
   };
 
-  return formatSelectionGraphDataLine(props, params);
+  let data;
+  if (props.dataVariation === "all") {
+    data = formatAllTimeGraphData(props, params);
+  } else {
+    data = formatSelectionGraphData(props, params);
+  }
+
+  if (props.graphType === "Pie") {
+    let pieData = [];
+    for (const item of data) {
+      pieData.push(
+        ...item.data.map((itemDataPoints) => {
+          return {
+            id: itemDataPoints.x + " - " + item.id,
+            label: itemDataPoints.x + " - " + item.id,
+            value: itemDataPoints.y,
+          };
+        })
+      );
+    }
+    data = pieData;
+  }
+
+  return data;
 }
 
-function formatSelectionGraphDataLine(props, params) {
-  const formatXYData = (id, data, itemType, item, readVal) => {
+function formatSelectionGraphData(props, params) {
+  let itemsData = [];
+  function formatXY(id, data, itemType, item, readVal) {
     if (data[itemType][item] !== undefined) {
       return {
         x: id,
@@ -294,9 +228,7 @@ function formatSelectionGraphDataLine(props, params) {
         y: 0,
       };
     }
-  };
-
-  let itemsData = [];
+  }
 
   for (const item of params.itemsSelected) {
     let id = "";
@@ -318,14 +250,14 @@ function formatSelectionGraphDataLine(props, params) {
     if (props.timeRange === "all") {
       if (props.bothFriendAndOwnData) {
         data = [
-          formatXYData(
+          formatXY(
             "User All",
             props.data[0],
             params.itemType,
             item,
             params.readVal
           ),
-          formatXYData(
+          formatXY(
             props.friendName + " All",
             props.data[1],
             params.itemType,
@@ -335,7 +267,7 @@ function formatSelectionGraphDataLine(props, params) {
         ];
       } else {
         data = [
-          formatXYData(
+          formatXY(
             props.friendName !== undefined
               ? props.friendName + "All"
               : "User All",
@@ -350,7 +282,7 @@ function formatSelectionGraphDataLine(props, params) {
       if (props.bothFriendAndOwnData) {
         data = Object.entries(params.dataSource[0])
           .map(([timePeriod, timeItems]) => {
-            return formatXYData(
+            return formatXY(
               "User " + timePeriod,
               timeItems,
               params.itemType,
@@ -366,7 +298,7 @@ function formatSelectionGraphDataLine(props, params) {
           .concat(
             Object.entries(params.dataSource[1])
               .map(([timePeriod, timeItems]) => {
-                return formatXYData(
+                return formatXY(
                   props.friendName + " " + timePeriod,
                   timeItems,
                   params.itemType,
@@ -383,8 +315,8 @@ function formatSelectionGraphDataLine(props, params) {
       } else {
         data = Object.entries(params.dataSource)
           .map(([timePeriod, timeItems]) => {
-            return formatXYData(
-              +timePeriod,
+            return formatXY(
+              timePeriod,
               timeItems,
               params.itemType,
               item,
@@ -403,6 +335,73 @@ function formatSelectionGraphDataLine(props, params) {
   return itemsData;
 }
 
+function formatAllTimeGraphData(props, params) {
+  let data;
+  if (props.bothFriendAndOwnData) {
+    const itemName = [props.friendName, "User"];
+    let tempDataArr = props.data.map((user, index) => {
+      let tempUserData = [];
+      //Overall data
+      tempUserData.push({
+        x: "Overall",
+        y: props.data[index][params.readVal],
+      });
+
+      //Yearly & monthly
+      for (const year of Object.keys(props.data[index].Yearly)) {
+        tempUserData.push({
+          x: year,
+          y: props.data[index].Yearly[year][params.readVal],
+        });
+
+        //Monthly data
+        for (const month of Object.keys(
+          props.data[index].Yearly[year].Monthly
+        )) {
+          tempUserData.push({
+            x: month + " " + year,
+            y: props.data[index].Yearly[year].Monthly[month][params.readVal],
+          });
+        }
+      }
+      tempUserData.sort((a, b) => {
+        return params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x);
+      });
+      return tempUserData;
+    });
+    data = [
+      { id: itemName[0], data: tempDataArr[0] },
+      { id: itemName[1], data: tempDataArr[1] },
+    ];
+  } else {
+    let tempDataArr = [];
+    //Overall data
+    const itemName = props.friendName !== undefined ? props.friendName : "User";
+    tempDataArr.push({ x: "Overall", y: props.data[params.readVal] });
+
+    //Yearly & monthly
+    for (const year of Object.keys(props.data.Yearly)) {
+      tempDataArr.push({
+        x: year,
+        y: props.data.Yearly[year][params.readVal],
+      });
+
+      //Monthly data
+      for (const month of Object.keys(props.data.Yearly[year].Monthly)) {
+        tempDataArr.push({
+          x: month + " " + year,
+          y: props.data.Yearly[year].Monthly[month][params.readVal],
+        });
+      }
+    }
+    tempDataArr.sort((a, b) => {
+      return params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x);
+    });
+    data = [{ id: itemName, data: tempDataArr }];
+  }
+  return data;
+}
+
 function formatPercentTimePeriod(
   name,
   data,
@@ -416,6 +415,7 @@ function formatPercentTimePeriod(
     { x: "evening", y: subData["Time of Day Breakdown"][2] },
     { x: "night", y: subData["Time of Day Breakdown"][3] },
   ];
+
   let tempDataArr = [];
   if (overallData) {
     tempDataArr.push({

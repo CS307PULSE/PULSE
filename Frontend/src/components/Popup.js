@@ -278,6 +278,7 @@ export default function Popup({
       case "Pie":
         setLegendEN(true);
         setPieData(true);
+        setTimesDataEN(true);
         break;
       case "Bump":
         setBumpData(true);

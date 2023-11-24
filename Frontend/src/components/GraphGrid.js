@@ -765,6 +765,7 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Line" ? (
                   <LineGraph
@@ -778,6 +779,7 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Pie" ? (
                   <PieGraph
@@ -789,6 +791,7 @@ export default function GraphGrid() {
                     timeRange={container.timeRange}
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "ImageGraph" ? (
                   <ImageGraph
@@ -799,6 +802,7 @@ export default function GraphGrid() {
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
                     clickAction={container.graphSettings.clickAction}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Bump" ? (
                   <BumpGraph
@@ -812,6 +816,7 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Calendar" ? (
                   <CalendarGraph
@@ -823,6 +828,7 @@ export default function GraphGrid() {
                     timeRange={container.timeRange}
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Scatter" ? (
                   <ScatterGraph
@@ -836,6 +842,7 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "RadBar" ? (
                   <RadialBarGraph
@@ -849,6 +856,7 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Radar" ? (
                   <RadarGraph
@@ -862,12 +870,14 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
                   />
                 ) : container.graphType === "Text" ? (
                   <TextGraph
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
+                    graphType={container.graphType}
                   />
                 ) : (
                   <p> Invalid Graph Type</p>

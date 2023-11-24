@@ -5,7 +5,7 @@ import FilterPopup from "./FilterPopup.js";
 import {
   formatFollowerData,
   setupAdvancedData,
-  formatSelectionGraphData,
+  formatAdvancedGraphData,
 } from "./DataFormatter.js";
 
 export const LineGraph = (props) => {
@@ -64,8 +64,6 @@ export const LineGraph = (props) => {
       setData("Bad Data");
     }
 
-    console.log(itemsSelectable);
-    console.log(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -76,8 +74,7 @@ export const LineGraph = (props) => {
     }
     //console.log(itemsSelected);
     if (selectionGraph) {
-      setData(formatSelectionGraphData(props, itemsSelected));
-      console.log(data);
+      setData(formatAdvancedGraphData(props, itemsSelected));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsSelected]);
@@ -98,7 +95,7 @@ export const LineGraph = (props) => {
       : {};
 
   try {
-    //console.log(data);
+    console.log(data);
     return (
       <>
         {selectionGraph ? (
