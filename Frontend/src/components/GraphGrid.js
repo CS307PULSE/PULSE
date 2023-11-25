@@ -64,12 +64,16 @@ async function fetchAdvancedData() {
   return data;
 }
 
-async function sendLayouts(layouts, defaultLayout) {
+async function sendLayouts(layouts, defaultLayout, numLayoutColumns) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
   const response = await axiosInstance.post("/statistics/set_layout", {
-    layout: { layouts: layouts, defaultLayout: defaultLayout },
+    layout: {
+      layouts: layouts,
+      defaultLayout: defaultLayout,
+      numLayoutColumns: numLayoutColumns,
+    },
   });
   const data = response.data;
   console.log(response);
@@ -82,6 +86,7 @@ export default function GraphGrid() {
   const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
   const [defaultLayoutNum, setDefaultLayoutNum] = useState(1);
+  const [numLayoutColumns, setNumLayoutColumns] = useState(5);
 
   //Pulled data
   const [topArtists, setTopArtists] = useState();
@@ -115,10 +120,6 @@ export default function GraphGrid() {
   //Add container function
   const addContainer = (container) => {
     setLayout([...layout, container]);
-  };
-
-  const changeDefaultLayoutNum = (e) => {
-    setDefaultLayoutNum(e.target.value);
   };
 
   //Get layout from local storage
@@ -165,7 +166,7 @@ export default function GraphGrid() {
   const handleSaveButtonClick = () => {
     saveToLS(layoutNumber, layout);
     console.log(layout);
-    sendLayouts(getAllFromLS(), defaultLayoutNum);
+    sendLayouts(getAllFromLS(), defaultLayoutNum, numLayoutColumns);
   };
 
   //Function for load button
@@ -295,9 +296,17 @@ export default function GraphGrid() {
             setlayoutNumber(i + 1);
             saveToLS(i + 1, newLayouts[i]);
           }
-          if (layout_data.defaultLayout === "") {
-          } else {
+          if (
+            layout_data.defaultLayout !== "" &&
+            layout_data.defaultLayout !== undefined
+          ) {
             setlayoutNumber(parseInt(layout_data.defaultLayout));
+          }
+          if (
+            layout_data.numLayoutColumns !== "" &&
+            layout_data.numLayoutColumns !== undefined
+          ) {
+            setNumLayoutColumns(layout_data.numLayoutColumns);
           }
         }
 
@@ -678,7 +687,11 @@ export default function GraphGrid() {
         <ResponsiveGridLayout
           layouts={{ lg: layout }}
           breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
-          cols={{ lg: 5, xs: 2, xxs: 1 }}
+          cols={{
+            lg: numLayoutColumns,
+            xs: Math.floor(numLayoutColumns / 2),
+            xxs: 1,
+          }}
           rowHeight={300}
           width={"100%"}
           onLayoutChange={handleLayoutChange}
@@ -949,12 +962,30 @@ export default function GraphGrid() {
           <select
             name="defaultLayout"
             value={defaultLayoutNum}
-            onChange={changeDefaultLayoutNum}
+            onChange={(e) => {
+              setDefaultLayoutNum(e.target.value);
+            }}
           >
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
           </select>
+        </div>
+        <div>
+          Grid Layout Columns:
+          <input
+            name="numLayoutColumns"
+            value={numLayoutColumns}
+            onChange={(e) => {
+              const regexVal = e.target.value.replace(/\D/g, "");
+              const value = Math.max(1, Math.min(15, Number(regexVal)));
+              if (value === undefined || value === 0) {
+                setNumLayoutColumns(5);
+              } else {
+                setNumLayoutColumns(value);
+              }
+            }}
+          ></input>
         </div>
         <div>
           <button className="TypButton" onClick={openPopup}>
