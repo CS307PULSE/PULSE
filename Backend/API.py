@@ -8,8 +8,8 @@ from flask_cors import CORS, cross_origin
 # from firebase_admin import credentials, auth
 from .User import User
 from datetime import datetime, timedelta
-from .DBConnector import DBConnector
-from .DBConnector import db_config
+from .DatabaseConnector import DatabaseConnector
+from .DatabaseConnector import db_config
 from .Emotion import Emotion
 from .Playlist import Playlist
 import json
@@ -99,8 +99,8 @@ def boot():
     user_id = request.cookies.get('user_id_cookie')
     if (user_id):
         user_exists = False
-        with DBConnector(db_config) as conn:
-            user_exists = conn.does_user_exist(user_id)
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_user_DB(user_id)
             if user_exists:
                 user = conn.get_user_from_user_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
@@ -150,12 +150,14 @@ def callback():
         user.refresh_access_token(sp_oauth=sp_oauth)
         
         user_exists = False
-        with DBConnector(db_config) as conn:
-            user_exists = conn.does_user_exist(user.spotify_id)
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_user_DB(user.spotify_id)
             if not user_exists:
-                conn.create_new_user_in_every_DB(user)
+                conn.create_new_user_in_user_DB(user)
+                conn.create_new_user_in_stats_DB(user.spotify_id)
+                conn.create_new_user_in_advanced_stats_DB(user.spotify_id)
             else:
-                conn.update_json_in_DB(user.spotify_id, user.login_token, "token", DBConnector.USER_INFO_DB)
+                conn.update_token(user.spotify_id, user.login_token)
 
         session['user'] = user.to_json()
 
@@ -195,10 +197,10 @@ def statistics():
             print(e)
             return jsonify(data), 200, {'Reason-Phrase': 'OK'}
         
-        with DBConnector(db_config) as conn:
-            layout = conn.get_json_from_DB(user.spotify_id, "layout", DBConnector.USER_INFO_DB)
-        with DBConnector(db_config) as conn:
-            followers = conn.get_json_from_DB(user.spotify_id, "followers", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            layout = conn.get_layout_from_DB(user.spotify_id)
+        with DatabaseConnector(db_config) as conn:
+            followers = conn.get_followers_from_DB(user.spotify_id)
 
         data['status'] = 'Success'
         data['recent_history'] = user.stats.recent_history
@@ -210,7 +212,7 @@ def statistics():
         data['saved_playlists'] = user.stats.saved_playlists
 
         if layout is not None:
-            data['layout_data'] = layout
+            data['layout_data'] = json.loads(layout)
 
         if followers is not None:
             data['follower_data'] = followers
@@ -228,7 +230,7 @@ def friend_statistics():
     start_time = time.time()
     data = request.get_json()
     id = data.get('id')
-    with DBConnector(db_config) as conn:
+    with DatabaseConnector(db_config) as conn:
         user = conn.get_user_from_user_DB(spotify_id=id)
     user.spotify_user = spotipy.Spotify(auth=user.login_token['access_token'])
 
@@ -256,8 +258,8 @@ def friend_statistics():
         print(e)
         return jsonify(data), 200, {'Reason-Phrase': 'OK'}
     
-    with DBConnector(db_config) as conn:
-        followers = conn.get_json_from_DB(user.spotify_id, "followers", DBConnector.USER_BASE_STATS_DB)
+    with DatabaseConnector(db_config) as conn:
+        followers = conn.get_followers_from_DB(user.spotify_id)
 
     data['status'] = 'Success'
     data['recent_history'] = user.stats.recent_history
@@ -299,8 +301,8 @@ def statistics_short():
             print(e)
             return jsonify(data), 200, {'Reason-Phrase': 'OK'}
         print("updated data var")
-        with DBConnector(db_config) as conn:
-            followers = conn.get_json_from_DB(user.spotify_id, "followers", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            followers = conn.get_followers_from_DB(user.spotify_id)
 
         data['status'] = 'Success'
         data['top_songs'] = user.stringify(user.stats.top_songs)
@@ -328,7 +330,7 @@ def update_followers():
             follower_data = user.get_followers_with_time()
         except Exception as e:
             print(e)
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 404)
@@ -378,8 +380,8 @@ def get_friends_recent_songs():
     friend_songs = {}
     for friend_id in friend_ids.keys():
         try:
-            with DBConnector(db_config) as conn:
-                user_exists = conn.does_user_exist(friend_id)
+            with DatabaseConnector(db_config) as conn:
+                user_exists = conn.does_user_exist_in_user_DB(friend_id)
                 if user_exists:
                     user = conn.get_user_from_user_DB(spotify_id=friend_id)
                 else:
@@ -411,8 +413,8 @@ def set_layout():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            return jsonify(conn.update_json_in_DB(user.spotify_id, layout, "layout", DBConnector.USER_INFO_DB)), 200, {'Reason-Phrase': 'OK'}
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.update_layout(user.spotify_id, layout)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -511,7 +513,7 @@ def store_scores():
         if len(scores) < 10:
             scores += [-1] * (10 - len(scores))
 
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             if (conn.update_scores(user.spotify_id, scores, game_code) == -1):
                 error_message = "The scores have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 404)
@@ -527,8 +529,8 @@ def get_scores():
         user_data = session['user']
         user = User.from_json(user_data)
 
-        with DBConnector(db_config) as conn:
-            scores = conn.get_array_from_DB(user.spotify_id, "high_scores")
+        with DatabaseConnector(db_config) as conn:
+            scores = conn.get_scores_from_DB(user.spotify_id)
         
         # Serialize the data to JSON, replacing -1 with an empty string
         serialized_data = [[[str(cell) if cell != -1 else "" for cell in row] for row in matrix] for matrix in scores]
@@ -545,8 +547,8 @@ def get_settings():
         user_data = session['user']
         user = User.from_json(user_data)
 
-        with DBConnector(db_config) as conn:
-            scores = conn.get_array_from_DB(user.spotify_id, "game_settings")
+        with DatabaseConnector(db_config) as conn:
+            scores = conn.get_game_settings_from_DB(user.spotify_id)
         
         return jsonify(scores), 200, {'Reason-Phrase': 'OK'}
 
@@ -563,7 +565,7 @@ def set_settings():
         user_data = session['user']
         user = User.from_json(user_data)
 
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             if (conn.update_game_settings(user.spotify_id, settings, game_code) == -1):
                 error_message = "The settings have not been stored! Please try logging in and playing again to save the scores!"
                 return make_response(jsonify({'error': error_message}), 404)
@@ -801,8 +803,8 @@ def set_theme():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            return jsonify(conn.conn.update_int_in_DB(user.spotify_id, theme, "theme", DBConnector.USER_BASE_STATS_DB)), 200, {'Reason-Phrase': 'OK'}
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.update_theme(user.spotify_id, theme)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -812,8 +814,8 @@ def get_theme():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            return jsonify(conn.get_int_from_DB(user.spotify_id, "theme", DBConnector.USER_INFO_DB)), 200, {'Reason-Phrase': 'OK'}
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.get_theme_from_DB(user.spotify_id)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -826,8 +828,8 @@ def set_text_size():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            return jsonify(conn.conn.update_int_in_DB(user.spotify_id, text_size, "text_size", DBConnector.USER_INFO_DB)), 200, {'Reason-Phrase': 'OK'}
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.update_text_size(user.spotify_id, text_size)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -837,8 +839,8 @@ def get_text_size():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            return jsonify(conn.get_int_from_DB(user.spotify_id, "text_size", DBConnector.USER_BASE_STATS_DB)), 200, {'Reason-Phrase': 'OK'}
+        with DatabaseConnector(db_config) as conn:
+            return jsonify(conn.get_text_size_from_DB(user.spotify_id)), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -850,8 +852,8 @@ def set_image():
         newImage = data.get('filepath')
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            if (conn.update_string_in_DB(user.spotify_id, newImage, "icon", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_icon(user.spotify_id, newImage) == -1):
                 error_message = "The profile image has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'username updated.'
@@ -865,8 +867,8 @@ def get_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "icon" , DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_icon_from_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -882,8 +884,8 @@ def set_displayname():
         user = User.from_json(user_data)
         user.display_name = newname
         session['user'] = user.to_json()
-        with DBConnector(db_config) as conn:
-            if (conn.update_string_in_DB(user.spotify_id, user.display_name, "display_name", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_display_name(user.spotify_id, user.display_name) == -1):
                 error_message = "The display name has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'username updated.'
@@ -897,8 +899,8 @@ def get_displayname():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "display_name" , DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_display_name_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.', 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
@@ -913,8 +915,8 @@ def set_gender():
         user = User.from_json(user_data)
         user.gender = gender
         session['user'] = user.to_json()
-        with DBConnector(db_config) as conn:
-            if (conn.update_string_in_DB(user.spotify_id, user.gender, "gender", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_gender(user.spotify_id, user.gender) == -1):
                 error_message = "Gender has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'gender updated.'
@@ -928,8 +930,8 @@ def get_gender():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "gender" , DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_gender_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -945,8 +947,8 @@ def set_chosen_song():
         user = User.from_json(user_data)
         user.chosen_song = chosen_song
         session['user'] = user.to_json()
-        with DBConnector(db_config) as conn:
-            if (conn.update_string_in_DB(user.spotify_id, user.chosen_song, "chosen_song", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == -1):
                 error_message = "chosen_song has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'chosen_song updated.'
@@ -960,8 +962,8 @@ def get_chosen_song():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "chosen_song", DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -977,8 +979,8 @@ def set_location():
         user = User.from_json(user_data)
         user.location = location
         session['user'] = user.to_json()
-        with DBConnector(db_config) as conn:
-            if (conn.update_string_in_DB(user.spotify_id, user.location, "location", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_location(user.spotify_id, user.location) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'location updated.'
@@ -992,8 +994,8 @@ def get_location():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "location" , DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_location_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -1006,8 +1008,8 @@ def set_background_image():
         background = data.get('background')
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            if (conn.update_string_in_DB(user.spotify_id, background, "custom_background", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_custom_background(user.spotify_id, background) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'Themes updated.'
@@ -1021,8 +1023,8 @@ def get_background_image():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "custom_background", DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_custom_background_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -1037,8 +1039,8 @@ def set_saved_themes():
             theme[0] = theme[0].replace(" ", "")
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            if (conn.update_array_in_DB(user.spotify_id, themes, "saved_themes", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_saved_themes(user.spotify_id, themes) == -1):
                 error_message = "Location has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
         response_data = 'Themes updated.'
@@ -1052,8 +1054,8 @@ def get_saved_themes():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_array_from_DB(user.spotify_id, "saved_themes")
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -1066,8 +1068,8 @@ def set_color_palette():
         palette = data.get('color_palette')
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            if (conn.update_array_in_DB(user.spotify_id, palette, "color_palette", DBConnector.USER_INFO_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_color_palette(user.spotify_id, palette) == -1):
                 error_message = "palette has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404)
 
@@ -1082,8 +1084,8 @@ def get_color_palette():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_array_from_DB(user.spotify_id, "color_palette")
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_color_palette_from_user_DB(user.spotify_id)
     else:
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
@@ -1093,8 +1095,8 @@ def advanced_data_check():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_string_from_DB(user.spotify_id, "has_uploaded" , DBConnector.USER_INFO_DB)
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_has_uploaded_from_user_DB(user.spotify_id)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -1149,11 +1151,11 @@ def import_advanced_stats():
             with open("advanced_stats_output.json", "w") as json_file:
                 json.dump(DATA, json_file, indent=4)
 
-            with DBConnector(db_config) as conn:
+            with DatabaseConnector(db_config) as conn:
                 if (conn.update_advanced_stats(user.spotify_id, DATA) == -1):
                     error_message = "Advanced stats has not been stored!"
                     return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
-                if (conn.update_int_in_DB(user.spotify_id, 1, "has_uploaded", DBConnector.USER_INFO_DB) == -1):
+                if (conn.update_has_uploaded(user.spotify_id, 1) == -1):
                     error_message = "Advanced stats has updated has not been toggled!"
                     return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
@@ -1173,7 +1175,7 @@ def get_advanced_stats():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data) 
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             response_data = conn.get_advanced_stats_from_DB(user.spotify_id)
             if response_data is None:
                 error_message = "Advanced stats has not been stored!"
@@ -1197,7 +1199,7 @@ def friend_get_advanced_stats():
         data = request.get_json()
         id = data.get('id')
 
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             response_data = conn.get_advanced_stats_from_DB(id)
             if response_data is None:
                 error_message = "Advanced stats has not been stored!"
@@ -1245,7 +1247,7 @@ def store_advanced_stats():
     file_path = "advanced_stats_output.json"
     with open(current_dir + '\\Code\\PULSE\\Backend\\' + file_path, 'r') as file:
         DATA = json.load(file)
-    with DBConnector(db_config) as conn:
+    with DatabaseConnector(db_config) as conn:
         if (conn.update_advanced_stats(id, DATA) == -1):
             error_message = "Advanced stats has not been stored!"
             return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
@@ -1254,8 +1256,8 @@ def store_advanced_stats():
 @app.route('/advanced_stats_test')
 def api_advanced_stats_test():
     if 'user' in session:
-        with DBConnector(db_config) as conn:
-            user_exists = conn.does_user_exist("0ajzwwwmv2hwa3k1bj2z19obr")
+        with DatabaseConnector(db_config) as conn:
+            user_exists = conn.does_user_exist_in_user_DB("0ajzwwwmv2hwa3k1bj2z19obr")
             if user_exists:
                 user = conn.get_user_from_user_DB(spotify_id="0ajzwwwmv2hwa3k1bj2z19obr")
                 session['user'] = user.to_json()
@@ -1391,9 +1393,9 @@ def friend_requests():
         data = request.get_json()
         friendid = data.get('request')
         #add no friend requests to self
-        with DBConnector(db_config) as conn:
-            friendRequests = conn.get_array_from_DB(friendid, "friend_requests")
-            friends = conn.get_array_from_DB(friendid, "friends")
+        with DatabaseConnector(db_config) as conn:
+            friendRequests = conn.get_friend_requests_from_DB(friendid)
+            friends = conn.get_friends_from_DB(friendid)
             if user.spotify_id in friends:
                 return "friend is already on friends list", 200, {'Reason-Phrase': 'OK'}
             if user.spotify_id in friendRequests:
@@ -1412,15 +1414,15 @@ def remove_friend():
         data = request.get_json()
         friendid = data.get('spotify_id')
         jsonarray = []
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             conn.update_friends(friendid, user.spotify_id, False)
             conn.update_friends(user.spotify_id, friendid, False)
-            response_data = conn.get_array_from_DB(user.spotify_id, "friends")
+            response_data = conn.get_friends_from_DB(user.spotify_id)
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
-                bufferobject['photoUri'] = conn.get_string_from_DB(item, "icon" , DBConnector.USER_INFO_DB)
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
@@ -1440,7 +1442,7 @@ def request_choice():
         friendid = data.get('spotify_id')
         choice = data.get('accepted')
         jsonarray = []
-        with DBConnector(db_config) as conn:
+        with DatabaseConnector(db_config) as conn:
             if choice:
                 conn.update_friends(user.spotify_id, friendid, True)
                 conn.update_friends(friendid, user.spotify_id, True)
@@ -1448,12 +1450,12 @@ def request_choice():
                 conn.update_friend_requests(friendid, user.spotify_id, False)
             else:
                 conn.update_friend_requests(user.spotify_id, friendid, False)
-            response_data = conn.get_array_from_DB(user.spotify_id, "friend_requests")
+            response_data = conn.get_friend_requests_from_DB(user.spotify_id)
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
-                bufferobject['photoUri'] = conn.get_string_from_DB(item, "icon" , DBConnector.USER_INFO_DB)
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
@@ -1470,13 +1472,13 @@ def friend_request_search():
         data = request.get_json()
         friendname = data.get('query')
         jsonarray = []
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_array_from_DB(friendname, "spotify_id")
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_spotify_id_from_display_name_from_DB(friendname)
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
-                bufferobject['photoUri'] = conn.get_string_from_DB(item, "icon" , DBConnector.USER_INFO_DB)
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
@@ -1493,13 +1495,13 @@ def get_friends():
         user_data = session['user']
         user = User.from_json(user_data) 
         jsonarray = []
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_array_from_DB(user.spotify_id, "friends")
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_friends_from_DB(user.spotify_id)
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
-                bufferobject['photoUri'] = conn.get_string_from_DB(item, "icon" , DBConnector.USER_INFO_DB)
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
@@ -1516,13 +1518,13 @@ def get_requests():
         user_data = session['user']
         user = User.from_json(user_data) 
         jsonarray = []
-        with DBConnector(db_config) as conn:
-            response_data = conn.get_array_from_DB(user.spotify_id, "friend_requests")
+        with DatabaseConnector(db_config) as conn:
+            response_data = conn.get_friend_requests_from_DB(user.spotify_id)
             for item in response_data:
                 frienduser = conn.get_user_from_user_DB(item)
                 bufferobject = { }
                 bufferobject['name'] = frienduser.display_name
-                bufferobject['photoUri'] = conn.get_string_from_DB(item, "icon" , DBConnector.USER_INFO_DB)
+                bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
@@ -1748,8 +1750,8 @@ def pull_songs():
                     return "Failed to reauthenticate token", 200, {'Reason-Phrase': 'OK'}
         else:
             try:
-                with DBConnector(db_config) as conn:
-                    playlistcounter = conn.get_int_from_DB(user.spotify_id, "playlist_counter", DBConnector.USER_INFO_DB)
+                with DatabaseConnector(db_config) as conn:
+                    playlistcounter = conn.get_playlist_counter_from_base_stats_DB(user.spotify_id)
                     conn.update_playlist_counter(user.spotify_id)
                 playlistname = 'chatbot ' + str(playlistcounter)
                 playlistid = Playlist.create_playlist(user, playlistname)['id']
@@ -1838,8 +1840,8 @@ def get_next_song():
         refresh_token(user)
 
         # Get Recommendation Queue
-        with DBConnector(db_config) as conn:
-            recommendation_queue = conn.get_json_from_DB(user.spotify_id, "song_match_queue", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            recommendation_queue = conn.get_song_recommendation_queue_from_DB(user.spotify_id)
         if recommendation_queue is None:
             recommendation_queue = {}
         queue = recommendation_queue.get('tracks', [])
@@ -1856,12 +1858,12 @@ def get_next_song():
         # If Queue is Empty or it Expired, we get a New Queue with Combination of Swiping Preferences and Seed Tracks
         if is_queue_empty or is_queue_expired:
             seed_tracks = get_user_seed_tracks(user)
-            with DBConnector(db_config) as conn:
-                parameters_from_swiping = conn.get_json_from_DB(user.spotify_id, "song_match_preferences", DBConnector.USER_BASE_STATS_DB)
+            with DatabaseConnector(db_config) as conn:
+                parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
             if parameters_from_swiping is None:
                 parameters_from_swiping = initialize_swiping_perferences(user, seed_tracks)
-                with DBConnector(db_config) as conn:
-                    if (conn.update_json_in_DB(user.spotify_id, parameters_from_swiping, "song_match_preferences", DBConnector.USER_BASE_STATS_DB) == -1):
+                with DatabaseConnector(db_config) as conn:
+                    if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                         error_message = "Swiping preferences not stored!"
                         return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
             parameters_from_swiping['seed_tracks'] = seed_tracks
@@ -1870,8 +1872,8 @@ def get_next_song():
         # We get the First Song in the Queue
         first_song = queue.pop()
         song = first_song
-        with DBConnector(db_config) as conn:
-            rejected_songs = conn.get_json_from_DB(user.spotify_id, "song_match_rejected", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            rejected_songs = conn.get_rejected_songs_from_DB(user.spotify_id)
         if rejected_songs is None:
             rejected_songs = {}
         song_expiration_length = 2 # If you reject a song, in two days you can be recommended it again
@@ -1896,13 +1898,13 @@ def get_next_song():
         # Update DB Parameters
         recommendation_queue['tracks'] = queue
         recommendation_queue['timestamp'] = current_timestamp.isoformat()
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, recommendation_queue, "song_match_queue", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_song_recommendation_queue(user.spotify_id, recommendation_queue) == -1):
                 error_message = "Recommendation queue not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, rejected_songs, "song_match_rejected", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
                 error_message = "Rejected songs not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
         
@@ -1920,17 +1922,17 @@ def song_swipe_left():
         rejected_song = data.get('song')
         refresh_token(user)
 
-        with DBConnector(db_config) as conn:
-            n = conn.get_int_from_DB(user.spotify_id, "song_match_number_swiped", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            n = conn.get_number_swiped_from_user_DB(user.spotify_id)
             if n == 0:
                 n = 1
 
         n = n + 1
-        with DBConnector(db_config) as conn:
-            if (conn.conn.update_int_in_DB(user.spotify_id, n, "song_match_number_swiped", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_song_match_number_swiped(user.spotify_id, n) == -1):
                 error_message = "Number of songs swiped on not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
-            parameters_from_swiping = conn.get_json_from_DB(user.spotify_id, "song_match_preferences", DBConnector.USER_BASE_STATS_DB)
+            parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping away from Song Features
         weight = max(1 / n, 1 / 100) # One we hit 100 swipes we don't want updates to be irrelevant
@@ -1940,19 +1942,19 @@ def song_swipe_left():
                 audio_features[key] = weight * parameters_from_swiping[key] / (1 - weight)
             parameters_from_swiping[key] = (1 - weight) * parameters_from_swiping[key] + (1 - weight) * audio_features[key]
 
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, parameters_from_swiping, "song_match_preferences", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                 error_message = "Swiping preferences not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
-        with DBConnector(db_config) as conn:
-            rejected_songs = conn.get_json_from_DB(user.spotify_id, "song_match_rejected", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            rejected_songs = conn.get_rejected_songs_from_DB(user.spotify_id)
             if rejected_song is None:
                 rejected_song = {}
             rejected_songs[rejected_song.get('id', '')] = datetime.now().isoformat()
 
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, rejected_songs, "song_match_rejected", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
                 error_message = "Rejected songs not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
@@ -1972,17 +1974,17 @@ def song_swipe_right():
         swiped_song = data.get('song')
         refresh_token(user)
 
-        with DBConnector(db_config) as conn:
-            n = conn.get_int_from_DB(user.spotify_id, "song_match_number_swiped", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            n = conn.get_number_swiped_from_user_DB(user.spotify_id)
             if n == 0:
                 n = 1
 
         n = n + 1
-        with DBConnector(db_config) as conn:
-            if (conn.update_int_in_DB(user.spotify_id, n, "song_match_number_swiped", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_song_match_number_swiped(user.spotify_id, n) == -1):
                 error_message = "Number of songs swiped on not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
-            parameters_from_swiping = conn.get_json_from_DB(user.spotify_id, "song_match_preferences", DBConnector.USER_BASE_STATS_DB)
+            parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping towards Song Features
         weight = max(1 / n, 1 / 100) # One we hit 100 swipes we don't want updates to be irrelevant
@@ -1992,19 +1994,19 @@ def song_swipe_right():
                 audio_features[key] = parameters_from_swiping[key]
             parameters_from_swiping[key] = (1 - weight) * parameters_from_swiping[key] + (weight) * audio_features[key]
 
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, parameters_from_swiping, "song_match_preferences", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                 error_message = "Swiping preferences not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
-        with DBConnector(db_config) as conn:
-            swiped_songs = conn.get_json_from_DB(user.spotify_id, "song_match_swiped", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            swiped_songs = conn.get_swiped_songs_from_DB(user.spotify_id)
             if swiped_songs is None:
                 swiped_songs = []
             swiped_songs.append(swiped_song)
 
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, swiped_song, "song_match_swiped", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiped_songs(user.spotify_id, swiped_songs) == -1):
                 error_message = "Swiped songs not stored!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
@@ -2022,8 +2024,8 @@ def view_swiped_songs():
         user = User.from_json(user_data)
         refresh_token(user)
 
-        with DBConnector(db_config) as conn:
-            songs = conn.get_json_from_DB(user.spotify_id, "song_match_swiped", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            songs = conn.get_swiped_songs_from_DB(user.spotify_id)
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -2041,16 +2043,16 @@ def remove_swiped_song():
         refresh_token(user)
 
         resp = "Didn't find the song!"
-        with DBConnector(db_config) as conn:
-            songs = conn.get_json_from_DB(user.spotify_id, "song_match_swiped", DBConnector.USER_BASE_STATS_DB)
+        with DatabaseConnector(db_config) as conn:
+            songs = conn.get_swiped_songs_from_DB(user.spotify_id)
             if songs is None:
                 songs = []
         new_songs = [song for song in songs if song.get('id', '') != song_id]
         if len(new_songs) < len(songs):
             resp = "Found and removed song!"
         
-        with DBConnector(db_config) as conn:
-            if (conn.update_json_in_DB(user.spotify_id, new_songs, "song_match_swiped", DBConnector.USER_BASE_STATS_DB) == -1):
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_swiped_songs(user.spotify_id, new_songs) == -1):
                 error_message = "Songs not removed!"
                 return make_response(jsonify({'error': error_message}), 6969), 200, {'Reason-Phrase': 'OK'}
 
@@ -2081,7 +2083,7 @@ def get_next_user():
         # first_song = recommendation_queue.pop()
 
         # song = first_song
-        # rejected_songs = conn.get_json_from_DB(user.spotify_id, "song_match_rejected", DBConnector.USER_BASE_STATS_DB)
+        # rejected_songs = get_rejected_from_DB()
         # while song in rejected_songs:
             # if song is expired in our list:
                 #update_DB_rejected_songs_by_removing(song)
@@ -2112,7 +2114,7 @@ def feedback():
     data = request.get_json()
     feedback = data.get('feedback')
     send_feedback_email(data)
-    with DBConnector(db_config) as conn:
+    with DatabaseConnector(db_config) as conn:
         if (conn.update_individual_feedback(feedback) == -1):
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
@@ -2251,8 +2253,8 @@ def refresh_token(user, e=None):
 
             if not sp_oauth.is_token_expired(user.login_token):
                 #Update token
-                with DBConnector(db_config) as conn:
-                    if (conn.update_json_in_DB(user.spotify_id, user.login_token, "token", DBConnector.USER_INFO_DB) == -1):
+                with DatabaseConnector(db_config) as conn:
+                    if (conn.update_token(user.spotify_id, user.login_token) == -1):
                         raise UserNotFoundError
                 session["user"] = user.to_json()
                 print("Token successfully refreshed!")
