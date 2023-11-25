@@ -77,7 +77,7 @@ export const RadarGraph = (props) => {
           setItems={setItemsSelected}
         />
         <button
-          className="PopupCloseButton custom-draggable-cancel"
+          className="FilterButton custom-draggable-cancel"
           onClick={openPopup}
         >
           Select Data
@@ -86,7 +86,7 @@ export const RadarGraph = (props) => {
     );
   }
   return (
-    <>
+    <div className="GraphSVG">
       {props.data === undefined ? (
         <>
           <FilterPopup
@@ -156,7 +156,7 @@ export const RadarGraph = (props) => {
             : undefined
         }
       />
-    </>
+    </div>
   );
 };
 

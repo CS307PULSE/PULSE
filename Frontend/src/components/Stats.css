@@ -15,6 +15,11 @@
   cursor: pointer;
 }
 
+.GraphSVG {
+  height: 90%;
+  width: 100%;
+}
+
 .previewContainer {
   height: 40%;
   width: 20%;
@@ -32,6 +37,14 @@
   position: relative;
   top: -10px;
   right: -110px;
+  cursor: pointer;
+}
+
+.FilterButton {
+  outline: 0 0 0;
+  position: absolute;
+  top: 4.5px;
+  right: 40px;
   cursor: pointer;
 }
 

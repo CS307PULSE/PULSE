@@ -81,7 +81,7 @@ export const PieGraph = (props) => {
   try {
     console.log(data);
     return (
-      <>
+      <div className="GraphSVG">
         {selectionGraph ? (
           <>
             <FilterPopup
@@ -91,7 +91,7 @@ export const PieGraph = (props) => {
               itemsSelectable={itemsSelectable}
             />
             <button
-              className="PopupCloseButton custom-draggable-cancel"
+              className="FilterButton custom-draggable-cancel"
               onClick={openPopup}
             >
               ¥
@@ -149,7 +149,7 @@ export const PieGraph = (props) => {
               : undefined
           }
         />
-      </>
+      </div>
     );
   } catch (e) {
     console.log(e);

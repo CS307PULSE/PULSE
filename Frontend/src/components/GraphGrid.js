@@ -784,6 +784,7 @@ export default function GraphGrid() {
                   </button>
                   <Tooltip id={container.i + "-tooltip"} />
                 </div>
+
                 {container.graphType === "VertBar" ||
                 container.graphType === "HortBar" ? (
                   <BarGraph
@@ -985,7 +986,11 @@ export default function GraphGrid() {
                 setNumLayoutColumns(value);
               }
             }}
-          ></input>
+            type="number"
+            min="1"
+            max="15"
+            style={{ width: "3em" }}
+          />
         </div>
         <div>
           <button className="TypButton" onClick={openPopup}>

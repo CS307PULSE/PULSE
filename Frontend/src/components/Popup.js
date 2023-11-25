@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { line1, bar1, pie1 } from "./Graphs/Graphs.js";
+import { line1, bar1, pie1, calendar1 } from "./Graphs/Graphs.js";
 import BarGraph from "./Graphs/BarGraph";
 import LineGraph from "./Graphs/LineGraph";
 import PieGraph from "./Graphs/PieGraph";
@@ -55,6 +55,7 @@ export default function Popup({
   const [friendsAvailable, setFriendsAvailable] = useState(false);
   const [wantFriendData, setWantFriendData] = useState(false);
   const [defaultFriend, setDefaultFriend] = useState();
+  const [changedData, setChangedData] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [advancedData, setAdvancedData] = useState(false);
 
@@ -97,7 +98,7 @@ export default function Popup({
       visible: radarData,
     },
     {
-      value: "emotion",
+      value: "emotionAll",
       label: "Emotion of all music listened to",
       visible: radarData,
     },
@@ -204,6 +205,7 @@ export default function Popup({
         }
       })
     );
+    setChangedData(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     timesDataEN,
@@ -264,7 +266,14 @@ export default function Popup({
           ) : previewData.graphType === "Bump" ? (
             <BumpGraph />
           ) : previewData.graphType === "Calendar" ? (
-            <CalendarGraph />
+            <CalendarGraph
+              graphName={previewData.graphName}
+              data={calendar1}
+              dataName={"calendar1"}
+              graphTheme={previewData.graphTheme}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
           ) : previewData.graphType === "Scatter" ? (
             <ScatterGraph
               graphName={previewData.graphName}
@@ -499,13 +508,19 @@ export default function Popup({
               value={dataSelected}
               onChange={(e) => setDataSelected(e.target.value)}
             >
-              {dataOptions.map((option) =>
-                option.visible ? (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ) : null
-              )}
+              {dataOptions
+                .filter((option) => option.visible)
+                .map((item, index) => {
+                  if (changedData) {
+                    setDataSelected(item.value);
+                    setChangedData(false);
+                  }
+                  return (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  );
+                })}
             </select>
           </div>
           {specTimesDataEN ? (

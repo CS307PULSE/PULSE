@@ -97,9 +97,9 @@ export const LineGraph = (props) => {
       : {};
 
   try {
-    console.log(data);
+    //console.log(data);
     return (
-      <>
+      <div className="GraphSVG">
         {selectionGraph ? (
           <>
             <FilterPopup
@@ -109,7 +109,7 @@ export const LineGraph = (props) => {
               itemsSelectable={itemsSelectable}
             />
             <button
-              className="PopupCloseButton custom-draggable-cancel"
+              className="FilterButton custom-draggable-cancel"
               onClick={openPopup}
             >
               ¥
@@ -126,7 +126,7 @@ export const LineGraph = (props) => {
           margin={{
             top: 30,
             right: props.legendEnabled ? 110 : 50,
-            bottom: selectionGraph ? 95 : 75,
+            bottom: 75,
             left: 60,
           }}
           xScale={xScale}
@@ -234,7 +234,7 @@ export const LineGraph = (props) => {
               : undefined
           }
         />
-      </>
+      </div>
     );
   } catch (e) {
     console.error(e);

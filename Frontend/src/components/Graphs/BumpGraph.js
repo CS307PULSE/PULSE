@@ -28,8 +28,8 @@ export const BumpGraph = (props) => {
 
     try {
       let dataTemp = [];
-      props.data.map((arr, index_age) => {
-        arr.map((item, index_top) => {
+      props.data.forEach((arr, index_age) => {
+        arr.forEach((item, index_top) => {
           const index = dataTemp.findIndex((obj) => obj.id === item.name);
           if (index === -1) {
             dataTemp.push({
@@ -42,9 +42,7 @@ export const BumpGraph = (props) => {
               y: index_top,
             });
           }
-          return;
         });
-        return;
       });
       console.log(dataTemp);
       setData(dataTemp);
@@ -52,6 +50,7 @@ export const BumpGraph = (props) => {
       console.error(e);
       setData("Bad Data");
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (data === undefined) {
@@ -63,78 +62,80 @@ export const BumpGraph = (props) => {
   try {
     //console.log(data);
     return (
-      <ResponsiveBump
-        theme={graphThemes}
-        data={data}
-        colors={{ scheme: props.graphTheme }}
-        margin={{
-          top: 30,
-          right: props.legendEnabled ? 110 : 50,
-          bottom: 75,
-          left: 60,
-        }}
-        lineWidth={3}
-        activeLineWidth={6}
-        inactiveLineWidth={3}
-        inactiveOpacity={0.15}
-        pointSize={10}
-        activePointSize={16}
-        inactivePointSize={0}
-        pointColor={{ theme: "background" }}
-        pointBorderWidth={3}
-        activePointBorderWidth={3}
-        pointBorderColor={{ from: "serie.color" }}
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-          orient: "bottom",
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: props.hortAxisTitle,
-          legendOffset: 36,
-          legendPosition: "middle",
-        }}
-        axisLeft={{
-          orient: "left",
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: props.vertAxisTitle,
-          legendOffset: -40,
-          legendPosition: "middle",
-        }}
-        legends={
-          props.legendEnabled
-            ? [
-                {
-                  anchor: "bottom-right",
-                  direction: "column",
-                  justify: false,
-                  translateX: 100,
-                  translateY: 0,
-                  itemsSpacing: 0,
-                  itemDirection: "left-to-right",
-                  itemWidth: 80,
-                  itemHeight: 20,
-                  itemOpacity: 0.75,
-                  symbolSize: 12,
-                  symbolShape: "circle",
-                  symbolBorderColor: "rgba(0, 0, 0, .5)",
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemBackground: "rgba(0, 0, 0, .03)",
-                        itemOpacity: 1,
+      <div className="GraphSVG">
+        <ResponsiveBump
+          theme={graphThemes}
+          data={data}
+          colors={{ scheme: props.graphTheme }}
+          margin={{
+            top: 30,
+            right: props.legendEnabled ? 110 : 50,
+            bottom: 75,
+            left: 60,
+          }}
+          lineWidth={3}
+          activeLineWidth={6}
+          inactiveLineWidth={3}
+          inactiveOpacity={0.15}
+          pointSize={10}
+          activePointSize={16}
+          inactivePointSize={0}
+          pointColor={{ theme: "background" }}
+          pointBorderWidth={3}
+          activePointBorderWidth={3}
+          pointBorderColor={{ from: "serie.color" }}
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            orient: "bottom",
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: props.hortAxisTitle,
+            legendOffset: 36,
+            legendPosition: "middle",
+          }}
+          axisLeft={{
+            orient: "left",
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: props.vertAxisTitle,
+            legendOffset: -40,
+            legendPosition: "middle",
+          }}
+          legends={
+            props.legendEnabled
+              ? [
+                  {
+                    anchor: "bottom-right",
+                    direction: "column",
+                    justify: false,
+                    translateX: 100,
+                    translateY: 0,
+                    itemsSpacing: 0,
+                    itemDirection: "left-to-right",
+                    itemWidth: 80,
+                    itemHeight: 20,
+                    itemOpacity: 0.75,
+                    symbolSize: 12,
+                    symbolShape: "circle",
+                    symbolBorderColor: "rgba(0, 0, 0, .5)",
+                    effects: [
+                      {
+                        on: "hover",
+                        style: {
+                          itemBackground: "rgba(0, 0, 0, .03)",
+                          itemOpacity: 1,
+                        },
                       },
-                    },
-                  ],
-                },
-              ]
-            : undefined
-        }
-      />
+                    ],
+                  },
+                ]
+              : undefined
+          }
+        />
+      </div>
     );
   } catch (e) {
     console.error(e);

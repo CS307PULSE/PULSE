@@ -98,7 +98,7 @@ export const RadialBarGraph = (props) => {
   try {
     //console.log(data);
     return (
-      <>
+      <div className="GraphSVG">
         {selectionGraph ? (
           <>
             <FilterPopup
@@ -108,7 +108,7 @@ export const RadialBarGraph = (props) => {
               itemsSelectable={itemsSelectable}
             />
             <button
-              className="PopupCloseButton custom-draggable-cancel"
+              className="FilterButton custom-draggable-cancel"
               onClick={openPopup}
             >
               Filter
@@ -225,7 +225,7 @@ export const RadialBarGraph = (props) => {
               : undefined
           }
         />
-      </>
+      </div>
     );
   } catch (e) {
     console.error(e);

@@ -9,41 +9,55 @@ Functions needed
 */
 
 export function formatFollowerData(props) {
-  if (props.bothFriendAndOwnData) {
-    let tempData = {
-      id: "User Followers",
-      data: Object.keys(props.data[0]).map((key) => ({
-        x: key,
-        y: props.data[key],
-      })),
-    };
-    let tempData2 = {
-      id: props.friendName + " Followers",
-      data: Object.keys(props.data[1]).map((key) => ({
-        x: key,
-        y: props.data[key],
-      })),
-    };
-    return [tempData, tempData2];
-  } else if (props.friendName !== undefined) {
-    let tempData = {
-      id: props.friendName + " Followers",
-      data: Object.keys(props.data).map((key) => ({
-        x: key,
-        y: props.data[key],
-      })),
-    };
-    return [tempData];
-  } else {
-    let tempData = {
-      id: "User Followers",
-      data: Object.keys(props.data).map((key) => ({
-        x: key,
-        y: props.data[key],
-      })),
-    };
-    return [tempData];
+  const dataSource = props.bothFriendAndOwnData ? props.data : [props.data];
+  if (props.graphType === "Calendar") {
+    const dataArr = Object.keys(props.data).map((key) => ({
+      value: props.data[key],
+      day: key,
+    }));
+    let tempData = [];
+
+    for (const dataPoint of dataArr) {
+      const dayToFind = dataPoint.day.split(" ")[0];
+      const index = tempData.findIndex((obj) => obj.day === dayToFind);
+      //already exists data
+      if (index === -1) {
+        tempData.push({ value: dataPoint.value, day: dayToFind });
+      } else {
+        if (tempData[index].value < dataPoint.value) {
+          tempData[index].value = dataPoint.value;
+        }
+      }
+    }
+    tempData.sort((a, b) => {
+      // Assuming the "day" values are in the format "YYYY-MM-DD"
+      return new Date(a.day) - new Date(b.day);
+    });
+    return tempData;
   }
+  return dataSource.map((userData, index) => {
+    let id;
+    if (dataSource.length() > 1) {
+      if (index === 0) {
+        id = "User Followers";
+      } else {
+        id = props.friendName + " Followers";
+      }
+    } else {
+      id =
+        props.friendName !== undefined
+          ? props.friendName + " Followers"
+          : "User Followers";
+    }
+    let tempData = {
+      id: id,
+      data: Object.keys(userData).map((key) => ({
+        x: key,
+        y: userData[key],
+      })),
+    };
+    return tempData;
+  });
 }
 
 export function setupAdvancedData(props) {

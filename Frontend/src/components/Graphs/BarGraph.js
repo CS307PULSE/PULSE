@@ -79,7 +79,7 @@ export const BarGraph = (props) => {
   console.log(data);
 
   return (
-    <>
+    <div className="GraphSVG">
       {selectionGraph ? (
         <>
           <FilterPopup
@@ -89,7 +89,7 @@ export const BarGraph = (props) => {
             itemsSelectable={itemsSelectable}
           />
           <button
-            className="PopupCloseButton custom-draggable-cancel"
+            className="FilterButton custom-draggable-cancel"
             onClick={openPopup}
           >
             ¥
@@ -107,7 +107,7 @@ export const BarGraph = (props) => {
         margin={{
           top: 30,
           right: props.legendEnabled ? 110 : 50,
-          bottom: selectionGraph ? 95 : 75,
+          bottom: 75,
           left: 60,
         }}
         padding={0.4}
@@ -165,7 +165,7 @@ export const BarGraph = (props) => {
             : undefined
         }
       />
-    </>
+    </div>
   );
 };
 
