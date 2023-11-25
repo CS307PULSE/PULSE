@@ -469,7 +469,13 @@ export default function Popup({
     <div className="PopupOverlay row">
       <div className="PopupContent column">
         Add Graph
-        <button className="PopupCloseButton" onClick={onClose}>
+        <button
+          className="PopupCloseButton"
+          onClick={() => {
+            onClose();
+            setPreviewData(undefined);
+          }}
+        >
           X
         </button>
         <form onSubmit={handleSubmit}>
