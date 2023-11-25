@@ -508,140 +508,182 @@ export default function Popup({
               )}
             </select>
           </div>
-          <div>
-            Type of Data:{" "}
-            <select name="dataVariation" disabled={!specTimesDataEN}>
-              <option value="Tracks">Songs</option>
-              <option value="Artists">Artists</option>
-              <option value="Genres">Genres</option>
-              <option value="Eras">Eras</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-          <div>
-            Time:{" "}
-            <select name="timeRange" disabled={!timesField}>
-              <option value="all">All Time</option>
-              <option value="year" disabled={!timesDataEN}>
-                Yearly
-              </option>
-              <option value="month" disabled={!timesDataEN}>
-                Monthly
-              </option>
-              <option value="6month" disabled={!imageGraph}>
-                6 Months
-              </option>
-              <option value="4week" disabled={!imageGraph}>
-                4 Weeks
-              </option>
-            </select>
-          </div>
-          <div>
-            Theme:{" "}
-            <select name="graphTheme" disabled={disabledThemes}>
-              <option value="nivo">Default</option>
-              <option value="category10">Category10</option>
-              <option value="accent">Accent</option>
-              <option value="dark2">Dark</option>
-              <option value="paired">Paired</option>
-              <option value="pastel1">Pastel #1</option>
-              <option value="pastel2">Pastel #2</option>
-              <option value="set1">Set #1</option>
-              <option value="set2">Set #2</option>
-              <option value="set3">Set #3</option>
-              <option value="blues">Blues</option>
-              <option value="greens">Greens</option>
-              <option value="greys">Greys</option>
-              <option value="oranges">Oranges</option>
-              <option value="purples">Purples</option>
-              <option value="reds">Reds</option>
-              <option value="greys">Greys</option>
-              <option value="brown_blueGreen">Brown to Blue-Green</option>
-              <option value="purpleRed_green">Purple to Green</option>
-              <option value="pink_yellowGreen">Pink to Green</option>
-              <option value="purple_orange">Purple to Orange</option>
-              <option value="red_blue">Red to Blue</option>
-              <option value="red_grey">Red to Grey</option>
-              <option value="red_yellow_blue">Red to Yellow to Blue</option>
-              <option value="red_yellow_green">Red to Yellow to Green</option>
-              <option value="spectral">Full spectrum</option>
-            </select>
-          </div>
-          <div>
-            Horizontal Axis Title:
-            <input
-              name="hortAxisTitle"
-              type="input"
-              rows={1}
-              cols={20}
-              className="nameField"
-              value={hortAxisTitle}
-              onChange={changeHortAxisTitle}
-              placeholder="Horizontal Axis Name"
-              disabled={!axisTitlesEN}
-            />
-          </div>
-          <div>
-            Vertical Axis Title:
-            <input
-              name="vertAxisTitle"
-              type="input"
-              rows={1}
-              cols={20}
-              className="nameField"
-              value={vertAxisTitle}
-              onChange={changeVertAxisTitle}
-              placeholder="Vertical Axis Name"
-              disabled={!axisTitlesEN}
-            />
-          </div>
-          <div>
-            Legend Enabled:
-            <input name="legendEnabled" type="checkbox" disabled={!legendEN} />
-          </div>
-          <div>
-            Display Friend's Data? :
-            <input
-              name="friendDataOn"
-              type="checkbox"
-              checked={wantFriendData}
-              onChange={(e) => {
-                setWantFriendData(e.target.checked);
-              }}
-              disabled={!friendsAvailable}
-            />
-          </div>
-          <div>
-            Which friend?:
-            <select
-              name="friendID"
-              defaultValue={defaultFriend}
-              disabled={!wantFriendData}
-            >
-              {friendsAvailable
-                ? friends.map((friend) => (
-                    <option key={friend.spotify_id} value={friend.spotify_id}>
-                      {friend.name}
-                    </option>
-                  ))
-                : null}
-            </select>
-          </div>
-          <div>
-            Display both own data and friend's data? :
-            <input
-              name="bothFriendAndOwnData"
-              type="checkbox"
-              disabled={!multiDataEN || !wantFriendData}
-            />
-          </div>
-          <div>
-            Link Click Action:{" "}
-            <select name="clickAction" disabled={!imageGraph}>
-              <option value="playMusic">Play Music</option>
-              <option value="spotifyPage">Link to Spotify Page</option>
-            </select>
-          </div>
+          {specTimesDataEN ? (
+            <div>
+              Type of Data:{" "}
+              <select name="dataVariation" disabled={!specTimesDataEN}>
+                <option value="Tracks">Songs</option>
+                <option value="Artists">Artists</option>
+                <option value="Genres">Genres</option>
+                <option value="Eras">Eras</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          ) : (
+            <></>
+          )}
+          {timesField ? (
+            <div>
+              Time:{" "}
+              <select name="timeRange" disabled={!timesField}>
+                <option value="all">All Time</option>
+                <option value="year" disabled={!timesDataEN}>
+                  Yearly
+                </option>
+                <option value="month" disabled={!timesDataEN}>
+                  Monthly
+                </option>
+                <option value="6month" disabled={!imageGraph}>
+                  6 Months
+                </option>
+                <option value="4week" disabled={!imageGraph}>
+                  4 Weeks
+                </option>
+              </select>
+            </div>
+          ) : (
+            <></>
+          )}
+          {!disabledThemes ? (
+            <div>
+              Theme:{" "}
+              <select name="graphTheme" disabled={disabledThemes}>
+                <option value="nivo">Default</option>
+                <option value="category10">Category10</option>
+                <option value="accent">Accent</option>
+                <option value="dark2">Dark</option>
+                <option value="paired">Paired</option>
+                <option value="pastel1">Pastel #1</option>
+                <option value="pastel2">Pastel #2</option>
+                <option value="set1">Set #1</option>
+                <option value="set2">Set #2</option>
+                <option value="set3">Set #3</option>
+                <option value="blues">Blues</option>
+                <option value="greens">Greens</option>
+                <option value="greys">Greys</option>
+                <option value="oranges">Oranges</option>
+                <option value="purples">Purples</option>
+                <option value="reds">Reds</option>
+                <option value="greys">Greys</option>
+                <option value="brown_blueGreen">Brown to Blue-Green</option>
+                <option value="purpleRed_green">Purple to Green</option>
+                <option value="pink_yellowGreen">Pink to Green</option>
+                <option value="purple_orange">Purple to Orange</option>
+                <option value="red_blue">Red to Blue</option>
+                <option value="red_grey">Red to Grey</option>
+                <option value="red_yellow_blue">Red to Yellow to Blue</option>
+                <option value="red_yellow_green">Red to Yellow to Green</option>
+                <option value="spectral">Full spectrum</option>
+              </select>
+            </div>
+          ) : (
+            <></>
+          )}
+          {axisTitlesEN ? (
+            <>
+              <div>
+                Horizontal Axis Title:
+                <input
+                  name="hortAxisTitle"
+                  type="input"
+                  rows={1}
+                  cols={20}
+                  className="nameField"
+                  value={hortAxisTitle}
+                  onChange={changeHortAxisTitle}
+                  placeholder="Horizontal Axis Name"
+                  disabled={!axisTitlesEN}
+                />
+              </div>
+              <div>
+                Vertical Axis Title:
+                <input
+                  name="vertAxisTitle"
+                  type="input"
+                  rows={1}
+                  cols={20}
+                  className="nameField"
+                  value={vertAxisTitle}
+                  onChange={changeVertAxisTitle}
+                  placeholder="Vertical Axis Name"
+                  disabled={!axisTitlesEN}
+                />
+              </div>
+            </>
+          ) : (
+            <></>
+          )}
+          {legendEN ? (
+            <div>
+              Legend Enabled:
+              <input
+                name="legendEnabled"
+                type="checkbox"
+                disabled={!legendEN}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
+          {friendsAvailable ? (
+            <div>
+              Display Friend's Data? :
+              <input
+                name="friendDataOn"
+                type="checkbox"
+                checked={wantFriendData}
+                onChange={(e) => {
+                  setWantFriendData(e.target.checked);
+                }}
+                disabled={!friendsAvailable}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
+          {wantFriendData ? (
+            <div>
+              Which friend?:
+              <select
+                name="friendID"
+                defaultValue={defaultFriend}
+                disabled={!wantFriendData}
+              >
+                {friendsAvailable
+                  ? friends.map((friend) => (
+                      <option key={friend.spotify_id} value={friend.spotify_id}>
+                        {friend.name}
+                      </option>
+                    ))
+                  : null}
+              </select>
+            </div>
+          ) : (
+            <></>
+          )}
+          {multiDataEN && wantFriendData ? (
+            <div>
+              Display both own data and friend's data? :
+              <input
+                name="bothFriendAndOwnData"
+                type="checkbox"
+                disabled={!multiDataEN || !wantFriendData}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
+          {imageGraph ? (
+            <div>
+              Link Click Action:{" "}
+              <select name="clickAction" disabled={!imageGraph}>
+                <option value="playMusic">Play Music</option>
+                <option value="spotifyPage">Link to Spotify Page</option>
+              </select>
+            </div>
+          ) : (
+            <></>
+          )}
           <div>
             Preview Graph? :
             <input name="preview" type="checkbox" />
