@@ -317,70 +317,40 @@ function formatSelectionGraphData(props, params) {
 }
 
 function formatAllTimeGraphData(props, params) {
-  let data;
-  if (props.bothFriendAndOwnData) {
-    const itemName = [props.friendName, "User"];
-    let tempDataArr = props.data.map((user, index) => {
-      let tempUserData = [];
-      //Overall data
-      tempUserData.push({
-        x: "Overall",
-        y: props.data[index][params.readVal],
-      });
-
-      //Yearly & monthly
-      for (const year of Object.keys(props.data[index].Yearly)) {
-        tempUserData.push({
-          x: year,
-          y: props.data[index].Yearly[year][params.readVal],
-        });
-
-        //Monthly data
-        for (const month of Object.keys(
-          props.data[index].Yearly[year].Monthly
-        )) {
-          tempUserData.push({
-            x: month + " " + year,
-            y: props.data[index].Yearly[year].Monthly[month][params.readVal],
-          });
-        }
-      }
-      tempUserData.sort((a, b) => {
-        return params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x);
-      });
-      return tempUserData;
-    });
-    data = [
-      { id: itemName[0], data: tempDataArr[0] },
-      { id: itemName[1], data: tempDataArr[1] },
-    ];
-  } else {
-    let tempDataArr = [];
+  const newData = props.bothFriendAndOwnData ? props.data : [props.data];
+  const itemName = ["User", props.friendName];
+  let tempDataArr = newData.map((userData, index) => {
+    let tempUserData = [];
     //Overall data
-    const itemName = props.friendName !== undefined ? props.friendName : "User";
-    tempDataArr.push({ x: "Overall", y: props.data[params.readVal] });
+    tempUserData.push({
+      x: "Overall",
+      y: userData[params.readVal],
+    });
 
     //Yearly & monthly
-    for (const year of Object.keys(props.data.Yearly)) {
-      tempDataArr.push({
+    for (const year of Object.keys(userData.Yearly)) {
+      tempUserData.push({
         x: year,
-        y: props.data.Yearly[year][params.readVal],
+        y: userData.Yearly[year][params.readVal],
       });
 
       //Monthly data
-      for (const month of Object.keys(props.data.Yearly[year].Monthly)) {
-        tempDataArr.push({
+      for (const month of Object.keys(userData.Yearly[year].Monthly)) {
+        tempUserData.push({
           x: month + " " + year,
-          y: props.data.Yearly[year].Monthly[month][params.readVal],
+          y: userData.Yearly[year].Monthly[month][params.readVal],
         });
       }
     }
-    tempDataArr.sort((a, b) => {
+    tempUserData.sort((a, b) => {
       return params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x);
     });
-    data = [{ id: itemName, data: tempDataArr }];
-  }
-  return data;
+    return tempUserData;
+  });
+
+  return tempDataArr.map((userData, index) => {
+    return { id: itemName[index], data: userData };
+  });
 }
 
 function formatPercentTimePeriod(
