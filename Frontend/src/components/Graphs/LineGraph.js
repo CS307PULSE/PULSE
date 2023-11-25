@@ -118,6 +118,7 @@ export const LineGraph = (props) => {
         ) : (
           <></>
         )}
+
         <ResponsiveLine
           theme={graphThemes}
           data={data}

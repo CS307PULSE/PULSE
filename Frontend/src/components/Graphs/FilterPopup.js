@@ -62,6 +62,14 @@ export default function FilterPopup({
     }
   }
 
+  function selectXindexes(start, end) {
+    let selected = [];
+    for (let i = start; i < end; i++) {
+      selected.push(itemsSelectable[i].uri);
+    }
+    setItemsSelected(selected);
+  }
+
   if (!isOpen) return null; //Don't do anything when not open
 
   return (
@@ -108,6 +116,25 @@ export default function FilterPopup({
                 })}
               </select>
             )}
+          </div>
+          <div>
+            <p>Automatic Selection</p>
+            <button
+              className="PopupCloseButton"
+              onClick={() => {
+                selectXindexes(0, 10);
+              }}
+            >
+              Top 10
+            </button>
+            <button
+              className="PopupCloseButton"
+              onClick={() => {
+                selectXindexes(0, 50);
+              }}
+            >
+              Top 50
+            </button>
           </div>
           <div>
             <button className="TypButton" type="submit">

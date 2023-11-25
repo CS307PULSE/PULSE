@@ -11,13 +11,13 @@ import CalendarGraph from "./Graphs/CalendarGraph";
 import ScatterGraph from "./Graphs/ScatterGraph";
 import RadialBarGraph from "./Graphs/RadialBarGraph";
 import RadarGraph from "./Graphs/RadarGraph.js";
+import TextGraph from "./Graphs/TextGraph.js";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
 import tempBasicData from "./TempData/BasicStats.js";
 import tempAdvancedData from "./TempData/AdvancedStats";
 import defaultLayout from "./TempData/defaultLayout";
-import TextGraph from "./Graphs/TextGraph.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

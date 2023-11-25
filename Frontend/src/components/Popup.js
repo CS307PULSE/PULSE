@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { line1, bar1, pie1 } from "./Graphs/Graphs.js";
+import BarGraph from "./Graphs/BarGraph";
+import LineGraph from "./Graphs/LineGraph";
+import PieGraph from "./Graphs/PieGraph";
+import BumpGraph from "./Graphs/BumpGraph";
+import ImageGraph from "./Graphs/ImageGraph";
+import CalendarGraph from "./Graphs/CalendarGraph";
+import ScatterGraph from "./Graphs/ScatterGraph";
+import RadialBarGraph from "./Graphs/RadialBarGraph";
+import RadarGraph from "./Graphs/RadarGraph.js";
+import TextGraph from "./Graphs/TextGraph.js";
 
 async function fetchFriends() {
   const response = await axios.get("/friends/get_friends", {
@@ -24,6 +35,7 @@ export default function Popup({
   const [vertAxisTitle, setVertAxisTitle] = useState("");
   const [graphType, setGraph] = useState("ImageGraph");
   const [validName, setValidName] = useState(false);
+  const [previewData, setPreviewData] = useState(undefined);
 
   //Use states to selectively disable choices depending on data type
   const [imageGraph, setImageGraph] = useState(true);
@@ -206,6 +218,89 @@ export default function Popup({
 
   if (!isOpen) return null; //Don't do anything when not open
 
+  const displayPreview = () => {
+    if (previewData !== undefined) {
+      return (
+        <div className="PopupContent column previewContainer">
+          <p className="previewHeader">Preview Graph</p>
+          {previewData.graphType === "VertBar" ||
+          previewData.graphType === "HortBar" ? (
+            <BarGraph
+              graphName={previewData.graphName}
+              data={bar1}
+              dataName={"bar1"}
+              graphKeys={["degrees"]}
+              graphIndexBy={"day"}
+              graphTheme={previewData.graphTheme}
+              hortAxisTitle={previewData.hortAxisTitle}
+              vertAxisTitle={previewData.vertAxisTitle}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
+          ) : previewData.graphType === "Line" ? (
+            <LineGraph
+              graphName={previewData.graphName}
+              data={line1}
+              dataName={"line1"}
+              graphTheme={previewData.graphTheme}
+              hortAxisTitle={previewData.hortAxisTitle}
+              vertAxisTitle={previewData.vertAxisTitle}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
+          ) : previewData.graphType === "Pie" ? (
+            <PieGraph
+              graphName={previewData.graphName}
+              data={pie1}
+              dataName={"pie1"}
+              graphTheme={previewData.graphTheme}
+              hortAxisTitle={previewData.hortAxisTitle}
+              vertAxisTitle={previewData.vertAxisTitle}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
+          ) : previewData.graphType === "ImageGraph" ? (
+            <ImageGraph />
+          ) : previewData.graphType === "Bump" ? (
+            <BumpGraph />
+          ) : previewData.graphType === "Calendar" ? (
+            <CalendarGraph />
+          ) : previewData.graphType === "Scatter" ? (
+            <ScatterGraph
+              graphName={previewData.graphName}
+              data={line1}
+              dataName={"line1"}
+              graphTheme={previewData.graphTheme}
+              hortAxisTitle={previewData.hortAxisTitle}
+              vertAxisTitle={previewData.vertAxisTitle}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
+          ) : previewData.graphType === "RadBar" ? (
+            <RadialBarGraph
+              graphName={previewData.graphName}
+              data={line1}
+              dataName={"line1"}
+              graphTheme={previewData.graphTheme}
+              hortAxisTitle={previewData.hortAxisTitle}
+              vertAxisTitle={previewData.vertAxisTitle}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
+          ) : previewData.graphType === "Radar" ? (
+            <RadarGraph />
+          ) : previewData.graphType === "Text" ? (
+            <TextGraph />
+          ) : (
+            <p> Invalid Graph Type</p>
+          )}
+        </div>
+      );
+    } else {
+      return <></>;
+    }
+  };
+
   //Functions to change data vars from input fields
   const changeGraphName = (e) => {
     //Replace special characters w/ null
@@ -304,9 +399,6 @@ export default function Popup({
     // Prevent the browser from reloading the page
     e.preventDefault();
 
-    //Reset name to avoid issues
-    setGraphName("");
-
     // Read the form data
     const form = e.target;
     const formData = new FormData(form);
@@ -324,6 +416,16 @@ export default function Popup({
       }
     }
 
+    if (formJson.preview) {
+      console.log("This is graph preview:");
+      console.log(formJson);
+      setPreviewData(formJson);
+      return; //End early
+    }
+
+    //Reset name to avoid issues
+    setGraphName("");
+
     //Set dataVariation to song if below data
     if (formJson.data === "numTimesSkipped") {
       formJson.dataVariation = "Tracks";
@@ -340,6 +442,7 @@ export default function Popup({
       console.log("This is graph:");
       console.log(formJson);
       addGraph(formJson);
+      setPreviewData(undefined);
     } else {
       alert("Invalid graph name! Enter a better name!");
     }
@@ -354,8 +457,8 @@ export default function Popup({
   }
 
   return (
-    <div className="PopupOverlay">
-      <div className="PopupContent">
+    <div className="PopupOverlay row">
+      <div className="PopupContent column">
         Add Graph
         <button className="PopupCloseButton" onClick={onClose}>
           X
@@ -540,12 +643,17 @@ export default function Popup({
             </select>
           </div>
           <div>
+            Preview Graph? :
+            <input name="preview" type="checkbox" />
+          </div>
+          <div>
             <button className="TypButton" type="submit">
               Generate Graph
             </button>
           </div>
         </form>
       </div>
+      {previewData !== undefined ? displayPreview() : <></>}
     </div>
   );
 }
