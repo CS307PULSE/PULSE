@@ -24,7 +24,6 @@ import SongRecommendations from "./components/SongRecommendation";
 import ParameterRecommendations from "./components/ParameterRecommendation";
 import HeadsUp from "./components/HeadsUp";
 import MatchIt from "./components/MatchIt";
-
 import {
   Navigate,
   BrowserRouter as Router,
@@ -33,7 +32,7 @@ import {
 } from "react-router-dom";
 import ChatBot from "./components/ChatBot";
 
-
+axios.defaults.baseURL = process.env.REACT_APP_BE_URL;
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
