@@ -19,6 +19,7 @@ import ScatterGraph from "./Graphs/ScatterGraph";
 import RadialBarGraph from "./Graphs/RadialBarGraph";
 import RadarGraph from "./Graphs/RadarGraph.js";
 import TextGraph from "./Graphs/TextGraph.js";
+import { tempBasicData } from "./TempData/BasicStats.js";
 
 async function fetchFriends() {
   const response = await axios.get("/friends/get_friends", {
@@ -232,7 +233,7 @@ export default function Popup({
     if (previewData !== undefined) {
       return (
         <div className="PopupContent column previewContainer">
-          <p className="previewHeader">Preview Graph</p>
+          <p className="previewHeader">Preview Graph (sample data used)</p>
           {previewData.graphType === "VertBar" ||
           previewData.graphType === "HortBar" ? (
             <BarGraph
@@ -270,7 +271,13 @@ export default function Popup({
               graphType={previewData.graphType}
             />
           ) : previewData.graphType === "ImageGraph" ? (
-            <ImageGraph />
+            <ImageGraph
+              graphName={previewData.graphName}
+              data={tempBasicData.top_songs[2]}
+              dataName={"top_song"}
+              dataVariation={previewData.dataVariation}
+              clickAction={previewData.clickAction}
+            />
           ) : previewData.graphType === "Bump" ? (
             <BumpGraph
               graphName={previewData.graphName}
@@ -324,7 +331,13 @@ export default function Popup({
               graphType={previewData.graphType}
             />
           ) : previewData.graphType === "Text" ? (
-            <TextGraph />
+            <TextGraph
+              graphName={previewData.graphName}
+              data={tempBasicData.top_songs[2]}
+              dataName={"top_song"}
+              dataVariation={previewData.dataVariation}
+              clickAction={previewData.clickAction}
+            />
           ) : (
             <p> Invalid Graph Type</p>
           )}

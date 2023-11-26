@@ -1,4 +1,4 @@
-const tempBasicData = {
+export const tempBasicData = {
   followed_artists: [
     {
       external_urls: {
@@ -11383,3 +11383,5 @@ const tempBasicData = {
     ],
   ],
 };
+
+export default tempBasicData;
