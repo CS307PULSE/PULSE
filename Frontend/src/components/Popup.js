@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { line1, bar1, pie1, calendar1, bump1 } from "./Graphs/Graphs.js";
+import {
+  line1,
+  bar1,
+  pie1,
+  calendar1,
+  bump1,
+  radar1Data,
+  radar1Keys,
+} from "./Graphs/Graphs.js";
 import BarGraph from "./Graphs/BarGraph";
 import LineGraph from "./Graphs/LineGraph";
 import PieGraph from "./Graphs/PieGraph";
@@ -306,7 +314,15 @@ export default function Popup({
               graphType={previewData.graphType}
             />
           ) : previewData.graphType === "Radar" ? (
-            <RadarGraph />
+            <RadarGraph
+              graphName={previewData.graphName}
+              data={radar1Data}
+              keys={radar1Keys}
+              dataName={"radar1"}
+              graphTheme={previewData.graphTheme}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
           ) : previewData.graphType === "Text" ? (
             <TextGraph />
           ) : (

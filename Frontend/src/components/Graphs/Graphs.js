@@ -4671,6 +4671,35 @@ export const bump1 = [
     ],
   },
 ];
+export const radar1Data = [
+  {
+    emotion: "Angry",
+    "SOS (feat. Aloe Blacc)": 54.14,
+    "Hey Brother": 7.92,
+    "Levels - Radio Edit": 98.67,
+    "Lonely Together (feat. Rita Ora)": 3.48,
+  },
+  {
+    emotion: "Happy",
+    "SOS (feat. Aloe Blacc)": 91.95,
+    "Hey Brother": 9.24,
+    "Levels - Radio Edit": 13.07,
+    "Lonely Together (feat. Rita Ora)": 3.97,
+  },
+  {
+    emotion: "Sad",
+    "SOS (feat. Aloe Blacc)": 61.38,
+    "Hey Brother": 24.99,
+    "Levels - Radio Edit": 8.19,
+    "Lonely Together (feat. Rita Ora)": 78.26,
+  },
+];
+export const radar1Keys = [
+  "SOS (feat. Aloe Blacc)",
+  "Hey Brother",
+  "Levels - Radio Edit",
+  "Lonely Together (feat. Rita Ora)",
+];
 
 //Returns name from dataName
 export const nameFromDataName = (name) => {

@@ -32,6 +32,7 @@ export const RadarGraph = (props) => {
   const [keys, setKeys] = useState([]);
   const [itemsSelectable, setItemsSelectable] = useState(undefined);
   const [itemsSelected, setItemsSelected] = useState([]);
+  const [selectionGraph, setSelectionGraph] = useState(false);
 
   async function getEmotions() {
     let tempKeys = [];
@@ -71,9 +72,11 @@ export const RadarGraph = (props) => {
   useEffect(() => {
     try {
       if (props.dataName === "emotionData") {
+        setSelectionGraph(true);
         setItemsSelectable(props.data[2]);
       } else {
-        //Sample data
+        setSelectionGraph(false);
+        setKeys(props.keys);
         setData(props.data);
       }
     } catch (e) {
@@ -90,6 +93,7 @@ export const RadarGraph = (props) => {
       return;
     }
     if (props.dataName === "emotion") {
+      setSelectionGraph(true);
       setKeys([itemsSelected[0].name]);
       getEmotion(itemsSelected[0].id, itemsSelected[0].popularity).then(
         (emotions) => {
@@ -111,13 +115,14 @@ export const RadarGraph = (props) => {
         }
       );
     } else if (props.dataName === "emotionData") {
+      setSelectionGraph(true);
       getEmotions();
     }
     props.selectData(itemsSelected, props.graphName);
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsSelected]);
 
-  if (data === undefined) {
+  if (data === undefined || keys.length === 0) {
     return (
       <div>
         <div>
@@ -143,20 +148,24 @@ export const RadarGraph = (props) => {
 
   return (
     <div className="GraphSVG">
-      <FilterPopup
-        isOpen={isPopupOpen}
-        onClose={closePopup}
-        setItems={setItemsSelected}
-        itemsSelectable={itemsSelectable}
-        maxSelection={25}
-        emotionData={props.dataName === "emotionData"}
-      />
-      <button
-        className="FilterButton custom-draggable-cancel"
-        onClick={openPopup}
-      >
-        ¥
-      </button>
+      {selectionGraph ? (
+        <>
+          <FilterPopup
+            isOpen={isPopupOpen}
+            onClose={closePopup}
+            setItems={setItemsSelected}
+            itemsSelectable={itemsSelectable}
+            maxSelection={25}
+            emotionData={props.dataName === "emotionData"}
+          />
+          <button
+            className="FilterButton custom-draggable-cancel"
+            onClick={openPopup}
+          >
+            ¥
+          </button>
+        </>
+      ) : null}
       <ResponsiveRadar
         theme={graphThemes}
         data={data}
