@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-async function sendSearchAndReturn(sendSerach) {
+async function sendSearchAndReturn(sendSearch) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
   const response = await axiosInstance.post(
     "http://127.0.0.1:5000/search_bar",
-    { query: sendSerach }
+    { query: sendSearch }
   );
   const data = response.data;
   console.log("Got");
   console.log(response);
+  console.log(sendSearch);
   return data;
 }
 
@@ -20,6 +21,8 @@ export default function FilterPopup({
   onClose,
   itemsSelectable,
   setItems,
+  maxSelection = 100,
+  emotionData = false,
 }) {
   const [itemsSelected, setItemsSelected] = useState([]);
   function handleSubmit(e) {
@@ -30,6 +33,7 @@ export default function FilterPopup({
     const form = e.target;
     const formData = new FormData(form);
     const formJson = {};
+    let counter = 0;
     //Converts to JSON object
     for (let [name, value] of formData) {
       //If item exists already - then add to array
@@ -40,6 +44,17 @@ export default function FilterPopup({
         formJson[name].push(value);
       } else {
         formJson[name] = [value];
+      }
+      counter++;
+      if (counter >= maxSelection) {
+        alert(
+          "More than " +
+            maxSelection +
+            " values were selected - only the first " +
+            maxSelection +
+            " were used!"
+        );
+        break;
       }
     }
 
@@ -65,7 +80,12 @@ export default function FilterPopup({
   function selectXindexes(start, end) {
     let selected = [];
     for (let i = start; i < end; i++) {
-      selected.push(itemsSelectable[i].uri);
+      if (i >= itemsSelectable.length) {
+        break;
+      }
+      selected.push(
+        emotionData ? itemsSelectable[i].uri + "," + i : itemsSelectable[i].uri
+      );
     }
     setItemsSelected(selected);
   }
@@ -103,12 +123,14 @@ export default function FilterPopup({
                 multiple={true}
                 required={true}
               >
-                {itemsSelectable.map((item) => {
+                {itemsSelectable.map((item, index) => {
                   return (
                     <option
-                      key={item.uri}
-                      value={item.uri}
-                      selected={itemsSelected.includes(item.uri)}
+                      key={emotionData ? item.uri + "," + index : item.uri}
+                      value={emotionData ? item.uri + "," + index : item.uri}
+                      selected={itemsSelected.includes(
+                        emotionData ? item.uri + "," + index : item.uri
+                      )}
                     >
                       {item.name}
                     </option>
@@ -117,25 +139,27 @@ export default function FilterPopup({
               </select>
             )}
           </div>
-          <div>
-            <p>Automatic Selection</p>
-            <button
-              className="PopupCloseButton"
-              onClick={() => {
-                selectXindexes(0, 10);
-              }}
-            >
-              Top 10
-            </button>
-            <button
-              className="PopupCloseButton"
-              onClick={() => {
-                selectXindexes(0, 50);
-              }}
-            >
-              Top 50
-            </button>
-          </div>
+          {itemsSelectable !== undefined ? (
+            <div>
+              <p>Automatic Selection</p>
+              <button
+                className="FilterTopButton"
+                onClick={() => {
+                  selectXindexes(0, 10);
+                }}
+              >
+                Top 10
+              </button>
+              <button
+                className="FilterTopButton"
+                onClick={() => {
+                  selectXindexes(0, 50);
+                }}
+              >
+                Top 50
+              </button>
+            </div>
+          ) : null}
           <div>
             <button className="TypButton" type="submit">
               Generate Graph

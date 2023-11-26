@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { line1, bar1, pie1, calendar1 } from "./Graphs/Graphs.js";
+import { line1, bar1, pie1, calendar1, bump1 } from "./Graphs/Graphs.js";
 import BarGraph from "./Graphs/BarGraph";
 import LineGraph from "./Graphs/LineGraph";
 import PieGraph from "./Graphs/PieGraph";
@@ -94,12 +94,12 @@ export default function Popup({
     },
     {
       value: "emotion",
-      label: "Emotion of music listened to",
+      label: "Emotion of chosen music",
       visible: radarData,
     },
     {
-      value: "emotionAll",
-      label: "Emotion of all music listened to",
+      value: "emotionData",
+      label: "Emotion of selected music listened to",
       visible: radarData,
     },
     { value: "followers", label: "Followers", visible: followerData },
@@ -264,7 +264,16 @@ export default function Popup({
           ) : previewData.graphType === "ImageGraph" ? (
             <ImageGraph />
           ) : previewData.graphType === "Bump" ? (
-            <BumpGraph />
+            <BumpGraph
+              graphName={previewData.graphName}
+              data={bump1}
+              dataName={"bump1"}
+              graphTheme={previewData.graphTheme}
+              hortAxisTitle={previewData.hortAxisTitle}
+              vertAxisTitle={previewData.vertAxisTitle}
+              legendEnabled={previewData.legendEnabled}
+              graphType={previewData.graphType}
+            />
           ) : previewData.graphType === "Calendar" ? (
             <CalendarGraph
               graphName={previewData.graphName}
@@ -436,7 +445,10 @@ export default function Popup({
     setGraphName("");
 
     //Set dataVariation to song if below data
-    if (formJson.data === "numTimesSkipped") {
+    if (
+      formJson.data === "numTimesSkipped" ||
+      formJson.data.includes("emotion")
+    ) {
       formJson.dataVariation = "Tracks";
     }
     if (formJson.friendID !== undefined) {
@@ -466,8 +478,8 @@ export default function Popup({
   }
 
   return (
-    <div className="PopupOverlay row">
-      <div className="PopupContent column">
+    <div className="PopupOverlay">
+      <div className="PopupContent">
         Add Graph
         <button
           className="PopupCloseButton"

@@ -30,9 +30,56 @@ export const RadarGraph = (props) => {
 
   const [data, setData] = useState();
   const [keys, setKeys] = useState([]);
+  const [itemsSelectable, setItemsSelectable] = useState(undefined);
   const [itemsSelected, setItemsSelected] = useState([]);
 
+  async function getEmotions() {
+    let tempKeys = [];
+    let tempData = [
+      {
+        emotion: "Angry",
+      },
+      {
+        emotion: "Happy",
+      },
+      {
+        emotion: "Sad",
+      },
+    ];
+    for (let item of itemsSelected) {
+      const newData = props.data[2][Number(item.split(",")[1])];
+      tempKeys.push(newData.name);
+      await getEmotion(newData.id, newData.popularity).then((emotions) => {
+        tempData[0] = {
+          ...tempData[0],
+          [newData.name]: emotions["percent_angry"] * 100,
+        };
+        tempData[1] = {
+          ...tempData[1],
+          [newData.name]: emotions["percent_happy"] * 100,
+        };
+        tempData[2] = {
+          ...tempData[2],
+          [newData.name]: emotions["percent_sad"] * 100,
+        };
+      });
+    }
+    setKeys(tempKeys);
+    setData(tempData);
+  }
+
   useEffect(() => {
+    try {
+      if (props.dataName === "emotionData") {
+        setItemsSelectable(props.data[2]);
+      } else {
+        //Sample data
+        setData(props.data);
+      }
+    } catch (e) {
+      console.error(e);
+      setData("Bad Data");
+    }
     setItemsSelected(props.selectedData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -42,7 +89,7 @@ export const RadarGraph = (props) => {
     if (itemsSelected === undefined || itemsSelected.length === 0) {
       return;
     }
-    if (props.dataName.includes("emotion")) {
+    if (props.dataName === "emotion") {
       setKeys([itemsSelected[0].name]);
       getEmotion(itemsSelected[0].id, itemsSelected[0].popularity).then(
         (emotions) => {
@@ -63,6 +110,8 @@ export const RadarGraph = (props) => {
           setData(tempObj);
         }
       );
+    } else if (props.dataName === "emotionData") {
+      getEmotions();
     }
     props.selectData(itemsSelected, props.graphName);
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,46 +119,50 @@ export const RadarGraph = (props) => {
 
   if (data === undefined) {
     return (
-      <>
-        <FilterPopup
-          isOpen={isPopupOpen}
-          onClose={closePopup}
-          setItems={setItemsSelected}
-        />
-        <button
-          className="FilterButton custom-draggable-cancel"
-          onClick={openPopup}
-        >
-          Select Data
-        </button>
-      </>
-    );
-  }
-  return (
-    <div className="GraphSVG">
-      {props.data === undefined ? (
-        <>
+      <div>
+        <div>
           <FilterPopup
             isOpen={isPopupOpen}
             onClose={closePopup}
             setItems={setItemsSelected}
+            itemsSelectable={itemsSelectable}
+            maxSelection={10}
+            emotionData={props.dataName === "emotionData"}
           />
           <button
-            className="PopupCloseButton custom-draggable-cancel"
+            className="FilterButton custom-draggable-cancel"
             onClick={openPopup}
           >
-            Filter
+            ¥
           </button>
-        </>
-      ) : (
-        <></>
-      )}
+        </div>
+        <div>Waiting for valid song title</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="GraphSVG">
+      <FilterPopup
+        isOpen={isPopupOpen}
+        onClose={closePopup}
+        setItems={setItemsSelected}
+        itemsSelectable={itemsSelectable}
+        maxSelection={25}
+        emotionData={props.dataName === "emotionData"}
+      />
+      <button
+        className="FilterButton custom-draggable-cancel"
+        onClick={openPopup}
+      >
+        ¥
+      </button>
       <ResponsiveRadar
         theme={graphThemes}
         data={data}
         keys={keys}
         indexBy="emotion"
-        maxValue={1.0}
+        maxValue={100.0}
         valueFormat=">-.2f"
         margin={{
           top: 40,

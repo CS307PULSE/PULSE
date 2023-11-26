@@ -620,6 +620,7 @@ export default function GraphGrid() {
       } else {
         switch (props.data) {
           case "top_songs":
+          case "emotionData":
             switch (props.timeRange) {
               case "4week":
                 return topSongs[0];
@@ -658,7 +659,6 @@ export default function GraphGrid() {
           case "percentTimes":
           case "percentTimePeriod":
           case "numTimesSkipped":
-          case "emotion":
             return advancedData;
           default:
             return null;

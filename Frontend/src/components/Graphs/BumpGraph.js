@@ -27,25 +27,29 @@ export const BumpGraph = (props) => {
     }
 
     try {
-      let dataTemp = [];
-      props.data.forEach((arr, index_age) => {
-        arr.forEach((item, index_top) => {
-          const index = dataTemp.findIndex((obj) => obj.id === item.name);
-          if (index === -1) {
-            dataTemp.push({
-              id: item.name,
-              data: [{ x: indexToString(index_age), y: index_top }],
-            });
-          } else {
-            dataTemp[index].data.push({
-              x: indexToString(index_age),
-              y: index_top,
-            });
-          }
+      if (props.dataName.includes("top")) {
+        let dataTemp = [];
+        props.data.forEach((arr, index_age) => {
+          arr.forEach((item, index_top) => {
+            const index = dataTemp.findIndex((obj) => obj.id === item.name);
+            if (index === -1) {
+              dataTemp.push({
+                id: item.name,
+                data: [{ x: indexToString(index_age), y: index_top }],
+              });
+            } else {
+              dataTemp[index].data.push({
+                x: indexToString(index_age),
+                y: index_top,
+              });
+            }
+          });
         });
-      });
-      console.log(dataTemp);
-      setData(dataTemp);
+        console.log(dataTemp);
+        setData(dataTemp);
+      } else {
+        setData(props.data);
+      }
     } catch (e) {
       console.error(e);
       setData("Bad Data");
