@@ -147,7 +147,7 @@ def callback():
 
 
     response = requests.post(token_url, data=payload)
-    print(response)
+    print(response.json())
     print("=============================================================")
     if response.status_code == 200:
         token_info = response.json().get('login_token')
