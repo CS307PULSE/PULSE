@@ -2,7 +2,7 @@
 #pip install python-dotenv
 #pip install flask-cors
 #pip install mysql.connector
-from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
+from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response, send_from_directory
 from flask_cors import CORS, cross_origin
 from .User import User
 from datetime import datetime, timedelta
@@ -86,10 +86,10 @@ scopes = [
 ]
 
 scope = ' '.join(scopes)
-@app.route('/')
-def index():
-    print("RIGHT HERE RIGHT HERE RIGHT HERE")
-    return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
+    return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route('/boot')
