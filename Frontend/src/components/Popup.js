@@ -48,6 +48,7 @@ export default function Popup({
 
   //Use states to selectively disable choices depending on data type
   const [imageGraph, setImageGraph] = useState(true);
+  const [timeRangeImageGraph, setTimeRangeImageGraph] = useState(true);
   const [timesDataEN, setTimesDataEN] = useState(false);
   const [specTimesDataEN, setSpecTimesDataSelected] = useState(false);
   const [radarData, setRadarData] = useState(false);
@@ -56,7 +57,7 @@ export default function Popup({
   const [multiDataEN, setMultiDataEN] = useState(false);
   const [axisTitlesEN, setAxisTitlesEN] = useState(false);
   const [legendEN, setLegendEN] = useState(false);
-  const [disabledThemes, setDisableTheme] = useState(false);
+  const [disabledThemes, setDisableTheme] = useState(true);
   const [pieData, setPieData] = useState(false);
   const [barData, setBarData] = useState(false);
   const [lineData, setLineData] = useState(false);
@@ -174,7 +175,18 @@ export default function Popup({
       setAdvancedData(false);
     }
     if (imageGraph) {
-      setTimesField(true);
+      if (
+        dataSelected === "saved_songs" ||
+        dataSelected === "saved_albums" ||
+        dataSelected === "saved_playlists" ||
+        dataSelected === "followed_artists"
+      ) {
+        setTimeRangeImageGraph(false);
+      } else {
+        setTimeRangeImageGraph(true);
+      }
+    } else {
+      setTimeRangeImageGraph(false);
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataSelected]);
@@ -591,33 +603,57 @@ export default function Popup({
           ) : (
             <></>
           )}
-          {timesField ? (
+          {timesField || timeRangeImageGraph ? (
             <div>
               Time:{" "}
-              <select name="timeRange" disabled={!timesField}>
+              <select
+                name="timeRange"
+                disabled={!timesField && !timeRangeImageGraph}
+              >
                 <option value="all">All Time</option>
-                <option value="year" disabled={!timesDataEN}>
-                  All years
-                </option>
-                <option value="month" disabled={!timesDataEN}>
-                  Past 12 months
-                </option>
-                <option value="6month" disabled={!imageGraph}>
-                  6 Months
-                </option>
-                <option value="4week" disabled={!imageGraph}>
-                  4 Weeks
-                </option>
+                {timesDataEN ? (
+                  <>
+                    <option value="year" disabled={!timesDataEN}>
+                      All years
+                    </option>
+                    <option value="month" disabled={!timesDataEN}>
+                      Past 12 months
+                    </option>
+                  </>
+                ) : (
+                  <></>
+                )}
+                {timeRangeImageGraph ? (
+                  <>
+                    <option value="6month" disabled={!timeRangeImageGraph}>
+                      Past 6 Month
+                    </option>
+                    <option value="4week" disabled={!timeRangeImageGraph}>
+                      Past 4 Weeks
+                    </option>
+                  </>
+                ) : (
+                  <></>
+                )}
               </select>
             </div>
           ) : (
             <></>
           )}
-          {timeRangeData ? (
+          {timeRangeData && !imageGraph ? (
             <div>
               Time Range - From:{" "}
-              <input name="timeFrom" disabled={!timeRangeData} type="date" />{" "}
-              To: <input name="timeTo" disabled={!timeRangeData} type="date" />
+              <input
+                name="timeFrom"
+                disabled={!timeRangeData || imageGraph}
+                type="date"
+              />{" "}
+              To:{" "}
+              <input
+                name="timeTo"
+                disabled={!timeRangeData || imageGraph}
+                type="date"
+              />
             </div>
           ) : (
             <></>

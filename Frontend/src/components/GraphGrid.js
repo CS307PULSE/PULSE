@@ -99,10 +99,10 @@ export default function GraphGrid() {
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
   const [friendDatas, setFriendDatas] = useState([]);
-  const [friendDataUpdated, setFriendDataUpdated] = useState(true);
-  const [friendBasicDataAvailable, setBasicFriendsAvailable] = useState(true);
-  const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] =
-    useState(true);
+  const [friendBasicDataAvailable, setBasicFriendsAvailable] = useState({});
+  const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] = useState(
+    {}
+  );
   const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
@@ -416,7 +416,6 @@ export default function GraphGrid() {
       if (
         !friendDatas.some((element) => element.id === newGraphData.friendID)
       ) {
-        setFriendDataUpdated(false);
         fetchBasicFriendData(newGraphData.friendID).then((basicFriendData) => {
           fetchAdvancedFriendData(newGraphData.friendID).then(
             (advancedFriendData) => {
@@ -429,22 +428,24 @@ export default function GraphGrid() {
                   advancedData: advancedFriendData,
                 },
               ]);
+              let obj = friendAdvancedDataAvailable;
               if (advancedFriendData !== null) {
-                setAdvancedFriendsAvailable(true);
-                setFriendDataUpdated(true);
+                obj[newGraphData.friendID] = true;
               } else {
+                obj[newGraphData.friendID] = false;
                 alert("Page failed fetching friend advanced data");
-                setFriendDataUpdated(false);
-                setAdvancedFriendsAvailable(false);
               }
+              setAdvancedFriendsAvailable(obj);
             }
           );
-          if (basicFriendData === null) {
-            setBasicFriendsAvailable(false);
+          let obj = friendBasicDataAvailable;
+          if (basicFriendData !== null) {
+            obj[newGraphData.friendID] = true;
           } else {
-            setFriendDataUpdated(true);
-            setBasicFriendsAvailable(true);
+            obj[newGraphData.friendID] = false;
+            alert("Page failed fetching friend advanced data");
           }
+          setBasicFriendsAvailable(obj);
         });
       }
     }
@@ -672,6 +673,23 @@ export default function GraphGrid() {
     }
   }
 
+  const dataIsBasicOrAdvanced = {
+    top_songs: "basic",
+    top_artists: "basic",
+    emotionData: "basic",
+    followers: "basic",
+    recent_songs: "basic",
+    saved_songs: "basic",
+    saved_albums: "basic",
+    saved_playlists: "basic",
+    followed_artists: "basic",
+    numMinutes: "advanced",
+    numStreams: "advanced",
+    percentTimes: "advanced",
+    percentTimePeriod: "advanced",
+    numTimesSkipped: "advanced",
+  };
+
   //Get correct initial layout when initialized
   useEffect(() => {
     setLayout(getFromLS(layoutNumber));
@@ -699,8 +717,30 @@ export default function GraphGrid() {
           draggableCancel=".custom-draggable-cancel"
         >
           {layout.map((container) => {
-            if (container.friendDataOn) {
-              if (!friendDataUpdated) {
+            if (
+              container.friendDataOn &&
+              (!friendBasicDataAvailable[container.friendID] ||
+                !friendAdvancedDataAvailable[container.friendID])
+            ) {
+              let msg;
+              if (dataIsBasicOrAdvanced[container.data] === "basic") {
+                if (
+                  friendBasicDataAvailable[container.friendID] === undefined
+                ) {
+                  msg = "Loading graph data";
+                } else if (!friendBasicDataAvailable[container.friendID]) {
+                  msg = "Friends basic data unavailable";
+                }
+              } else if (dataIsBasicOrAdvanced[container.data] === "advanced") {
+                if (
+                  friendAdvancedDataAvailable[container.friendID] === undefined
+                ) {
+                  msg = "Loading graph data";
+                } else if (!friendAdvancedDataAvailable[container.friendID]) {
+                  msg = "Friends advanced data unavailable";
+                }
+              }
+              if (msg !== undefined) {
                 return (
                   <div className="graphContainer" key={container.i}>
                     <div style={{ marginBottom: "10px" }}>
@@ -735,17 +775,10 @@ export default function GraphGrid() {
                       </button>
                       <Tooltip id={container.i + "-tooltip"} />
                     </div>
-                    <div>
-                      {friendBasicDataAvailable
-                        ? friendAdvancedDataAvailable
-                          ? "Loading graph data"
-                          : "Friends advanced data unavailable"
-                        : "Friends basic data unavailable"}
-                    </div>
+                    <div>{msg}</div>
                   </div>
                 );
               }
-              //console.log(getData(container));
             }
             return (
               <div className="graphContainer" key={container.i}>
