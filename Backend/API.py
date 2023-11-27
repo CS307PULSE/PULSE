@@ -18,6 +18,7 @@ from .Playback import Playback
 import random
 import time
 import spotipy
+import requests
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
@@ -124,13 +125,37 @@ def callback():
     code = request.args.get('code')
     print(code + "______________________________________________________________")
     # Handle the callback from Spotify after user login
-    sp_oauth = SpotifyOAuth(client_id=client_id, 
-                            client_secret=client_secret, 
-                            redirect_uri=redirect_uri, 
-                            scope=scope)
+    # sp_oauth = SpotifyOAuth(client_id=client_id, 
+    #                        client_secret=client_secret, 
+     #                       redirect_uri=redirect_uri, 
+     #                       scope=scope)
 
     # Validate the response from Spotify
-    token_info = sp_oauth.get_access_token(code)
+    #token_info = sp_oauth.get_access_token(code)
+
+    authorization_code = code
+
+    token_url = 'https://accounts.spotify.com/api/token'
+    payload = {
+        'grant_type': 'authorization_code',
+        'code': authorization_code,
+        'redirect_uri': redirect_uri,
+        'client_id': client_id,
+        'client_secret': client_secret,
+    }
+
+    response = requests.post(token_url, data=payload)
+    if response.status_code == 200:
+        access_token = response.json().get('access_token')
+        print("Access Token:", access_token)
+        print("++++++++++++++++++++++++++++++++++++++++++++++")
+        return "resp" , 200, {'Reason-Phrase': 'OK'}
+    else:
+        print("Failed to retrieve Access Token")
+        print("++++++++++++++++++++++++++++++++++++++++++++++")
+        return "resp" , 200, {'Reason-Phrase': 'OK'}
+
+
     print("token info = ")
     print(token_info)
     print("______________________________________")
