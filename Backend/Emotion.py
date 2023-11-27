@@ -116,7 +116,7 @@ class Emotion:
             "percent_angry": 0,
             "percent_sad": 0
         }
-        tractdict = Emotion.convert_track(user, song, popularity)
+        tractdict = Emotion.convert_tracks(user, song, popularity)[0]
         happy = Emotion.gethappy()
         angry = Emotion.getangry()
         sad = Emotion.getsad()
@@ -166,8 +166,10 @@ class Emotion:
         random_values["name"] = "songdict"
         return random_values
     """
-    def convert_track(user, song_list, popularity = 0, duration = 0):
+    def convert_tracks(user, song_list, popularity = 0):
         #return Emotion.spoof()
+        counter = 0
+        song_dict_list = []
         song_dict = {
             "name" : "songdict",
             "amount_songs": 0,
@@ -187,12 +189,12 @@ class Emotion:
         song_features = user.spotify_user.audio_features(song_list)
         if song_features is None:
             return None
-        for song in songlist:
+        for song in song_features:
             song_dict["target_energy"] = song.get("energy", 0)
             song_dict["target_popularity"] = popularity
             song_dict["target_acousticness"] = song.get("acousticness", 0)
             song_dict["target_danceability"] = song.get("danceability", 0)
-            song_dict["target_duration_ms"] = duration
+            song_dict["target_duration_ms"] = song.get("duration_ms", 0)
             song_dict["target_instrumentalness"] = song.get("instrumentalness", 0)
             song_dict["target_liveness"] = song.get("liveness", 0)
             song_dict["target_loudness"] = song.get("loudness", 0)
@@ -200,31 +202,37 @@ class Emotion:
             song_dict["target_speechiness"] = song.get("speechiness", 0)
             song_dict["target_tempo"] = song.get("tempo", 0)
             song_dict["target_valence"] = song.get("valence", 0)
-            song_dict["amount_songs"] = song_dict["amount_songs"] + 1
-        return song_dict
+            song_dict["amount_songs"] = 1
+            counter = counter + 1
+            song_dict_list.append(song_dict)
+        return song_dict_list
 
-    def update_and_average_dict(user, original_dict, song_dict, popularity = 0, duration = 0):
+    def update_and_average_dict(user, original_dict, song_dict):
         for key in original_dict.keys():
             if key != "name" and key != "amount_songs":
-                original_dict[key] = (original_dict[key] + song_dict[key]) / original_dict
+                original_dict[key] = (original_dict[key] * original_dict["amount_songs"] + song_dict[key]) / (original_dict["amount_songs"] + 1)
+                original_dict["amount_songs"] = original_dict["amount_songs"] + 1
         return original_dict
     
-    def find_song_emotion(user, song, popularity = 0):
-        song_dict = Emotion.convert_track(user, song, popularity)
+    def find_song_emotion(user, song_list, popularity = 0):
+        emotion_list = []
+        song_dict_list = Emotion.convert_tracks(user, song_list, popularity)
         if song_dict is None:
             return None
-        happydistance = Emotion.calculate_total_distance(Emotion.gethappy(), song_dict)
-        angrydistance = Emotion.calculate_total_distance(Emotion.getangry(), song_dict)
-        saddistance = Emotion.calculate_total_distance(Emotion.getsad(), song_dict)
-        lowest = min(happydistance, angrydistance, saddistance)
-        if(lowest == happydistance):
-            return "happy"
-        elif (lowest == angrydistance):
-            return "angry"
-        elif (lowest == saddistance):
-            return "sad"
-        else:
-            return "undefined"
+        for song_dict in song_dict_list:
+            happydistance = Emotion.calculate_total_distance(Emotion.gethappy(), song_dict)
+            angrydistance = Emotion.calculate_total_distance(Emotion.getangry(), song_dict)
+            saddistance = Emotion.calculate_total_distance(Emotion.getsad(), song_dict)
+            lowest = min(happydistance, angrydistance, saddistance)
+            if(lowest == happydistance):
+                emotion_list.append("happy")
+            elif (lowest == angrydistance):
+                emotion_list.append("angry")
+            elif (lowest == saddistance):
+                emotion_list.append("sad")
+            else:
+                emotion_list.append("undefined")
+        return emotion_list
         
     def get_emotion_recommendations(user, emotiondict, track = [], artist = [], genre = []):
         return user.get_recommendations(
