@@ -172,6 +172,11 @@ def callback():
         )
         print (user.spotify_id + "HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
+        expires_in = token_info['expires_in']
+        current_time = int(time.time())  # Current time in seconds since the epoch
+        expires_at = current_time + expires_in
+
+        token_info['expires_at'] = expires_at
         user.refresh_access_token(sp_oauth=sp_oauth)
         
         user_exists = False
