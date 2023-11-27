@@ -40,8 +40,11 @@ app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
-app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
 
 scopes = [
     #Images
@@ -163,7 +166,7 @@ def callback():
 
 
         resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard"))
-        resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
+        resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Lax')
 
         return resp , 200, {'Reason-Phrase': 'OK'}
 
