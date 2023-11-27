@@ -1,12 +1,8 @@
 import spotipy
-import multiprocessing
-import time
-import User
-from Exceptions import ErrorHandler
-from Emotion import Emotion
+from .Exceptions import ErrorHandler
+from .Emotion import Emotion
 import requests
 import base64
-import json
 class Playlist:
     def add_track(user, playlist, song):
         try:
@@ -105,15 +101,18 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 20)
             first_iteration = True    
             genredict = None
-            
+            song_list = []
             for song in analysis['items']:
                 track = song['track']['id']
                 popularity = song['track']['popularity']
+                song_list.append(track)
+            dict_list = Emotion.convert_tracks(user, song_list, popularity)
+            for dict in dict_list:
                 if first_iteration:
-                    genredict = Emotion.convert_track(user, track, popularity)
+                    genredict = dict
                     first_iteration = False
                 else:
-                    genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
+                    genredict = Emotion.update_and_average_dict(user, genredict, dict)
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
@@ -136,17 +135,20 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 10)
             first_iteration = True    
             genredict = None
+            song_list = []
             for song in analysis['items']:
                 album = song['track']['album']['id']
                 albumsongs = user.spotify_user.album_tracks(album, limit=5)
                 for song in albumsongs['items']:
                     track = song['id']
-                    popularity = 0
+                    song_list.append(track)
+                dict_list = Emotion.convert_tracks(user, song_list)    
+                for dict in dict_list:
                     if first_iteration:
-                        genredict = Emotion.convert_track(user, track, popularity)
+                        genredict = dict
                         first_iteration = False
                     else:
-                        genredict = Emotion.update_and_average_dict(user, genredict, track, popularity)
+                        genredict = Emotion.update_and_average_dict(user, genredict, dict)
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)

@@ -70,7 +70,7 @@ const padding = {
 };
 
 async function fetchDataLogin() {
-  const response = await axios.get("http://127.0.0.1:5000/login", {
+  const response = await axios.get("/login", {
     withCredentials: true,
   });
   const data = response.data;

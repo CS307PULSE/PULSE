@@ -1,9 +1,6 @@
-import spotipy
-import multiprocessing
 import time
-import User
 import json
-from Exceptions import ErrorHandler
+from .Exceptions import ErrorHandler
 from datetime import datetime
 import requests
 import pytz
