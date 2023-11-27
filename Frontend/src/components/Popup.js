@@ -65,6 +65,7 @@ export default function Popup({
   const [wantFriendData, setWantFriendData] = useState(false);
   const [defaultFriend, setDefaultFriend] = useState();
   const [changedData, setChangedData] = useState(false);
+  const [timeRangeData, setTimeRangeData] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [advancedData, setAdvancedData] = useState(false);
 
@@ -156,6 +157,7 @@ export default function Popup({
       setSpecTimesDataSelected(true);
       setTimesField(true);
       setAdvancedData(true);
+      setTimeRangeData(true);
     } else if (
       dataSelected === "percentTimePeriod" ||
       dataSelected === "numTimesSkipped"
@@ -163,6 +165,9 @@ export default function Popup({
       setSpecTimesDataSelected(false);
       setTimesField(true);
       setAdvancedData(true);
+      setTimeRangeData(true);
+    } else if (dataSelected === "followers") {
+      setTimeRangeData(true);
     } else {
       setSpecTimesDataSelected(false);
       setTimesField(false);
@@ -462,6 +467,8 @@ export default function Popup({
         formJson[name] = value;
       }
     }
+    console.log(formJson.timeFrom);
+    console.log(formJson.timeTo);
 
     if (formJson.preview) {
       console.log("This is graph preview:");
@@ -602,6 +609,15 @@ export default function Popup({
                   4 Weeks
                 </option>
               </select>
+            </div>
+          ) : (
+            <></>
+          )}
+          {timeRangeData ? (
+            <div>
+              Time Range - From:{" "}
+              <input name="timeFrom" disabled={!timeRangeData} type="date" />{" "}
+              To: <input name="timeTo" disabled={!timeRangeData} type="date" />
             </div>
           ) : (
             <></>

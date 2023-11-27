@@ -376,6 +376,7 @@ export default function GraphGrid() {
       graphType: newGraphData.graphType,
       data: newGraphData.data,
       timeRange: newGraphData.timeRange,
+      timeFromTo: [newGraphData.timeFrom, newGraphData.timeTo],
       dataVariation: newGraphData.dataVariation,
       friendDataOn: newGraphData.friendDataOn === "on" ? true : false,
       friendName: newGraphData.friendName,
@@ -793,6 +794,7 @@ export default function GraphGrid() {
                     dataName={container.data}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     graphKeys={container.graphSettings.graphKeys}
@@ -814,6 +816,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     friendName={container.friendName}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
@@ -831,6 +834,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
@@ -860,6 +864,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
@@ -877,6 +882,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
                     graphType={container.graphType}
@@ -892,6 +898,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
@@ -909,6 +916,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
@@ -926,6 +934,7 @@ export default function GraphGrid() {
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}

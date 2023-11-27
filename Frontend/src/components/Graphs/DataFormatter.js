@@ -19,7 +19,19 @@ export function formatFollowerData(props) {
 
     for (const dataPoint of dataArr) {
       const dayToFind = dataPoint.day.split(" ")[0];
+      const dateDay = new Date(dayToFind);
       const index = tempData.findIndex((obj) => obj.day === dayToFind);
+      if (props.timeFromTo[0] !== undefined) {
+        if (new Date(props.timeFromTo[0]) > dateDay) {
+          continue;
+        }
+      }
+      if (props.timeFromTo[1] !== undefined) {
+        if (new Date(props.timeFromTo[1]) < dateDay) {
+          continue;
+        }
+      }
+
       //already exists data
       if (index === -1) {
         tempData.push({ value: dataPoint.value, day: dayToFind });
@@ -37,7 +49,7 @@ export function formatFollowerData(props) {
   }
   return dataSource.map((userData, index) => {
     let id;
-    if (dataSource.length() > 1) {
+    if (dataSource.length > 1) {
       if (index === 0) {
         id = "User Followers";
       } else {
@@ -49,14 +61,28 @@ export function formatFollowerData(props) {
           ? props.friendName + " Followers"
           : "User Followers";
     }
-    let tempData = {
+    return {
       id: id,
-      data: Object.keys(userData).map((key) => ({
-        x: key,
-        y: userData[key],
-      })),
+      data: Object.keys(userData)
+        .map((key) => {
+          const dateDay = new Date(key.split(" ")[0]);
+          if (props.timeFromTo[0] !== undefined) {
+            if (new Date(props.timeFromTo[0]) > dateDay) {
+              return null;
+            }
+          }
+          if (props.timeFromTo[1] !== undefined) {
+            if (new Date(props.timeFromTo[1]) < dateDay) {
+              return null;
+            }
+          }
+          return {
+            x: key,
+            y: userData[key],
+          };
+        })
+        .filter((val) => val !== null),
     };
-    return tempData;
   });
 }
 
