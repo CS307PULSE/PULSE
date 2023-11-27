@@ -4,8 +4,6 @@
 #pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
 from flask_cors import CORS, cross_origin
-# import firebase_admin
-# from firebase_admin import credentials, auth
 from .User import User
 from datetime import datetime, timedelta
 from .DatabaseConnector import DatabaseConnector
@@ -31,10 +29,6 @@ with open('Testing/' + 'ClientData.txt', 'r') as file:
         lines.append(line.strip())
 
 client_id, client_secret, redirect_uri = lines
-
-# Initialize Firebase Admin SDK
-#cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
-#firebase_admin.initialize_app(cred)
 
 app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
@@ -164,8 +158,7 @@ def callback():
 
         session['user'] = user.to_json()
 
-
-        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard"))
+        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard/"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Lax')
 
         return resp , 200, {'Reason-Phrase': 'OK'}
