@@ -184,8 +184,6 @@ def callback():
             user_exists = conn.does_user_exist_in_user_DB(user.spotify_id)
             if not user_exists:
                 conn.create_new_user_in_user_DB(user)
-                conn.create_new_user_in_stats_DB(user.spotify_id)
-                conn.create_new_user_in_advanced_stats_DB(user.spotify_id)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
@@ -193,7 +191,7 @@ def callback():
 
         resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
-
+        resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
