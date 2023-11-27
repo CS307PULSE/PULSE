@@ -1,6 +1,7 @@
 import mysql.connector
 from .User import User
 from .User import Theme
+import os
 import json
 
 
@@ -1206,6 +1207,16 @@ def edit_game_settings(arr_2d, new_array, game):
     return  arr_2d
 
 db_config =  {
+            'host':os.getenv("DB_HOST"),  # database host
+            'port': 3306,                                        # port
+            'user':os.getenv("DB_USER"),                          # username
+            'passwd':os.getenv("DB_PASSWORD"),                      # password
+            'db':os.getenv("DB_NAME"),                                        # database
+            'charset':'utf8'                                     # charset encoding
+            }
+
+"""
+db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
             'port': 3306,                                        # port
             'user':"pulse_admin_userz",                          # username
@@ -1213,6 +1224,7 @@ db_config =  {
             'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
+"""
 
 #TODO: 
 #requests doesn't update unless page is reloaded. Same with Friends page and friends card
