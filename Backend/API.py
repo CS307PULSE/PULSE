@@ -158,8 +158,8 @@ def callback():
 
         session['user'] = user.to_json()
 
-        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard/"))
-        resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Lax')
+        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard"))
+        # resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Lax')
 
         return resp , 200, {'Reason-Phrase': 'OK'}
 
