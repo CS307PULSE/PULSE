@@ -1,6 +1,7 @@
 import mysql.connector
 from .User import User
 from .User import Theme
+import os
 import json
 
 
@@ -504,6 +505,21 @@ class DatabaseConnector(object):
                          chosen_song = row[15],)       
             return userFromDB
 
+    def get_entire_genre_groups_from_DB(self, spotify_id, genre_groups):
+        entire_genre_groups = []
+        for genre in genre_groups:
+            query = """SELECT %s from pulse.user_match_genres WHERE iduser_match_genres = 1"""
+            self.db_cursor.execute(query, ("genre" + str(genre),))
+            self.resultset = self.db_cursor.fetchone()
+            if (self.resultset != None and self.resultset != '' ):
+                for spotify_id in create_friends_array_from_DB(self.resultset[0]):
+                    entire_genre_groups.append(spotify_id)
+        if (entire_genre_groups == []):
+            return []
+        else:
+            no_dupes = []
+            [no_dupes.append(x) for x in entire_genre_groups if x not in no_dupes]
+            return no_dupes
     #--------------------------------------------------------------------------------------------------------
     # Database storage/update 
 
@@ -1032,6 +1048,24 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
 
+    def update_entire_genre_groups(self, spotify_id, genre_groups):
+            for genre in genre_groups:
+                checker_query = """SELECT %s from pulse.user_match_genres WHERE iduser_match_genres = 1"""
+                self.db_cursor.execute(checker_query, ("genre" + str(genre),))
+                self.resultset = self.db_cursor.fetchone()
+                if (self.resultset != None and self.resultset != '' ):
+                    id_list = create_friends_array_from_DB(self.resultset[0])
+                    if (spotify_id not in id_list):
+                        id_list.append(spotify_id)
+                        adder_query = """UPDATE pulse.user_match_genres SET %s = %s WHERE iduser_match_genres = 1"""
+                        try:
+                            self.db_cursor.execute(adder_query, ("genre" + str(genre), create_friends_string_for_DB(id_list),))
+                            self.db_conn.commit()
+                        except Exception as e:
+                            # Handle any exceptions that may occur during the database operation.
+                            print("Error updating game_settings:", str(e))
+                            self.db_conn.rollback()
+                            return -1  # Indicate that the update failed  
 #--------------------------------------------------------------------------------------------------------
 # Conversion functions to and from DB
 
@@ -1173,6 +1207,16 @@ def edit_game_settings(arr_2d, new_array, game):
     return  arr_2d
 
 db_config =  {
+            'host':os.getenv("DB_HOST"),  # database host
+            'port': 3306,                                        # port
+            'user':os.getenv("DB_USER"),                          # username
+            'passwd':os.getenv("DB_PASSWORD"),                      # password
+            'db':os.getenv("DB_NAME"),                                        # database
+            'charset':'utf8'                                     # charset encoding
+            }
+
+"""
+db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
             'port': 3306,                                        # port
             'user':"pulse_admin_userz",                          # username
@@ -1180,6 +1224,7 @@ db_config =  {
             'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
+"""
 
 #TODO: 
 #requests doesn't update unless page is reloaded. Same with Friends page and friends card

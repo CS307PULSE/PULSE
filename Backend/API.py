@@ -4,8 +4,6 @@
 #pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
 from flask_cors import CORS, cross_origin
-# import firebase_admin
-# from firebase_admin import credentials, auth
 from .User import User
 from datetime import datetime, timedelta
 from .DatabaseConnector import DatabaseConnector
@@ -32,16 +30,15 @@ with open('Testing/' + 'ClientData.txt', 'r') as file:
 
 client_id, client_secret, redirect_uri = lines
 
-# Initialize Firebase Admin SDK
-#cred = credentials.Certificate(current_dir + "\\Backend\\key.json")
-#firebase_admin.initialize_app(cred)
-
 app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
-app.config['SESSION_COOKIE_SAMESITE'] = 'lax'
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Strict',
+)
 
 scopes = [
     #Images
@@ -125,6 +122,7 @@ def login():
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
+    print(code + "______________________________________________________________")
     # Handle the callback from Spotify after user login
     sp_oauth = SpotifyOAuth(client_id=client_id, 
                             client_secret=client_secret, 
@@ -146,6 +144,7 @@ def callback():
             spotify_id=sp.me()['id'],
             spotify_user=sp
         )
+        print (user.spotify_id + "HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
         user.refresh_access_token(sp_oauth=sp_oauth)
         
@@ -161,10 +160,8 @@ def callback():
 
         session['user'] = user.to_json()
 
-
         resp = make_response(redirect("http://127.0.0.1:5000/dashboard"))
-        resp.set_cookie('user_id_cookie', value=str(user.spotify_id))
-
+        resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
