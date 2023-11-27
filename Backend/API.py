@@ -131,7 +131,9 @@ def callback():
 
     # Validate the response from Spotify
     token_info = sp_oauth.get_access_token(code)
-
+    print("token info = ")
+    print(token_info)
+    print("______________________________________")
     if token_info:
         # Create a Spotify object and fetch user data
         sp = spotipy.Spotify(auth=token_info['access_token'])
@@ -141,7 +143,7 @@ def callback():
         user = User(
             display_name=user_data['display_name'],
             login_token=token_info,
-            spotify_id=sp.me()['id'],
+            spotify_id=user_data['id'],
             spotify_user=sp
         )
         print (user.spotify_id + "HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
