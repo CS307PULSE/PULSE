@@ -2,7 +2,7 @@
 #pip install python-dotenv
 #pip install flask-cors
 #pip install mysql.connector
-from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response, send_from_directory
+from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
 from flask_cors import CORS, cross_origin
 from .User import User
 from datetime import datetime, timedelta
@@ -86,10 +86,10 @@ scopes = [
 ]
 
 scope = ' '.join(scopes)
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def index(path):
-    return send_from_directory(app.static_folder, 'index.html')
+@app.route('/')
+def index():
+    print("RIGHT HERE RIGHT HERE RIGHT HERE")
+    return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
 
 
 @app.route('/boot')
@@ -180,18 +180,18 @@ def callback():
         user.refresh_access_token(sp_oauth=sp_oauth)
         
         user_exists = False
+        
+        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
         with DatabaseConnector(db_config) as conn:
             user_exists = conn.does_user_exist_in_user_DB(user.spotify_id)
             if not user_exists:
                 conn.create_new_user_in_user_DB(user)
             else:
-                conn.update_token(user.spotify_id, user.login_token)
+                resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
 
         session['user'] = user.to_json()
 
-        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
-        resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
@@ -2277,12 +2277,10 @@ def refresh_token(user, e=None):
     while try_count < max_try_count:
         try:        
             user.refresh_access_token(sp_oauth)
-
             if not sp_oauth.is_token_expired(user.login_token):
                 #Update token
-                with DatabaseConnector(db_config) as conn:
-                    if (conn.update_token(user.spotify_id, user.login_token) == -1):
-                        raise UserNotFoundError
+                resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
+                resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
                 session["user"] = user.to_json()
                 print("Token successfully refreshed!")
                 return True, 200, {'Reason-Phrase': 'OK'}
