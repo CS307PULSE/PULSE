@@ -86,10 +86,10 @@ scopes = [
 ]
 
 scope = ' '.join(scopes)
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def index(path):
-    return send_from_directory(app.static_folder, 'index.html')
+@app.route('/')
+def index():
+    print("RIGHT HERE RIGHT HERE RIGHT HERE")
+    return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
 
 
 @app.route('/boot')
