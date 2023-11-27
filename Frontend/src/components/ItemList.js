@@ -4,7 +4,7 @@ import TextSize from "../theme/TextSize";
 import { hexToRGBA } from '../theme/Colors';
 
 //Buttons is an array of {text, width, onClick function}
-const ItemList = ({ type, data, selectedIndex, setSelectedIndex, buttons }) => {  
+const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) => {} }) => {  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
@@ -16,7 +16,7 @@ const ItemList = ({ type, data, selectedIndex, setSelectedIndex, buttons }) => {
     alignItems: "center",
     overflow: "auto",
     border: "1px solid " + state.colorBorder,
-    borderRadius: "5px"
+    borderRadius: "10px"
   }
   const textStyle = {
     color: state.colorText,
@@ -43,14 +43,22 @@ const ItemList = ({ type, data, selectedIndex, setSelectedIndex, buttons }) => {
     height: "50px",
     fontSize: textSizes.body
   };
+  const loadingTextStyle = {
+    color: state.colorText,
+    fontSize: textSizes.header2,
+    fontStyle: "normal",
+    fontFamily: "'Poppins', sans-serif",
+    margin: "20px",
+    fontStyle: "italic"
+  }
 
   function getImage(index) {
     var image = null;
-    switch(type) {
-      case "songs" : image = data[index].track.album.images[0];
-      case "albums": image = 0;
-      case "artists": image = 0;
-      case "playlists": image = data[index].images[0];
+    switch (type) {
+      case "songs" : image = data[index].album.images[0]; break;
+      case "albums": image = 0; break;
+      case "artists": image = 0; break;
+      case "playlists": image = data[index].images[0]; break;
     }
     if (image) {
       return image.url;
@@ -58,25 +66,37 @@ const ItemList = ({ type, data, selectedIndex, setSelectedIndex, buttons }) => {
       return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
     }
   }
+  function renderButtons(item) {
+    if (!buttons) {
+      return "";
+    }
+    return buttons.map((button, index) => (
+      <div key={index}>
+        <button style={{...buttonStyle, width: button.width}} onClick={() => {button.onClick(item)}}>{button.text}</button>
+      </div>
+    ));
+  }
+  if (data == "loading") {
+    console.log("FUCK");
+    return (
+      <div style={{textAlign: "center"}}>
+        <p style={loadingTextStyle}>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       {/* <p style={headerTextStyle}>Playlists</p> */}
       {data && data.map((item, index) => (
-        (() => { 
+        (() => {
           switch (type) {
             case "playlists":
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {setSelectedIndex(index)}}>
-                  {() => {for (var i = 0; i < buttons.length; i++) {
-                    return (
-                      <div>
-                        <button style={{...buttonStyle, width: buttons[i].width}} onClick={buttons[i].onClick(item)}>{buttons[i].text}</button>
-                      </div>
-                    );
-                  }}}
+                  onClick={() => {onClick(index)}}>
+                  {renderButtons(item)}
                   <img style={imageStyle} src={getImage(index)}></img>
                   <div>
                     <p style={textStyle}>{item.name}</p>
@@ -84,6 +104,18 @@ const ItemList = ({ type, data, selectedIndex, setSelectedIndex, buttons }) => {
                 </div>
               );
             case "songs":
+              return (
+                <div key={index} style={{...itemDisplayStyle, 
+                  border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
+                  onClick={() => {onClick(index)}}>
+                  {renderButtons(item)}
+                  <img style={imageStyle} src={getImage(index)}></img>
+                  <div>
+                    <p style={textStyle}>{item.name}</p>
+                    <p style={textStyle}>{item.artists[0].name}</p>
+                  </div>
+                </div>
+              );
             case "albums":
             case "artists":
           }

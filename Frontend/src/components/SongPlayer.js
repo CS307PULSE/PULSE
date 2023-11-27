@@ -5,17 +5,13 @@ import { pulseColors } from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 
 function SongPlayer() {
+  
   const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const [volumeLevel, setVolumeLevel] = useState("");
-  // const [timestamp, setTimestamp] = useState('');
   const [playState, setPlayState] = useState();
-  const [nextState, setNextState] = useState(false);
-  const [prevState, setPrevState] = useState(false);
-  const [repeatState, setRepeatState] = useState(false);
-  const [shuffleState, setShuffleState] = useState(false);
-
-  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+  const [expanded, setExpanded] = useState(false);
 
   const images = {
     playButton: "https://cdn-icons-png.flaticon.com/512/3318/3318660.png",
@@ -40,13 +36,6 @@ function SongPlayer() {
     height: "40px",
     margin: "10px",
   };
-  const playbackSliderStyle = {
-    width: "40%",
-    height: "40px",
-    margin: "10px auto",
-    position: "absolute",
-    right: "15%",
-  };
   const volumeSliderStyle = {
     width: "10%",
     height: "40px",
@@ -54,99 +43,52 @@ function SongPlayer() {
     position: "absolute",
     right: "30px",
   };
-  const infoContainerStyle = {
-    padding: "10px",
-    width: "20%",
-  };
-  const songNameTextStyle = {
-    color: pulseColors.black,
-    fontSize: textSizes.body,
-    fontWeight: "bold",
-    margin: "0px",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-  };
-  const artistNameTextStyle = {
-    color: pulseColors.black,
-    fontSize: textSizes.body,
-    margin: "0px",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-  };
-  const deviceDropdownStyle = {
-    color: pulseColors.white,
-    width: "120px",
-    height: "30px",
-    backgroundColor: pulseColors.black,
-  };
+  const expandedPlayerStyle = {
+    width: "auto",
+    height: "100%",
+    margin: "10px",
+  }
 
-  useEffect(() => {
-    //Nexting
-    if (nextState) {
-      axios
-        .get("http://127.0.0.1:5000/player/skip", { withCredentials: true })
-        .then((response) => {
-          // Handle the response from the backend if needed
-          // console.log("Song skipping successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error skipping song:", error);
-        });
-      setPlayState(true);
-    }
-    setNextState(false);
-  }, [nextState]);
-
-  useEffect(() => {
-    //Preving
-    if (prevState) {
-      axios
-        .get("http://127.0.0.1:5000/player/prev", { withCredentials: true })
-        .then((response) => {
-          // Handle the response from the backend if needed
-          console.log("Song preved successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error preving song:", error);
-        });
-      setPlayState(true);
-    }
-    setPrevState(false);
-  }, [prevState]);
-
-  useEffect(() => {
-    //Repeat
-    if (repeatState) {
-      axios
-        .get("http://127.0.0.1:5000/player/repeat", { withCredentials: true })
-        .then((response) => {
-          // Handle the response from the backend if needed
-          // console.log("Repeat toggled successful:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error toggling repeat:", error);
-        });
-    }
-    setRepeatState(false);
-  }, [repeatState]);
-
-  useEffect(() => {
-    //Shuffle
-    if (shuffleState) {
-      axios
-        .get("http://127.0.0.1:5000/player/shuffle", { withCredentials: true })
-        .then((response) => {
-          // Handle the response from the backend if needed
-          // console.log("Shuffle toggled successful:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error toggling repeat:", error);
-        });
-    }
-    setShuffleState(false);
-  }, [shuffleState]);
+  function nextSong() { //Nexting
+    axios
+      .get("http://127.0.0.1:5000/player/skip", { withCredentials: true })
+      .then((response) => {
+        console.log("Song nexted successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error skipping song:", error);
+      });
+  }
+  function previousSong() { //Preving
+    axios
+      .get("http://127.0.0.1:5000/player/prev", { withCredentials: true })
+      .then((response) => {
+        console.log("Song preved successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error preving song:", error);
+      });
+  }
+  function toggleRepeat() {
+    axios
+      .get("http://127.0.0.1:5000/player/repeat", { withCredentials: true })
+      .then((response) => {
+        console.log("Repeat toggled successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error toggling repeat:", error);
+      });
+  }
+  function toggleShuffle() {
+    axios
+      .get("http://127.0.0.1:5000/player/shuffle", { withCredentials: true })
+      .then((response) => {
+        console.log("Shuffle toggled successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error toggling repeat:", error);
+      });
+  }
 
   useEffect(() => {
     if (playState === undefined) {
@@ -192,23 +134,15 @@ function SongPlayer() {
     const data = response.data;
     return data;
   }
+  if (expanded) { return (
+    <div style={expandedPlayerStyle}>
 
-  return (
-    <div className="player" style={songPlayerStyle}>
-      <img
-        id="prevButton"
-        style={songPlayerButtonStyle}
-        src={images.prevButton}
-        onClick={() => {
-          setPrevState(true);
-        }}
-        alt="Previous Song"
-      ></img>
-      <img
-        id="playButton"
-        style={songPlayerButtonStyle}
-        src={images.playButton}
-        onClick={() => {
+    </div>
+  );
+  } else { return (
+    <div style={songPlayerStyle}>
+      <img id="prevButton" style={songPlayerButtonStyle} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
+      <img id="playButton" style={songPlayerButtonStyle} src={images.playButton} onClick={() => {
           if (playState === undefined) {
             setPlayState(true);
           } else {
@@ -217,62 +151,12 @@ function SongPlayer() {
         }}
         alt="Play Song"
       ></img>
-      <img
-        id="nextButton"
-        style={songPlayerButtonStyle}
-        src={images.nextButton}
-        onClick={() => {
-          setNextState(true);
-        }}
-        alt="Next Song"
-      ></img>
-      <img
-        id="repeatButton"
-        style={songPlayerButtonStyle}
-        src={images.repeatButton}
-        onClick={() => {
-          setRepeatState(true);
-        }}
-        alt="Repeat"
-      ></img>
-      <img
-        id="shuffleButton"
-        style={songPlayerButtonStyle}
-        src={images.shuffleButton}
-        onClick={() => {
-          setShuffleState(true);
-        }}
-        alt="Shuffle"
-      ></img>
-      {/* <img id="albumImage" style={songPlayerButtonStyle} src={images.nextButton} alt="Album Image"></img>
-            <div style={infoContainerStyle}>
-                <p style={songNameTextStyle}>lol</p>
-                <p style={artistNameTextStyle}>asdsadasj daskldj askopasdsad</p>
-            </div>
-            <div style={infoContainerStyle}>
-                <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", left: "45%"}}>0:00</span>
-                <input style={playbackSliderStyle} type="range" id="mySlider" min="0" max="1000" value={timestamp} step="1" onChange={e => setTimestamp(e.target.value)}/>
-                <span style={{color: themeColors.black, fontSize: textSizes.body, margin: "0px", position: "absolute", right: "15%"}}>23:59</span>
-            </div>
-            <div>
-                <select style={deviceDropdownStyle} name="dropdown" id="myDropdown">
-                    <option value="" disabled selected>Select an option</option>
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                </select>
-            </div> */}
-      <input
-        style={volumeSliderStyle}
-        type="range"
-        id="mySlider"
-        min="0"
-        max="100"
-        value={volumeLevel}
-        step="1"
-        onChange={(e) => saveVolume(e.target.value)}
-      ></input>
+      <img id="nextButton" style={songPlayerButtonStyle} src={images.nextButton} onClick={() => {nextSong()}} alt="Next Song"></img>
+      <img id="repeatButton" style={songPlayerButtonStyle} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
+      <img id="shuffleButton" style={songPlayerButtonStyle} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
+      <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="1" onChange={(e) => saveVolume(e.target.value)}></input>
     </div>
   );
+  }
 }
 export default SongPlayer;

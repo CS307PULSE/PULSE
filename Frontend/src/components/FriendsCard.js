@@ -32,7 +32,7 @@ const NoFriends = () => {
 
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
-
+  
   const cardContainerStyle = {
     border: "1px solid " + state.colorBorder,
     overflowY: "auto",

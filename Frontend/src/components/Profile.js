@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAppContext } from "./Context"
 import TextSize from "../theme/TextSize";
 import { hexToRGBA, presetColors } from "../theme/Colors";
+import Friend from "./Friend";
 
 const customBackgrounds = [ "https://images.pexels.com/photos/2382325/pexels-photo-2382325.jpeg?cs=srgb&dl=pexels-suzy-hazelwood-2382325.jpg&fm=jpg",
                             "https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg",
@@ -49,6 +50,9 @@ function Profile({testParameter}){
     const [gender, setGender] = useState(storedUserFields.gender);
     const [location, setLocation] = useState(storedUserFields.location);
     const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favoriteSong);
+    const [status, setStatus] = useState("No Status"); //storedUserFields.status
+    const [publicColorText, setPublicColorText] = useState("#FFFFFF"); //storedUserFields.publicColor
+    const [publicColorBackground, setPublicColorBackground] = useState("#000000"); //storedUserFields.publicColor
     const [selectedTheme, setSelectedTheme] = useState(0);
     const [newThemeName, setNewThemeName] = useState("New Theme");
 
@@ -226,110 +230,136 @@ function Profile({testParameter}){
     <div className="wrapper">
         <div className="header"><Navbar /></div>
         <div className="content" style={bodyStyle}>
-            <div style={sectionContainerStyle}>
-                <p style={headerTextStyle}>Profile</p>
-                <div style={iconContainerStyle}>
-                    <img style={iconPictureStyle} src={storedUserFields.icon}/>
-                </div> <br></br>
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Icon Link</label>
-                    <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
+            <div style={{display: "flex"}}>
+            <div>
+                <div style={sectionContainerStyle}>
+                    <p style={headerTextStyle}>Profile</p>
+                    <div style={iconContainerStyle}>
+                        <img style={iconPictureStyle} src={storedUserFields.icon}/>
+                    </div> <br></br>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Icon Link</label>
+                        <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Username</label>
+                        <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Gender</label>
+                        <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Location</label>
+                        <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Favorite Song</label>
+                        <input id="favorite-song" type="text" style={textFieldStyle} value={favoriteSong} onChange={e => {setFavoriteSong(e.target.value)}}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Status</label>
+                        <input id="favorite-song" type="text" style={textFieldStyle} value={status} onChange={e => {setStatus(e.target.value)}}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Public Color</label>
+                        <input style={{...textFieldStyle, width:"100px", height:"50px"}} type="color" onChange={e => {setPublicColorText(e.target.value)}} value={publicColorText}></input>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Public Background</label>
+                        <input style={{...textFieldStyle, width:"100px", height:"50px"}} type="color" onChange={e => {setPublicColorBackground(e.target.value)}} value={publicColorBackground}></input>
+                    </div>
+                    <div style={buttonContainerStyle}>
+                        <button onClick={() => {saveUserInfo()}} style={buttonStyle}><p>Save Profile</p></button>
+                    </div>
                 </div>
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Username</label>
-                    <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input>
-                </div>
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Gender</label>
-                    <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input>
-                </div>
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Location</label>
-                    <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input>
-                </div>
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Favorite Song</label>
-                    <input id="favorite-song" type="text" style={textFieldStyle} value={favoriteSong} onChange={e => {setFavoriteSong(e.target.value)}}></input>
-                </div>
+                <div style={sectionContainerStyle}>
+                    <p style={headerTextStyle}>Settings</p>
+                    <p style={profileText}>Text Size</p>
+                    <div style={buttonContainerStyle}>
+                        <button onClick={() => updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
+                        <button onClick={() => updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
+                        <button onClick={() => updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
+                    </div>
 
-                <div style={buttonContainerStyle}>
-                    <button onClick={() => {saveUserInfo()}} style={buttonStyle}><p>Save Profile</p></button>
+                    <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Color Theme</p>
+                    <p style={profileText}>Theme Presets</p>
+                    <div style={buttonContainerStyle}>
+                        <button onClick={() => {updateColor("all", presetColors.dark)}} style={buttonStyle}><p>Dark</p></button>
+                        <button onClick={() => {updateColor("all", presetColors.light)}} style={buttonStyle}><p>Light</p></button>
+                        <button onClick={() => {updateColor("all", presetColors.scary)}} style={buttonStyle}><p>Scary</p></button>
+                    </div>
+                    <p style={profileText}>Custom Theme Colors</p>
+                    <div style={customThemeContainerStyle}>
+                        <div style={{width: "100px"}}>
+                            <label style={profileText} htmlFor="backgroundColorPicker">Background</label><br></br>
+                            <input style={buttonStyle} type="color" id="backgroundColorPicker" onChange={e => {updateColor("background", e.target.value)}} value={state.colorBackground}></input>
+                        </div>
+                        <div style={{width: "100px"}}>
+                            <label style={profileText}>Text</label><br></br>
+                            <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {updateColor("text", e.target.value)}} value={state.colorText}></input>
+                        </div>
+                        <div style={{width: "100px"}}>
+                            <label style={profileText} htmlFor="borderColorPicker">Border</label><br></br>
+                            <input style={buttonStyle} type="color" id="borderColorPicker" onChange={e => {updateColor("border", e.target.value)}} value={state.colorBorder}></input>
+                        </div>
+                        <div style={{width: "100px"}}>
+                            <label style={profileText} htmlFor="accentColorPicker">Accent</label><br></br>
+                            <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
+                        </div>
+                    </div>
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Theme Name</label>
+                        <input id="save-theme-name-input" type="text" style={textFieldStyle} value={newThemeName} onChange={e => {setNewThemeName(e.target.value)}}></input>
+                    </div>
+                    <br></br>
+                    <p style={profileText} htmlFor="customColors">Saved Themes</p>
+                    <div style={buttonContainerStyle}>
+                        <select style={buttonStyle} id="customColors" value={selectedTheme} onChange={(e) => {setSelectedTheme(e.target.value)}}>
+                            {state.savedThemes.map((item, index) => (
+                                <option key={index} value={index}>
+                                    {item[0]}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div style={buttonContainerStyle}>
+                        <button onClick={() => {retrieveTheme(selectedTheme)}} style={buttonStyle}><p>Use Theme</p></button>
+                        <button onClick={() => {updateTheme(selectedTheme, newThemeName, getColorArray())}} style={buttonStyle}><p>Save Changes</p></button>
+                        <button onClick={() => {createTheme(newThemeName, getColorArray())}} style={buttonStyle}><p>Create Theme</p></button>
+                        <button onClick={() => {deleteTheme(selectedTheme)}} style={buttonStyle}><p>Delete Theme</p></button>
+                    </div>
+                    <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Background</p>
+                    <div style={buttonContainerStyle}>
+                        <button onClick={() => {updateBackgroundImage("")}} style={buttonStyle}><p>Clear</p></button>
+                    </div>
+                    <div style={buttonContainerStyle}>
+                    {customBackgrounds.map((item, index) => (
+                        <img key={index} style={backgroundOptionStyle} src={item} onClick={() => {updateBackgroundImage(item)}}></img>
+                    ))}
+                    </div>
+
+                    <div style={textFieldContainerStyle}>
+                        <label style={profileText}>Background URL</label>
+                        <input id="custom-background" type="text" style={textFieldStyle} value={state.backgroundImage} onChange={e => {updateBackgroundImage(e.target.value)}}></input> <br></br>
+                    </div>
+                    <div style={buttonContainerStyle}>
+                        <button style={buttonStyle} onClick={() => saveUserSettings()}>Save Settings</button>
+                    </div>
+                </div>
+            </div> 
+            <div>
+                <div style={{...sectionContainerStyle, position: "sticky", top: "20px"}}>
+                    <Friend
+                        name={storedUserFields.username}
+                        photoFilename={storedUserFields.icon}
+                        favoriteSong={storedUserFields.favoriteSong}
+                        status={status}
+                        publicColorText={publicColorText}
+                        publicColorBackground={publicColorBackground}
+                    />
                 </div>
             </div>
-            <div style={sectionContainerStyle}>
-                <p style={headerTextStyle}>Settings</p>
-
-                <p style={profileText}>Text Size</p>
-                <div style={buttonContainerStyle}>
-                    <button onClick={() => updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
-                    <button onClick={() => updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
-                    <button onClick={() => updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
-                </div>
-
-                <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Color Theme</p>
-                <p style={profileText}>Theme Presets</p>
-                <div style={buttonContainerStyle}>
-                    <button onClick={() => {updateColor("all", presetColors.dark)}} style={buttonStyle}><p>Dark</p></button>
-                    <button onClick={() => {updateColor("all", presetColors.light)}} style={buttonStyle}><p>Light</p></button>
-                    <button onClick={() => {updateColor("all", presetColors.scary)}} style={buttonStyle}><p>Scary</p></button>
-                </div>
-                <p style={profileText}>Custom Theme Colors</p>
-                <div style={customThemeContainerStyle}>
-                    <div style={{width: "100px"}}>
-                        <label style={profileText} htmlFor="backgroundColorPicker">Background</label><br></br>
-                        <input style={buttonStyle} type="color" id="backgroundColorPicker" onChange={e => {updateColor("background", e.target.value)}} value={state.colorBackground}></input>
-                    </div>
-                    <div style={{width: "100px"}}>
-                        <label style={profileText}>Text</label><br></br>
-                        <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {updateColor("text", e.target.value)}} value={state.colorText}></input>
-                    </div>
-                    <div style={{width: "100px"}}>
-                        <label style={profileText} htmlFor="borderColorPicker">Border</label><br></br>
-                        <input style={buttonStyle} type="color" id="borderColorPicker" onChange={e => {updateColor("border", e.target.value)}} value={state.colorBorder}></input>
-                    </div>
-                    <div style={{width: "100px"}}>
-                        <label style={profileText} htmlFor="accentColorPicker">Accent</label><br></br>
-                        <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
-                    </div>
-                </div>
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Theme Name</label>
-                    <input id="save-theme-name-input" type="text" style={textFieldStyle} value={newThemeName} onChange={e => {setNewThemeName(e.target.value)}}></input>
-                </div>
-                <br></br>
-                <p style={profileText} htmlFor="customColors">Saved Themes</p>
-                <div style={buttonContainerStyle}>
-                    <select style={buttonStyle} id="customColors" value={selectedTheme} onChange={(e) => {setSelectedTheme(e.target.value)}}>
-                        {state.savedThemes.map((item, index) => (
-                            <option key={index} value={index}>
-                                {item[0]}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div style={buttonContainerStyle}>
-                    <button onClick={() => {retrieveTheme(selectedTheme)}} style={buttonStyle}><p>Use Theme</p></button>
-                    <button onClick={() => {updateTheme(selectedTheme, newThemeName, getColorArray())}} style={buttonStyle}><p>Save Changes</p></button>
-                    <button onClick={() => {createTheme(newThemeName, getColorArray())}} style={buttonStyle}><p>Create Theme</p></button>
-                    <button onClick={() => {deleteTheme(selectedTheme)}} style={buttonStyle}><p>Delete Theme</p></button>
-                </div>
-                <p style={{...headerTextStyle, fontSize: textSizes.header2}}>Background</p>
-                <div style={buttonContainerStyle}>
-                    <button onClick={() => {updateBackgroundImage("")}} style={buttonStyle}><p>Clear</p></button>
-                </div>
-                <div style={buttonContainerStyle}>
-                {customBackgrounds.map((item, index) => (
-                    <img key={index} style={backgroundOptionStyle} src={item} onClick={() => {updateBackgroundImage(item)}}></img>
-                ))}
-                </div>
-
-                <div style={textFieldContainerStyle}>
-                    <label style={profileText}>Background URL</label>
-                    <input id="custom-background" type="text" style={textFieldStyle} value={state.backgroundImage} onChange={e => {updateBackgroundImage(e.target.value)}}></input> <br></br>
-                </div>
-                <div style={buttonContainerStyle}>
-                    <button style={buttonStyle} onClick={() => saveUserSettings()}>Save Settings</button>
-                </div>
             </div>
         </div>
         <div className="footer"><SongPlayer /></div>

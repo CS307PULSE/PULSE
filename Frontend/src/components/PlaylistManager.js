@@ -27,17 +27,20 @@ const PlaylistManager = () => {
   const [imagePath, setImagePath] = useState("");
 
   async function searchForSongs(searchString) {
+    setSongSearchResults("loading");
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("http://127.0.0.1:5000/search_bar", {query: searchString});
     setSongSearchResults(response.data);
   }
-  async function playlistPost(action, payload) {
+  async function playlistPost(action, payload, reloadFunction = () => {}) {
     const route = "http://127.0.0.1:5000/playlist/" + action;
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post(route, payload);
+    reloadFunction();
     return response.data;
   }
   async function getPlaylists() {
+    setPlaylists("loading");
     const axiosInstance = axios.create({withCredentials: true});
     var response = await axiosInstance.get("http://127.0.0.1:5000/statistics/get_saved_playlists");
     const parsedPlaylists = JSON.parse(response.data.saved_playlists);
@@ -47,17 +50,20 @@ const PlaylistManager = () => {
     getPlaylists();
   }, []);
   async function getPlaylistSongs(playlistID) {
+    setPlaylistSongs("loading");
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("http://127.0.0.1:5000/playlist/get_tracks", {playlist: playlistID});
-    const trackData = response.data;
-    setPlaylistSongs(trackData.items);
+    const trackData = response.data.items;
+    for (let i = 0; i < trackData.length; i++) {
+      trackData[i] = trackData[i].track;
+    }
+    setPlaylistSongs(trackData);
   }
   useEffect(() => {
     if (playlists[selectedPlaylistIndex]) {
       getPlaylistSongs(playlists[selectedPlaylistIndex].id);
     }
   }, [selectedPlaylistIndex]);
-  
 
   function getPlaylistImage(index) {
     const image = playlists[index].images[0];
@@ -171,15 +177,15 @@ const PlaylistManager = () => {
           <div style={sectionContainerStyle}>
             <div style={buttonContainerStyle}>
                 <label style={textStyle}>Playlist Name </label>
-                <input type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
+                <input name="playlist-name-field" type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
                 <label style={textStyle}>Public </label>
-                <input type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
+                <input name="public-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
                 <label style={textStyle}>Collaborative </label>
-                <input type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
+                <input name="collaborative-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
                 <label style={textStyle}>Genre </label>
@@ -192,7 +198,7 @@ const PlaylistManager = () => {
             </div>
             <div style={buttonContainerStyle}>
                 <button style={buttonStyle} onClick={() => {
-                  playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre})
+                  playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre}, getPlaylists)
                 }}>Generate Playlist</button>
             </div>
           </div>
@@ -200,10 +206,8 @@ const PlaylistManager = () => {
             <p style={headerTextStyle}>Playlists</p>
             <ItemList 
               type="playlists" data={playlists} 
-              selectedIndex={selectedPlaylistIndex} setSelectedIndex={setSelectedPlaylistIndex}
-              buttons={[
-                {text: "Add", width: "80px", onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id})}}
-              ]}/>
+              selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
+              buttons={[]}/>
           </div>
         </div>
         <div>
@@ -219,32 +223,31 @@ const PlaylistManager = () => {
                 <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
                 <Link to="/DJmixer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
             </div>
-            {playlistSongs.length > 0 && playlistSongs.map((item, index) => (
-              <div key={index} style={selectionDisplayStyle}>
-                <button style={{...buttonStyle, width: "80px"}} onClick={() => {playlistPost("remove_track", {song: item.track.uri, playlist: playlists[selectedPlaylistIndex].id})}}>Remove</button>
-                <img style={imageStyle} src={getSongImage(item.track)}></img>
-                <div>
-                  <p style={textStyle}>{item.track.name}</p>
-                </div>
-              </div>
-            ))}
+            <ItemList 
+              type="songs" data={playlistSongs} 
+              buttons={[
+                {text: "Remove", width: "80px",
+                  onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
+                    () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
+                }
+              ]}/>
           </div>
           <div style={sectionContainerStyle}>
           <p style={headerTextStyle}>Add Songs</p>
             <div style={buttonContainerStyle}>
-                <input type="text" style={buttonStyle} value={songSearchString} onChange={e => {setSongSearchString(e.target.value)}}></input>
+                <input type="text" style={buttonStyle} value={songSearchString}
+                  onChange={e => {setSongSearchString(e.target.value)}}
+                  onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(songSearchString)}}}></input>
                 <button style={buttonStyle} onClick={() => {searchForSongs(songSearchString)}}>Search</button>
             </div>
-            {songSearchResults.length > 0 && songSearchResults.map((item, index) => (
-              <div key={index} style={selectionDisplayStyle}>
-                <button style={{...buttonStyle, width: "80px"}} onClick={() => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id})}}>Add</button>
-                <img style={imageStyle} src={item.album.images[2].url}></img>
-                <div>
-                  <p style={textStyle}>{item.name}</p>
-                  <p style={textStyle}>{item.artists[0].name}</p>
-                </div>
-              </div>
-            ))}
+            <ItemList 
+              type="songs" data={songSearchResults}
+              buttons={[
+                {text: "Add", width: "80px", 
+                  onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
+                    () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
+                }
+              ]}/>
           </div>
         </div>
         </div>
