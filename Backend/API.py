@@ -143,6 +143,7 @@ def callback():
             spotify_id=sp.me()['id'],
             spotify_user=sp
         )
+        print (user.spotify_id + "HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
         user.refresh_access_token(sp_oauth=sp_oauth)
         
