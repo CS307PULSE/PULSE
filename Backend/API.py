@@ -142,23 +142,22 @@ def callback():
         'redirect_uri': redirect_uri,
         'client_id': client_id,
         'client_secret': client_secret,
+        'scopes': scopes,
     }
 
+
     response = requests.post(token_url, data=payload)
+    print(response)
+    print("=============================================================")
     if response.status_code == 200:
-        access_token = response.json().get('access_token')
-        print("Access Token:", access_token)
+        token_info = response.json().get('login_token')
+        print("Login Token:", token_info)
         print("++++++++++++++++++++++++++++++++++++++++++++++")
-        return "resp" , 200, {'Reason-Phrase': 'OK'}
     else:
         print("Failed to retrieve Access Token")
         print("++++++++++++++++++++++++++++++++++++++++++++++")
         return "resp" , 200, {'Reason-Phrase': 'OK'}
-
-
-    print("token info = ")
-    print(token_info)
-    print("______________________________________")
+    
     if token_info:
         # Create a Spotify object and fetch user data
         sp = spotipy.Spotify(auth=token_info['access_token'])
