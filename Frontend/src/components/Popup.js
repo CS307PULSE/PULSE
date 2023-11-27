@@ -597,10 +597,10 @@ export default function Popup({
               <select name="timeRange" disabled={!timesField}>
                 <option value="all">All Time</option>
                 <option value="year" disabled={!timesDataEN}>
-                  Yearly
+                  All years
                 </option>
                 <option value="month" disabled={!timesDataEN}>
-                  Monthly
+                  Past 12 months
                 </option>
                 <option value="6month" disabled={!imageGraph}>
                   6 Months

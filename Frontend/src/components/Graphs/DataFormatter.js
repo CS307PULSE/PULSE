@@ -192,6 +192,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     dataOrder.push(year);
     for (const month of monthsOrder) {
       dataOrder.push(month + " " + year);
+      dataOrder.push(month);
     }
   }
   let dataOrders = [];
@@ -199,6 +200,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     dataOrders.push("User " + item);
     dataOrders.push(props.friendName + " " + item);
   }
+  console.log(dataOrders);
 
   let params = {
     itemType: itemType,
@@ -206,6 +208,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     readVal: readVal,
     dataOrder: dataOrders,
     dataSource: dataSource,
+    highestYear: highestYear,
   };
 
   let data;
@@ -314,9 +317,26 @@ function formatSelectionGraphData(props, params) {
       params.dataSource.forEach((userData, index) => {
         if (index === 0) {
           data = Object.entries(userData)
+
             .map(([timePeriod, timeItems]) => {
+              const dateDay =
+                props.timeRange === "year"
+                  ? new Date(yearMonthToDate(timePeriod))
+                  : new Date(yearMonthToDate(params.highestYear, timePeriod));
+              if (props.timeFromTo[0] !== undefined) {
+                if (new Date(props.timeFromTo[0]) > dateDay) {
+                  return null;
+                }
+              }
+              if (props.timeFromTo[1] !== undefined) {
+                if (new Date(props.timeFromTo[1]) < dateDay) {
+                  return null;
+                }
+              }
               return formatXY(
                 props.bothFriendAndOwnData
+                  ? props.friendName + " " + timePeriod
+                  : props.friendName !== undefined
                   ? props.friendName + " " + timePeriod
                   : "User " + timePeriod,
                 timeItems,
@@ -325,6 +345,7 @@ function formatSelectionGraphData(props, params) {
                 params.readVal
               );
             })
+            .filter((item) => item !== null)
             .sort((a, b) => {
               return (
                 params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x)
@@ -334,6 +355,20 @@ function formatSelectionGraphData(props, params) {
           data.concat(
             Object.entries(userData)
               .map(([timePeriod, timeItems]) => {
+                const dateDay =
+                  props.timeRange === "year"
+                    ? new Date(yearMonthToDate(timePeriod))
+                    : new Date(yearMonthToDate(params.highestYear, timePeriod));
+                if (props.timeFromTo[0] !== undefined) {
+                  if (new Date(props.timeFromTo[0]) > dateDay) {
+                    return null;
+                  }
+                }
+                if (props.timeFromTo[1] !== undefined) {
+                  if (new Date(props.timeFromTo[1]) < dateDay) {
+                    return null;
+                  }
+                }
                 return formatXY(
                   props.friendName + " " + timePeriod,
                   timeItems,
@@ -342,6 +377,7 @@ function formatSelectionGraphData(props, params) {
                   params.readVal
                 );
               })
+              .filter((item) => item !== null)
               .sort((a, b) => {
                 return (
                   params.dataOrder.indexOf(a.x) - params.dataOrder.indexOf(b.x)
@@ -369,6 +405,18 @@ function formatAllTimeGraphData(props, params) {
 
     //Yearly & monthly
     for (const year of Object.keys(userData.Yearly)) {
+      let dateDay = new Date(yearMonthToDate(year));
+      if (props.timeFromTo[0] !== undefined) {
+        if (new Date(props.timeFromTo[0]) > dateDay) {
+          continue;
+        }
+      }
+      if (props.timeFromTo[1] !== undefined) {
+        if (new Date(props.timeFromTo[1]) < dateDay) {
+          continue;
+        }
+      }
+
       tempUserData.push({
         x: year,
         y: userData.Yearly[year][params.readVal],
@@ -376,6 +424,17 @@ function formatAllTimeGraphData(props, params) {
 
       //Monthly data
       for (const month of Object.keys(userData.Yearly[year].Monthly)) {
+        dateDay = new Date(yearMonthToDate(year, month));
+        if (props.timeFromTo[0] !== undefined) {
+          if (new Date(props.timeFromTo[0]) > dateDay) {
+            continue;
+          }
+        }
+        if (props.timeFromTo[1] !== undefined) {
+          if (new Date(props.timeFromTo[1]) < dateDay) {
+            continue;
+          }
+        }
         tempUserData.push({
           x: month + " " + year,
           y: userData.Yearly[year].Monthly[month][params.readVal],
@@ -490,4 +549,22 @@ function formatSelectableItems(props) {
   return itemsSelectable.sort(function (a, b) {
     return b.value - a.value;
   });
+}
+
+function yearMonthToDate(year, month = "JANUARY") {
+  const monthToNum = {
+    JANUARY: "01",
+    FEBRUARY: "02",
+    MARCH: "03",
+    APRIL: "04",
+    MAY: "05",
+    JUNE: "06",
+    JULY: "07",
+    AUGUST: "08",
+    SEPTEMBER: "09",
+    OCTOBER: "10",
+    NOVEMBER: "11",
+    DECEMBER: "12",
+  };
+  return new Date(year + "-" + monthToNum[month.toUpperCase()] + "-01");
 }
