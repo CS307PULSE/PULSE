@@ -1,9 +1,9 @@
-from Stats import Stats
+from .Stats import Stats
 from enum import Enum
 from array import array
-from Exceptions import ErrorHandler
-from Exceptions import BadResponseError
-from Exceptions import TokenNotStoredError
+from .Exceptions import ErrorHandler
+from .Exceptions import BadResponseError
+from .Exceptions import TokenNotStoredError
 from datetime import datetime
 
 import json

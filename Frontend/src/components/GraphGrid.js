@@ -22,7 +22,7 @@ import TextGraph from "./Graphs/TextGraph.js";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 async function fetchBasicData() {
-  const response = await axios.get("http://127.0.0.1:5000/statistics", {
+  const response = await axios.get("/statistics", {
     withCredentials: true,
   });
   const data = response.data;
@@ -31,7 +31,7 @@ async function fetchBasicData() {
 }
 
 async function fetchBasicFriendData(spotify_id) {
-  const response = await axios.post("http://127.0.0.1:5000/statistics/friend", {
+  const response = await axios.post("/statistics/friend", {
     id: spotify_id,
   });
   const data = response.data;
@@ -45,7 +45,7 @@ async function fetchAdvancedFriendData(spotify_id) {
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "http://127.0.0.1:5000/friend_get_advanced_stats",
+      "/friend_get_advanced_stats",
       {
         id: spotify_id,
       }
@@ -59,7 +59,7 @@ async function fetchAdvancedFriendData(spotify_id) {
 }
 
 async function fetchAdvancedData() {
-  const response = await axios.get("http://127.0.0.1:5000/get_advanced_stats", {
+  const response = await axios.get("/get_advanced_stats", {
     withCredentials: true,
   });
   const data = response.data;
@@ -72,7 +72,7 @@ async function sendLayouts(layouts, defaultLayout) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/statistics/set_layout",
+    "/statistics/set_layout",
     {
       layout: { layouts: layouts, defaultLayout: defaultLayout },
     }

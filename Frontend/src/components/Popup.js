@@ -3,7 +3,7 @@ import axios from "axios";
 
 async function fetchFriends() {
   const response = await axios.get(
-    "http://127.0.0.1:5000/friends/get_friends",
+    "/friends/get_friends",
     {
       withCredentials: true,
     }

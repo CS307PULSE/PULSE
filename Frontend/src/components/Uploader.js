@@ -13,7 +13,7 @@ const textSizes = TextSize(1); //Obtain text size values
 var hasDataInDBInitial;
 try {
   var hasDataInDBResponse = await axios.get(
-    "http://127.0.0.1:5000/advanced_data_check", 
+    "/advanced_data_check", 
     { hasDataInDBInitial: true }
   );
   hasDataInDBInitial = hasDataInDBResponse.data;
@@ -69,7 +69,7 @@ async function sendFilepaths(filepaths) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/import_advanced_stats",
+    "/import_advanced_stats",
     { filepaths : filepaths }
   );
   const data = response.data;
