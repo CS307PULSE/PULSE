@@ -2,7 +2,7 @@
 #pip install python-dotenv
 #pip install flask-cors
 #pip install mysql.connector
-from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response
+from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response, send_from_directory
 from flask_cors import CORS, cross_origin
 from .User import User
 from datetime import datetime, timedelta
@@ -18,6 +18,7 @@ from .Playback import Playback
 import random
 import time
 import spotipy
+import requests
 from spotipy.oauth2 import SpotifyOAuth
 
 run_firebase = False
@@ -130,8 +131,33 @@ def callback():
                             scope=scope)
 
     # Validate the response from Spotify
-    token_info = sp_oauth.get_access_token(code)
+    #token_info = sp_oauth.get_access_token(code)
 
+    authorization_code = code
+
+    token_url = 'https://accounts.spotify.com/api/token'
+    payload = {
+        'grant_type': 'authorization_code',
+        'code': authorization_code,
+        'redirect_uri': redirect_uri,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'scopes': scopes,
+    }
+
+
+    response = requests.post(token_url, data=payload)
+    print(response.json())
+    print("=============================================================")
+    if response.status_code == 200:
+        token_info = response.json()
+        print("Login Token:", token_info)
+        print("++++++++++++++++++++++++++++++++++++++++++++++")
+    else:
+        print("Failed to retrieve Access Token")
+        print("++++++++++++++++++++++++++++++++++++++++++++++")
+        return "resp" , 200, {'Reason-Phrase': 'OK'}
+    
     if token_info:
         # Create a Spotify object and fetch user data
         sp = spotipy.Spotify(auth=token_info['access_token'])
@@ -141,11 +167,16 @@ def callback():
         user = User(
             display_name=user_data['display_name'],
             login_token=token_info,
-            spotify_id=sp.me()['id'],
+            spotify_id=user_data['id'],
             spotify_user=sp
         )
         print (user.spotify_id + "HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
+        expires_in = token_info['expires_in']
+        current_time = int(time.time())  # Current time in seconds since the epoch
+        expires_at = current_time + expires_in
+
+        token_info['expires_at'] = expires_at
         user.refresh_access_token(sp_oauth=sp_oauth)
         
         user_exists = False
@@ -153,15 +184,16 @@ def callback():
             user_exists = conn.does_user_exist_in_user_DB(user.spotify_id)
             if not user_exists:
                 conn.create_new_user_in_user_DB(user)
-                conn.create_new_user_in_stats_DB(user.spotify_id)
-                conn.create_new_user_in_advanced_stats_DB(user.spotify_id)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
 
         session['user'] = user.to_json()
 
+
         resp = make_response(redirect("http://127.0.0.1:5000/dashboard"))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
+        resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
+
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
