@@ -150,7 +150,7 @@ def callback():
     print(response.json())
     print("=============================================================")
     if response.status_code == 200:
-        token_info = response.json().get('login_token')
+        token_info = response.json()
         print("Login Token:", token_info)
         print("++++++++++++++++++++++++++++++++++++++++++++++")
     else:
