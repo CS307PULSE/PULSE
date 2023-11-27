@@ -37,7 +37,7 @@ app.secret_key = 'your_secret_key'
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SAMESITE='Strict',
 )
 
 scopes = [
@@ -159,7 +159,7 @@ def callback():
         session['user'] = user.to_json()
 
         resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com/dashboard"))
-        resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Lax')
+        resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
 
         return resp , 200, {'Reason-Phrase': 'OK'}
 
