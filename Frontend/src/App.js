@@ -24,7 +24,6 @@ import SongRecommendations from "./components/SongRecommendation";
 import ParameterRecommendations from "./components/ParameterRecommendation";
 import HeadsUp from "./components/HeadsUp";
 import MatchIt from "./components/MatchIt";
-
 import {
   Navigate,
   BrowserRouter as Router,
@@ -34,10 +33,9 @@ import {
 import ChatBot from "./components/ChatBot";
 
 
-
 // for the cache and DB call for fetch
 async function fetchDataCache() {
-  const response = await axios.get("http://127.0.0.1:5000/", {
+  const response = await axios.get("/boot", {
     withCredentials: true,
   });
   const data = response.data;

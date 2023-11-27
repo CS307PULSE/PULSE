@@ -112,7 +112,7 @@ const MusicPlayerName = ({
           songs: friendsRecentSongs 
           // Payload adjusted to match the expected format by the API
         };
-        const response =  axiosInstance.post('http://127.0.0.1:5000/games/playback_friends', payload);
+        const response =  axiosInstance.post('/games/playback_friends', payload);
         console.log('Playback started successfully:', response.data);
         // Additional logic after successful playback can be added here
       } catch (error) {
@@ -152,7 +152,7 @@ const MusicPlayerName = ({
         const payload = {
           friend_songs: friendSongsData,
         };
-        const response = await axiosInstance.post('http://127.0.0.1:5000/games/random_friend', payload);
+        const response = await axiosInstance.post('/games/random_friend', payload);
         const randomId = response.data;
         console.log(randomId);
         setRandomFriendId(randomId);
@@ -170,7 +170,7 @@ const MusicPlayerName = ({
   const handleEveryoneWrongClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("http://127.0.0.1:5000/player/pause")
+      .get("/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -189,7 +189,7 @@ const MusicPlayerName = ({
   const handlePlayersSelectedRightClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("http://127.0.0.1:5000/player/pause")
+      .get("/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -236,7 +236,7 @@ const MusicPlayerName = ({
   // Function to send player data to the backend
   const sendPlayerDataToBackend = () => {
     // Assuming your backend API endpoint is 'your-backend-api-endpoint'
-    const backendEndpoint = "http://127.0.0.1:5000/games/store_scores";
+    const backendEndpoint = "/games/store_scores";
 
     // Extract player scores as an array of integers
     const playerScores = players.map((player) => player.score);

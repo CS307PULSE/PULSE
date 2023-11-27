@@ -85,7 +85,7 @@ const ParameterRecommendations = () => {
       }
     async function getPlaylists() {
         const axiosInstance = axios.create({withCredentials: true});
-        var response = await axiosInstance.get("http://127.0.0.1:5000/statistics/get_saved_playlists");
+        var response = await axiosInstance.get("/statistics/get_saved_playlists");
         const parsedPlaylists = JSON.parse(response.data.saved_playlists);
         setPlaylists(parsedPlaylists);
         // console.log(parsedPlaylists);
@@ -102,7 +102,7 @@ const ParameterRecommendations = () => {
         }
     }
     async function getEmotions() {
-        var response = await axios.get("http://127.0.0.1:5000/statistics/get_saved_playlists", {withCredentials: true});
+        var response = await axios.get("/statistics/get_saved_playlists", {withCredentials: true});
         const parsedPlaylists = JSON.parse(response.data.saved_playlists);
         setPlaylists(parsedPlaylists);
     }
@@ -111,7 +111,7 @@ const ParameterRecommendations = () => {
     }, []);
     async function derivePlaylistEmotion(playlistID) {
         const axiosInstance = axios.create({withCredentials: true});
-        const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_playlist_dict", {playlist: playlistID});
+        const response = await axiosInstance.post("/recommendations/get_playlist_dict", {playlist: playlistID});
         const data = response.data;
         const newParameters = [
             data.target_energy,
@@ -132,7 +132,7 @@ const ParameterRecommendations = () => {
     }
     async function getEmotionRecommendations(name, parameters, genre) {
         const axiosInstance = axios.create({withCredentials: true});
-        const response = await axiosInstance.post("http://127.0.0.1:5000/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
+        const response = await axiosInstance.post("/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
         setSongRecommendations(response.data);
     }
     

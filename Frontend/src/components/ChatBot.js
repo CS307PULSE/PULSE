@@ -33,7 +33,7 @@ const ChatBot = () => {
                         withCredentials: true,
                       });
                       const response = await axiosInstance.post(
-                        "http://127.0.0.1:5000/chatbot/pull_songs",
+                        "/chatbot/pull_songs",
                         {
                           songlist: songs,
                         }
@@ -60,7 +60,7 @@ const ChatBot = () => {
         const sendFeedback = async () => {
             if (feedback.trim()) { // Check if feedback is not just empty spaces
                 try {
-                    const response = await axios.post('http://127.0.0.1:5000/feedback', { feedback }, { withCredentials: true });
+                    const response = await axios.post('/feedback', { feedback }, { withCredentials: true });
                     console.log(response.data); // Assuming the server sends back JSON
                 } catch (error) {
                     console.error('Error sending feedback:', error.response ? error.response.data : error.message);

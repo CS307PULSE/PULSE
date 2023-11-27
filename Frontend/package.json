@@ -1,6 +1,7 @@
 {
   "name": "pulse",
   "version": "0.1.0",
+  "proxy": "https://spotify-pulse-efa1395c58ba.herokuapp.com/",
   "private": true,
   "dependencies": {
     "@nivo/bar": "^0.83.0",
@@ -11,10 +12,7 @@
     "@nivo/radar": "^0.83.0",
     "@nivo/radial-bar": "^0.83.0",
     "@nivo/scatterplot": "^0.83.0",
-
-
     "axios": "^1.6.0",
-
     "openai": "^4.14.2",
     "react": "^18.2.0",
     "react-grid-layout": "^1.4.2",
@@ -25,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start --host 127.0.0.1 -port 3000",
-    "start-api": "cd ../Backend && flask run -h 127.0.0.1 -p 5000 --no-debugger",
+    "start-api": "cd .. && flask run -h 127.0.0.1 -p 5000 --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

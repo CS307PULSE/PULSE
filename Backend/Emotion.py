@@ -1,10 +1,3 @@
-import spotipy
-import multiprocessing
-import time
-import User
-from Exceptions import ErrorHandler
-import Emotion
-
 class Emotion:
     def getangry():
         angry = {

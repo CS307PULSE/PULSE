@@ -29,11 +29,11 @@ const PlaylistManager = () => {
   async function searchForSongs(searchString) {
     setSongSearchResults("loading");
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("http://127.0.0.1:5000/search_bar", {query: searchString});
+    const response = await axiosInstance.post("/search_bar", {query: searchString});
     setSongSearchResults(response.data);
   }
   async function playlistPost(action, payload, reloadFunction = () => {}) {
-    const route = "http://127.0.0.1:5000/playlist/" + action;
+    const route = "/playlist/" + action;
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post(route, payload);
     reloadFunction();
@@ -42,7 +42,7 @@ const PlaylistManager = () => {
   async function getPlaylists() {
     setPlaylists("loading");
     const axiosInstance = axios.create({withCredentials: true});
-    var response = await axiosInstance.get("http://127.0.0.1:5000/statistics/get_saved_playlists");
+    var response = await axiosInstance.get("/statistics/get_saved_playlists");
     const parsedPlaylists = JSON.parse(response.data.saved_playlists);
     setPlaylists(parsedPlaylists);
   }
@@ -52,7 +52,7 @@ const PlaylistManager = () => {
   async function getPlaylistSongs(playlistID) {
     setPlaylistSongs("loading");
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("http://127.0.0.1:5000/playlist/get_tracks", {playlist: playlistID});
+    const response = await axiosInstance.post("/playlist/get_tracks", {playlist: playlistID});
     const trackData = response.data.items;
     for (let i = 0; i < trackData.length; i++) {
       trackData[i] = trackData[i].track;
