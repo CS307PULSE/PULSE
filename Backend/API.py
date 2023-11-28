@@ -363,8 +363,8 @@ def update_followers():
                 most_recent_time_str = max(followers.keys())
                 most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
             else:
-                most_recent_time = current_time + timedelta(days=1)
-            if current_time - most_recent_time > timedelta(days=1):
+                most_recent_time = current_time - timedelta(days=1)
+            if current_time - most_recent_time >= timedelta(days=1):
                 return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
