@@ -2236,6 +2236,35 @@ def feedback():
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/player/refresh_player', methods=['POST'])
+def get_playing():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        try:
+            refresh_token(user)
+            playback = user.spotify_user.current_playback()
+            if playback != None:
+                is_playing = playback['is_playing']
+                current_device = playback['device']
+                volume = playback['device']['volume_percent']
+                queue = user.spotify_user.queue()
+            if is_playing: 
+                current_track = playback['item']
+            response_data = {
+                "is_playing": is_playing,
+                "current_device": current_device,
+                "volume": volume,
+                "queue": queue,
+                "current_track": current_track
+            }
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
 def send_feedback_email(feedback):
     try:
         msg = Message("New Feedback Submission", 
