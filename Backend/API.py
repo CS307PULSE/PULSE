@@ -2236,7 +2236,7 @@ def feedback():
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/refresh_player', methods=['POST'])
+@app.route('/player/refresh_player', methods=['GET'])
 def get_playing():
     if 'user' in session:
         user_data = session['user']
@@ -2260,6 +2260,23 @@ def get_playing():
                 "queue": queue,
                 "current_track": current_track
             }
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/player/search_bar', methods=['POST'])
+def get_playing():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        criteria = data.get('criteria')
+        query = data.get('query')
+        try:
+            response_data = user.search_for_items(max_items=5, items_type=criteria, query=query)
         except Exception as e:
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
