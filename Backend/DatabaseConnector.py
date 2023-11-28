@@ -1227,6 +1227,7 @@ def edit_game_settings(arr_2d, new_array, game):
     arr_2d.pop()
     return  arr_2d
 
+"""
 db_config =  {
             'host':os.getenv("DB_HOST"),  # database host
             'port': 3306,                                        # port
@@ -1235,8 +1236,8 @@ db_config =  {
             'db':os.getenv("DB_NAME"),                                        # database
             'charset':'utf8'                                     # charset encoding
             }
-
 """
+
 db_config =  {
             'host':"pulse-sql-server.mysql.database.azure.com",  # database host
             'port': 3306,                                        # port
@@ -1245,7 +1246,7 @@ db_config =  {
             'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
-"""
+
 
 #TODO: 
 #requests doesn't update unless page is reloaded. Same with Friends page and friends card

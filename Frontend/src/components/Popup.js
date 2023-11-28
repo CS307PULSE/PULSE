@@ -62,6 +62,7 @@ export default function Popup({
   const [barData, setBarData] = useState(false);
   const [lineData, setLineData] = useState(false);
   const [timesField, setTimesField] = useState(false);
+  const [validFriendData, setValidFriendData] = useState(true);
   const [friendsAvailable, setFriendsAvailable] = useState(false);
   const [wantFriendData, setWantFriendData] = useState(false);
   const [defaultFriend, setDefaultFriend] = useState();
@@ -139,6 +140,11 @@ export default function Popup({
   useEffect(() => {
     fetchFriends()
       .then((result) => {
+        if (result.length === 0) {
+          setFriendsAvailable(false);
+          setFriends(result);
+          return;
+        }
         setDefaultFriend(result[0].spotify_id);
         setFriendsAvailable(true);
         setFriends(result);
@@ -187,6 +193,15 @@ export default function Popup({
       }
     } else {
       setTimeRangeImageGraph(false);
+    }
+    if (
+      dataSelected.includes("1") ||
+      dataSelected.includes("2") ||
+      dataSelected.includes("emotion")
+    ) {
+      setValidFriendData(false);
+    } else {
+      setValidFriendData(true);
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataSelected]);
@@ -479,8 +494,12 @@ export default function Popup({
         formJson[name] = value;
       }
     }
-    console.log(formJson.timeFrom);
-    console.log(formJson.timeTo);
+    if (formJson.timeFrom !== undefined && formJson.timeTo !== undefined) {
+      if (new Date(timeTo) > new Date(timeFrom)) {
+        alert("Invalid time range - time to cannot be later than time from!");
+        return;
+      }
+    }
 
     if (formJson.preview) {
       console.log("This is graph preview:");
@@ -739,7 +758,7 @@ export default function Popup({
           ) : (
             <></>
           )}
-          {friendsAvailable ? (
+          {friendsAvailable && validFriendData ? (
             <div>
               Display Friend's Data? :
               <input
@@ -749,7 +768,7 @@ export default function Popup({
                 onChange={(e) => {
                   setWantFriendData(e.target.checked);
                 }}
-                disabled={!friendsAvailable}
+                disabled={!friendsAvailable || !validFriendData}
               />
             </div>
           ) : (

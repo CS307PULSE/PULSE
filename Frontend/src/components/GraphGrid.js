@@ -30,6 +30,15 @@ async function fetchBasicData() {
   return data;
 }
 
+async function fetchFriends() {
+  const response = await axios.get("/friends/get_friends", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
 async function fetchBasicFriendData(spotify_id) {
   const response = await axios.post("/statistics/friend", {
     id: spotify_id,
@@ -98,6 +107,7 @@ export default function GraphGrid() {
   const [followedArtists, setFollowedArtists] = useState();
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
+  const [friends, setFriends] = useState([]);
   const [friendDatas, setFriendDatas] = useState([]);
   const [friendBasicDataAvailable, setBasicFriendsAvailable] = useState({});
   const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] = useState(
@@ -234,46 +244,13 @@ export default function GraphGrid() {
           console.log(e);
         }
 
-        //Try catch for each data for parsing failure when data field empty
-        try {
-          setTopArtists(data.top_artists);
-        } catch (e) {
-          console.log("Top Artist empty");
-        }
-        try {
-          setTopSongs(data.top_songs);
-        } catch (e) {
-          console.log("Top Song empty");
-        }
-        try {
-          setRecentSongs(data.recent_history);
-        } catch (e) {
-          console.log("Recent songs empty");
-        }
-
-        try {
-          setSavedSongs(data.saved_songs);
-        } catch (e) {
-          console.log("Saved Songs empty");
-        }
-
-        try {
-          setSavedAlbums(data.saved_albums);
-        } catch (e) {
-          console.log("Saved Albums empty");
-        }
-
-        try {
-          setSavedPlaylists(data.saved_playlists);
-        } catch (e) {
-          console.log("Saved Playlists empty");
-        }
-
-        try {
-          setFollowedArtists(data.followed_artists);
-        } catch (e) {
-          console.log("Followed Artists empty");
-        }
+        setTopArtists(data.top_artists);
+        setTopSongs(data.top_songs);
+        setRecentSongs(data.recent_history);
+        setSavedSongs(data.saved_songs);
+        setSavedAlbums(data.saved_albums);
+        setSavedPlaylists(data.saved_playlists);
+        setFollowedArtists(data.followed_artists);
 
         //Followers
         if (data.follower_data === "") {
@@ -327,6 +304,10 @@ export default function GraphGrid() {
         setFinished(true);
       }
     };
+
+    fetchFriends().then((result) => {
+      setFriends(result.map((friend) => friend.spotify_id));
+    });
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -474,6 +455,9 @@ export default function GraphGrid() {
     try {
       //Get data for friend if not gotten before
       if (props.friendName !== undefined) {
+        if (!friends.includes(props.friendID)) {
+          return null;
+        }
         console.log(props);
 
         const friendIndex = friendDatas.findIndex((element, index) => {
