@@ -5,6 +5,8 @@ import axios from "axios";
 import { useAppContext } from "./Context"
 import TextSize from "../theme/TextSize";
 import { hexToRGBA, presetColors } from "../theme/Colors";
+axios.defaults.baseURL = process.env.SITE_URI;
+
 
 const customBackgrounds = [ "https://images.pexels.com/photos/2382325/pexels-photo-2382325.jpeg?cs=srgb&dl=pexels-suzy-hazelwood-2382325.jpg&fm=jpg",
                             "https://wallpapers.com/images/featured/blue-galaxy-txrbj85vrv1fzm4c.jpg",

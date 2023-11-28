@@ -31,7 +31,7 @@ import {
   Routes,
 } from "react-router-dom";
 import ChatBot from "./components/ChatBot";
-
+axios.defaults.baseURL = process.env.SITE_URI;
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
