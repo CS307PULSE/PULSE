@@ -15,11 +15,42 @@
   cursor: pointer;
 }
 
+.GraphSVG {
+  height: 90%;
+  width: 100%;
+}
+
+.previewContainer {
+  height: 40%;
+  width: 20%;
+}
+
+.previewHeader {
+  position: relative;
+  top: 0;
+  left: 0;
+  margin: 0;
+}
+
 .PopupCloseButton {
   outline: 0 0 0;
-  position: relative;
-  top: -10px;
-  right: -110px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+}
+
+.FilterButton {
+  outline: 0 0 0;
+  position: absolute;
+  top: 4.5px;
+  right: 40px;
+  cursor: pointer;
+}
+
+.FilterTopButton {
+  outline: 0 0 0;
+  position: static;
   cursor: pointer;
 }
 
@@ -66,6 +97,7 @@
   border-radius: 5px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   max-width: 80%;
+  position: relative;
 }
 
 .graphContainer {

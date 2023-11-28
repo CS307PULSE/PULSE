@@ -1,11 +1,14 @@
 *.cache
 *.pyc
+.env
+Backend/testencrypt.py
+Backend/token_cache.txt
 Frontend/node_modules/*
 Frontend/build/*
+Frontend/.env
 StatisticsPage/node_modules/*
 Backend/node_modules/*
 functions/*
-package.json
 Testing/shaffeblasta.jpg
 node_modules/*
 Backend/advanced_stats_output.json

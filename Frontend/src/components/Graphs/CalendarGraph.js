@@ -1,34 +1,11 @@
 import { ResponsiveCalendar } from "@nivo/calendar";
 import graphThemes from "./Graphs.js";
 import { useEffect, useState } from "react";
+import { formatFollowerData } from "./DataFormatter.js";
 
 export const CalendarGraph = (props) => {
   const [data, setData] = useState();
-  const fixFollowerData = () => {
-    const dataArr = Object.keys(props.data).map((key) => ({
-      value: props.data[key],
-      day: key,
-    }));
-    let tempData = [];
-
-    for (const dataPoint of dataArr) {
-      const dayToFind = dataPoint.day.split(" ")[0];
-      const index = tempData.findIndex((obj) => obj.day === dayToFind);
-      //already exists data
-      if (index === -1) {
-        tempData.push({ value: dataPoint.value, day: dayToFind });
-      } else {
-        if (tempData[index].value < dataPoint.value) {
-          tempData[index].value = dataPoint.value;
-        }
-      }
-    }
-    tempData.sort((a, b) => {
-      // Assuming the "day" values are in the format "YYYY-MM-DD"
-      return new Date(a.day) - new Date(b.day);
-    });
-    return tempData;
-  };
+  const [fromTo, setFromTo] = useState(["2015-03-01", "2016-07-12"]);
 
   useEffect(() => {
     if (props.data === undefined || props.data === null) {
@@ -37,7 +14,11 @@ export const CalendarGraph = (props) => {
     }
     try {
       if (props.dataName === "followers") {
-        setData(fixFollowerData());
+        let tempData = formatFollowerData(props);
+        setFromTo([tempData[0].day, tempData[tempData.length - 1].day]);
+        setData(tempData);
+      } else {
+        setData(props.data);
       }
     } catch (e) {
       console.error(e);
@@ -53,32 +34,34 @@ export const CalendarGraph = (props) => {
   }
 
   try {
-    console.log(props.graphTheme);
+    console.log(data);
     return (
-      <ResponsiveCalendar
-        theme={graphThemes}
-        data={data}
-        from={data[0].day}
-        to={data[data.length - 1].day}
-        emptyColor="#eeeeee"
-        margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-        yearSpacing={40}
-        monthBorderColor="#ffffff"
-        dayBorderWidth={2}
-        dayBorderColor="#ffffff"
-        legends={[
-          {
-            anchor: "bottom-right",
-            direction: "row",
-            translateY: 36,
-            itemCount: 4,
-            itemWidth: 42,
-            itemHeight: 36,
-            itemsSpacing: 14,
-            itemDirection: "right-to-left",
-          },
-        ]}
-      />
+      <div className="GraphSVG">
+        <ResponsiveCalendar
+          theme={graphThemes}
+          data={data}
+          from={fromTo[0]}
+          to={fromTo[1]}
+          emptyColor="#eeeeee"
+          margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+          yearSpacing={40}
+          monthBorderColor="#ffffff"
+          dayBorderWidth={2}
+          dayBorderColor="#ffffff"
+          legends={[
+            {
+              anchor: "bottom-right",
+              direction: "row",
+              translateY: 36,
+              itemCount: 4,
+              itemWidth: 42,
+              itemHeight: 36,
+              itemsSpacing: 14,
+              itemDirection: "right-to-left",
+            },
+          ]}
+        />
+      </div>
     );
   } catch (e) {
     console.error(e);

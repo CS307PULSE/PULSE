@@ -30,14 +30,70 @@ export const RadarGraph = (props) => {
 
   const [data, setData] = useState();
   const [keys, setKeys] = useState([]);
-  const [itemsSelected, setItemsSelected] = useState();
+  const [itemsSelectable, setItemsSelectable] = useState(undefined);
+  const [itemsSelected, setItemsSelected] = useState([]);
+  const [selectionGraph, setSelectionGraph] = useState(false);
+
+  async function getEmotions() {
+    let tempKeys = [];
+    let tempData = [
+      {
+        emotion: "Angry",
+      },
+      {
+        emotion: "Happy",
+      },
+      {
+        emotion: "Sad",
+      },
+    ];
+    for (let item of itemsSelected) {
+      const newData = props.data[2][Number(item.split(",")[1])];
+      tempKeys.push(newData.name);
+      await getEmotion(newData.id, newData.popularity).then((emotions) => {
+        tempData[0] = {
+          ...tempData[0],
+          [newData.name]: emotions["percent_angry"] * 100,
+        };
+        tempData[1] = {
+          ...tempData[1],
+          [newData.name]: emotions["percent_happy"] * 100,
+        };
+        tempData[2] = {
+          ...tempData[2],
+          [newData.name]: emotions["percent_sad"] * 100,
+        };
+      });
+    }
+    setKeys(tempKeys);
+    setData(tempData);
+  }
+
+  useEffect(() => {
+    try {
+      if (props.dataName === "emotionData") {
+        setSelectionGraph(true);
+        setItemsSelectable(props.data[2]);
+      } else {
+        setSelectionGraph(false);
+        setKeys(props.keys);
+        setData(props.data);
+      }
+    } catch (e) {
+      console.error(e);
+      setData("Bad Data");
+    }
+    setItemsSelected(props.selectedData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     console.log(itemsSelected);
     if (itemsSelected === undefined || itemsSelected.length === 0) {
       return;
     }
-    if (props.dataName.includes("emotion")) {
+    if (props.dataName === "emotion") {
+      setSelectionGraph(true);
       setKeys([itemsSelected[0].name]);
       getEmotion(itemsSelected[0].id, itemsSelected[0].popularity).then(
         (emotions) => {
@@ -58,52 +114,64 @@ export const RadarGraph = (props) => {
           setData(tempObj);
         }
       );
+    } else if (props.dataName === "emotionData") {
+      setSelectionGraph(true);
+      getEmotions();
     }
+    props.selectData(itemsSelected, props.graphName);
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsSelected]);
 
-  if (data === undefined) {
+  if (data === undefined || keys.length === 0) {
     return (
-      <>
-        <FilterPopup
-          isOpen={isPopupOpen}
-          onClose={closePopup}
-          setItems={setItemsSelected}
-        />
-        <button
-          className="PopupCloseButton custom-draggable-cancel"
-          onClick={openPopup}
-        >
-          Select Data
-        </button>
-      </>
+      <div>
+        <div>
+          <FilterPopup
+            isOpen={isPopupOpen}
+            onClose={closePopup}
+            setItems={setItemsSelected}
+            itemsSelectable={itemsSelectable}
+            maxSelection={10}
+            emotionData={props.dataName === "emotionData"}
+          />
+          <button
+            className="FilterButton custom-draggable-cancel"
+            onClick={openPopup}
+          >
+            ¥
+          </button>
+        </div>
+        <div>Waiting for valid song title</div>
+      </div>
     );
   }
+
   return (
-    <>
-      {props.data === undefined ? (
+    <div className="GraphSVG">
+      {selectionGraph ? (
         <>
           <FilterPopup
             isOpen={isPopupOpen}
             onClose={closePopup}
             setItems={setItemsSelected}
+            itemsSelectable={itemsSelectable}
+            maxSelection={25}
+            emotionData={props.dataName === "emotionData"}
           />
           <button
-            className="PopupCloseButton custom-draggable-cancel"
+            className="FilterButton custom-draggable-cancel"
             onClick={openPopup}
           >
-            Filter
+            ¥
           </button>
         </>
-      ) : (
-        <></>
-      )}
+      ) : null}
       <ResponsiveRadar
         theme={graphThemes}
         data={data}
         keys={keys}
         indexBy="emotion"
-        maxValue={1.0}
+        maxValue={100.0}
         valueFormat=">-.2f"
         margin={{
           top: 40,
@@ -150,7 +218,7 @@ export const RadarGraph = (props) => {
             : undefined
         }
       />
-    </>
+    </div>
   );
 };
 

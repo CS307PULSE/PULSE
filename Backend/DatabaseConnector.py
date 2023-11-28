@@ -1,6 +1,7 @@
 import mysql.connector
 from .User import User
 from .User import Theme
+from .AESCipher import AESCipher
 import os
 import json
 
@@ -72,9 +73,14 @@ class DatabaseConnector(object):
                                 location,
                                 gender) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
         
-               
+            encrypted_token=new_user.login_token
+            with AESCipher(os.getenv("DB_KEY")) as cyph:
+                encrypted_token["access_token"] = cyph.encrypt(new_user.login_token["access_token"]).decode("utf-8")
+            with AESCipher(os.getenv("DB_KEY")) as cyph:
+                encrypted_token["refresh_token"] = cyph.encrypt(new_user.login_token["refresh_token"]).decode("utf-8")
+                   
             self.db_cursor.execute(sql_store_new_user_query, (new_user.display_name, 
-                                                json.dumps(new_user.login_token),
+                                                json.dumps(encrypted_token),
                                                 new_user.spotify_id,
                                                 create_friends_string_for_DB(new_user.friends),
                                                 int(new_user.theme.value),
@@ -494,6 +500,8 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_full_user_query, (spotify_id,))
         record = self.db_cursor.fetchall()
         #TODO no need for loop
+        
+        
         for row in record:
             userFromDB = User(display_name=row[1],                                                              
                          login_token=json.loads(row[2]),                                                               
@@ -502,7 +510,15 @@ class DatabaseConnector(object):
                          theme=Theme(row[5]),
                          location = row[9],
                          gender = row[10],
-                         chosen_song = row[15],)       
+                         chosen_song = row[15],)
+            
+            decrypted_token=userFromDB.login_token
+            with AESCipher(os.getenv("DB_KEY")) as cyph:
+                decrypted_token["access_token"] = cyph.decrypt(userFromDB.login_token["access_token"])
+            with AESCipher(os.getenv("DB_KEY")) as cyph:
+                decrypted_token["refresh_token"] = cyph.decrypt(userFromDB.login_token["refresh_token"])
+
+            userFromDB.login_token = decrypted_token   
             return userFromDB
 
     def get_entire_genre_groups_from_DB(self, spotify_id, genre_groups):
@@ -1034,9 +1050,14 @@ class DatabaseConnector(object):
         
     # Update token (expected JSON object) in user DB. Returns 1 if successful, -1 if not. 
     def update_token(self, spotify_id, login_token):
+        encrypted_token=login_token
+        with AESCipher(os.getenv("DB_KEY")) as cyph:
+            encrypted_token["access_token"] = cyph.encrypt(login_token["access_token"]).decode("utf-8")
+        with AESCipher(os.getenv("DB_KEY")) as cyph:
+            encrypted_token["refresh_token"] = cyph.encrypt(login_token["refresh_token"]).decode("utf-8")
         try:
             sql_update_token_query = """UPDATE pulse.users SET login_token = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_token_query, (json.dumps(login_token), spotify_id,))
+            self.db_cursor.execute(sql_update_token_query, (json.dumps(encrypted_token), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -1205,23 +1226,13 @@ def edit_game_settings(arr_2d, new_array, game):
     # Remove the last array
     arr_2d.pop()
     return  arr_2d
-"""
+
 db_config =  {
             'host':os.getenv("DB_HOST"),  # database host
             'port': 3306,                                        # port
             'user':os.getenv("DB_USER"),                          # username
             'passwd':os.getenv("DB_PASSWORD"),                      # password
             'db':os.getenv("DB_NAME"),                                        # database
-            'charset':'utf8'                                     # charset encoding
-            }
-"""
-
-db_config =  {
-            'host':"pulse-sql-server.mysql.database.azure.com",  # database host
-            'port': 3306,                                        # port
-            'user':"pulse_admin_userz",                          # username
-            'passwd':"PurdueCS307R0cks!&!",                      # password
-            'db':"pulse",                                        # database
             'charset':'utf8'                                     # charset encoding
             }
 
