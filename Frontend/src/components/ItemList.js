@@ -59,8 +59,8 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     var image = null;
     switch (type) {
       case "songs" : image = data[index].album.images[0]; break;
-      case "albums": image = 0; break;
-      case "artists": image = 0; break;
+      // case "albums": image = 0; break;
+      // case "artists": image = 0; break;
       case "playlists": image = data[index].images[0]; break;
     }
     if (image) {
@@ -75,7 +75,9 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     }
     return buttons.map((button, index) => (
       <div key={index}>
-        <button style={{...buttonStyle, width: button.width}} onClick={() => {button.onClick(item)}}>{button.text}</button>
+        <button style={{...buttonStyle, width: button.width, fontSize: button.size}} 
+          onClick={() => {button.onClick(item)}}>{button.value}</button>
+        {/* {type == "image" ? <img style={{width: button.width}} onClick={() => {button.onClick(item)}} src={button.value}></img> : ""} */}
       </div>
     ));
   }
@@ -121,6 +123,7 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
                 </div>
               );
             case "albums":
+              
             case "artists":
           }
         })()

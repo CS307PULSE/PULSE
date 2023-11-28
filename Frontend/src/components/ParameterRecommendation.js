@@ -7,6 +7,7 @@ import { hexToRGBA } from "../theme/Colors";
 import { parameterInfo, presetEmotions } from "../theme/Emotions";
 import axios from "axios";
 import { genreList } from "../theme/Emotions";
+import ItemList from "./ItemList";
 
 const ParameterRecommendations = () => {  
     const { state, dispatch } = useAppContext();
@@ -84,23 +85,15 @@ const ParameterRecommendations = () => {
         }
       }
     async function getPlaylists() {
+        setPlaylists("loading");
         const axiosInstance = axios.create({withCredentials: true});
         var response = await axiosInstance.get("/statistics/get_saved_playlists");
-        const parsedPlaylists = JSON.parse(response.data.saved_playlists);
+        const parsedPlaylists = response.data.saved_playlists ? JSON.parse(response.data.saved_playlists) : [];
         setPlaylists(parsedPlaylists);
-        // console.log(parsedPlaylists);
     }
     useEffect(() => {
         getPlaylists();
     }, []);
-    function getPlaylistImage(index) {
-        const image = playlists[index].images[0];
-        if (image) {
-            return image.url;
-        } else {
-            return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
-        }
-    }
     async function getEmotions() {
         var response = await axios.get("/statistics/get_saved_playlists", {withCredentials: true});
         const parsedPlaylists = JSON.parse(response.data.saved_playlists);
@@ -284,16 +277,11 @@ const ParameterRecommendations = () => {
                         <input type="text" style={buttonStyle} value={derivedEmotionName} onChange={e => {setDerivedEmotionName(e.target.value)}}></input>
                         <button style={{...buttonStyle, width: "200px"}} onClick={() => {derivePlaylistEmotion(playlists[selectedPlaylistIndex].id)}}>Derive Emotion</button>
                     </div>
-                    {playlists.length > 0 && playlists.map((item, index) => (
-                    <div key={index} style={{...selectionDisplayStyle, 
-                        border: (index == selectedPlaylistIndex ?  "5px" : "1px") + " solid " + (index == selectedPlaylistIndex ? state.colorAccent : state.colorBorder)}} 
-                        onClick={() => {setSelectedPlaylistIndex(index)}}>
-                        <img style={imageStyle} src={getPlaylistImage(index)}></img>
-                        <div>
-                        <p style={textStyle}>{item.name}</p>
-                        </div>
-                    </div>
-                    ))}
+                    <ItemList 
+                        type="playlists" data={playlists} 
+                        selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
+                        buttons={[]}
+                    />
                 </div>
             </div>
             </div>

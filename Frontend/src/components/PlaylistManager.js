@@ -15,8 +15,8 @@ const PlaylistManager = () => {
 
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(-1);
-  const [songSearchString, setSongSearchString] = useState("");
-  const [songSearchResults, setSongSearchResults] = useState([]);
+  const [searchString, setSearchString] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [playlistSongs, setPlaylistSongs] = useState([]);
 
   const [playlistName, setPlaylistName] = useState("New Playlist");
@@ -27,10 +27,10 @@ const PlaylistManager = () => {
   const [imagePath, setImagePath] = useState("");
 
   async function searchForSongs(searchString) {
-    setSongSearchResults("loading");
+    setSearchResults("loading");
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("/search_bar", {query: searchString});
-    setSongSearchResults(response.data);
+    setSearchResults(response.data);
   }
   async function playlistPost(action, payload, reloadFunction = () => {}) {
     const route = "/playlist/" + action;
@@ -43,7 +43,7 @@ const PlaylistManager = () => {
     setPlaylists("loading");
     const axiosInstance = axios.create({withCredentials: true});
     var response = await axiosInstance.get("/statistics/get_saved_playlists");
-    const parsedPlaylists = JSON.parse(response.data.saved_playlists);
+    const parsedPlaylists = response.data.saved_playlists ? JSON.parse(response.data.saved_playlists) : [];
     setPlaylists(parsedPlaylists);
   }
   useEffect(() => {
@@ -224,7 +224,7 @@ const PlaylistManager = () => {
             <ItemList 
               type="songs" data={playlistSongs} 
               buttons={[
-                {text: "Remove", width: "80px",
+                {width: "40px", value: "-", size: "30px",
                   onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
                     () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
                 }
@@ -233,15 +233,15 @@ const PlaylistManager = () => {
           <div style={sectionContainerStyle}>
             <p style={headerTextStyle}>Add Songs</p>
             <div style={buttonContainerStyle}>
-                <input type="text" style={buttonStyle} value={songSearchString}
-                  onChange={e => {setSongSearchString(e.target.value)}}
-                  onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(songSearchString)}}}></input>
-                <button style={buttonStyle} onClick={() => {searchForSongs(songSearchString)}}>Search</button>
+                <input type="text" style={buttonStyle} value={searchString}
+                  onChange={e => {setSearchString(e.target.value)}}
+                  onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(searchString)}}}></input>
+                <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
             </div>
-            <ItemList 
-              type="songs" data={songSearchResults}
+            <ItemList
+              type="songs" data={searchResults}
               buttons={[
-                {text: "Add", width: "80px", 
+                {width: "40px", value: "+", size: "30px",
                   onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
                     () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
                 }

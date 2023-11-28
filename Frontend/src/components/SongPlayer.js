@@ -16,7 +16,7 @@ function SongPlayer() {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("queue");
   
-  const [currentTrack, setCurrentTrack] = (null);
+  const [currentTrack, setCurrentTrack] = useState(null);
   const [albumArt, setAlbumArt] = useState("https://upload.wikimedia.org/wikipedia/en/4/45/Blackwaterpark.jpg");
 
   const [queueData, setQueueData] = ([]);
@@ -101,6 +101,16 @@ function SongPlayer() {
     );
     const data = response.data;
     return data;
+  }
+  async function syncPlayer() {
+    // Update queue
+    // Update player
+  }
+  async function addToQueue() {
+    syncPlayer();
+  }
+  async function removeFromQueue() {
+    syncPlayer();
   }
   async function searchForSongs(searchString) {
     setSongSearchResults("loading");
@@ -206,26 +216,27 @@ function SongPlayer() {
   
   if (expanded) { return (
     <div style={expandedPlayerStyle}>
-      <div style={{width:"30%"}}> {/* Column 1 */}
+      <div style={{width:"32%"}}> {/* Column 1 */}
         <div style={{...sectionContainerStyle, textAlign:"center"}}>
           <img style={expandedAlbumArtStyle} src={albumArt}></img>
-          <p style={textStyle}>Song Name</p>
-          <p style={textStyle}>Artist Name</p>
-          <img onClick={() => {setMode("queue")}} style={{height: "40px", margin: "10px"}} src={images.queueButton}></img>
-          <img onClick={() => {setMode("search")}} style={{height: "40px", margin: "10px"}} src={images.searchButton}></img>
+          <button onClick={() => {}} style={{...buttonStyle, position: "absolute", bottom: "10px", right: "10px", width: "60px"}}>Sync</button>
+          {/* <p style={textStyle}>{currentTrack.}</p> */}
+          {/* <p style={textStyle}>{currentTrack.}</p> */}
         </div>
         <div>
         </div>
       </div>
-      <div style={{width:"30%"}}> {/* Column 2 */}
+      <div style={{width:"34%"}}> {/* Column 2 */}
           {(() => {
             switch (mode) {
               case "queue":
                 return (
-                  <div style={sectionContainerStyle}>
+                  <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
                     <p style={headerTextStyle}>Queue</p>
+                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
+                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
                     <ItemList 
-                    type="songs" data={queueData}
+                    type="songs" data={queueData} onClick={() => {}}
                     buttons={[
                       {text: "-", width: "80px"
                       }
@@ -234,24 +245,31 @@ function SongPlayer() {
                 );
               case "search":
                 return (
-                  <div style={sectionContainerStyle}>
+                  <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
                     <p style={headerTextStyle}>Add Songs</p>
+                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
+                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
                     <div style={buttonContainerStyle}>
                       <input type="text" style={buttonStyle} value={songSearchString}
                         onChange={e => {setSongSearchString(e.target.value)}}
                         onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(songSearchString)}}}></input>
-                      <button style={buttonStyle} onClick={() => {searchForSongs(songSearchString)}}>Search</button>
+                      <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(songSearchString)}}>Search</button>
                     </div>
                     <ItemList 
                     type="songs" data={songSearchResults}
                     buttons={[
-                      {text: "+", width: "80px"
+                      {width: "40px", value: "+", size: "30px",
+                        onClick: (item) => {}
                       }
                     ]}/>
                   </div>
                 );
             }
           })()}
+      </div>
+      <div style={{width:"32%"}}> {/* Column 3 */}
+        <div style={{...sectionContainerStyle, textAlign:"center"}}>
+        </div>
       </div>
       <div style={songPlayerStyle}>
         <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
