@@ -1,5 +1,6 @@
 *.cache
 *.pyc
+.env
 Backend/testencrypt.py
 Backend/token_cache.txt
 Frontend/node_modules/*
