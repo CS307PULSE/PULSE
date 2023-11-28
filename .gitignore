@@ -5,6 +5,7 @@ Backend/testencrypt.py
 Backend/token_cache.txt
 Frontend/node_modules/*
 Frontend/build/*
+Frontend/.env
 StatisticsPage/node_modules/*
 Backend/node_modules/*
 functions/*
