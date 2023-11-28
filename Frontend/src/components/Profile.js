@@ -5,6 +5,8 @@ import axios from "axios";
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA, presetColors } from "../theme/Colors";
+axios.defaults.baseURL = process.env.SITE_URI;
+
 
 axios.defaults.baseURL = process.env.REACT_APP_BE_URL;
 
