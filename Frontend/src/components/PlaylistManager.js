@@ -93,8 +93,6 @@ const PlaylistManager = () => {
   const textStyle = {
     color: state.colorText,
     fontSize: textSizes.body,
-    fontStyle: "normal",
-    fontFamily: "'Poppins', sans-serif",
     margin: "5px"
   };
   const headerTextStyle = {
@@ -233,7 +231,7 @@ const PlaylistManager = () => {
               ]}/>
           </div>
           <div style={sectionContainerStyle}>
-          <p style={headerTextStyle}>Add Songs</p>
+            <p style={headerTextStyle}>Add Songs</p>
             <div style={buttonContainerStyle}>
                 <input type="text" style={buttonStyle} value={songSearchString}
                   onChange={e => {setSongSearchString(e.target.value)}}

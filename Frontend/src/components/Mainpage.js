@@ -7,7 +7,6 @@ import Uploader from "./Uploader";
 import SongPlayer from "./SongPlayer";
 import { useAppContext } from "./Context"
 import StatsCard from "./StatsCard";
-import ChatbotButton from "./ChatBotButton";
 import axios from "axios";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
@@ -205,7 +204,6 @@ function Mainpage() {
           </Card>
         </div>
         {/* Define routes for each game */}
-        <ChatbotButton/>
         <div style={friendContainerStyle}>
           <FriendsCard />
         </div>

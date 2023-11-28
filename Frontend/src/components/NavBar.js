@@ -16,33 +16,36 @@ const Navbar = () => {
     backgroundColor: state.colorAccent,
     padding: '0 1rem',
     color: state.colorText,
-    /*position: "fixed",
-    top: "0",
-    left: 0,
-    width: "100%"*/
   };
 
   const logoStyle = {
     fontSize: '1.5rem',
     height: 60,
   };
-
   const linkContainerStyle = {
     display: 'flex',
+    overflowX: "auto",
+    overflowY: "hidden",
+    height: "64px",
+    alignItems: "center"
   };
-
   const linkStyle = {
+    display: "flex",
+    justifyContent: 'center',
+    alignItems: 'center',
     color: state.colorText,
     fontWeight: 500,
     textTransform: 'uppercase',
     fontFamily: "'Poppins', sans-serif",
-    textDecoration: 'none', 
-    margin: '0 1rem',
-    padding: '0.5rem 1rem',
+    textDecoration: 'none',
+    margin: '10px 10px',
+    padding: '5px',
+    width: "160px",
+    height: "25px",
     borderRadius: 20,
     backgroundColor: state.colorBackground,
+    whiteSpace: "nowrap"
   };
-
   const profileIconStyle = {
     width: '30px',
     height: '30px',
@@ -58,24 +61,19 @@ const Navbar = () => {
 
       <div style={linkContainerStyle}>
         <div style={linkStyle}>
-          <Link to="/statistics" style={linkStyle}>
-            Statistics
-          </Link>
+          <Link to="/statistics" style={linkStyle}>Statistics</Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/DJmixer" style={linkStyle}>
-            DJ Mixer
-          </Link>
+          <Link to="/DJMixer" style={linkStyle}>DJ Mixer</Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/games" style={linkStyle}>
-            Games
-          </Link>
+          <Link to="/games" style={linkStyle}>Games</Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/match" style={linkStyle}>
-            Match It
-          </Link>
+          <Link to="/match" style={linkStyle}>Match It</Link>
+        </div>
+        <div style={linkStyle}>
+          <Link to="/pulsebot" style={linkStyle}>PulseBot</Link>
         </div>
       </div>
 

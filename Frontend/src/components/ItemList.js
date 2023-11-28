@@ -7,7 +7,7 @@ import { hexToRGBA } from '../theme/Colors';
 const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) => {} }) => {  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
-
+  
   const itemDisplayStyle = {
     backgroundColor: state.colorBackground,
     width: "100% - 20px",
@@ -50,9 +50,12 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     fontFamily: "'Poppins', sans-serif",
     margin: "20px",
     fontStyle: "italic"
-  }
+  };
 
   function getImage(index) {
+    if (!data[index]) { //Return null if index is invalid
+      return null;
+    }
     var image = null;
     switch (type) {
       case "songs" : image = data[index].album.images[0]; break;
@@ -77,7 +80,6 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     ));
   }
   if (data == "loading") {
-    console.log("FUCK");
     return (
       <div style={{textAlign: "center"}}>
         <p style={loadingTextStyle}>Loading...</p>
@@ -87,9 +89,11 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
 
   return (
     <div>
-      {/* <p style={headerTextStyle}>Playlists</p> */}
       {data && data.map((item, index) => (
         (() => {
+          if (!item) {
+            return ("");
+          } 
           switch (type) {
             case "playlists":
               return (
