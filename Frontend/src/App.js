@@ -31,7 +31,7 @@ import {
   Routes,
 } from "react-router-dom";
 import ChatBot from "./components/ChatBot";
-
+axios.defaults.baseURL = process.env.REACT_APP_SITE_URI;
 
 // for the cache and DB call for fetch
 async function fetchDataCache() {
@@ -65,39 +65,51 @@ function App() {
   };
   return (
     <AppContextProvider>
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            isCacheDB ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Login onLoginClick={handleLoginClick} />
-            )
-          }
-        />
-        <Route path="/dashboard" element={<Mainpage />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="game/guess-the-song" element={<GuessTheSong />} />
-        <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
-        <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
-        <Route path="game/guess-who-listens" element={<GuessWhoListens />} />
-        <Route path="/game/heads-up" element={<HeadsUp />} />
-        <Route path="/Statistics" element={<StatisticsPage />} />
-        <Route path="/PulseBot" element={<ChatBot />} />
-        <Route path="/games" element={<Games />} />
-        <Route path="/DJmixer" element={<DJMixer />} />
-        <Route path="/DJmixer/SongRecommendation" element={<SongRecommendations />} />
-        <Route path="/DJmixer/ParameterRecommendation" element={<ParameterRecommendations />} />
-        <Route path="/DJmixer/PlaylistRecommendation" element={<PlaylistRecommendation />} />
-        <Route path="/DJmixer/PlaylistManager" element={<PlaylistManager />} />
-        <Route path="/friends/addFriends" element={<AddFriends />} />
-        <Route path="/friends/friendRequests" element={<FriendRequests />} />
-        <Route path="/friends" element={<Friends />} />
-        <Route path="/match" element={<MatchIt />} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              isCacheDB ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <Login onLoginClick={handleLoginClick} />
+              )
+            }
+          />
+          <Route path="/dashboard" element={<Mainpage />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="game/guess-the-song" element={<GuessTheSong />} />
+          <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
+          <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
+          <Route path="game/guess-who-listens" element={<GuessWhoListens />} />
+          <Route path="/game/heads-up" element={<HeadsUp />} />
+          <Route path="/Statistics" element={<StatisticsPage />} />
+          <Route path="/PulseBot" element={<ChatBot />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/DJmixer" element={<DJMixer />} />
+          <Route
+            path="/DJmixer/SongRecommendation"
+            element={<SongRecommendations />}
+          />
+          <Route
+            path="/DJmixer/ParameterRecommendation"
+            element={<ParameterRecommendations />}
+          />
+          <Route
+            path="/DJmixer/PlaylistRecommendation"
+            element={<PlaylistRecommendation />}
+          />
+          <Route
+            path="/DJmixer/PlaylistManager"
+            element={<PlaylistManager />}
+          />
+          <Route path="/friends/addFriends" element={<AddFriends />} />
+          <Route path="/friends/friendRequests" element={<FriendRequests />} />
+          <Route path="/friends" element={<Friends />} />
+          <Route path="/match" element={<MatchIt />} />
+        </Routes>
+      </Router>
     </AppContextProvider>
   );
 }
