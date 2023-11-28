@@ -16,15 +16,20 @@ function SongPlayer() {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("queue");
   
+  
   const [currentTrack, setCurrentTrack] = useState(null);
   const [albumArt, setAlbumArt] = useState("https://upload.wikimedia.org/wikipedia/en/4/45/Blackwaterpark.jpg");
+  const [devices, setDevices] = useState(["asd", "asdda"]);
+  const [currentDevice, setCurrentDevice] = useState();
 
   const [queueData, setQueueData] = ([]);
+  const [searchMode, setSearchMode] = useState("songs");
   const [songSearchString, setSongSearchString] = useState("");
   const [songSearchResults, setSongSearchResults] = useState([]);
 
-  function nextSong() { //Nexting
-    axios
+
+  async function nextSong() { //Nexting
+    await axios
       .get("/player/skip", { withCredentials: true })
       .then((response) => {
         console.log("Song nexted successfully:", response.data);
@@ -32,9 +37,10 @@ function SongPlayer() {
       .catch((error) => {
         console.error("Error skipping song:", error);
       });
+    syncPlayer();
   }
-  function previousSong() { //Preving
-    axios
+  async function previousSong() { //Preving
+    await axios
       .get("/player/prev", { withCredentials: true })
       .then((response) => {
         console.log("Song preved successfully:", response.data);
@@ -42,9 +48,10 @@ function SongPlayer() {
       .catch((error) => {
         console.error("Error preving song:", error);
       });
+    syncPlayer();
   }
-  function toggleRepeat() {
-    axios
+  async function toggleRepeat() {
+    await axios
       .get("/player/repeat", { withCredentials: true })
       .then((response) => {
         console.log("Repeat toggled successfully:", response.data);
@@ -53,8 +60,8 @@ function SongPlayer() {
         console.error("Error toggling repeat:", error);
       });
   }
-  function toggleShuffle() {
-    axios
+  async function toggleShuffle() {
+    await axios
       .get("/player/shuffle", { withCredentials: true })
       .then((response) => {
         console.log("Shuffle toggled successfully:", response.data);
@@ -64,7 +71,7 @@ function SongPlayer() {
       });
   }
   useEffect(() => {
-    if (playState === undefined) {
+    if (playState == undefined) {
     } else if (playState) {
       //Play and pause
       axios
@@ -106,6 +113,9 @@ function SongPlayer() {
     // Update queue
     // Update player
   }
+  useEffect(() => {
+    syncPlayer();
+  }, []);
   async function addToQueue() {
     syncPlayer();
   }
@@ -222,6 +232,15 @@ function SongPlayer() {
           <button onClick={() => {}} style={{...buttonStyle, position: "absolute", bottom: "10px", right: "10px", width: "60px"}}>Sync</button>
           {/* <p style={textStyle}>{currentTrack.}</p> */}
           {/* <p style={textStyle}>{currentTrack.}</p> */}
+          <select 
+            value={currentDevice} 
+            onChange={(e) => setDevices(e.target.value)} 
+            style={{...buttonStyle, width: "250px", position: "absolute", bottom: "10px", left: "10px"}}
+          >
+            {devices.map((item, index) => (
+              <option key={index} value={item}>{item}</option>
+            ))}
+          </select>
         </div>
         <div>
         </div>
@@ -233,8 +252,8 @@ function SongPlayer() {
                 return (
                   <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
                     <p style={headerTextStyle}>Queue</p>
-                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
-                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
+                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "30px", right: "70px"}} src={images.queueButton}></img>
+                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "30px", right: "15px"}} src={images.searchButton}></img>
                     <ItemList 
                     type="songs" data={queueData} onClick={() => {}}
                     buttons={[
@@ -247,8 +266,20 @@ function SongPlayer() {
                 return (
                   <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
                     <p style={headerTextStyle}>Add Songs</p>
-                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
-                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
+                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "30px", right: "70px"}} src={images.queueButton}></img>
+                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "30px", right: "15px"}} src={images.searchButton}></img>
+                    <select 
+                      value={searchMode} 
+                      onChange={(e) => setSearchMode(e.target.value)} 
+                      style={{...buttonStyle, width: "150px", position: "absolute", top: "20px", right: "130px"}}
+                    >
+                      <option key={0} value="songs">Songs</option>
+                      <option key={1} value="artists">Artists</option>
+                      <option key={2} value="albums">Albums</option>
+                      <option key={3} value="playlists">Playlists</option>
+                      <option key={4} value="episodes">Episodes</option>
+                      <option key={5} value="shows">Shows</option>
+                    </select>
                     <div style={buttonContainerStyle}>
                       <input type="text" style={buttonStyle} value={songSearchString}
                         onChange={e => {setSongSearchString(e.target.value)}}
@@ -273,19 +304,15 @@ function SongPlayer() {
       </div>
       <div style={songPlayerStyle}>
         <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
-        <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} src={playState ? images.playButton : images.pauseButton} 
-        onClick={() => {
-            if (playState === undefined) {
-              setPlayState(true);
-            } else {
-              setPlayState(!playState);
-            }
-          }}
+        <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} 
+          src={playState ? images.playButton : images.pauseButton} 
+          onClick={() => {setPlayState(!playState); syncPlayer();}} 
           alt="Play Song"
         ></img>
         <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => {nextSong()}} alt="Next Song"></img>
         <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
         <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
+        <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
       </div> 
       <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px", transform:"rotate(180deg)"}} src={images.expandButton} onClick={() => {setExpanded(false)}} alt="Expand"></img>
     </div>
