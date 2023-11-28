@@ -181,6 +181,7 @@ def callback():
         resp = make_response(redirect(os.getenv("SITE_URI")))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
         resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
+
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
