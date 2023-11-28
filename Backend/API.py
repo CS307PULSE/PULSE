@@ -91,7 +91,6 @@ def index():
     print("RIGHT HERE RIGHT HERE RIGHT HERE")
     return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
 
-
 @app.route('/boot')
 def boot():
     user_id = request.cookies.get('user_id_cookie')
@@ -357,6 +356,17 @@ def update_followers():
             follower_data = user.get_followers_with_time()
         except Exception as e:
             print(e)
+        with DatabaseConnector(db_config) as conn:
+            current_time = follower_data[0]
+            followers = conn.get_followers_from_DB(user.spotify_id)
+            if followers:
+                most_recent_time_str = max(followers.keys())
+                most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
+            else:
+                most_recent_time = current_time + timedelta(days=1)
+            if current_time - most_recent_time > timedelta(days=1):
+                return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
+
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
                 error_message = "The followers have not been stored! Please try logging in and playing again to save the scores!"
