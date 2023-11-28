@@ -1,33 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-import Colors from "../theme/Colors";
 import TextSize from "../theme/TextSize";
-
-var textSizeSetting, themeSetting;
-try {
-  var textSizeResponse = await axios.get(
-    "/profile/get_text_size",
-    { withCredentials: true }
-  );
-  textSizeSetting = textSizeResponse.data;
-  var themeResponse = await axios.get("/profile/get_theme", {
-    withCredentials: true,
-  });
-  themeSetting = themeResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-  textSizeSetting = 1;
-  themeSetting = 0;
-}
-const themeColors = Colors(themeSetting); //Obtain color values
-const textSizes = TextSize(textSizeSetting); //Obtain text size values
-
-const cardContent = {
-  color: themeColors.text,
-  fontSize: textSizes.body,
-  fontFamily: "'Poppins', sans-serif",
-};
+import { useAppContext } from "./Context";
 
 //Update follower data
 async function updateFollowers() {
@@ -41,6 +15,14 @@ async function updateFollowers() {
 }
 
 export default function StatsCard() {
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+  const cardContent = {
+    color: state.colorText,
+    fontSize: textSizes.body,
+    fontFamily: "'Poppins', sans-serif",
+  };
+
   //Data to display on stats card
   const [topArtists, setTopArtists] = useState();
   const [topSongs, setTopSongs] = useState();
@@ -49,14 +31,9 @@ export default function StatsCard() {
   useEffect(() => {
     updateFollowers();
     const fetchData = async () => {
-      const response = await axios.get(
-        "/statistics/short",
-        {
-          withCredentials: true,
-        }
-      );
-      console.log("response to stats card");
-      console.log(response);
+      const response = await axios.get("/statistics/short", {
+        withCredentials: true,
+      });
       const data = response.data;
       try {
         setTopArtists(JSON.parse(data.top_artists));
@@ -89,18 +66,25 @@ export default function StatsCard() {
     return <p>Loading</p>;
   }
   try {
+    console.log(topArtists);
     return (
       <>
         <p style={cardContent}>
-          Favorite artist of all time: {topArtists[2][0].name}
+          Favorite artist of all time:{" "}
+          {topArtists[2][0] ? topArtists[2][0].name : "None"}
         </p>
         <p style={cardContent}>
-          Favorite artist recently: {topArtists[0][0].name}
+          Favorite artist recently:{" "}
+          {topArtists[0][0] ? topArtists[0][0].name : "None"}
         </p>
         <p style={cardContent}>
-          Favorite song of all time: {topSongs[2][0].name}
+          Favorite song of all time:{" "}
+          {topSongs[2][0] ? topSongs[2][0].name : "None"}
         </p>
-        <p style={cardContent}>Favorite song recently: {topSongs[0][0].name}</p>
+        <p style={cardContent}>
+          Favorite song recently:{" "}
+          {topSongs[0][0] ? topSongs[0][0].name : "None"}
+        </p>
         <p style={cardContent}>You have {followers} followers</p>
       </>
     );

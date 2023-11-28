@@ -21,16 +21,6 @@ import spotipy
 import requests
 from spotipy.oauth2 import SpotifyOAuth
 
-run_firebase = False
-
-current_dir = os.path.dirname(os.getcwd())
-lines = []
-with open('Testing/' + 'ClientData.txt', 'r') as file:
-    for line in file:
-        lines.append(line.strip())
-
-client_id, client_secret, redirect_uri = lines
-
 app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
@@ -108,9 +98,9 @@ def boot():
 @app.route('/login')
 def login():
     # Create a SpotifyOAuth instance with the necessary parameters
-    sp_oauth = SpotifyOAuth(client_id=client_id, 
-                            client_secret=client_secret, 
-                            redirect_uri=redirect_uri, 
+    sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
+                            client_secret=os.getenv("CLIENT_SECRET"), 
+                            redirect_uri=os.getenv("REDIRECT_URI"), 
                             scope=scope)
     
     # Generate the authorization URL
@@ -124,9 +114,9 @@ def callback():
     code = request.args.get('code')
     print(code + "______________________________________________________________")
     # Handle the callback from Spotify after user login
-    sp_oauth = SpotifyOAuth(client_id=client_id, 
-                            client_secret=client_secret, 
-                            redirect_uri=redirect_uri, 
+    sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
+                            client_secret=os.getenv("CLIENT_SECRET"), 
+                            redirect_uri=os.getenv("REDIRECT_URI"), 
                             scope=scope)
 
     # Validate the response from Spotify
@@ -138,9 +128,9 @@ def callback():
     payload = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': redirect_uri,
-        'client_id': client_id,
-        'client_secret': client_secret,
+        'redirect_uri': os.getenv("REDIRECT_URI"),
+        'client_id': os.getenv("CLIENT_ID"),
+        'client_secret': os.getenv("CLIENT_SECRET"),
         'scopes': scopes,
     }
 
@@ -188,9 +178,10 @@ def callback():
 
         session['user'] = user.to_json()
 
-        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
+        resp = make_response(redirect(os.getenv("SITE_URI")))
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
         resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
+
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
@@ -2386,9 +2377,9 @@ def get_genre_groups(user):
     return sorted(range(len(genre_group_tally)), key=lambda i: genre_group_tally[i], reverse=True)[:3]
 
 def refresh_token(user, e=None):
-    sp_oauth = SpotifyOAuth(client_id=client_id, 
-                        client_secret=client_secret, 
-                        redirect_uri=redirect_uri, 
+    sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
+                        client_secret=os.getenv("CLIENT_SECRET"), 
+                        redirect_uri=os.getenv("REDIRECT_URI"), 
                         scope=scope)
     
     if not sp_oauth.is_token_expired(user.login_token): return True, 200, {'Reason-Phrase': 'OK'}

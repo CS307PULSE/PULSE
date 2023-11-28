@@ -11,18 +11,27 @@ import CalendarGraph from "./Graphs/CalendarGraph";
 import ScatterGraph from "./Graphs/ScatterGraph";
 import RadialBarGraph from "./Graphs/RadialBarGraph";
 import RadarGraph from "./Graphs/RadarGraph.js";
+import TextGraph from "./Graphs/TextGraph.js";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
 import tempBasicData from "./TempData/BasicStats.js";
 import tempAdvancedData from "./TempData/AdvancedStats";
 import defaultLayout from "./TempData/defaultLayout";
-import TextGraph from "./Graphs/TextGraph.js";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 async function fetchBasicData() {
   const response = await axios.get("/statistics", {
+    withCredentials: true,
+  });
+  const data = response.data;
+  console.log(response);
+  return data;
+}
+
+async function fetchFriends() {
+  const response = await axios.get("/friends/get_friends", {
     withCredentials: true,
   });
   const data = response.data;
@@ -44,12 +53,9 @@ async function fetchAdvancedFriendData(spotify_id) {
     const axiosInstance = axios.create({
       withCredentials: true,
     });
-    const response = await axiosInstance.post(
-      "/friend_get_advanced_stats",
-      {
-        id: spotify_id,
-      }
-    );
+    const response = await axiosInstance.post("/friend_get_advanced_stats", {
+      id: spotify_id,
+    });
     const data = response.data;
     console.log(response);
     return data;
@@ -67,16 +73,17 @@ async function fetchAdvancedData() {
   return data;
 }
 
-async function sendLayouts(layouts, defaultLayout) {
+async function sendLayouts(layouts, defaultLayout, numLayoutColumns) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "/statistics/set_layout",
-    {
-      layout: { layouts: layouts, defaultLayout: defaultLayout },
-    }
-  );
+  const response = await axiosInstance.post("/statistics/set_layout", {
+    layout: {
+      layouts: layouts,
+      defaultLayout: defaultLayout,
+      numLayoutColumns: numLayoutColumns,
+    },
+  });
   const data = response.data;
   console.log(response);
   return data;
@@ -88,6 +95,7 @@ export default function GraphGrid() {
   const [graphNames, setGraphNames] = useState([]);
   const [layoutNumber, setlayoutNumber] = useState(1);
   const [defaultLayoutNum, setDefaultLayoutNum] = useState(1);
+  const [numLayoutColumns, setNumLayoutColumns] = useState(5);
 
   //Pulled data
   const [topArtists, setTopArtists] = useState();
@@ -99,28 +107,29 @@ export default function GraphGrid() {
   const [followedArtists, setFollowedArtists] = useState();
   const [savedPlaylists, setSavedPlaylists] = useState();
   const [finishedPullingData, setFinished] = useState(false);
+  const [friends, setFriends] = useState([]);
   const [friendDatas, setFriendDatas] = useState([]);
-  const [friendDataUpdated, setFriendDataUpdated] = useState(true);
-  const [friendBasicDataAvailable, setBasicFriendsAvailable] = useState(true);
-  const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] =
-    useState(true);
+  const [friendBasicDataAvailable, setBasicFriendsAvailable] = useState({});
+  const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] = useState(
+    {}
+  );
   const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
   //Remove container function
-  const RemoveContainer = (containerName) => {
+  const removeContainer = (containerName) => {
     let updatedLayout = layout;
     updatedLayout = updatedLayout.filter((item) => item.i !== containerName);
     setLayout(updatedLayout);
   };
 
-  //Add container function
-  const AddContainer = (container) => {
-    setLayout([...layout, container]);
+  const getContainer = (containerName) => {
+    return layout.filter((item) => item.i === containerName)[0];
   };
 
-  const changeDefaultLayoutNum = (e) => {
-    setDefaultLayoutNum(e.target.value);
+  //Add container function
+  const addContainer = (container) => {
+    setLayout([...layout, container]);
   };
 
   //Get layout from local storage
@@ -167,7 +176,7 @@ export default function GraphGrid() {
   const handleSaveButtonClick = () => {
     saveToLS(layoutNumber, layout);
     console.log(layout);
-    sendLayouts(getAllFromLS(), defaultLayoutNum);
+    sendLayouts(getAllFromLS(), defaultLayoutNum, numLayoutColumns);
   };
 
   //Function for load button
@@ -200,6 +209,15 @@ export default function GraphGrid() {
     setLayout(updatedLayout);
   };
 
+  //Save selected data to layout for saving
+  const selectData = (selected, graphName) => {
+    let container = getContainer(graphName);
+    container.selectedData = selected;
+    let updatedLayout = layout;
+    updatedLayout = updatedLayout.filter((item) => item.i !== graphName);
+    setLayout([...updatedLayout, container]);
+  };
+
   //Get data from server & set top song/artists
   useEffect(() => {
     const fetchData = async () => {
@@ -226,46 +244,13 @@ export default function GraphGrid() {
           console.log(e);
         }
 
-        //Try catch for each data for parsing failure when data field empty
-        try {
-          setTopArtists(data.top_artists);
-        } catch (e) {
-          console.log("Top Artist empty");
-        }
-        try {
-          setTopSongs(data.top_songs);
-        } catch (e) {
-          console.log("Top Song empty");
-        }
-        try {
-          setRecentSongs(data.recent_history);
-        } catch (e) {
-          console.log("Recent songs empty");
-        }
-
-        try {
-          setSavedSongs(data.saved_songs);
-        } catch (e) {
-          console.log("Saved Songs empty");
-        }
-
-        try {
-          setSavedAlbums(data.saved_albums);
-        } catch (e) {
-          console.log("Saved Albums empty");
-        }
-
-        try {
-          setSavedPlaylists(data.saved_playlists);
-        } catch (e) {
-          console.log("Saved Playlists empty");
-        }
-
-        try {
-          setFollowedArtists(data.followed_artists);
-        } catch (e) {
-          console.log("Followed Artists empty");
-        }
+        setTopArtists(data.top_artists);
+        setTopSongs(data.top_songs);
+        setRecentSongs(data.recent_history);
+        setSavedSongs(data.saved_songs);
+        setSavedAlbums(data.saved_albums);
+        setSavedPlaylists(data.saved_playlists);
+        setFollowedArtists(data.followed_artists);
 
         //Followers
         if (data.follower_data === "") {
@@ -288,9 +273,17 @@ export default function GraphGrid() {
             setlayoutNumber(i + 1);
             saveToLS(i + 1, newLayouts[i]);
           }
-          if (layout_data.defaultLayout === "") {
-          } else {
+          if (
+            layout_data.defaultLayout !== "" &&
+            layout_data.defaultLayout !== undefined
+          ) {
             setlayoutNumber(parseInt(layout_data.defaultLayout));
+          }
+          if (
+            layout_data.numLayoutColumns !== "" &&
+            layout_data.numLayoutColumns !== undefined
+          ) {
+            setNumLayoutColumns(layout_data.numLayoutColumns);
           }
         }
 
@@ -312,6 +305,10 @@ export default function GraphGrid() {
       }
     };
 
+    fetchFriends().then((result) => {
+      setFriends(result.map((friend) => friend.spotify_id));
+    });
+
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -329,18 +326,15 @@ export default function GraphGrid() {
           setAdvancedData(data);
         }
       } catch (error) {
+        /*
         alert("Page failed fetching advanced data");
         setAdvancedData("Empty");
-        /*
+        */
         alert(
-          "Page failed fetching advanced data - loading backup advanced data"
-        );
-        console.log(
           "Page failed fetching advanced data - loading backup advanced data"
         );
         console.error("Error fetching advanced data:", error);
         setAdvancedData(tempAdvancedData);
-        */
       }
     };
     fetchData();
@@ -363,12 +357,14 @@ export default function GraphGrid() {
       graphType: newGraphData.graphType,
       data: newGraphData.data,
       timeRange: newGraphData.timeRange,
+      timeFromTo: [newGraphData.timeFrom, newGraphData.timeTo],
       dataVariation: newGraphData.dataVariation,
       friendDataOn: newGraphData.friendDataOn === "on" ? true : false,
       friendName: newGraphData.friendName,
       friendID: newGraphData.friendID,
       bothFriendAndOwnData:
         newGraphData.bothFriendAndOwnData === "on" ? true : false,
+      selectedData: [],
       graphSettings: {
         graphTheme: newGraphData.graphTheme,
         clickAction: newGraphData.clickAction,
@@ -376,6 +372,7 @@ export default function GraphGrid() {
         vertAxisTitle: newGraphData.vertAxisTitle,
         legendEnabled: newGraphData.legendEnabled,
       },
+
       x: 0,
       y: 0,
       w: 1,
@@ -383,17 +380,23 @@ export default function GraphGrid() {
     };
 
     if (newGraph.graphType === "VertBar" || newGraph.graphType === "HortBar") {
-      newGraph.graphSettings = Object.assign(
-        { graphKeys: ["degrees"], graphIndexBy: "day" },
-        newGraph.graphSettings
-      );
+      if (newGraph.data.includes("bar")) {
+        newGraph.graphSettings = Object.assign(
+          { graphKeys: ["degrees"], graphIndexBy: "day" },
+          newGraph.graphSettings
+        );
+      } else {
+        newGraph.graphSettings = Object.assign(
+          { graphKeys: ["value"], graphIndexBy: "id" },
+          newGraph.graphSettings
+        );
+      }
     }
 
     if (newGraphData.friendDataOn === "on") {
       if (
         !friendDatas.some((element) => element.id === newGraphData.friendID)
       ) {
-        setFriendDataUpdated(false);
         fetchBasicFriendData(newGraphData.friendID).then((basicFriendData) => {
           fetchAdvancedFriendData(newGraphData.friendID).then(
             (advancedFriendData) => {
@@ -406,28 +409,30 @@ export default function GraphGrid() {
                   advancedData: advancedFriendData,
                 },
               ]);
+              let obj = friendAdvancedDataAvailable;
               if (advancedFriendData !== null) {
-                setAdvancedFriendsAvailable(true);
-                setFriendDataUpdated(true);
+                obj[newGraphData.friendID] = true;
               } else {
+                obj[newGraphData.friendID] = false;
                 alert("Page failed fetching friend advanced data");
-                setFriendDataUpdated(false);
-                setAdvancedFriendsAvailable(false);
               }
+              setAdvancedFriendsAvailable(obj);
             }
           );
-          if (basicFriendData === null) {
-            setBasicFriendsAvailable(false);
+          let obj = friendBasicDataAvailable;
+          if (basicFriendData !== null) {
+            obj[newGraphData.friendID] = true;
           } else {
-            setFriendDataUpdated(true);
-            setBasicFriendsAvailable(true);
+            obj[newGraphData.friendID] = false;
+            alert("Page failed fetching friend advanced data");
           }
+          setBasicFriendsAvailable(obj);
         });
       }
     }
     console.log("New Layout item added:");
     console.log(newGraph);
-    AddContainer(newGraph);
+    addContainer(newGraph);
   };
 
   function getData(props) {
@@ -450,6 +455,9 @@ export default function GraphGrid() {
     try {
       //Get data for friend if not gotten before
       if (props.friendName !== undefined) {
+        if (!friends.includes(props.friendID)) {
+          return null;
+        }
         console.log(props);
 
         const friendIndex = friendDatas.findIndex((element, index) => {
@@ -598,6 +606,7 @@ export default function GraphGrid() {
       } else {
         switch (props.data) {
           case "top_songs":
+          case "emotionData":
             switch (props.timeRange) {
               case "4week":
                 return topSongs[0];
@@ -636,7 +645,6 @@ export default function GraphGrid() {
           case "percentTimes":
           case "percentTimePeriod":
           case "numTimesSkipped":
-          case "emotion":
             return advancedData;
           default:
             return null;
@@ -648,6 +656,23 @@ export default function GraphGrid() {
       return "";
     }
   }
+
+  const dataIsBasicOrAdvanced = {
+    top_songs: "basic",
+    top_artists: "basic",
+    emotionData: "basic",
+    followers: "basic",
+    recent_songs: "basic",
+    saved_songs: "basic",
+    saved_albums: "basic",
+    saved_playlists: "basic",
+    followed_artists: "basic",
+    numMinutes: "advanced",
+    numStreams: "advanced",
+    percentTimes: "advanced",
+    percentTimePeriod: "advanced",
+    numTimesSkipped: "advanced",
+  };
 
   //Get correct initial layout when initialized
   useEffect(() => {
@@ -665,15 +690,41 @@ export default function GraphGrid() {
         <ResponsiveGridLayout
           layouts={{ lg: layout }}
           breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
-          cols={{ lg: 5, xs: 2, xxs: 1 }}
+          cols={{
+            lg: numLayoutColumns,
+            xs: Math.floor(numLayoutColumns / 2),
+            xxs: 1,
+          }}
           rowHeight={300}
           width={"100%"}
           onLayoutChange={handleLayoutChange}
           draggableCancel=".custom-draggable-cancel"
         >
           {layout.map((container) => {
-            if (container.friendDataOn) {
-              if (!friendDataUpdated) {
+            if (
+              container.friendDataOn &&
+              (!friendBasicDataAvailable[container.friendID] ||
+                !friendAdvancedDataAvailable[container.friendID])
+            ) {
+              let msg;
+              if (dataIsBasicOrAdvanced[container.data] === "basic") {
+                if (
+                  friendBasicDataAvailable[container.friendID] === undefined
+                ) {
+                  msg = "Loading graph data";
+                } else if (!friendBasicDataAvailable[container.friendID]) {
+                  msg = "Friends basic data unavailable";
+                }
+              } else if (dataIsBasicOrAdvanced[container.data] === "advanced") {
+                if (
+                  friendAdvancedDataAvailable[container.friendID] === undefined
+                ) {
+                  msg = "Loading graph data";
+                } else if (!friendAdvancedDataAvailable[container.friendID]) {
+                  msg = "Friends advanced data unavailable";
+                }
+              }
+              if (msg !== undefined) {
                 return (
                   <div className="graphContainer" key={container.i}>
                     <div style={{ marginBottom: "10px" }}>
@@ -702,23 +753,16 @@ export default function GraphGrid() {
                       </div>
                       <button
                         className="GraphCloseButton custom-draggable-cancel"
-                        onClick={() => RemoveContainer(container.i)}
+                        onClick={() => removeContainer(container.i)}
                       >
                         X
                       </button>
                       <Tooltip id={container.i + "-tooltip"} />
                     </div>
-                    <div>
-                      {friendBasicDataAvailable
-                        ? friendAdvancedDataAvailable
-                          ? "Loading graph data"
-                          : "Friends advanced data unavailable"
-                        : "Friends basic data unavailable"}
-                    </div>
+                    <div>{msg}</div>
                   </div>
                 );
               }
-              //console.log(getData(container));
             }
             return (
               <div className="graphContainer" key={container.i}>
@@ -752,20 +796,22 @@ export default function GraphGrid() {
                   </div>
                   <button
                     className="GraphCloseButton custom-draggable-cancel"
-                    onClick={() => RemoveContainer(container.i)}
+                    onClick={() => removeContainer(container.i)}
                   >
                     X
                   </button>
                   <Tooltip id={container.i + "-tooltip"} />
                 </div>
+
                 {container.graphType === "VertBar" ||
                 container.graphType === "HortBar" ? (
                   <BarGraph
-                    graphName={container.graphType}
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     graphKeys={container.graphSettings.graphKeys}
@@ -774,33 +820,47 @@ export default function GraphGrid() {
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Line" ? (
                   <LineGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     dataVariation={container.dataVariation}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     friendName={container.friendName}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Pie" ? (
                   <PieGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "ImageGraph" ? (
                   <ImageGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
@@ -808,75 +868,107 @@ export default function GraphGrid() {
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
                     clickAction={container.graphSettings.clickAction}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Bump" ? (
                   <BumpGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Calendar" ? (
                   <CalendarGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Scatter" ? (
                   <ScatterGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "RadBar" ? (
                   <RadialBarGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Radar" ? (
                   <RadarGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
                     bothFriendAndOwnData={container.bothFriendAndOwnData}
                     dataVariation={container.dataVariation}
                     timeRange={container.timeRange}
+                    timeFromTo={container.timeFromTo}
                     graphTheme={container.graphSettings.graphTheme}
                     hortAxisTitle={container.graphSettings.hortAxisTitle}
                     vertAxisTitle={container.graphSettings.vertAxisTitle}
                     legendEnabled={container.graphSettings.legendEnabled}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : container.graphType === "Text" ? (
                   <TextGraph
+                    graphName={container.i}
                     data={getData(container)}
                     dataName={container.data}
                     friendName={container.friendName}
+                    graphType={container.graphType}
+                    selectedData={container.selectedData}
+                    selectData={selectData}
                   />
                 ) : (
                   <p> Invalid Graph Type</p>
@@ -897,12 +989,34 @@ export default function GraphGrid() {
           <select
             name="defaultLayout"
             value={defaultLayoutNum}
-            onChange={changeDefaultLayoutNum}
+            onChange={(e) => {
+              setDefaultLayoutNum(e.target.value);
+            }}
           >
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
           </select>
+        </div>
+        <div>
+          Grid Layout Columns:
+          <input
+            name="numLayoutColumns"
+            value={numLayoutColumns}
+            onChange={(e) => {
+              const regexVal = e.target.value.replace(/\D/g, "");
+              const value = Math.max(1, Math.min(15, Number(regexVal)));
+              if (value === undefined || value === 0) {
+                setNumLayoutColumns(5);
+              } else {
+                setNumLayoutColumns(value);
+              }
+            }}
+            type="number"
+            min="1"
+            max="15"
+            style={{ width: "3em" }}
+          />
         </div>
         <div>
           <button className="TypButton" onClick={openPopup}>
