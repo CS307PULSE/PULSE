@@ -156,6 +156,9 @@ export default function Popup({
 
   //Update Data info
   useEffect(() => {
+    if (dataSelected === undefined) {
+      return;
+    }
     if (
       dataSelected === "numMinutes" ||
       dataSelected === "percentTimes" ||
@@ -200,6 +203,7 @@ export default function Popup({
       dataSelected.includes("emotion")
     ) {
       setValidFriendData(false);
+      setWantFriendData(false);
     } else {
       setValidFriendData(true);
     }
