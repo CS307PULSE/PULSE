@@ -2247,6 +2247,7 @@ def get_playing():
             if playback != None:
                 is_playing = playback['is_playing']
                 current_device = playback['device']
+                all_devices = user.spotify_user.devices()
                 volume = playback['device']['volume_percent']
                 queue = user.spotify_user.queue()
             if is_playing: 
@@ -2254,6 +2255,7 @@ def get_playing():
             response_data = {
                 "is_playing": is_playing,
                 "current_device": current_device,
+                "all_devices": all_devices,
                 "volume": volume,
                 "queue": queue,
                 "current_track": current_track
