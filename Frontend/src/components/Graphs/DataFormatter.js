@@ -156,12 +156,16 @@ export function formatAdvancedGraphData(props, itemsSelected) {
   const years = props.bothFriendAndOwnData
     ? Array.from(
         new Set(props.data.map((item) => Object.keys(item.Yearly)).flat())
-      ).sort(function (a, b) {
-        return a - b;
-      })
-    : Object.keys(props.data.Yearly).sort(function (a, b) {
-        return a - b;
-      });
+      )
+        .sort(function (a, b) {
+          return a - b;
+        })
+        .filter((year) => props.data.Yearly[year] !== null)
+    : Object.keys(props.data.Yearly)
+        .sort(function (a, b) {
+          return a - b;
+        })
+        .filter((year) => props.data.Yearly[year] !== null);
   const highestYear = Math.max(...years.map(Number));
   const dataSource = props.bothFriendAndOwnData
     ? props.timeRange === "year"
@@ -513,12 +517,16 @@ function formatSelectableItems(props) {
   const years = props.bothFriendAndOwnData
     ? Array.from(
         new Set(props.data.map((item) => Object.keys(item.Yearly)).flat())
-      ).sort(function (a, b) {
-        return b - a;
-      })
-    : Object.keys(props.data.Yearly).sort(function (a, b) {
-        return b - a;
-      });
+      )
+        .sort(function (a, b) {
+          return b - a;
+        })
+        .filter((year) => props.data.Yearly[year] !== null)
+    : Object.keys(props.data.Yearly)
+        .sort(function (a, b) {
+          return b - a;
+        })
+        .filter((year) => props.data.Yearly[year] !== null);
   const dataSource = props.bothFriendAndOwnData
     ? props.timeRange === "year" || props.timeRange === "all"
       ? props.data.map((item) => item)

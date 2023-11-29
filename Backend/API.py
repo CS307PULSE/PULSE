@@ -1452,11 +1452,13 @@ def friend_get_advanced_stats():
                 error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
                 return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         
+        '''
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
             response_data["Emotions"] = {}
         else:
             response_data["Emotions"] = emotions
+        '''
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
