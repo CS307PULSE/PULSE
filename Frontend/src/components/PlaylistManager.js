@@ -8,6 +8,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { genreList } from "../theme/Emotions";
 import ItemList from "./ItemList";
+import { searchSpotify } from "./Playback";
 
 const PlaylistManager = () => {
   const { state, dispatch } = useAppContext();
@@ -28,10 +29,8 @@ const PlaylistManager = () => {
 
   async function searchForSongs(searchString) {
     setSearchResults("loading");
-    const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/search_bar", {query: searchString, criteria: "track"});
-    console.log(response.data);
-    setSearchResults(response.data);
+    var data = await searchSpotify(searchString, "track");
+    setSearchResults(data);
   }
   async function playlistPost(action, payload, reloadFunction = () => {}) {
     const route = "/playlist/" + action;
@@ -134,16 +133,6 @@ const PlaylistManager = () => {
       margin: "20px",
       position: "relative",
       overflow: "auto"
-  }
-  const selectionDisplayStyle = {
-    backgroundColor: state.colorBackground,
-    width: "100% - 20px",
-    margin: "10px",
-    display: "flex",
-    alignItems: "center",
-    overflow: "auto",
-    border: "1px solid " + state.colorBorder,
-    borderRadius: "5px"
   }
   const imageStyle = {
     width: "40px",

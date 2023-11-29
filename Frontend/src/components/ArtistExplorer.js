@@ -8,22 +8,47 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { genreList } from "../theme/Emotions";
 import ItemList from "./ItemList";
+import { searchSpotify, playItem } from "./Playback";
+import { getImage } from "./ItemList";
 
 const ArtistExplorer = () => {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-  const [artists, setArtists] = useState([]);
-  const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(-1);
+  const [selectedArtistIndex, setSelectedArtistIndex] = useState(-1);
+  const [currentArtist, setCurrentArtist] = useState(null);
   const [searchString, setSearchString] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
-  async function searchForSongs(searchString) {
+  useEffect(() => {
+    setCurrentArtist(searchResults[selectedArtistIndex]);
+  }, [selectedArtistIndex]);
+
+  async function searchForArtists(searchString) {
     setSearchResults("loading");
-    const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/search_bar", {query: searchString, criteria: "track"});
-    console.log(response.data);
-    setSearchResults(response.data);
+    var data = await searchSpotify(searchString, "artist");
+    setSearchResults(data);
+    console.log(data);
+  }
+  
+  function renderArtistInfo(artist) {
+    if (!artist) {
+      return ("");
+    } else {
+      console.log(artist);
+      return (
+        <div>
+          <img style={imageStyle} src={getImage(artist)}></img>
+          <p style={{...headerTextStyle, 
+            fontSize: "40px", top: "20px", left: "160px", position: "absolute"
+          }}>{artist.name}</p>
+          <p style={textStyle}>{"Genres: " + artist.genres.join(', ')}</p>
+          <p style={textStyle}>{"Followers: " + artist.followers.total}</p>
+          <span style={textStyle}>{"Popularity: "}</span>
+          <input type="range" min="0" max="100" value={artist.popularity}></input>
+        </div>
+      );
+    }
   }
 
   const bodyStyle = {
@@ -88,25 +113,16 @@ const ArtistExplorer = () => {
   
   const sectionContainerStyle = {
       backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-      width: "600px",
+      width: "calc(100% - 60px)",
+      // height: "calc(100% - 100px)",
       padding: "20px",
       margin: "20px",
       position: "relative",
       overflow: "auto"
   }
-  const selectionDisplayStyle = {
-    backgroundColor: state.colorBackground,
-    width: "100% - 20px",
-    margin: "10px",
-    display: "flex",
-    alignItems: "center",
-    overflow: "auto",
-    border: "1px solid " + state.colorBorder,
-    borderRadius: "5px"
-  }
   const imageStyle = {
-    width: "40px",
-    height: "40px",
+    width: "100px",
+    height: "100px",
     margin: "10px"
   }
 
@@ -115,24 +131,25 @@ const ArtistExplorer = () => {
       <div className="header"><Navbar /></div>
       <div className="content" style={bodyStyle}>
         <div style={{display: "flex"}}>
-        <div>
+        <div style={{width:"400px"}}> {/* Column 1 */}
           <div style={sectionContainerStyle}>
-            <p style={headerTextStyle}>Add Songs</p>
-            {/* <div style={buttonContainerStyle}>
+            <p style={headerTextStyle}>Artist Search</p>
+            <div style={buttonContainerStyle}>
               <input type="text" style={buttonStyle} value={searchString}
                 onChange={e => {setSearchString(e.target.value)}}
-                onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(searchString)}}}></input>
-              <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
+                onKeyDown={(e) => {if (e.key == 'Enter') {searchForArtists(searchString)}}}></input>
+              <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForArtists(searchString)}}>Search</button>
             </div>
             <ItemList
-              data={searchResults}
-              buttons={[
-                {width: "40px", value: "+", size: "30px",
-                  onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
-                    () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
-                }
-              ]}
-            /> */}
+              data = {searchResults}
+              selectedIndex = {selectedArtistIndex}
+              onClick = {(index) => setSelectedArtistIndex(index)}
+            />
+          </div>
+        </div>
+        <div style={{width:"calc(100% - 460px)"}}> {/* Column 1 */}
+          <div style={sectionContainerStyle}>
+            {renderArtistInfo(currentArtist)}
           </div>
         </div>
         </div>

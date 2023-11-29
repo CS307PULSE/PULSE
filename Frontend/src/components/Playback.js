@@ -14,7 +14,7 @@ export async function playItem(item, syncFunction = () => {}) {
     case "playlist": return "/player/play_playlist";
     case "track": return "/player/play_song";
     case "album": return "/player/play_album";
-    // case "artist": return "/player/play_song";
+    case "artist": return "/player/play_artist";
     // case "episode": return "/player/play_song";
     // case "show": return "/player/play_song";
     default: return null;
@@ -32,7 +32,11 @@ export async function queueItem(item, syncFunction = () => {}) {
   syncFunction();
   return response.data;
 }
-
+export async function searchSpotify(query, type) {
+  const axiosInstance = axios.create({withCredentials: true});
+  const response = await axiosInstance.post("/player/search_bar", {query: query, criteria: type});
+  return response.data;
+}
 function Playback() {
   
   const { state, dispatch } = useAppContext();
@@ -106,6 +110,11 @@ function Playback() {
   useEffect(() => {
     syncPlayer();
   }, []);
+  async function getSearchResults(query, type) {
+    setSearchResults("loading");
+    var data = await searchSpotify(query, type);
+    setSearchResults(data);
+  }
   async function changeDevice(newDeviceID) {
     setCurrentDevice(newDeviceID);
     console.log(newDeviceID);
@@ -114,12 +123,6 @@ function Playback() {
     const data = response.data;
     syncPlayer();
     return data;
-  }
-  async function getSearchResults(query, type) {
-    setSearchResults("loading");
-    const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/search_bar", {query: query, criteria: type});
-    setSearchResults(response.data);
   }
   function renderInfo(currentTrack) {
     if (!currentTrack) {
@@ -172,11 +175,12 @@ function Playback() {
     display: "flex",
   };
   const songPlayerButtonStyle = {
-    position: "fixed",
+    position: "absolute",
     width: "auto",
     height: "40px",
     margin: "10px",
-    bottom: "0px"
+    bottom: "0px",
+    cursor: 'pointer'
   };
   const volumeSliderStyle = {
     width: "10%",
@@ -184,6 +188,7 @@ function Playback() {
     margin: "10px auto",
     position: "absolute",
     right: "100px",
+    cursor: 'pointer'
   };
 
   const expandedPlayerStyle = {
@@ -196,6 +201,13 @@ function Playback() {
     width: "100%", // Set width to 100% to cover the entire width of the screen
     height: "calc(100vh - 64px)", // Set height to 100vh to cover the entire height of the screen
   };
+  const blurBackgroundArt = {
+    backgroundImage: ("url('" + albumArt + "')"),
+    filter: "blur(15px)",
+    position: "fixed",
+    width: "100%",
+    height: "100%"
+  }
   const sectionContainerStyle = {
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
     width: "calc(100% - 60px)",
@@ -208,8 +220,6 @@ function Playback() {
   const textStyle = {
     color: state.colorText,
     fontSize: textSizes.body,
-    fontStyle: "normal",
-    fontFamily: "'Poppins', sans-serif",
     margin: "5px"
   };
   const headerTextStyle = {
@@ -246,9 +256,10 @@ function Playback() {
   
   if (expanded) { return (
     <div style={expandedPlayerStyle}>
+      <div style={blurBackgroundArt}></div> {/* Background Art */}
       <div style={{width:"32%"}}> {/* Column 1 */}
         <div style={{...sectionContainerStyle, textAlign:"center"}}>
-          <p style={headerTextStyle}>{currentTrack ? "Now Playing" : "Playback Inactive"}</p>
+          <p style={headerTextStyle}>{currentTrack ? "" : "Playback Inactive"}</p>
           <img style={expandedAlbumArtStyle} src={albumArt}></img>
           <button onClick={() => syncPlayer()} style={{...buttonStyle, position: "absolute", bottom: "10px", right: "10px", width: "60px"}}>Sync</button>
           <p style={{...textStyle, fontSize: textSizes.header3}}>{currentTrack ? currentTrack.name : ""}</p>
@@ -344,6 +355,11 @@ function Playback() {
         <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
         <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
         <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
+        <img id="albumArt" style={{...songPlayerButtonStyle, left:"360px"}} src={albumArt} onClick={() => {setExpanded(true); syncPlayer();}}></img>
+        <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", left:"420px", margin: "10px", top: "0px"}}>{
+          currentTrack ? currentTrack.name : ""}</p>
+        <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", left:"420px", margin: "10px", bottom: "0px"}}>{
+          currentTrack ? currentTrack.artists.map(artist => artist.name).join(', ') : ""}</p>
       </div>
       <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px"}} src={images.expandButton} onClick={() => {setExpanded(true)}} alt="Expand"></img>
     </div>

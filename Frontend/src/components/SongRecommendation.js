@@ -136,7 +136,7 @@ const SongRecommendation = () => {
             </div>
             <ItemList
               data={receivedRecData}
-              onClick={(index) => playItem(receivedRecData[index])}
+              // onClick={(index) => playItem(receivedRecData[index])}
             />
           </div>
           <div style={sectionContainerStyle}>

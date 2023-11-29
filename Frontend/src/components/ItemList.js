@@ -23,20 +23,23 @@ export function getImage(item, type) {
 }
 
 //Buttons is an array of {text, width, onClick function}
-const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) => {} }) => {  
+const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = null }) => {
+  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   
   const itemDisplayStyle = {
     backgroundColor: state.colorBackground,
     width: "100% - 20px",
-    margin: "10px",
+    margin: "5px",
     display: "flex",
     alignItems: "center",
     overflow: "auto",
     border: "1px solid " + state.colorBorder,
-    borderRadius: "10px"
+    borderRadius: "10px",
+    cursor: onClick ? 'pointer' : 'auto'
   }
+  
   const textStyle = {
     color: state.colorText,
     fontSize: textSizes.body,
@@ -102,7 +105,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) =>
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {onClick(index)}}>
+                  onClick={onClick ? (() => onClick(index)) : (() => {})}>
                   {renderButtons(item)}
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
@@ -114,7 +117,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) =>
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {onClick(index)}}>
+                  onClick={onClick ? (() => onClick(index)) : (() => {})}>
                   {renderButtons(item)}
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
@@ -127,7 +130,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) =>
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {onClick(index)}}>
+                  onClick={onClick ? (() => onClick(index)) : (() => {})}>
                   {renderButtons(item)}
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
@@ -140,7 +143,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) =>
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {onClick(index)}}>
+                  onClick={onClick ? (() => onClick(index)) : (() => {})}>
                   {renderButtons(item)}
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
@@ -152,7 +155,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) =>
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {onClick(index)}}>
+                  onClick={onClick ? (() => onClick(index)) : (() => {})}>
                   {renderButtons(item)}
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
@@ -165,7 +168,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) =>
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
-                  onClick={() => {onClick(index)}}>
+                  onClick={onClick ? (() => onClick(index)) : (() => {})}>
                   {renderButtons(item)}
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
