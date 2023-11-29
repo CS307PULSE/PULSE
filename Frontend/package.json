@@ -23,7 +23,7 @@
   "scripts": {
     "start": "react-scripts start --host 127.0.0.1 -port 3000",
     "start-api": "cd .. && flask run -h 127.0.0.1 -p 5000 --no-debugger",
-    "build": "react-scripts build",
+    "build": "npm run-script build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
