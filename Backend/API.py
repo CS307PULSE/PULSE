@@ -28,6 +28,42 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='Strict',
 )
 
+error_html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Error Page</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 50px;
+                text-align: center;
+            }
+            h1 {
+                font-size: 36px;
+                margin-bottom: 20px;
+            }
+            p {
+                font-size: 18px;
+                margin-bottom: 30px;
+            }
+            a {
+                text-decoration: none;
+                color: #007bff;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Error</h1>
+        <p>Error Code: <strong>{}</strong></p>
+        <p>Error Message: <strong>{}</strong></p>
+        <a href="{}">Go to Homepage</a>
+    </body>
+    </html>
+    """
 
 scopes = [
     #Images
@@ -109,14 +145,14 @@ def login():
 
 @app.route('/test404')
 def test404():
-    error_message = {
-        'error': 'Resource not found',
-        'status_code': 404
-    }
+    error_message = "aaa"
     error_code = 1
     homepage_link = "https://spotify-pulse-efa1395c58ba.herokuapp.com"
-    return render_template('error.html', error_code=error_code, error_message="A", homepage_link=homepage_link), 404, {'Reason-Phrase': 'Not OK'}
+    global error_html
+    error_html.format(error_code, error_message, homepage_link)
 
+    return "a", 200, {'Reason-Phrase': 'OK'}
+    return render_template_string(html_content)
 
 @app.route('/callback')
 def callback():
