@@ -186,7 +186,7 @@ def callback():
         return resp , 200, {'Reason-Phrase': 'OK'}
 
     else:
-        return 'Login failed. Please try again.' , 200, {'Reason-Phrase': 'OK'}
+        return 'Login failed. Please try again.' , 302, {'Reason-Phrase': 'OK'}
 
 @app.route('/statistics')
 def statistics():
