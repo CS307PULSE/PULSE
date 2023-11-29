@@ -107,6 +107,15 @@ def login():
     # Redirect the user to the Spotify login page
     return auth_url, 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/test404')
+def test404():
+    error_message = {
+        'error': 'Resource not found',
+        'status_code': 404
+    }
+    return jsonify(error_message), 404
+
+
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
