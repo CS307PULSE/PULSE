@@ -2267,6 +2267,25 @@ def get_playing():
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/player/search_bar', methods=['POST'])
+def criteriasearch():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        criteria = data.get('criteria')
+        query = data.get('query')
+        try:
+            response_data = user.search_for_items(max_items=5, items_type=criteria, query=query)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/player/add_to_queue', methods=['POST'])
+
 def send_feedback_email(feedback):
     try:
         msg = Message("New Feedback Submission", 
