@@ -1,7 +1,7 @@
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import { useState, useEffect } from "react";
 import { hexToRGBA } from "../theme/Colors";
 import { parameterInfo, presetEmotions } from "../theme/Emotions";
@@ -286,7 +286,7 @@ const ParameterRecommendations = () => {
             </div>
             </div>
         </div>
-        <div className="footer"><SongPlayer /></div>
+        <div className="footer"><Playback /></div>
     </div>
     );
   };

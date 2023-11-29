@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Friend from './Friend';
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import TextSize from "../theme/TextSize";
 import axios from "axios";
 import { useAppContext } from "./Context";
@@ -121,7 +121,7 @@ const FriendRequests = () => {
         </div>
         {requestsData ? (requestsData.length > 0 ? renderRequestRows() : noRequestsMessage) : noRequestsMessage}
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

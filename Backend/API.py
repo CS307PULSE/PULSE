@@ -2241,6 +2241,7 @@ def get_playing():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
+        current_track = "None"
         try:
             refresh_token(user)
             playback = user.spotify_user.current_playback()

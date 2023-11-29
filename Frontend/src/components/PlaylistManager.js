@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
@@ -29,7 +29,8 @@ const PlaylistManager = () => {
   async function searchForSongs(searchString) {
     setSearchResults("loading");
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/search_bar", {query: searchString});
+    const response = await axiosInstance.post("/player/search_bar", {query: searchString, criteria: "track"});
+    console.log(response.data);
     setSearchResults(response.data);
   }
   async function playlistPost(action, payload, reloadFunction = () => {}) {
@@ -203,7 +204,7 @@ const PlaylistManager = () => {
           <div style={{...sectionContainerStyle, height: "400px"}}>
             <p style={headerTextStyle}>Playlists</p>
             <ItemList 
-              type="playlist" data={playlists} 
+              data={playlists} 
               selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
               buttons={[]}/>
           </div>
@@ -222,7 +223,7 @@ const PlaylistManager = () => {
                 <Link to="/DJmixer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
             </div>
             <ItemList 
-              type="song" data={playlistSongs} 
+              data={playlistSongs} 
               buttons={[
                 {width: "40px", value: "-", size: "30px",
                   onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
@@ -239,7 +240,7 @@ const PlaylistManager = () => {
                 <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
             </div>
             <ItemList
-              type="song" data={searchResults}
+              data={searchResults}
               buttons={[
                 {width: "40px", value: "+", size: "30px",
                   onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
@@ -250,7 +251,7 @@ const PlaylistManager = () => {
         </div>
         </div>
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

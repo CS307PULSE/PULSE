@@ -8,10 +8,12 @@ export function getImage(item, type) {
   }
   var image = null;
   switch (type) {
-    case "song" : image = item.album.images[0]; break;
-    // case "albums": image = 0; break;
-    // case "artists": image = 0; break;
     case "playlist": image = item.images[0]; break;
+    case "track" : image = item.album.images[0]; break;
+    case "album": image = item.images[0]; break;
+    case "artist": image = item.images[0]; break;
+    case "episode": image = item.images[0]; break;
+    case "show": image = item.images[0]; break;
   }
   if (image) {
     return image.url;
@@ -21,7 +23,7 @@ export function getImage(item, type) {
 }
 
 //Buttons is an array of {text, width, onClick function}
-const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) => {} }) => {  
+const ItemList = ({ data, buttons, selectedIndex = -1, onClick = (index) => {} }) => {  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   
@@ -94,27 +96,27 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
         (() => {
           if (!item) {
             return ("");
-          } 
-          switch (type) {
+          }
+          switch (item.type) {
             case "playlist":
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
                   onClick={() => {onClick(index)}}>
                   {renderButtons(item)}
-                  <img style={imageStyle} src={getImage(data[index], type)}></img>
+                  <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
                     <p style={textStyle}>{item.name}</p>
                   </div>
                 </div>
               );
-            case "song":
+            case "track":
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
                   onClick={() => {onClick(index)}}>
                   {renderButtons(item)}
-                  <img style={imageStyle} src={getImage(data[index], type)}></img>
+                  <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
                     <p style={textStyle}>{item.name}</p>
                     <p style={textStyle}>{item.artists[0].name}</p>

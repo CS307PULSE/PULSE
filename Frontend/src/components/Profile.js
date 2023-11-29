@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import axios from "axios";
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
@@ -378,7 +378,7 @@ function Profile({ testParameter }) {
         </div>
       </div>
       <div className="footer">
-        <SongPlayer />
+        <Playback />
       </div>
     </div>
   );

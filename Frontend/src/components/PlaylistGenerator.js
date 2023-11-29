@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
 import TextSize from "../theme/TextSize";
@@ -71,7 +71,7 @@ const PlaylistGenerator = () => {
           <div style={buttonContainerStyle}></div>
         </div>
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

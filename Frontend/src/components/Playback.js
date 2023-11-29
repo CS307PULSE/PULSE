@@ -7,7 +7,7 @@ import ItemList from "./ItemList";
 import { hexToRGBA } from "../theme/Colors";
 import { getImage } from "./ItemList";
 
-function SongPlayer() {
+function Playback() {
   
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
@@ -17,16 +17,16 @@ function SongPlayer() {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("queue");
   
-  const [playerStatus, setPlayerStatus] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [albumArt, setAlbumArt] = useState("");
   const [devices, setDevices] = useState(null);
   const [currentDevice, setCurrentDevice] = useState();
 
   const [queueData, setQueueData] = useState([]);
-  const [searchMode, setSearchMode] = useState("songs");
+  const [searchQueryType, setSearchQueryMode] = useState("track");
   const [searchString, setSearchString] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [searchResultType, setSearchResultType] = useState("track");
 
   async function nextSong() { //Nexting
     await axios.get("/player/skip", { withCredentials: true });
@@ -65,24 +65,23 @@ function SongPlayer() {
     var response = await axiosInstance.get("/player/sync_player");
     var data = response.data;
     if (data == "failed") {
-      setPlayerStatus(false);
       setPlayState(false);
     } else {
-      setPlayerStatus(true);
       setPlayState(data.is_playing);
-      setCurrentTrack(data.current_track);
-      setAlbumArt(getImage(data.current_track, "song"));
+      if (data.current_track != "None") {
+        setCurrentTrack(data.current_track);
+        setAlbumArt(getImage(data.current_track, "song"));
+      }
       setQueueData(data.queue.queue);
       setVolumeLevel(parseInt(data.volume));
       setDevices(data.all_devices.devices);
-      setCurrentDevice(data.current_device);
+      setCurrentDevice(data.current_device.id);
     }
   }
   useEffect(() => {
     syncPlayer();
   }, []);
   async function playTrack(track) {
-    console.log(track);
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("/player/play_song", {song_uri: track.uri});
     const data = response.data;
@@ -96,19 +95,22 @@ function SongPlayer() {
     syncPlayer();
     return data;
   }
-  async function changeDevice(newDevice) {
-    setCurrentDevice(newDevice);
+  async function changeDevice(newDeviceID) {
+    setCurrentDevice(newDeviceID);
+    console.log(newDeviceID);
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/change_device", {uri: newDevice.id});
+    const response = await axiosInstance.post("/player/change_device", {uri: newDeviceID});
     const data = response.data;
     syncPlayer();
     return data;
   }
-  async function searchForSongs(searchString) {
+  async function getSearchResults(query, type) {
     setSearchResults("loading");
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/search_bar", {query: searchString});
+    const response = await axiosInstance.post("/player/search_bar", {query: query, criteria: type});
+    setSearchResultType(type);
     setSearchResults(response.data);
+    console.log(response.data);
   }
 
   const images = {
@@ -215,11 +217,11 @@ function SongPlayer() {
           <p style={textStyle}>{currentTrack ? currentTrack.artists.map(artist => artist.name).join(', ') : ""}</p>
           <select 
             value={currentDevice} 
-            onChange={(e) => changeDevice(e.target.value)}
+            onChange={(e) => {changeDevice(e.target.value); console.log(e.target.value);}}
             style={{...buttonStyle, width: "calc(100% - 100px)", position: "absolute", bottom: "10px", left: "10px"}}
           >
             {devices && devices.map((item, index) => (
-              <option key={index} value={item}>{item.name}</option>
+              <option key={index} value={item.id}>{item.name}</option>
             ))}
           </select>
         </div>
@@ -235,7 +237,7 @@ function SongPlayer() {
                     <p style={headerTextStyle}>Queue</p>
                     <img onClick={() => {setMode("queue"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
-                    <ItemList type="song" data={queueData} onClick={(index) => playTrack(queueData[index])} buttons={[]}/>
+                    <ItemList type={searchResultType} data={queueData} onClick={(index) => playTrack(queueData[index])} buttons={[]}/>
                   </div>
                 );
               case "search":
@@ -245,11 +247,11 @@ function SongPlayer() {
                     <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
                     <select 
-                      value={searchMode} 
-                      onChange={(e) => setSearchMode(e.target.value)} 
+                      value={searchQueryType} 
+                      onChange={(e) => setSearchQueryMode(e.target.value)}
                       style={{...buttonStyle, width: "max(calc(100% - 270px), 60px)", position: "absolute", top: "10px", right: "130px"}}
                     >
-                      <option key={0} value="song">Songs</option>
+                      <option key={0} value="track">Songs</option>
                       <option key={1} value="artist">Artists</option>
                       <option key={2} value="album">Albums</option>
                       <option key={3} value="playlist">Playlists</option>
@@ -259,10 +261,10 @@ function SongPlayer() {
                     <div style={buttonContainerStyle}>
                       <input type="text" style={buttonStyle} value={searchString}
                         onChange={e => {setSearchString(e.target.value)}}
-                        onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(searchString)}}}></input>
-                      <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
+                        onKeyDown={(e) => {if (e.key == 'Enter') {getSearchResults(searchString, searchQueryType)}}}></input>
+                      <button style={{...buttonStyle, width: "30%"}} onClick={() => {getSearchResults(searchString, searchQueryType)}}>Search</button>
                     </div>
-                    <ItemList 
+                    <ItemList
                     type="song" data={searchResults} onClick={(index) => playTrack(searchResults[index])}
                     buttons={[
                       {width: "40px", value: "+", size: "30px", onClick: (item) => addToQueue(item)}
@@ -327,4 +329,4 @@ function SongPlayer() {
 }
 }
 
-export default SongPlayer;
+export default Playback;

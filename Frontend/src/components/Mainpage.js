@@ -4,7 +4,7 @@ import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
 import Uploader from "./Uploader";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import { useAppContext } from "./Context";
 import StatsCard from "./StatsCard";
 import axios from "axios";
@@ -176,7 +176,7 @@ function Mainpage() {
         </div>
       </div>
       <div className="footer">
-        <SongPlayer />
+        <Playback />
       </div>
     </div>
   );

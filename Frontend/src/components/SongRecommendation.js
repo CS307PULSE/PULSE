@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import axios from "axios";
 import { ImageGraph } from "./Graphs/ImageGraph";
 import { useAppContext } from "./Context";
@@ -148,7 +148,7 @@ const SongRecommendation = () => {
         </div>
         {songRecs(recievedSearchData)}
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };
