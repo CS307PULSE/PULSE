@@ -98,7 +98,7 @@ class Playlist:
 
     def playlist_genre_analysis(user, playlist):
         try:
-            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 20)
+            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist, limit = 100)
             first_iteration = True    
             genredict = None
             song_list = []
