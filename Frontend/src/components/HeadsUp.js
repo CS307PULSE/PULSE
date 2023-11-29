@@ -142,7 +142,7 @@ const HeadsUp = () => {
       const payload = {
         friend_ids: playerNamesArray.reduce((acc, name) => ({ ...acc, [name]: true }), {}),
       };
-      const response = await axiosInstance.post('/get_friends_recent_songs', payload);
+      const response = await axiosInstance.post('/api/get_friends_recent_songs', payload);
       const data = response.data;
       console.log(data);
       setFriendsRecentSongs(data);
