@@ -145,13 +145,14 @@ def login():
 
 @app.route('/test404')
 def test404():
+    return jsonify("a"), 200, {'Reason-Phrase': 'OK'}
     error_message = "aaa"
     error_code = 1
     homepage_link = "https://spotify-pulse-efa1395c58ba.herokuapp.com"
     global error_html
-    error_html.format(error_code, error_message, homepage_link)
+    error_html = error_html.format(error_code, error_message, homepage_link)
 
-    return "a", 200, {'Reason-Phrase': 'OK'}
+    return jsonify("a"), 200, {'Reason-Phrase': 'OK'}
     return render_template_string(html_content)
 
 @app.route('/callback')
