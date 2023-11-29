@@ -18,16 +18,6 @@ import spotipy
 import requests
 from spotipy.oauth2 import SpotifyOAuth
 
-app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
-
-app.secret_key = 'your_secret_key'
-app.config.update(
-    SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Strict',
-)
-
 error_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -64,6 +54,16 @@ error_html = """
 </body>
 </html>
 """
+
+app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
+
+app.secret_key = 'your_secret_key'
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Strict',
+)
 
 scopes = [
     #Images
