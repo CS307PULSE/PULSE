@@ -3,10 +3,10 @@ class Emotion:
         angry = {
             "name": "angry",
             "amount_songs": 1, 
-            "target_energy": .5,
+            "target_energy": 1,
             "target_popularity": 70,
             "target_acousticness": 0,
-            "target_danceability": .5,
+            "target_danceability": .4,
             "target_duration_ms": 120000,
             "target_instrumentalness": .2,
             "target_liveness": 0,
@@ -14,7 +14,7 @@ class Emotion:
             "target_mode": 1,
             "target_speechiness": .5,
             "target_tempo": 150,
-            "target_valence": .5
+            "target_valence": .4
         }
         return angry
     
@@ -23,17 +23,17 @@ class Emotion:
             "name": "happy",
             "amount_songs": 1, 
             "target_energy": .7,
-            "target_popularity": 1,
+            "target_popularity": 100,
             "target_acousticness": .5,
-            "target_danceability": .1,
+            "target_danceability": .7,
             "target_duration_ms": 120000,
             "target_instrumentalness": .2,
             "target_liveness": 0,
             "target_loudness": -3,
             "target_mode": 1,
             "target_speechiness": .5,
-            "target_tempo": 145,
-            "target_valence": 1
+            "target_tempo": 120,
+            "target_valence": .8
         }
         return happy
     
@@ -41,18 +41,18 @@ class Emotion:
         sad = {
             "name": "sad",
             "amount_songs": 1, 
-            "target_energy": .3,
-            "target_popularity": .7,
+            "target_energy": .4,
+            "target_popularity": 70,
             "target_acousticness": .6,
-            "target_danceability": .3,
+            "target_danceability": .2,
             "target_duration_ms": 120000,
             "target_instrumentalness": .5,
             "target_liveness": 0,
             "target_loudness": -2,
             "target_mode": 0,
             "target_speechiness": .5,
-            "target_tempo": 65,
-            "target_valence": .3
+            "target_tempo": 80,
+            "target_valence": .2
         }
         return sad
     
@@ -93,7 +93,7 @@ class Emotion:
             value1 = dict1[param]
             value2 = dict2[param]
 
-            if param != "name" and param != "target_duration_ms" and param != "amount_songs":
+            if param == "target_energy" or param == "target_valence" or param == "target_dancebility":
                 # Calculate the percentage difference
                 if abs(value1 + value2) == 0:
                     percentage_difference = 0
@@ -117,9 +117,13 @@ class Emotion:
         angrydist = Emotion.calculate_total_distance(tractdict, angry)
         saddist = Emotion.calculate_total_distance(tractdict, sad)
         totaldist = saddist + angrydist + happydist
-        percentage["percent_happy"] = 1 - (happydist/totaldist)
-        percentage["percent_angry"] = 1 - (angrydist/totaldist)
-        percentage["percent_sad"] = 1 - (saddist/totaldist)
+        percentage["percent_happy"] = (1 - happydist/totaldist)
+        percentage["percent_angry"] = (1 - angrydist/totaldist) 
+        percentage["percent_sad"] = (1 - saddist/totaldist)
+        totalper = percentage["percent_happy"] + percentage["percent_angry"] + percentage["percent_sad"]
+        percentage["percent_happy"] = percentage["percent_happy"] / totalper
+        percentage["percent_angry"] = percentage["percent_angry"] / totalper
+        percentage["percent_sad"] = percentage["percent_sad"]/ totalper
         return percentage
     """
     def spoof():
