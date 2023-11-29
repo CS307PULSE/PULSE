@@ -1094,7 +1094,7 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         
-    def update_user_queue_from_DB(self, spotify_id, user_queue):
+    def update_user_queue(self, spotify_id, user_queue):
         try:
             query = """UPDATE pulse.base_stats SET user_match_queue = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (create_friends_string_for_DB(user_queue), spotify_id,))
@@ -1109,7 +1109,7 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed          
     
-    def update_rejected_users_from_DB(self, spotify_id, rejected_users):
+    def update_rejected_users(self, spotify_id, rejected_users):
         try:
             query = """UPDATE pulse.base_stats SET user_match_rejected = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (create_friends_string_for_DB(rejected_users), spotify_id,))
@@ -1124,7 +1124,7 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
           
-    def update_swiped_users_from_DB(self, spotify_id, swiped_users):
+    def update_swiped_users(self, spotify_id, swiped_users):
         try:
             query = """UPDATE pulse.base_stats SET user_match_swiped = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (create_friends_string_for_DB(swiped_users), spotify_id,))
@@ -1139,7 +1139,7 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
 
-    def update_user_genre_groups_from_DB(self, spotify_id, genre_groups):
+    def update_user_genre_groups(self, spotify_id, genre_groups):
         try:
             query = """UPDATE pulse.base_stats SET user_match_genre_groups = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (create_friends_string_for_DB(genre_groups), spotify_id,))
