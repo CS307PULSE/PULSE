@@ -2261,7 +2261,7 @@ def get_playing():
                 "current_track": current_track
             }
         except Exception as e:
-            return None, 200, {'Reason-Phrase': 'OK'}
+            return "failed", 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}

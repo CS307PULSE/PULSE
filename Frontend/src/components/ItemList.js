@@ -1,7 +1,24 @@
 import React from 'react';
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
-import { hexToRGBA } from '../theme/Colors';
+
+export function getImage(item, type) {
+  if (!item) { //Return null if index is invalid
+    return null;
+  }
+  var image = null;
+  switch (type) {
+    case "song" : image = item.album.images[0]; break;
+    // case "albums": image = 0; break;
+    // case "artists": image = 0; break;
+    case "playlist": image = item.images[0]; break;
+  }
+  if (image) {
+    return image.url;
+  } else {
+    return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
+  }
+}
 
 //Buttons is an array of {text, width, onClick function}
 const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) => {} }) => {  
@@ -52,23 +69,6 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     fontStyle: "italic"
   };
 
-  function getImage(index) {
-    if (!data[index]) { //Return null if index is invalid
-      return null;
-    }
-    var image = null;
-    switch (type) {
-      case "song" : image = data[index].album.images[0]; break;
-      // case "albums": image = 0; break;
-      // case "artists": image = 0; break;
-      case "playlist": image = data[index].images[0]; break;
-    }
-    if (image) {
-      return image.url;
-    } else {
-      return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
-    }
-  }
   function renderButtons(item) {
     if (!buttons) {
       return "";
@@ -103,7 +103,7 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
                   onClick={() => {onClick(index)}}>
                   {renderButtons(item)}
-                  <img style={imageStyle} src={getImage(index)}></img>
+                  <img style={imageStyle} src={getImage(data[index], type)}></img>
                   <div>
                     <p style={textStyle}>{item.name}</p>
                   </div>
@@ -115,7 +115,7 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
                   onClick={() => {onClick(index)}}>
                   {renderButtons(item)}
-                  <img style={imageStyle} src={getImage(index)}></img>
+                  <img style={imageStyle} src={getImage(data[index], type)}></img>
                   <div>
                     <p style={textStyle}>{item.name}</p>
                     <p style={textStyle}>{item.artists[0].name}</p>

@@ -5,6 +5,7 @@ import { pulseColors } from "../theme/Colors";
 import TextSize from "../theme/TextSize";
 import ItemList from "./ItemList";
 import { hexToRGBA } from "../theme/Colors";
+import { getImage } from "./ItemList";
 
 function SongPlayer() {
   
@@ -16,10 +17,10 @@ function SongPlayer() {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("queue");
   
-  
+  const [playerStatus, setPlayerStatus] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [albumArt, setAlbumArt] = useState("https://upload.wikimedia.org/wikipedia/en/4/45/Blackwaterpark.jpg");
-  const [devices, setDevices] = useState(["asd", "asdda"]);
+  const [devices, setDevices] = useState(null);
   const [currentDevice, setCurrentDevice] = useState();
 
   const [queueData, setQueueData] = useState([]);
@@ -27,85 +28,35 @@ function SongPlayer() {
   const [songSearchString, setSongSearchString] = useState("");
   const [songSearchResults, setSongSearchResults] = useState([]);
 
-
   async function nextSong() { //Nexting
-    await axios
-      .get("/player/skip", { withCredentials: true })
-      .then((response) => {
-        console.log("Song nexted successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error skipping song:", error);
-      });
+    await axios.get("/player/skip", { withCredentials: true });
     syncPlayer();
   }
   async function previousSong() { //Preving
-    await axios
-      .get("/player/prev", { withCredentials: true })
-      .then((response) => {
-        console.log("Song preved successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error preving song:", error);
-      });
+    await axios.get("/player/prev", { withCredentials: true });
     syncPlayer();
   }
   async function toggleRepeat() {
-    await axios
-      .get("/player/repeat", { withCredentials: true })
-      .then((response) => {
-        console.log("Repeat toggled successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error toggling repeat:", error);
-      });
+    await axios.get("/player/repeat", { withCredentials: true });
   }
   async function toggleShuffle() {
-    await axios
-      .get("/player/shuffle", { withCredentials: true })
-      .then((response) => {
-        console.log("Shuffle toggled successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error toggling repeat:", error);
-      });
+    await axios.get("/player/shuffle", { withCredentials: true });
   }
-  useEffect(() => {
-    if (playState == undefined) {
-    } else if (playState) {
-      //Play and pause
-      axios
-        .get("/player/play", { withCredentials: true })
-        .then((response) => {
-          console.log("Played song successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error playing song:", error);
-        });
+  async function togglePlay() {
+    var action = playState;
+    setPlayState(!playState);
+    if (action) { //Play and pause
+      await axios.get("/player/pause", { withCredentials: true });
     } else {
-      axios
-        .get("/player/pause", { withCredentials: true })
-        .then((response) => {
-          console.log("Paused song successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error pausing song:", error);
-        });
+      await axios.get("/player/play", { withCredentials: true });
     }
-  }, [playState]);
-  async function saveVolume(volumeParameter) {
-    //Set volume
+    syncPlayer();
+  }
+  async function saveVolume(volumeParameter) { //Set volume
     console.log("Attempting volume post with value " + volumeParameter);
     setVolumeLevel(volumeParameter);
-    const axiosInstance = axios.create({
-      withCredentials: true,
-    });
-    const response = await axiosInstance.post(
-      "/player/volume",
-      {
-        volume: volumeParameter,
-      }
-    );
+    const axiosInstance = axios.create({withCredentials: true});
+    const response = await axiosInstance.post("/player/volume", {volume: volumeParameter});
     const data = response.data;
     return data;
   }
@@ -114,14 +65,18 @@ function SongPlayer() {
     var response = await axiosInstance.get("/player/sync_player");
     var data = response.data;
     console.log(data);
-    setCurrentTrack(data.current_track);
-    setQueueData(data.queue);
-    setVolumeLevel(parseInt(data.volume));
-    setDevices(data.devices);
-    setCurrentDevice(data.current_device);
-    //const parsedPlaylists = response.data ? JSON.parse(response.data.saved_playlists) : [];
-    // Update queue
-    // Update player
+    if (data == "failed") {
+      setPlayerStatus(false);
+    } else {
+      setPlayerStatus(true);
+      setPlayState(data.is_playing);
+      setCurrentTrack(data.current_track);
+      getImage(data.current_track, "song")
+      setQueueData(data.queue.queue);
+      setVolumeLevel(parseInt(data.volume));
+      setDevices(data.all_devices.devices);
+      setCurrentDevice(data.current_device);
+    }
   }
   useEffect(() => {
     syncPlayer();
@@ -129,8 +84,13 @@ function SongPlayer() {
   async function addToQueue() {
     syncPlayer();
   }
-  async function removeFromQueue() {
+  async function changeDevice(newDevice) {
+    setCurrentDevice(newDevice);
+    const axiosInstance = axios.create({withCredentials: true});
+    const response = await axiosInstance.post("/player/change_device", {});
+    const data = response.data;
     syncPlayer();
+    return data;
   }
   async function searchForSongs(searchString) {
     setSongSearchResults("loading");
@@ -239,16 +199,16 @@ function SongPlayer() {
       <div style={{width:"32%"}}> {/* Column 1 */}
         <div style={{...sectionContainerStyle, textAlign:"center"}}>
           <img style={expandedAlbumArtStyle} src={albumArt}></img>
-          <button onClick={() => {}} style={{...buttonStyle, position: "absolute", bottom: "10px", right: "10px", width: "60px"}}>Sync</button>
+          <button onClick={() => syncPlayer()} style={{...buttonStyle, position: "absolute", bottom: "10px", right: "10px", width: "60px"}}>Sync</button>
           {/* <p style={textStyle}>{currentTrack.}</p> */}
           {/* <p style={textStyle}>{currentTrack.}</p> */}
           <select 
             value={currentDevice} 
-            onChange={(e) => setDevices(e.target.value)} 
-            style={{...buttonStyle, width: "250px", position: "absolute", bottom: "10px", left: "10px"}}
+            onChange={(e) => changeDevice(e.target.value)}
+            style={{...buttonStyle, width: "calc(100% - 100px)", position: "absolute", bottom: "10px", left: "10px"}}
           >
             {devices && devices.map((item, index) => (
-              <option key={index} value={item}>{item}</option>
+              <option key={index} value={item}>{item.name}</option>
             ))}
           </select>
         </div>
@@ -264,12 +224,7 @@ function SongPlayer() {
                     <p style={headerTextStyle}>Queue</p>
                     <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "30px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "30px", right: "15px"}} src={images.searchButton}></img>
-                    <ItemList 
-                    type="song" data={queueData} onClick={() => {}}
-                    buttons={[
-                      {text: "-", width: "80px"
-                      }
-                    ]}/>
+                    <ItemList type="song" data={queueData} onClick={() => {}} buttons={[]}/>
                   </div>
                 );
               case "search":
@@ -315,35 +270,31 @@ function SongPlayer() {
       <div style={songPlayerStyle}>
         <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
         <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} 
-          src={playState ? images.playButton : images.pauseButton} 
-          onClick={() => {setPlayState(!playState); syncPlayer();}} 
+          src={playState ? images.pauseButton : images.playButton} 
+          onClick={() => togglePlay()}
           alt="Play Song"
+        ></img>
+        <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => nextSong()} alt="Next Song"></img>
+        <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => toggleRepeat(true)} alt="Repeat"></img>
+        <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => toggleShuffle(true)} alt="Shuffle"></img>
+        <p style={{color: "black", fontSize: "20px", left: "360px", position: "fixed"}}>{playerStatus ? "Active Player" : "Inactive Player"}</p>
+        <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
+      </div> 
+      <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px", transform:"rotate(180deg)"}} src={images.expandButton} onClick={() => {setExpanded(false); syncPlayer();}} alt="Expand"></img>
+    </div>
+  );
+  } else { return (
+    <div>
+      <div style={songPlayerStyle}>
+        <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
+        <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} src={playState ? images.pauseButton : images.playButton} 
+          onClick={() => {setPlayState(!playState)}} alt="Play Song"
         ></img>
         <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => {nextSong()}} alt="Next Song"></img>
         <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
         <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
         <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
-      </div> 
-      <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px", transform:"rotate(180deg)"}} src={images.expandButton} onClick={() => {setExpanded(false)}} alt="Expand"></img>
-    </div>
-  );
-  } else { return (
-    <div style={songPlayerStyle}>
-      <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
-      <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} src={playState ? images.playButton : images.pauseButton} 
-      onClick={() => {
-          if (playState === undefined) {
-            setPlayState(true);
-          } else {
-            setPlayState(!playState);
-          }
-        }}
-        alt="Play Song"
-      ></img>
-      <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => {nextSong()}} alt="Next Song"></img>
-      <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
-      <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
-      <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
+      </div>
       <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px"}} src={images.expandButton} onClick={() => {setExpanded(true)}} alt="Expand"></img>
     </div>
   );
