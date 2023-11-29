@@ -118,7 +118,7 @@ def index():
 @app.route('/boot')
 def boot():
     user_id = request.cookies.get('user_id_cookie')
-    if (user_id):
+    if user_id:
         user_exists = False
         with DatabaseConnector(db_config) as conn:
             user_exists = conn.does_user_exist_in_user_DB(user_id)
@@ -217,7 +217,11 @@ def callback():
         return resp , 302, {'Reason-Phrase': 'OK'}
 
     else:
-        return 'Login failed. Please try again.' , 200, {'Reason-Phrase': 'OK'}
+        error_message = 'Login failed. Please try logging in again.'
+        error_code = 425
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/statistics')
 def statistics():
