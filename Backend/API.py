@@ -113,7 +113,7 @@ def test404():
         'error': 'Resource not found',
         'status_code': 404
     }
-    return jsonify(error_message), 404
+    return jsonify(error_message), 404, {'Reason-Phrase': 'Not OK'}
 
 
 @app.route('/callback')
