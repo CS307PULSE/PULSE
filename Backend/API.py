@@ -1,7 +1,3 @@
-#pip install flask
-#pip install python-dotenv
-#pip install flask-cors
-#pip install mysql.connector
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response, send_from_directory
 from flask_cors import CORS, cross_origin
 from .User import User
