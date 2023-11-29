@@ -183,10 +183,10 @@ def callback():
         resp.set_cookie('user_id_cookie', value=str(user.spotify_id),secure=True, httponly=True, samesite='Strict')
         resp.set_cookie('token_cookie', value=str(user.login_token),secure=True, httponly=True, samesite='Strict')
 
-        return resp , 200, {'Reason-Phrase': 'OK'}
+        return resp , 302, {'Reason-Phrase': 'OK'}
 
     else:
-        return 'Login failed. Please try again.' , 302, {'Reason-Phrase': 'OK'}
+        return 'Login failed. Please try again.' , 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/statistics')
 def statistics():
