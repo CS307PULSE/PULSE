@@ -7,6 +7,7 @@ from .DatabaseConnector import db_config
 from .Emotion import Emotion
 from .Playlist import Playlist
 import json
+from .GenreGroups import GenreGroups
 from .Exceptions import TokenExpiredError
 from .Exceptions import UserNotFoundError
 import os
@@ -2101,8 +2102,10 @@ def get_next_user():
         if queue is None or queue == []:
             with DatabaseConnector(db_config) as conn:
                 genre_groups = conn.get_user_genre_groups_from_DB(user.spotify_id)
+                genre_groups = list(map(str, genre_groups))
             if genre_groups is None or genre_groups == []:
                 genre_groups = get_genre_groups(user)
+                genre_groups = list(map(str, genre_groups))
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
                         error_message = "Genre group not stored!"
@@ -2378,7 +2381,6 @@ def get_genre_groups(user):
                 if len(seed_genres) < 100:
                     seed_genres.extend(artist.get('genres', []))
     
-    from GenreGroups import GenreGroups
     GENRES = GenreGroups.get_genres()
 
     genre_group_tally = [0] * 11
