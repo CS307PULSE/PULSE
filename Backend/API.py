@@ -2238,6 +2238,16 @@ def feedback():
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/<path:path>')
+def catch_all(path):
+    print("in catchall path")
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
+        return send_from_directory(app.static_folder, path)
+    else:
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
+
 def send_feedback_email(feedback):
     try:
         msg = Message("New Feedback Submission", 
@@ -2298,16 +2308,6 @@ def update_data(user,
             if (retries > max_retries):
                 raise Exception
             return update_data(user, retries=retries+1), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/<path:path>')
-def catch_all(path):
-    print("in catchall path")
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        print("in catchall path if")
-        return send_from_directory(app.static_folder, path)
-    else:
-        print("in catchall path else")
-        return send_from_directory(app.static_folder, 'index.html')
 
 
 
