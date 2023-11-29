@@ -405,6 +405,23 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_playlist_counter_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
+    
+
+    def get_public_display_text_color_from_DB(self, spotify_id):
+        query = "SELECT public_text_color from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    def get_status_from_DB(self, spotify_id):
+        query = "SELECT status from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    def get_public_display_background_color_from_DB(self, spotify_id):
+        query = "SELECT public_display_background_color from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
 
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   
     def get_row_from_user_DB(self, spotify_id, data = None):
@@ -891,6 +908,50 @@ class DatabaseConnector(object):
             print("Error updating location:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
+        
+    def update_status(self, spotify_id, new_status):
+        try:
+            query = """UPDATE pulse.users SET status = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (new_status, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating status:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+    def update_public_display_text_color(self, spotify_id, new_public_display_text_color):
+        try:
+            query = """UPDATE pulse.users SET public_display_text_color = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (new_public_display_text_color, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating public_display_text_color:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+    def update_public_display_background_color(self, spotify_id, new_public_display_background_color):
+        try:
+            query = """UPDATE pulse.users SET public_background_text_color = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (new_public_display_background_color, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating public_background_text_color:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
         
     # Update song_match_number_swiped (expected int) in user DB. Returns 1 if successful, -1 if not.
     def update_song_match_number_swiped(self, spotify_id, new_number_swiped):
