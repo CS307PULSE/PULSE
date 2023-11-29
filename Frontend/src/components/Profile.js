@@ -16,11 +16,11 @@ const customBackgrounds = [
 var storedUserFields;
 try {
   storedUserFields = {
-    username: await getUserField("/profile/get_displayname"),
-    gender: await getUserField("/profile/get_gender"),
-    location: await getUserField("/profile/get_location"),
-    icon: await getUserField("/profile/get_image"),
-    favoriteSong: await getUserField("/profile/get_chosen_song"),
+    username: await getUserField("/api/profile/get_displayname"),
+    gender: await getUserField("/api/profile/get_gender"),
+    location: await getUserField("/api/profile/get_location"),
+    icon: await getUserField("/api/profile/get_image"),
+    favoriteSong: await getUserField("/api/profile/get_chosen_song"),
   };
 } catch (e) {
   console.log("User info fetch failed: " + e);

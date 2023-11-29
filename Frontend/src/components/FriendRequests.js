@@ -9,7 +9,7 @@ import { useAppContext } from "./Context";
 
 var initialRequestsData;
 try {
-  var requestsResponse = await axios.get("/friends/get_requests", {
+  var requestsResponse = await axios.get("/api/friends/get_requests", {
     withCredentials: true,
   });
   initialRequestsData = requestsResponse.data;

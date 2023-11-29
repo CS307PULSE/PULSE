@@ -39,7 +39,7 @@ function transposeMatrix(matrix) {
 }
 
 async function fetchDataScores() {
-  const response = await axios.get("/games/get_scores", {
+  const response = await axios.get("/api/games/get_scores", {
     withCredentials: true,
   });
   const data = response.data;

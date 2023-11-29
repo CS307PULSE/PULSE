@@ -13,7 +13,7 @@ async function sendAndFetchSongReqs(sentTrack) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/djmixer/songrec",
+    "/api/djmixer/songrec",
     { track: sentTrack }
   );
   const data = response.data;
@@ -25,7 +25,7 @@ async function sendSearchAndReturn(sendSerach) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/search_bar",
+    "/api/search_bar",
     { query: sendSerach }
   );
   const data = response.data;

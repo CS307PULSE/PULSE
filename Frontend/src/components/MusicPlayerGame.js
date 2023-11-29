@@ -100,7 +100,7 @@ const MusicPlayerGame = ({
   const handlePlayButtonClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .post("/games/playback", { artist: selectedArtist })
+      .post("/api/games/playback", { artist: selectedArtist })
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("Playback initiated successfully:", response.data);
@@ -129,7 +129,7 @@ const MusicPlayerGame = ({
   const handleEveryoneWrongClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("/player/pause")
+      .get("/api/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -148,7 +148,7 @@ const MusicPlayerGame = ({
   const handlePlayersSelectedRightClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("/player/pause")
+      .get("/api/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
