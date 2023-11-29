@@ -405,6 +405,23 @@ class DatabaseConnector(object):
         self.db_cursor.execute(sql_get_playlist_counter_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
+    
+
+    def get_public_display_text_color_from_DB(self, spotify_id):
+        query = "SELECT public_text_color from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    def get_status_from_DB(self, spotify_id):
+        query = "SELECT status from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
+    def get_public_display_background_color_from_DB(self, spotify_id):
+        query = "SELECT public_display_background_color from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return self.resultset[0]
 
     # Returns a whole row for the given spotify_id in the form of an array with elements of the table.   
     def get_row_from_user_DB(self, spotify_id, data = None):
@@ -435,7 +452,7 @@ class DatabaseConnector(object):
     
     # Returns a song_recommendation_queue from db as a JSON
     def get_song_recommendation_queue_from_DB(self, spotify_id):
-        sql = "SELECT song_match_queue from pulse.base_stats WHERE spotify_id = %s"
+        sql = """SELECT song_match_queue from pulse.base_stats WHERE spotify_id = %s"""
         self.db_cursor.execute(sql, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         results = self.resultset
@@ -445,14 +462,14 @@ class DatabaseConnector(object):
     
     # Returns score array from DB in the form of a 5x10x10 array.
     def get_scores_from_DB(self, spotify_id):
-        sql_get_scores_query = "SELECT high_scores from pulse.users WHERE spotify_id = %s"
+        sql_get_scores_query = """SELECT high_scores from pulse.users WHERE spotify_id = %s"""
         self.db_cursor.execute(sql_get_scores_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return score_string_to_array(self.resultset[0])
     
     # Returns an array from DB with each spotify_id as a string inside of it.
     def get_spotify_id_from_display_name_from_DB(self, display_name):
-        sql_get_spotify_ids_query = "SELECT spotify_id from pulse.users WHERE display_name = %s"
+        sql_get_spotify_ids_query = """SELECT spotify_id from pulse.users WHERE display_name = %s"""
         self.db_cursor.execute(sql_get_spotify_ids_query, (display_name,))
         self.resultset = self.db_cursor.fetchall()
         spotify_ids = []
@@ -462,7 +479,7 @@ class DatabaseConnector(object):
     
     # Returns song_match_swiped from DB in the form of a JSON.
     def get_swiped_songs_from_DB(self, spotify_id):
-        sql_get_song_match_swiped_query = "SELECT song_match_swiped from pulse.base_stats WHERE spotify_id = %s"
+        sql_get_song_match_swiped_query = """SELECT song_match_swiped from pulse.base_stats WHERE spotify_id = %s"""
         self.db_cursor.execute(sql_get_song_match_swiped_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         results = self.resultset
@@ -472,7 +489,7 @@ class DatabaseConnector(object):
     
     # Returns swiping preferences from DB in the form of a JSON.
     def get_swiping_preferences_from_DB(self, spotify_id):
-        sql_get_song_match_preferences_query = "SELECT song_match_preferences from pulse.base_stats WHERE spotify_id = %s"
+        sql_get_song_match_preferences_query = """SELECT song_match_preferences from pulse.base_stats WHERE spotify_id = %s"""
         self.db_cursor.execute(sql_get_song_match_preferences_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         results = self.resultset
@@ -482,17 +499,42 @@ class DatabaseConnector(object):
     
     # Returns text_size from DB when given spotify_id. Returns 0,1, or 2            
     def get_text_size_from_DB(self,spotify_id):
-        sql_get_text_size_query = "SELECT text_size from pulse.users WHERE spotify_id = %s"
+        sql_get_text_size_query = """SELECT text_size from pulse.users WHERE spotify_id = %s"""
         self.db_cursor.execute(sql_get_text_size_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return int(self.resultset[0])
     
     # Returns theme from DB when given spotify_id. Returns 0, or 1.          
     def get_theme_from_DB(self, spotify_id):
-        sql_get_theme_query = "SELECT theme from pulse.users WHERE spotify_id = %s"
+        sql_get_theme_query = """SELECT theme from pulse.users WHERE spotify_id = %s"""
         self.db_cursor.execute(sql_get_theme_query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return int(self.resultset[0])
+    
+    def get_user_queue_from_DB(self, spotify_id):
+        query = """SELECT user_match_queue from pulse.base_stats where spotify_id = %s"""
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return create_friends_array_from_DB(self.resultset[0])
+    
+    def get_rejected_users_from_DB(self, spotify_id):
+        query = """SELECT user_match_rejected from pulse.base_stats where spotify_id = %s"""
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return create_friends_array_from_DB(self.resultset[0])
+    
+    def get_swiped_users_from_DB(self, spotify_id):
+        query = """SELECT user_match_swiped from pulse.base_stats where spotify_id = %s"""
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return create_friends_array_from_DB(self.resultset[0])
+    
+    def get_user_genre_groups_from_DB(self, spotify_id):
+        query = """SELECT user_match_genre_groups from pulse.base_stats where spotify_id = %s"""
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return create_friends_array_from_DB(self.resultset[0])   
+
 
     # Returns a newly created user object recreated from the user database given spotify_id
     def get_user_from_user_DB(self, spotify_id):
@@ -559,7 +601,7 @@ class DatabaseConnector(object):
         
         try:
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_header = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (new_advanced_stats, spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2008 = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[0], spotify_id,))
@@ -867,6 +909,50 @@ class DatabaseConnector(object):
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         
+    def update_status(self, spotify_id, new_status):
+        try:
+            query = """UPDATE pulse.users SET status = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (new_status, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating status:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+    def update_public_display_text_color(self, spotify_id, new_public_display_text_color):
+        try:
+            query = """UPDATE pulse.users SET public_display_text_color = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (new_public_display_text_color, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating public_display_text_color:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+    def update_public_display_background_color(self, spotify_id, new_public_display_background_color):
+        try:
+            query = """UPDATE pulse.users SET public_background_text_color = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (new_public_display_background_color, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating public_background_text_color:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+        
     # Update song_match_number_swiped (expected int) in user DB. Returns 1 if successful, -1 if not.
     def update_song_match_number_swiped(self, spotify_id, new_number_swiped):
         try:
@@ -1068,7 +1154,67 @@ class DatabaseConnector(object):
             print("Error updating token:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
+        
+    def update_user_queue(self, spotify_id, user_queue):
+        try:
+            query = """UPDATE pulse.base_stats SET user_match_queue = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (create_friends_string_for_DB(user_queue), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating user match queue:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed          
+    
+    def update_rejected_users(self, spotify_id, rejected_users):
+        try:
+            query = """UPDATE pulse.base_stats SET user_match_rejected = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (create_friends_string_for_DB(rejected_users), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating rejected users:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+          
+    def update_swiped_users(self, spotify_id, swiped_users):
+        try:
+            query = """UPDATE pulse.base_stats SET user_match_swiped = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (create_friends_string_for_DB(swiped_users), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating swiped users:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
 
+    def update_user_genre_groups(self, spotify_id, genre_groups):
+        try:
+            query = """UPDATE pulse.base_stats SET user_match_genre_groups = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (create_friends_string_for_DB(genre_groups), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating user genre groups:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed            
+        
     def update_entire_genre_groups(self, spotify_id, genre_groups):
             for genre in genre_groups:
                 checker_query = """SELECT %s from pulse.user_match_genres WHERE iduser_match_genres = 1"""

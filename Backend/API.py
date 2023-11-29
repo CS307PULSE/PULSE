@@ -31,6 +31,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='Strict',
 )
 
+
 scopes = [
     #Images
     'ugc-image-upload',
@@ -354,8 +355,8 @@ def update_followers():
                 most_recent_time_str = max(followers.keys())
                 most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
             else:
-                most_recent_time = current_time + timedelta(days=1)
-            if current_time - most_recent_time > timedelta(days=1):
+                most_recent_time = current_time - timedelta(days=1)
+            if current_time - most_recent_time >= timedelta(days=1):
                 return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
@@ -1208,12 +1209,13 @@ def get_advanced_stats():
             if response_data is None:
                 error_message = "Advanced stats has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404), 200, {'Reason-Phrase': 'OK'}
-            
+        """    
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
             response_data["Emotions"] = {}
         else:
             response_data["Emotions"] = emotions
+        """
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
@@ -2320,6 +2322,18 @@ def change_device():
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
+@app.route("/", defaults={"path": ""})
+@app.route("/<string:path>") 
+@app.route("/<path:path>")
+def catch_all(path):
+    print("in catchall path")
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
+        return send_from_directory(app.static_folder, path)
+    else:
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
+
 def send_feedback_email(feedback):
     try:
         msg = Message("New Feedback Submission", 
@@ -2380,6 +2394,9 @@ def update_data(user,
             if (retries > max_retries):
                 raise Exception
             return update_data(user, retries=retries+1), 200, {'Reason-Phrase': 'OK'}
+
+
+
 
 def get_user_seed_tracks(user):
     # Two seed tracks from past month and three from recent history
