@@ -2299,18 +2299,13 @@ def update_data(user,
                 raise Exception
             return update_data(user, retries=retries+1), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    # Check if the path corresponds to a file in the 'Frontend/build' directory
-    file_path = os.path.join(app.root_path, 'Frontend', 'build', path)
-    
-    if os.path.isfile(file_path):
-        # If it's a file, serve it
-        return send_from_directory(os.path.join(app.root_path, 'Frontend', 'build'), path)
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
     else:
-        # If it's not a file, serve the 'index.html'
-        return send_from_directory(os.path.join(app.root_path, 'Frontend', 'build'), 'index.html')
+        return send_from_directory(app.static_folder, 'index.html')
+
 
 
 
