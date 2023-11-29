@@ -2276,6 +2276,7 @@ def criteriasearch():
         criteria = data.get('criteria')
         query = data.get('query')
         try:
+            refresh_token(user)
             response_data = user.search_for_items(max_items=5, items_type=criteria, query=query)
         except Exception as e:
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
@@ -2285,6 +2286,38 @@ def criteriasearch():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/add_to_queue', methods=['POST'])
+def add_song_to_queue():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        song_uri = data.get('song')
+        try:
+            refresh_token(user)
+            response_data = user.spotify_user.add_to_queue(song_uri)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/player/change_device', methods=['POST'])
+def change_device():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        device_uri = data.get('uri')
+        try:
+            refresh_token(user)
+            response_data = user.spotify_user.transfer_playback(device_uri)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 def send_feedback_email(feedback):
     try:
