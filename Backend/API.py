@@ -115,7 +115,7 @@ def test404():
     }
     error_code = 1
     homepage_link = "https://spotify-pulse-efa1395c58ba.herokuapp.com"
-    return render_template('error.html', error_code=error_code, error_message=error_message, homepage_link=homepage_link), 404, {'Reason-Phrase': 'Not OK'}
+    return render_template('error.html', error_code=error_code, error_message="A", homepage_link=homepage_link), 404, {'Reason-Phrase': 'Not OK'}
 
 
 @app.route('/callback')
