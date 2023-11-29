@@ -2238,7 +2238,9 @@ def feedback():
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/<path:path>')
+@app.route("/", defaults={"path": ""})
+@app.route("/<string:path>") 
+@app.route("/<path:path>")
 def catch_all(path):
     print("in catchall path")
     if path != "" and os.path.exists(app.static_folder + '/' + path):
