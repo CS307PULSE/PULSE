@@ -119,12 +119,23 @@ const ItemList = ({ data, buttons, selectedIndex = -1, onClick = (index) => {} }
                   <img style={imageStyle} src={getImage(data[index], item.type)}></img>
                   <div>
                     <p style={textStyle}>{item.name}</p>
-                    <p style={textStyle}>{item.artists[0].name}</p>
+                    <p style={textStyle}>{item.artists.map(artist => artist.name).join(', ')}</p>
                   </div>
                 </div>
               );
             case "album":
-              
+              return (
+                <div key={index} style={{...itemDisplayStyle, 
+                  border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
+                  onClick={() => {onClick(index)}}>
+                  {renderButtons(item)}
+                  <img style={imageStyle} src={getImage(data[index], item.type)}></img>
+                  <div>
+                    <p style={textStyle}>{item.name}</p>
+                    <p style={textStyle}>{item.artists.map(artist => artist.name).join(', ')}</p>
+                  </div>
+                </div>
+              );
             case "artist":
 
             case "episode":

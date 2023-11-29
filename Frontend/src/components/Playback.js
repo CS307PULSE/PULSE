@@ -26,7 +26,6 @@ function Playback() {
   const [searchQueryType, setSearchQueryMode] = useState("track");
   const [searchString, setSearchString] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [searchResultType, setSearchResultType] = useState("track");
 
   async function nextSong() { //Nexting
     await axios.get("/player/skip", { withCredentials: true });
@@ -108,7 +107,6 @@ function Playback() {
     setSearchResults("loading");
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("/player/search_bar", {query: query, criteria: type});
-    setSearchResultType(type);
     setSearchResults(response.data);
     console.log(response.data);
   }
@@ -237,7 +235,7 @@ function Playback() {
                     <p style={headerTextStyle}>Queue</p>
                     <img onClick={() => {setMode("queue"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
-                    <ItemList type={searchResultType} data={queueData} onClick={(index) => playTrack(queueData[index])} buttons={[]}/>
+                    <ItemList data={queueData} onClick={(index) => playTrack(queueData[index])} buttons={[]}/>
                   </div>
                 );
               case "search":

@@ -787,7 +787,7 @@ def play_album():
 @app.route('/player/play_song', methods=['POST'])
 def play_song():
     data = request.get_json()
-    song_uri = data.get('song_uri')
+    song_uri = data.get('spotify_uri')
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
