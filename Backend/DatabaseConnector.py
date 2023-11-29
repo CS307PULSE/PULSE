@@ -521,7 +521,10 @@ class DatabaseConnector(object):
         query = """SELECT user_match_rejected from pulse.base_stats where spotify_id = %s"""
         self.db_cursor.execute(query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return json.loads(self.resultset[0])
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     def get_swiped_users_from_DB(self, spotify_id):
         query = """SELECT user_match_swiped from pulse.base_stats where spotify_id = %s"""
