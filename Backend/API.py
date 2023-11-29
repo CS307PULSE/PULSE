@@ -2268,7 +2268,7 @@ def get_playing():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/search_bar', methods=['POST'])
-def search_bar():
+def criteriasearch():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
