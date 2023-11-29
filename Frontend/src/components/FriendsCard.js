@@ -10,7 +10,7 @@ import Colors from '../theme/Colors';
 var friendData;
 try {
   var friendResponse = await axios.get(
-    "/api/friends/get_friends",
+    "/friends/get_friends",
     { withCredentials: true }
   );
   friendData = friendResponse.data;

@@ -9,7 +9,7 @@ import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
 
 async function fetchBackendDatas() {
-    const response = await axios.get("/api/statistics/get_saved_playlists", {
+    const response = await axios.get("/statistics/get_saved_playlists", {
       withCredentials: true,
     });
     const data = response.data;
@@ -22,7 +22,7 @@ async function getSongRecommendations(selectedPlaylistID, selectedRecMethod) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/api/playlist/get_recs",
+    "/playlist/get_recs",
     { selectedPlaylistID: selectedPlaylistID,
       selectedRecMethod: selectedRecMethod}
   );
@@ -37,7 +37,7 @@ async function sendSongToBeAdded(selectedPlaylistID, selectedSongURI) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/api/playlist/add_song",
+    "/playlist/add_song",
     { selectedPlaylistID: selectedPlaylistID,
       selectedSongURI : selectedSongURI}
   );
