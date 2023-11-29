@@ -165,9 +165,7 @@ def callback():
         'redirect_uri': os.getenv("REDIRECT_URI"),
         'client_id': os.getenv("CLIENT_ID"),
         'client_secret': os.getenv("CLIENT_SECRET"),
-        'scopes': scopes,
     }
-
 
     response = requests.post(token_url, data=payload)
     print(response.json())
