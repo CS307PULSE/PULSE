@@ -22,6 +22,7 @@ import PlaylistGenerator from "./components/PlaylistGenerator";
 import PlaylistRecommendation from "./components/PlaylistRecommendation";
 import SongRecommendations from "./components/SongRecommendation";
 import ParameterRecommendations from "./components/ParameterRecommendation";
+import ArtistExplorer from "./components/ArtistExplorer";
 import HeadsUp from "./components/HeadsUp";
 import MatchIt from "./components/MatchIt";
 import {
@@ -79,31 +80,20 @@ function App() {
           />
           <Route path="/dashboard" element={<Mainpage />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="game/guess-the-song" element={<GuessTheSong />} />
-          <Route path="game/guess-the-artist" element={<GuessTheArtist />} />
-          <Route path="game/guess-the-lyric" element={<GuessTheLyric />} />
-          <Route path="game/guess-who-listens" element={<GuessWhoListens />} />
+          <Route path="/game/guess-the-song" element={<GuessTheSong />} />
+          <Route path="/game/guess-the-artist" element={<GuessTheArtist />} />
+          <Route path="/game/guess-the-lyric" element={<GuessTheLyric />} />
+          <Route path="/game/guess-who-listens" element={<GuessWhoListens />} />
           <Route path="/game/heads-up" element={<HeadsUp />} />
           <Route path="/Statistics" element={<StatisticsPage />} />
           <Route path="/PulseBot" element={<ChatBot />} />
           <Route path="/games" element={<Games />} />
-          <Route path="/DJmixer" element={<DJMixer />} />
-          <Route
-            path="/DJmixer/SongRecommendation"
-            element={<SongRecommendations />}
-          />
-          <Route
-            path="/DJmixer/ParameterRecommendation"
-            element={<ParameterRecommendations />}
-          />
-          <Route
-            path="/DJmixer/PlaylistRecommendation"
-            element={<PlaylistRecommendation />}
-          />
-          <Route
-            path="/DJmixer/PlaylistManager"
-            element={<PlaylistManager />}
-          />
+          <Route path="/explorer" element={<DJMixer />} />
+          <Route path="/explorer/SongRecommendation" element={<SongRecommendations />}/>
+          <Route path="/explorer/ParameterRecommendation" element={<ParameterRecommendations />}/>
+          <Route path="/explorer/PlaylistRecommendation" element={<PlaylistRecommendation />}/>
+          <Route path="/explorer/PlaylistManager" element={<PlaylistManager />}/>
+          <Route path="/explorer/ArtistExplorer" element={<ArtistExplorer />}/>
           <Route path="/friends/addFriends" element={<AddFriends />} />
           <Route path="/friends/friendRequests" element={<FriendRequests />} />
           <Route path="/friends" element={<Friends />} />

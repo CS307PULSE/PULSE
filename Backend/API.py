@@ -804,7 +804,7 @@ def play_song():
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/djmixer/songrec', methods=['POST'])
+@app.route('/explorer/songrec', methods=['POST'])
 def songrec():
     data = request.get_json()
     track = data.get('track')

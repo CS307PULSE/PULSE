@@ -6,6 +6,32 @@ import TextSize from "../theme/TextSize";
 import ItemList from "./ItemList";
 import { hexToRGBA } from "../theme/Colors";
 import { getImage } from "./ItemList";
+import { formatDate } from "../theme/Format";
+
+export async function playItem(item, syncFunction = () => {}) {
+  if (!item) { return; }
+  var route = (() => {switch (item.type) {
+    case "playlist": return "/player/play_playlist";
+    case "track": return "/player/play_song";
+    case "album": return "/player/play_album";
+    // case "artist": return "/player/play_song";
+    // case "episode": return "/player/play_song";
+    // case "show": return "/player/play_song";
+    default: return null;
+  }})();
+  if (!route) { return; }
+
+  const axiosInstance = axios.create({withCredentials: true});
+  const response = await axiosInstance.post(route, {spotify_uri: item.uri});
+  syncFunction();
+  return response.data;
+}
+export async function queueItem(item, syncFunction = () => {}) {
+  const axiosInstance = axios.create({withCredentials: true});
+  const response = await axiosInstance.post("/player/add_to_queue", {song_uri: item.uri});
+  syncFunction();
+  return response.data;
+}
 
 function Playback() {
   
@@ -80,20 +106,6 @@ function Playback() {
   useEffect(() => {
     syncPlayer();
   }, []);
-  async function playTrack(track) {
-    const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/play_song", {spotify_uri: track.uri});
-    const data = response.data;
-    syncPlayer();
-    return data;
-  }
-  async function addToQueue(track) {
-    const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/add_to_queue", {song_uri: track.uri});
-    const data = response.data;
-    syncPlayer();
-    return data;
-  }
   async function changeDevice(newDeviceID) {
     setCurrentDevice(newDeviceID);
     console.log(newDeviceID);
@@ -120,7 +132,7 @@ function Playback() {
           <a style={headerTextStyle} 
             href={currentTrack.album.external_urls.spotify} target="_blank">
             {"Album: " + currentTrack.album.name}</a>
-          <p style={textStyle}>{"Released " + currentTrack.album.release_date}</p>
+          <p style={textStyle}>{"Released " + formatDate(currentTrack.album.release_date)}</p>
           <p style={textStyle}>{currentTrack.album.total_tracks + " Tracks"}</p>
           <p style={headerTextStyle}>
             {"Artists: " + currentTrack.artists.map(artist => artist.name).join(', ')}
@@ -130,7 +142,7 @@ function Playback() {
       case "episode": return (
         <div>
           <p style={headerTextStyle}>{currentTrack.name}</p>
-          <p style={textStyle}>{"Released " + currentTrack.release_date}</p>
+          <p style={textStyle}>{"Released " + formatDate(currentTrack.release_date)}</p>
           <p style={headerTextStyle}>Description</p>
           <p style={textStyle}>{currentTrack.description}</p>
         </div>
@@ -219,7 +231,8 @@ function Playback() {
     borderColor: state.colorBorder,
     borderRadius: '10px',
     cursor: 'pointer',
-    margin: '5px', // Small space between buttons
+    margin: '5px',
+    padding: '0px 10px 0px 10px',
     width: '100%',
     height: "50px",
     fontSize: textSizes.body
@@ -262,7 +275,7 @@ function Playback() {
                     <p style={headerTextStyle}>Queue</p>
                     <img onClick={() => {setMode("queue"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
-                    <ItemList data={queueData} onClick={(index) => playTrack(queueData[index])} buttons={[]}/>
+                    <ItemList data={queueData} onClick={(index) => {playItem(queueData[index], syncPlayer);}}/>
                   </div>
                 );
               case "search":
@@ -290,9 +303,9 @@ function Playback() {
                       <button style={{...buttonStyle, width: "30%"}} onClick={() => {getSearchResults(searchString, searchQueryType)}}>Search</button>
                     </div>
                     <ItemList
-                    type="song" data={searchResults} onClick={(index) => playTrack(searchResults[index])}
+                    type="song" data={searchResults} onClick={(index) => playItem(searchResults[index], syncPlayer)}
                     buttons={(searchQueryType == "track" || searchQueryType == "episode") ? 
-                      [{width: "40px", value: "+", size: "30px", onClick: (item) => addToQueue(item)}] : []}/>
+                      [{width: "40px", value: "+", size: "30px", onClick: (item) => queueItem(item, syncPlayer)}] : []}/>
                   </div>
                 );
             }

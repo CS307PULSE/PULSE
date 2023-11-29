@@ -23,7 +23,7 @@ export function getImage(item, type) {
 }
 
 //Buttons is an array of {text, width, onClick function}
-const ItemList = ({ data, buttons, selectedIndex = -1, onClick = (index) => {} }) => {  
+const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = (index) => {} }) => {  
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   

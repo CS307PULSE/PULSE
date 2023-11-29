@@ -66,23 +66,6 @@ const PlaylistManager = () => {
     }
   }, [selectedPlaylistIndex]);
 
-  function getPlaylistImage(index) {
-    const image = playlists[index].images[0];
-    if (image) {
-      return image.url;
-    } else {
-      return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
-    }
-  }
-  function getSongImage(track) {
-    const image = track.album.images[0];
-    if (image) {
-      return image.url;
-    } else {
-      return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
-    }
-  }
-
   const bodyStyle = {
     backgroundColor: state.colorBackground,
     backgroundImage: "url('" + state.backgroundImage + "')",
@@ -119,7 +102,8 @@ const PlaylistManager = () => {
     borderColor: state.colorBorder,
     borderRadius: '10px',
     cursor: 'pointer',
-    margin: '5px', // Small space between buttons
+    margin: '5px',
+    padding: '0px 10px 0px 10px',
     width: '100%',
     height: "50px",
     fontSize: textSizes.body
@@ -175,19 +159,19 @@ const PlaylistManager = () => {
         <div>
           <div style={sectionContainerStyle}>
             <div style={buttonContainerStyle}>
-                <label style={textStyle}>Playlist Name </label>
+                <p style={textStyle}>Playlist Name </p>
                 <input name="playlist-name-field" type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
-                <label style={textStyle}>Public </label>
+                <p style={textStyle}>Public </p>
                 <input name="public-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
-                <label style={textStyle}>Collaborative </label>
+                <p style={textStyle}>Collaborative </p>
                 <input name="collaborative-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
             </div>
             <div style={buttonContainerStyle}>
-                <label style={textStyle}>Genre </label>
+                <p style={textStyle}>Genre </p>
                 <select style={buttonStyle} value={playlistGenre} onChange={(e) => setPlaylistGenre(e.target.value)}>
                   <option key={-1} value={"none"}>Blank Playlist</option>
                   {genreList.map((item, index) => (
@@ -204,9 +188,9 @@ const PlaylistManager = () => {
           <div style={{...sectionContainerStyle, height: "400px"}}>
             <p style={headerTextStyle}>Playlists</p>
             <ItemList 
-              data={playlists} 
+              data={playlists}
               selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
-              buttons={[]}/>
+            />
           </div>
         </div>
         <div>
@@ -220,10 +204,10 @@ const PlaylistManager = () => {
                 <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button>
                 <button style={buttonStyle} onClick={() => {playlistPost("follow", {playlist: playlists[selectedPlaylistIndex].id})}}>Follow</button>
                 <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
-                <Link to="/DJmixer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
+                <Link to="/explorer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
             </div>
             <ItemList 
-              data={playlistSongs} 
+              data={playlistSongs}
               buttons={[
                 {width: "40px", value: "-", size: "30px",
                   onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},

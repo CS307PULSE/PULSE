@@ -5,6 +5,9 @@ import axios from "axios";
 import { ImageGraph } from "./Graphs/ImageGraph";
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
+import { hexToRGBA } from "../theme/Colors";
+import ItemList from "./ItemList";
+import { playItem, queueItem } from "./Playback";
 
 // eslint-disable-next-line no-unused-vars
 
@@ -13,7 +16,7 @@ async function sendAndFetchSongReqs(sentTrack) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/djmixer/songrec",
+    "/explorer/songrec",
     { track: sentTrack }
   );
   const data = response.data;
@@ -37,30 +40,30 @@ const SongRecommendation = () => {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-  const [recievedSearchData, setRecievedSearchData] = useState();
-  const [recievedRecData, setRecievedRecData] = useState();
-  const [searchValue, setSearchValue] = useState();
-  const [searchRecVal, setSearchRecVal] = useState();
+  const [receivedSearchData, setReceivedSearchData] = useState(null);
+  const [receivedRecData, setReceivedRecData] = useState(null);
+  const [searchString, setSearchString] = useState(null);
+  const [recString, setRecString] = useState(null);
 
   useEffect(() => {
     document.title = "PULSE - Song Recommendations";
   }, []);
 
-  function songRecs(recievedSongs) {
-    if (recievedSongs !== undefined) {
-      return <ImageGraph data={recievedSongs} dataName={"top_song"} />;
+  function songRecs(receivedSongs) {
+    if (receivedSongs !== undefined) {
+      return <ImageGraph data={receivedSongs} dataName={"top_song"} />;
     } else {
       return <p></p>;
     }
   }
 
   const getSearch = async () => {
-    if (searchValue !== null && searchValue !== undefined) {
-      console.log("searching for " + searchValue);
-      sendSearchAndReturn(searchValue).then((data) => {
+    if (searchString !== null && searchString !== undefined) {
+      console.log("searching for " + searchString);
+      sendSearchAndReturn(searchString).then((data) => {
         if (data !== null && data !== undefined) {
           console.log(data);
-          setRecievedSearchData(data);
+          setReceivedSearchData(data);
         }
       });
     } else {
@@ -69,24 +72,16 @@ const SongRecommendation = () => {
   };
 
   const getRecommendations = async () => {
-    if (searchRecVal !== null && searchRecVal !== undefined) {
-      console.log("searching for " + searchRecVal);
-      sendAndFetchSongReqs(searchRecVal).then((data) => {
+    if (recString) {
+      console.log("searching for " + recString);
+      sendAndFetchSongReqs(recString).then((data) => {
         if (data !== null && data !== undefined) {
-          setRecievedRecData(data);
+          setReceivedRecData(data);
         }
       });
     } else {
       alert("Please enter value in search bar before getting recommendations!");
     }
-  };
-
-  const changeSearchValue = (e) => {
-    setSearchValue(e.target.value);
-  };
-
-  const changeRecVal = (e) => {
-    setSearchRecVal(e.target.value);
   };
 
   const bodyStyle = {
@@ -97,56 +92,66 @@ const SongRecommendation = () => {
     backgroundAttachment: "fixed", //Keep the background fixed
   };
   
-  /*const friendContainerStyle = {
-    position: "fixed",
-    top: 100,
-    right: 0,
-    width: "20%",
-    height: "900",
-    backgroundColor: themeColors.background,
-  };*/
-  
+  const buttonContainerStyle = {
+    display: 'flex',
+    alignItems: 'center', // Center buttons horizontally
+    marginTop: '5px', // Space between cards and buttons
+    width: "100%"
+  };
   const buttonStyle = {
     backgroundColor: state.colorBackground,
     color: state.colorText,
-    padding: "20px 40px", // Increase the padding for taller buttons
-    borderWidth: "1px",
-    borderStyle: "solid",
+    borderWidth: '1px',
+    borderStyle: 'solid',
     borderColor: state.colorBorder,
-    borderRadius: "10px",
-    cursor: "pointer",
-    margin: "5px",
-    width: "100%", // Adjust the width to take up the entire space available
-    textAlign: "center", // Center the text horizontally
+    borderRadius: '10px',
+    cursor: 'pointer',
+    margin: '5px', // Small space between buttons
+    padding: '0px 10px 0px 10px',
+    width: '100%',
+    height: "50px",
+    fontSize: textSizes.body
   };
   
-  const searchContainerStyle = {
-    display: "flex",
-    marginLeft: "30px",
-    // justifyContent: 'center',
-    marginBottom: "20px",
-  };
+  const sectionContainerStyle = {
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+    width: "600px",
+    padding: "20px",
+    margin: "20px",
+    position: "relative",
+    overflow: "auto"
+  }
   
-  const searchInputStyle = {
-    padding: "8px",
-    width: "75%",
-    display: "flex-grow",
-  };
-
   return (
     <div className="wrapper">
       <div className="header"><Navbar /></div>
       <div className="content" style={bodyStyle}>
-        <div style={searchContainerStyle}>
-          <input type="text" placeholder="Search..." style={searchInputStyle} value={searchRecVal} onChange={changeRecVal}/>
-          <button style={{ ...buttonStyle, textDecoration: "none" }} onClick={() => getRecommendations()}> Get Recommendations </button>
+        <div style={{display: "flex"}}>
+          <div style={sectionContainerStyle}>
+            <div style={buttonContainerStyle}>
+              <input type="text" style={buttonStyle} value={recString}
+                onChange={e => {setRecString(e.target.value)}}
+                onKeyDown={(e) => {if (e.key == 'Enter') {getRecommendations()}}}></input>
+              <button style={{...buttonStyle, width: "30%"}} onClick={() => {getRecommendations()}}>Recommend</button>
+            </div>
+            <ItemList
+              data={receivedRecData}
+              onClick={(index) => playItem(receivedRecData[index])}
+            />
+          </div>
+          <div style={sectionContainerStyle}>
+            <div style={buttonContainerStyle}>
+              <input type="text" style={buttonStyle} value={searchString}
+                onChange={e => {setSearchString(e.target.value)}}
+                onKeyDown={(e) => {if (e.key == 'Enter') {getSearch()}}}></input>
+              <button style={{...buttonStyle, width: "30%"}} onClick={() => {getSearch()}}>Search</button>
+            </div>
+            <ItemList
+              data={receivedSearchData}
+              onClick={(index) => playItem(receivedSearchData[index])}
+            />
+          </div>
         </div>
-        {songRecs(recievedRecData)}
-        <div style={searchContainerStyle}>
-          <input type="text" placeholder="Search..." style={searchInputStyle} value={searchValue} onChange={changeSearchValue}/>
-          <button style={{ ...buttonStyle, textDecoration: "none" }} onClick={() => getSearch()}>Search</button>
-        </div>
-        {songRecs(recievedSearchData)}
       </div>
       <div className="footer"><Playback /></div>
     </div>

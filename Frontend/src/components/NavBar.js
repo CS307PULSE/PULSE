@@ -64,7 +64,7 @@ const Navbar = () => {
           <Link to="/statistics" style={linkStyle}>Statistics</Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/DJMixer" style={linkStyle}>DJ Mixer</Link>
+          <Link to="/explorer" style={linkStyle}>Explorer</Link>
         </div>
         <div style={linkStyle}>
           <Link to="/games" style={linkStyle}>Games</Link>

@@ -46,17 +46,17 @@ function Profile({ testParameter }) {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-    const [imagePath, setImagePath] = useState(storedUserFields.icon);
-    const [username, setUsername] = useState(storedUserFields.username);
-    const [gender, setGender] = useState(storedUserFields.gender);
-    const [location, setLocation] = useState(storedUserFields.location);
-    const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favoriteSong);
-    const [status, setStatus] = useState("No Status"); //storedUserFields.status
-    const [publicColorText, setPublicColorText] = useState("#FFFFFF"); //storedUserFields.publicColor
-    const [publicColorBackground, setPublicColorBackground] = useState("#000000"); //storedUserFields.publicColor
-    const [selectedThemeIndex, setSelectedThemeIndex] = useState(-1);
-    const [newThemeName, setNewThemeName] = useState("New Theme");
-    const [themeEditsMade, setThemeEditsMade] = useState(false);
+  const [imagePath, setImagePath] = useState(storedUserFields.icon);
+  const [username, setUsername] = useState(storedUserFields.username);
+  const [gender, setGender] = useState(storedUserFields.gender);
+  const [location, setLocation] = useState(storedUserFields.location);
+  const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favoriteSong);
+  const [status, setStatus] = useState("No Status"); //storedUserFields.status
+  const [publicColorText, setPublicColorText] = useState("#FFFFFF"); //storedUserFields.publicColor
+  const [publicColorBackground, setPublicColorBackground] = useState("#000000"); //storedUserFields.publicColor
+  const [selectedThemeIndex, setSelectedThemeIndex] = useState(-1);
+  const [newThemeName, setNewThemeName] = useState("New Theme");
+  const [themeEditsMade, setThemeEditsMade] = useState(false);
 
   const updateTextSize = (newSetting) => {
     dispatch({ type: "UPDATE_TEXT_SIZE", payload: newSetting });
@@ -276,9 +276,6 @@ function Profile({ testParameter }) {
               <p style={headerTextStyle}>Profile</p>
               <button style={{...buttonStyle, width:"calc(100% - 300px)", position:"absolute", top:"60px", right:"20px"}}
                 onClick={() => {saveUserInfo()}}>Save Profile</button>
-              {/* <div style={iconContainerStyle}>
-                <img style={iconPictureStyle} src={storedUserFields.icon}/>
-              </div> <br></br> */}
               <div style={textFieldContainerStyle}>
                 <label style={profileText}>Icon Link</label>
                 <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>

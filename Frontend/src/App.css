@@ -38,7 +38,7 @@
   width: 100%;
   height: 60px;
 }
-a, p {
+p, a, label, span {
   font-style: normal;
   font-family: Poppins, sans-serif;
 }
