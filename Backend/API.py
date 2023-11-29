@@ -18,6 +18,16 @@ import spotipy
 import requests
 from spotipy.oauth2 import SpotifyOAuth
 
+app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
+
+app.secret_key = 'your_secret_key'
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Strict',
+)
+
 error_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -54,16 +64,6 @@ error_html = """
 </body>
 </html>
 """
-
-app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
-
-app.secret_key = 'your_secret_key'
-app.config.update(
-    SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Strict',
-)
 
 scopes = [
     #Images
@@ -275,9 +275,9 @@ def statistics():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
 @app.route('/statistics/friend', methods=['POST'])
 def friend_statistics():
@@ -291,9 +291,9 @@ def friend_statistics():
     if user is None:
         error_message = "Error storing/getting information! Please try logging in again!"
         error_code = 415
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
     data = {'status' : 'Not updated',
             'recent_history' : '',
@@ -375,9 +375,9 @@ def statistics_short():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/statistics/update_followers')
 def update_followers():
@@ -405,9 +405,9 @@ def update_followers():
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
@@ -415,9 +415,9 @@ def update_followers():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/statistics/get_saved_playlists')
 def get_saved_playlists():
@@ -449,9 +449,9 @@ def get_saved_playlists():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/statistics/get_friends_recent_songs', methods=['POST'])
 def get_friends_recent_songs():
@@ -498,9 +498,9 @@ def set_layout():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/search_bar', methods=['POST'])
 def search_bar():
@@ -516,9 +516,9 @@ def search_bar():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/games/playback', methods=['POST'])
 def playback():
@@ -557,9 +557,9 @@ def playback():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/games/random_friend', methods=['POST'])
 def random_friend():
@@ -590,9 +590,9 @@ def playback_friends():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/games/store_scores', methods=['POST'])
 def store_scores():
@@ -609,17 +609,17 @@ def store_scores():
             if (conn.update_scores(user.spotify_id, scores, game_code) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
 @app.route('/games/get_scores')
 def get_scores():
@@ -638,9 +638,9 @@ def get_scores():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
 @app.route('/games/get_settings')
 def get_settings():
@@ -656,9 +656,9 @@ def get_settings():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/games/set_settings', methods=['POST'])
 def set_settings():
@@ -673,17 +673,17 @@ def set_settings():
             if (conn.update_game_settings(user.spotify_id, settings, game_code) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         
         return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/player/play')
 def play():
@@ -701,9 +701,9 @@ def play():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/pause')
@@ -722,9 +722,9 @@ def pause():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/skip')
@@ -743,9 +743,9 @@ def skip():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/prev')
@@ -763,9 +763,9 @@ def prev():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/shuffle')
@@ -783,9 +783,9 @@ def shuffle():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/repeat')
@@ -803,9 +803,9 @@ def repeat():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/volume', methods=['POST'])
@@ -825,9 +825,9 @@ def volume_change():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_playlist', methods=['POST'])
@@ -847,9 +847,9 @@ def play_playlist():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_artist', methods=['POST'])
@@ -869,9 +869,9 @@ def play_artist():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_album', methods=['POST'])
@@ -891,9 +891,9 @@ def play_album():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/play_song', methods=['POST'])
@@ -913,9 +913,9 @@ def play_song():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/djmixer/songrec', methods=['POST'])
@@ -936,9 +936,9 @@ def songrec():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_theme', methods=['POST'])
@@ -954,9 +954,9 @@ def set_theme():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/profile/get_theme')
 def get_theme():
@@ -968,9 +968,9 @@ def get_theme():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/profile/set_text_size', methods=['POST'])
 def set_text_size():
@@ -985,9 +985,9 @@ def set_text_size():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/profile/get_text_size')
 def get_text_size():
@@ -999,9 +999,9 @@ def get_text_size():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/profile/set_image', methods=['POST'])
 def set_image():
@@ -1014,16 +1014,16 @@ def set_image():
             if (conn.update_icon(user.spotify_id, newImage) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'username updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_image', methods=['GET'])
@@ -1036,9 +1036,9 @@ def get_image():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_displayname', methods=['POST'])
@@ -1055,16 +1055,16 @@ def set_displayname():
             if (conn.update_display_name(user.spotify_id, user.display_name) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'username updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_displayname', methods=['GET'])
@@ -1096,9 +1096,9 @@ def set_gender():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_gender', methods=['GET'])
@@ -1111,9 +1111,9 @@ def get_gender():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_chosen_song', methods=['POST'])
@@ -1130,16 +1130,16 @@ def set_chosen_song():
             if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'chosen_song updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_chosen_song', methods=['GET'])
@@ -1152,9 +1152,9 @@ def get_chosen_song():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_location', methods=['POST'])
@@ -1171,16 +1171,16 @@ def set_location():
             if (conn.update_location(user.spotify_id, user.location) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'location updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_location', methods=['GET'])
@@ -1193,9 +1193,9 @@ def get_location():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_background_image', methods=['POST'])
@@ -1209,16 +1209,16 @@ def set_background_image():
             if (conn.update_custom_background(user.spotify_id, background) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_background_image')
@@ -1231,9 +1231,9 @@ def get_background_image():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_saved_themes', methods=['POST'])
@@ -1249,16 +1249,16 @@ def set_saved_themes():
             if (conn.update_saved_themes(user.spotify_id, themes) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'Themes updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_saved_themes')
@@ -1271,9 +1271,9 @@ def get_saved_themes():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/set_color_palette', methods=['POST'])
@@ -1287,16 +1287,16 @@ def set_color_palette():
             if (conn.update_color_palette(user.spotify_id, palette) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         response_data = 'Palette updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/profile/get_color_palette', methods=['GET'])
@@ -1320,9 +1320,9 @@ def advanced_data_check():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/import_advanced_stats', methods=['POST'])
@@ -1339,9 +1339,9 @@ def import_advanced_stats():
         if not refresh_token(user):
             error_message = "Failed to reauthenticate token! Please try logging in again!"
             error_code = 420
-            global error_html
-            error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-            return error_html, 404, {'Reason-Phrase': 'Not OK'}
+            
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+            return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
         DATA = {}
         #time.sleep(30)
@@ -1381,15 +1381,15 @@ def import_advanced_stats():
                 if (conn.update_advanced_stats(user.spotify_id, DATA) == -1):
                     error_message = "Error storing/getting information! Please try logging in again!"
                     error_code = 415
-                    global error_html
-                    error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                    return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                    
+                    error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                    return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
                 if (conn.update_has_uploaded(user.spotify_id, 1) == -1):
                     error_message = "Error storing/getting information! Please try logging in again!"
                     error_code = 415
-                    global error_html
-                    error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                    return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                    
+                    error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                    return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         end_time = datetime.now()
         time_elapsed = end_time - start_time
@@ -1398,9 +1398,9 @@ def import_advanced_stats():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
     print(response_data)
     return jsonify(has_error_in_file), 200, {'Reason-Phrase': 'OK'}
@@ -1415,9 +1415,9 @@ def get_advanced_stats():
             if response_data is None:
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         """    
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
@@ -1428,9 +1428,9 @@ def get_advanced_stats():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friend_get_advanced_stats', methods=['POST'])
@@ -1446,9 +1446,9 @@ def friend_get_advanced_stats():
             if response_data is None:
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
@@ -1458,9 +1458,9 @@ def friend_get_advanced_stats():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 def get_emotions(user, tracks):
@@ -1499,9 +1499,9 @@ def store_advanced_stats():
         if (conn.update_advanced_stats(id, DATA) == -1):
             error_message = "Error storing/getting information! Please try logging in again!"
             error_code = 415
-            global error_html
-            error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-            return error_html, 404, {'Reason-Phrase': 'Not OK'}
+            
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+            return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Stored!", 200, {'Reason-Phrase': 'OK'}
 """
 @app.route('/advanced_stats_test')
@@ -1655,9 +1655,9 @@ def friend_requests():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "added request", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/remove_friend', methods=['POST'])
@@ -1685,9 +1685,9 @@ def remove_friend():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/friend_request_choice', methods=['POST'])
@@ -1721,9 +1721,9 @@ def request_choice():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/add_friends_search', methods=['POST'])
@@ -1747,9 +1747,9 @@ def friend_request_search():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/get_friends', methods=['GET'])
@@ -1773,9 +1773,9 @@ def get_friends():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/friends/get_requests', methods=['GET'])
@@ -1799,9 +1799,9 @@ def get_requests():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/add_song', methods=['POST'])
@@ -1818,9 +1818,9 @@ def playlist_add_song():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Added track!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/get_recs', methods=['POST'])
@@ -1836,9 +1836,9 @@ def get_playlist_recs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(song_array), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/stats/emotion_percent', methods=['POST'])
@@ -1870,9 +1870,9 @@ def emotion_percent():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/playlist/create', methods=['POST'])
 def playlist_create():
@@ -1892,9 +1892,9 @@ def playlist_create():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Created playlist!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/get_tracks', methods = ['POST'])
@@ -1909,9 +1909,9 @@ def playlist_get_tracks():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/add_track', methods=['POST'])
@@ -1928,9 +1928,9 @@ def playlist_add_track():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Added track!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/remove_track', methods=['POST'])
@@ -1946,9 +1946,9 @@ def playlist_remove_track():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Removed track!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/change_image', methods=['POST'])
@@ -1964,9 +1964,9 @@ def playlist_change_image():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Changed image!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/reorder_tracks', methods=['POST'])
@@ -1981,9 +1981,9 @@ def playlist_reorder_tracks():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Reordered tracks!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/follow', methods=['POST'])
@@ -1998,9 +1998,9 @@ def playlist_follow():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Playlist followed!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/playlist/unfollow', methods=['POST'])
@@ -2015,9 +2015,9 @@ def playlist_unfollow():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Playlist unfollowed!", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/chatbot/pull_songs', methods=['POST'])
@@ -2072,9 +2072,9 @@ def pull_songs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "successful completion", 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/recommendations/get_playlist_dict', methods=['POST'])
@@ -2089,9 +2089,9 @@ def get_playlist_dict():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(playlist_dict), 200, {'Reason-Phrase': 'OK'}
     
 @app.route('/recommendations/get_songs_from_dict', methods=['POST'])
@@ -2121,9 +2121,9 @@ def get_songs_dict():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(recommendations), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/emotions/get_emotions')
@@ -2141,9 +2141,9 @@ def analyze_emotions():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(emotion), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/get_next_song')
@@ -2180,9 +2180,9 @@ def get_next_song():
                     if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                         error_message = "Error storing/getting information! Please try logging in again!"
                         error_code = 415
-                        global error_html
-                        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                        
+                        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
             parameters_from_swiping['seed_tracks'] = seed_tracks
             queue = user.spotify_user.recommendations(**parameters_from_swiping, limit=50).get('tracks', [])
 
@@ -2219,24 +2219,24 @@ def get_next_song():
             if (conn.update_song_recommendation_queue(user.spotify_id, recommendation_queue) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(song), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/swipe_left', methods=['POST'])
@@ -2258,9 +2258,9 @@ def song_swipe_left():
             if (conn.update_song_match_number_swiped(user.spotify_id, n) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
             parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping away from Song Features
@@ -2275,9 +2275,9 @@ def song_swipe_left():
             if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         with DatabaseConnector(db_config) as conn:
             rejected_songs = conn.get_rejected_songs_from_DB(user.spotify_id)
@@ -2289,18 +2289,18 @@ def song_swipe_left():
             if (conn.update_rejected_songs(user.spotify_id, rejected_songs) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         resp = "Updated!"
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/swipe_right', methods=['POST'])
@@ -2322,9 +2322,9 @@ def song_swipe_right():
             if (conn.update_song_match_number_swiped(user.spotify_id, n) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
             parameters_from_swiping = conn.get_swiping_preferences_from_DB(user.spotify_id)
         
         # Bias Parameters from Swiping towards Song Features
@@ -2339,9 +2339,9 @@ def song_swipe_right():
             if (conn.update_swiping_preferences(user.spotify_id, parameters_from_swiping) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         with DatabaseConnector(db_config) as conn:
             swiped_songs = conn.get_swiped_songs_from_DB(user.spotify_id)
@@ -2353,18 +2353,18 @@ def song_swipe_right():
             if (conn.update_swiped_songs(user.spotify_id, swiped_songs) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         resp = "Updated!"
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/view_swiped_songs')
@@ -2380,9 +2380,9 @@ def view_swiped_songs():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(songs), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/song_matcher/remove_swiped_song', methods=['POST'])
@@ -2407,16 +2407,16 @@ def remove_swiped_song():
             if (conn.update_swiped_songs(user.spotify_id, new_songs) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/user_matcher/get_next_user')
@@ -2442,15 +2442,15 @@ def get_next_user():
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
                         error_message = "Error storing/getting information! Please try logging in again!"
                         error_code = 415
-                        global error_html
-                        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                        
+                        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
                     if (conn.update_entire_genre_groups(user.spotify_id, genre_groups) == -1):
                         error_message = "Error storing/getting information! Please try logging in again!"
                         error_code = 415
-                        global error_html
-                        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                        
+                        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
             with DatabaseConnector(db_config) as conn:
                 queue = conn.get_entire_genre_groups_from_DB(user.spotify_id, genre_groups)
                 if queue is None or queue == []:
@@ -2487,24 +2487,24 @@ def get_next_user():
             if (conn.update_user_queue(user.spotify_id, queue) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_rejected_users(user.spotify_id, rejected_users) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(user), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/user_matcher/swipe_left', methods=['POST'])
@@ -2525,18 +2525,18 @@ def user_swipe_left():
             if (conn.update_rejected_users(user.spotify_id, rejected_users) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         resp = "Updated!"
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp)
 
 @app.route('/user_matcher/swipe_right', methods=['POST'])
@@ -2557,18 +2557,18 @@ def user_swipe_right():
             if (conn.update_swiped_users(user.spotify_id, swiped_users) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
-                global error_html
-                error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html, 404, {'Reason-Phrase': 'Not OK'}
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
         resp = "Updated!"
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp)
 
 @app.route('/user_matcher/view_swiped_users')
@@ -2584,9 +2584,9 @@ def view_swiped_users():
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
-        global error_html
-        error_html = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html, 404, {'Reason-Phrase': 'Not OK'}
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(songs)
 
 @app.route('/feedback', methods=['POST'])
