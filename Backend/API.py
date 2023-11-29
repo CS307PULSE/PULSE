@@ -2460,7 +2460,7 @@ def get_next_user():
 
         # We get the First User in the Queue
         first_user = queue.pop()
-        user = first_user
+        match_user = first_user
         with DatabaseConnector(db_config) as conn:
             rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
         if rejected_users is None:
@@ -2468,9 +2468,9 @@ def get_next_user():
         user_expiration_length = 2 # If you reject a user, in two days you can be recommended it again
 
         # Attempt to get a User that Wasn't Recently Rejected by Current User
-        while user in rejected_users.keys():
+        while match_user in rejected_users.keys():
             current_timestamp = datetime.now()
-            previous_timestamp_str = rejected_users.get(user, datetime(2020, 1, 1).isoformat())
+            previous_timestamp_str = rejected_users.get(match_user, datetime(2020, 1, 1).isoformat())
             previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
             time_difference = current_timestamp - previous_timestamp
             is_user_expired = time_difference.days > user_expiration_length
@@ -2479,7 +2479,7 @@ def get_next_user():
                 rejected_users.pop(user)
 
             elif len(queue) > 0:
-                user = queue.pop()
+                match_user = queue.pop()
 
             else:
                 return {}
@@ -2507,7 +2507,7 @@ def get_next_user():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(user), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(match_user), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/user_matcher/swipe_left', methods=['POST'])
 def user_swipe_left():
@@ -2520,8 +2520,8 @@ def user_swipe_left():
         with DatabaseConnector(db_config) as conn:
             rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
             if rejected_users is None:
-                rejected_users = []
-            rejected_users.append(rejected_user)
+                rejected_users = {}
+            rejected_users[rejected_user] = datetime.now().isoformat()
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_rejected_users(user.spotify_id, rejected_users) == -1):
@@ -2581,7 +2581,7 @@ def view_swiped_users():
         refresh_token(user)
 
         with DatabaseConnector(db_config) as conn:
-            songs = conn.get_swiped_users_from_DB(user.spotify_id)
+            users = conn.get_swiped_users_from_DB(user.spotify_id)
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -2589,7 +2589,7 @@ def view_swiped_users():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(songs)
+    return jsonify(users)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
