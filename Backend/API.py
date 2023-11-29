@@ -2614,6 +2614,9 @@ def get_playing():
                 queue = user.spotify_user.queue()
             if is_playing: 
                 current_track = playback['item']
+            if is_playing and current_track == None:
+                playback = user.spotify_user.current_playback(additional_types='episode')
+                current_track = playback['item']
             response_data = {
                 "is_playing": is_playing,
                 "current_device": current_device,
