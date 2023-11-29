@@ -145,7 +145,7 @@ def login():
 
 @app.route('/test404')
 def test404():
-    return jsonify("a"), 200, {'Reason-Phrase': 'OK'}
+    return jsonify('<h1>Welcome to the Homepage!</h1>'), 200, {'Reason-Phrase': 'OK'}
     error_message = "aaa"
     error_code = 1
     homepage_link = "https://spotify-pulse-efa1395c58ba.herokuapp.com"
