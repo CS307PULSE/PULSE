@@ -203,7 +203,7 @@ const PlaylistManager = () => {
           <div style={{...sectionContainerStyle, height: "400px"}}>
             <p style={headerTextStyle}>Playlists</p>
             <ItemList 
-              type="playlists" data={playlists} 
+              type="playlist" data={playlists} 
               selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
               buttons={[]}/>
           </div>
@@ -222,7 +222,7 @@ const PlaylistManager = () => {
                 <Link to="/DJmixer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
             </div>
             <ItemList 
-              type="songs" data={playlistSongs} 
+              type="song" data={playlistSongs} 
               buttons={[
                 {width: "40px", value: "-", size: "30px",
                   onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
@@ -239,7 +239,7 @@ const PlaylistManager = () => {
                 <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
             </div>
             <ItemList
-              type="songs" data={searchResults}
+              type="song" data={searchResults}
               buttons={[
                 {width: "40px", value: "+", size: "30px",
                   onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},

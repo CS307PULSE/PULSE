@@ -58,10 +58,10 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     }
     var image = null;
     switch (type) {
-      case "songs" : image = data[index].album.images[0]; break;
+      case "song" : image = data[index].album.images[0]; break;
       // case "albums": image = 0; break;
       // case "artists": image = 0; break;
-      case "playlists": image = data[index].images[0]; break;
+      case "playlist": image = data[index].images[0]; break;
     }
     if (image) {
       return image.url;
@@ -97,7 +97,7 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
             return ("");
           } 
           switch (type) {
-            case "playlists":
+            case "playlist":
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
@@ -109,7 +109,7 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
                   </div>
                 </div>
               );
-            case "songs":
+            case "song":
               return (
                 <div key={index} style={{...itemDisplayStyle, 
                   border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
@@ -122,9 +122,13 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
                   </div>
                 </div>
               );
-            case "albums":
+            case "album":
               
-            case "artists":
+            case "artist":
+
+            case "episode":
+
+            case "show":
           }
         })()
       ))}

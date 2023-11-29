@@ -2236,7 +2236,7 @@ def feedback():
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/refresh_player', methods=['POST'])
+@app.route('/player/sync_player', methods=['GET'])
 def get_playing():
     if 'user' in session:
         user_data = session['user']
