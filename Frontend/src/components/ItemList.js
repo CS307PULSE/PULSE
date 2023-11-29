@@ -76,8 +76,7 @@ const ItemList = ({ type, data, buttons, selectedIndex = -1, onClick = (index) =
     return buttons.map((button, index) => (
       <div key={index}>
         <button style={{...buttonStyle, width: button.width, fontSize: button.size}} 
-          onClick={() => {button.onClick(item)}}>{button.value}</button>
-        {/* {type == "image" ? <img style={{width: button.width}} onClick={() => {button.onClick(item)}} src={button.value}></img> : ""} */}
+          onClick={(e) => {button.onClick(item); e.stopPropagation();}}>{button.value}</button>
       </div>
     ));
   }

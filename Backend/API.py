@@ -787,7 +787,7 @@ def play_album():
 @app.route('/player/play_song', methods=['POST'])
 def play_song():
     data = request.get_json()
-    song_uri = data.get('spotify_uri')
+    song_uri = data.get('song_uri')
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -2291,7 +2291,7 @@ def add_song_to_queue():
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        song_uri = data.get('song')
+        song_uri = data.get('song_uri')
         try:
             refresh_token(user)
             response_data = user.spotify_user.add_to_queue(song_uri)
