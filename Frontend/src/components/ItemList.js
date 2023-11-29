@@ -7,7 +7,7 @@ export function getImage(item, type) {
     return null;
   }
   var image = null;
-  switch (type) {
+  switch (item.type) {
     case "playlist": image = item.images[0]; break;
     case "track" : image = item.album.images[0]; break;
     case "album": image = item.images[0]; break;
@@ -137,10 +137,42 @@ const ItemList = ({ data, buttons, selectedIndex = -1, onClick = (index) => {} }
                 </div>
               );
             case "artist":
-
+              return (
+                <div key={index} style={{...itemDisplayStyle, 
+                  border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
+                  onClick={() => {onClick(index)}}>
+                  {renderButtons(item)}
+                  <img style={imageStyle} src={getImage(data[index], item.type)}></img>
+                  <div>
+                    <p style={textStyle}>{item.name}</p>
+                  </div>
+                </div>
+              );
             case "episode":
-
+              return (
+                <div key={index} style={{...itemDisplayStyle, 
+                  border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
+                  onClick={() => {onClick(index)}}>
+                  {renderButtons(item)}
+                  <img style={imageStyle} src={getImage(data[index], item.type)}></img>
+                  <div>
+                    <p style={textStyle}>{item.name}</p>
+                    <p style={textStyle}>{item.release_date}</p>
+                  </div>
+                </div>
+              );
             case "show":
+              return (
+                <div key={index} style={{...itemDisplayStyle, 
+                  border: (index == selectedIndex ?  "5px" : "1px") + " solid " + (index == selectedIndex ? state.colorAccent : state.colorBorder)}} 
+                  onClick={() => {onClick(index)}}>
+                  {renderButtons(item)}
+                  <img style={imageStyle} src={getImage(data[index], item.type)}></img>
+                  <div>
+                    <p style={textStyle}>{item.name}</p>
+                  </div>
+                </div>
+              );
           }
         })()
       ))}

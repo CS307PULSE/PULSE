@@ -23,7 +23,7 @@ function Playback() {
   const [currentDevice, setCurrentDevice] = useState();
 
   const [queueData, setQueueData] = useState([]);
-  const [searchQueryType, setSearchQueryMode] = useState("track");
+  const [searchQueryType, setSearchQueryType] = useState("track");
   const [searchString, setSearchString] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -69,7 +69,7 @@ function Playback() {
       setPlayState(data.is_playing);
       if (data.current_track != "None") {
         setCurrentTrack(data.current_track);
-        setAlbumArt(getImage(data.current_track, "song"));
+        setAlbumArt(getImage(data.current_track));
       }
       setQueueData(data.queue.queue);
       setVolumeLevel(parseInt(data.volume));
@@ -82,7 +82,7 @@ function Playback() {
   }, []);
   async function playTrack(track) {
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/play_song", {song_uri: track.uri});
+    const response = await axiosInstance.post("/player/play_song", {spotify_uri: track.uri});
     const data = response.data;
     syncPlayer();
     return data;
@@ -108,7 +108,34 @@ function Playback() {
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("/player/search_bar", {query: query, criteria: type});
     setSearchResults(response.data);
-    console.log(response.data);
+  }
+  function renderInfo(currentTrack) {
+    if (!currentTrack) {
+      return ("");
+    }
+    switch (currentTrack.type) {
+      case "track": return (
+        <div>
+          <p style={headerTextStyle}>{currentTrack.name}</p>
+          <a style={headerTextStyle} 
+            href={currentTrack.album.external_urls.spotify} target="_blank">
+            {"Album: " + currentTrack.album.name}</a>
+          <p style={textStyle}>{"Released " + currentTrack.album.release_date}</p>
+          <p style={textStyle}>{currentTrack.album.total_tracks + " Tracks"}</p>
+          <p style={headerTextStyle}>
+            {"Artists: " + currentTrack.artists.map(artist => artist.name).join(', ')}
+          </p>
+        </div>
+      );
+      case "episode": return (
+        <div>
+          <p style={headerTextStyle}>{currentTrack.name}</p>
+          <p style={textStyle}>{"Released " + currentTrack.release_date}</p>
+          <p style={headerTextStyle}>Description</p>
+          <p style={textStyle}>{currentTrack.description}</p>
+        </div>
+      );
+    }
   }
 
   const images = {
@@ -245,8 +272,8 @@ function Playback() {
                     <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
                     <select 
-                      value={searchQueryType} 
-                      onChange={(e) => setSearchQueryMode(e.target.value)}
+                      value={searchQueryType}
+                      onChange={(e) => {setSearchQueryType(e.target.value); getSearchResults(searchString, e.target.value);}}
                       style={{...buttonStyle, width: "max(calc(100% - 270px), 60px)", position: "absolute", top: "10px", right: "130px"}}
                     >
                       <option key={0} value="track">Songs</option>
@@ -264,9 +291,8 @@ function Playback() {
                     </div>
                     <ItemList
                     type="song" data={searchResults} onClick={(index) => playTrack(searchResults[index])}
-                    buttons={[
-                      {width: "40px", value: "+", size: "30px", onClick: (item) => addToQueue(item)}
-                    ]}/>
+                    buttons={(searchQueryType == "track" || searchQueryType == "episode") ? 
+                      [{width: "40px", value: "+", size: "30px", onClick: (item) => addToQueue(item)}] : []}/>
                   </div>
                 );
             }
@@ -275,22 +301,7 @@ function Playback() {
       <div style={{width:"32%"}}> {/* Column 3 */}
         <div style={sectionContainerStyle}>
           <p style={{...headerTextStyle, fontSize: textSizes.header2, marginBottom: "0px"}}>Info</p>
-          {(() => {return currentTrack ? (
-            <div>
-              <p style={headerTextStyle}>{currentTrack.name}</p>
-              <p style={textStyle}></p>
-              <a style={headerTextStyle} 
-                href={currentTrack.album.external_urls.spotify} target="_blank">
-                {"Album: " + currentTrack.album.name}</a>
-              <p style={textStyle}>{"Released " + currentTrack.album.release_date}</p>
-              <p style={textStyle}>{currentTrack.album.total_tracks + " Tracks"}</p>
-              <p style={textStyle}></p>
-              <p style={headerTextStyle}>
-                {"Artists: " + currentTrack.artists.map(artist => artist.name).join(', ')}</p>
-              
-            </div>
-          ) : ("")})()}
-          
+          {renderInfo(currentTrack)}
         </div>
       </div>
       <div style={songPlayerStyle}>
