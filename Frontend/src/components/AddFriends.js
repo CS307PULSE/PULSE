@@ -13,7 +13,7 @@ async function sendAndFetchRelevantUsers(searchedUser) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/api/friends/add_friends_search",
+    "/friends/add_friends_search",
     { query: searchedUser }
   );
   const data = response.data;
@@ -100,7 +100,7 @@ const AddFriends = () => {
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "/api/friends/friend_request",
+      "/friends/friend_request",
       { request: spotify_id }
     );
     const data = response.data;

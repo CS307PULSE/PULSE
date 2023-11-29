@@ -86,7 +86,7 @@ function SongPlayer() {
     //Nexting
     if (nextState) {
       axios
-        .get("/api/player/skip", { withCredentials: true })
+        .get("/player/skip", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
           // console.log("Song skipping successfully:", response.data);
@@ -103,7 +103,7 @@ function SongPlayer() {
     //Preving
     if (prevState) {
       axios
-        .get("/api/player/prev", { withCredentials: true })
+        .get("/player/prev", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
           console.log("Song preved successfully:", response.data);
@@ -120,7 +120,7 @@ function SongPlayer() {
     //Repeat
     if (repeatState) {
       axios
-        .get("/api/player/repeat", { withCredentials: true })
+        .get("/player/repeat", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
           // console.log("Repeat toggled successful:", response.data);
@@ -136,7 +136,7 @@ function SongPlayer() {
     //Shuffle
     if (shuffleState) {
       axios
-        .get("/api/player/shuffle", { withCredentials: true })
+        .get("/player/shuffle", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
           // console.log("Shuffle toggled successful:", response.data);
@@ -153,7 +153,7 @@ function SongPlayer() {
     } else if (playState) {
       //Play and pause
       axios
-        .get("/api/player/play", { withCredentials: true })
+        .get("/player/play", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
           // console.log("Song played successfully:", response.data);
@@ -164,7 +164,7 @@ function SongPlayer() {
       document.getElementById("playButton").src = images.pauseButton;
     } else {
       axios
-        .get("/api/player/pause", { withCredentials: true })
+        .get("/player/pause", { withCredentials: true })
         .then((response) => {
           // Handle the response from the backend if needed
           // console.log("Song paused successfully:", response.data);
@@ -184,7 +184,7 @@ function SongPlayer() {
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "/api/player/volume",
+      "/player/volume",
       {
         volume: volumeParameter,
       }

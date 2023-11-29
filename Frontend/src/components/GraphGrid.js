@@ -22,7 +22,7 @@ import defaultLayout from "./TempData/defaultLayout";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 async function fetchBasicData() {
-  const response = await axios.get("/api/statistics", {
+  const response = await axios.get("/statistics", {
     withCredentials: true,
   });
   const data = response.data;
@@ -31,7 +31,7 @@ async function fetchBasicData() {
 }
 
 async function fetchFriends() {
-  const response = await axios.get("/api/friends/get_friends", {
+  const response = await axios.get("/friends/get_friends", {
     withCredentials: true,
   });
   const data = response.data;
@@ -40,7 +40,7 @@ async function fetchFriends() {
 }
 
 async function fetchBasicFriendData(spotify_id) {
-  const response = await axios.post("/api/statistics/friend", {
+  const response = await axios.post("/statistics/friend", {
     id: spotify_id,
   });
   const data = response.data;
@@ -53,7 +53,7 @@ async function fetchAdvancedFriendData(spotify_id) {
     const axiosInstance = axios.create({
       withCredentials: true,
     });
-    const response = await axiosInstance.post("/api/friend_get_advanced_stats", {
+    const response = await axiosInstance.post("/friend_get_advanced_stats", {
       id: spotify_id,
     });
     const data = response.data;
@@ -65,7 +65,7 @@ async function fetchAdvancedFriendData(spotify_id) {
 }
 
 async function fetchAdvancedData() {
-  const response = await axios.get("/api/get_advanced_stats", {
+  const response = await axios.get("/get_advanced_stats", {
     withCredentials: true,
   });
   const data = response.data;
@@ -77,7 +77,7 @@ async function sendLayouts(layouts, defaultLayout, numLayoutColumns) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post("/api/statistics/set_layout", {
+  const response = await axiosInstance.post("/statistics/set_layout", {
     layout: {
       layouts: layouts,
       defaultLayout: defaultLayout,

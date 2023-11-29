@@ -22,7 +22,7 @@ import TextGraph from "./Graphs/TextGraph.js";
 import { tempBasicData } from "./TempData/BasicStats.js";
 
 async function fetchFriends() {
-  const response = await axios.get("/api/friends/get_friends", {
+  const response = await axios.get("/friends/get_friends", {
     withCredentials: true,
   });
   const data = response.data;

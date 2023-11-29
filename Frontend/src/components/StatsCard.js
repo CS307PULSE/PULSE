@@ -5,7 +5,7 @@ import { useAppContext } from "./Context";
 
 //Update follower data
 async function updateFollowers() {
-  const response = await axios.get("/api/statistics/update_followers", {
+  const response = await axios.get("/statistics/update_followers", {
     withCredentials: true,
   });
   const data = response.data;
@@ -31,7 +31,7 @@ export default function StatsCard() {
   useEffect(() => {
     updateFollowers();
     const fetchData = async () => {
-      const response = await axios.get("/api/statistics/short", {
+      const response = await axios.get("/statistics/short", {
         withCredentials: true,
       });
       const data = response.data;

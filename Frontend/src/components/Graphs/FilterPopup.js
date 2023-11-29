@@ -6,7 +6,7 @@ async function sendSearchAndReturn(sendSearch) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "http://127.0.0.1:5000//apisearch_bar",
+    "http://127.0.0.1:5000/search_bar",
     { query: sendSearch }
   );
   const data = response.data;

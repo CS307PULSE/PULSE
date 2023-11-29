@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 var initialFriendData;
 try {
-  var friendResponse = await axios.get("/api/friends/get_friends", {withCredentials: true});
+  var friendResponse = await axios.get("/friends/get_friends", {withCredentials: true});
   initialFriendData = friendResponse.data;
 } catch (e) {
   console.log("Friends fetch failed: " + e);
@@ -70,7 +70,7 @@ const Friends = () => {
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "/api/friends/remove_friend",
+      "/friends/remove_friend",
       { spotify_id: spotify_id }
     );
     const data = response.data;
