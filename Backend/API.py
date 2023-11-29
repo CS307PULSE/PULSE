@@ -1235,11 +1235,13 @@ def friend_get_advanced_stats():
                 error_message = "Advanced stats has not been stored!"
                 return make_response(jsonify({'error': error_message}), 404), 200, {'Reason-Phrase': 'OK'}
         
+        '''
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
             response_data["Emotions"] = {}
         else:
             response_data["Emotions"] = emotions
+        '''
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
