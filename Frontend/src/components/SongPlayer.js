@@ -22,7 +22,7 @@ function SongPlayer() {
   const [devices, setDevices] = useState(["asd", "asdda"]);
   const [currentDevice, setCurrentDevice] = useState();
 
-  const [queueData, setQueueData] = ([]);
+  const [queueData, setQueueData] = useState([]);
   const [searchMode, setSearchMode] = useState("songs");
   const [songSearchString, setSongSearchString] = useState("");
   const [songSearchResults, setSongSearchResults] = useState([]);
@@ -110,6 +110,16 @@ function SongPlayer() {
     return data;
   }
   async function syncPlayer() {
+    const axiosInstance = axios.create({withCredentials: true});
+    var response = await axiosInstance.get("/player/sync_player");
+    var data = response.data;
+    console.log(data);
+    setCurrentTrack(data.current_track);
+    setQueueData(data.queue);
+    setVolumeLevel(parseInt(data.volume));
+    setDevices(data.devices);
+    setCurrentDevice(data.current_device);
+    //const parsedPlaylists = response.data ? JSON.parse(response.data.saved_playlists) : [];
     // Update queue
     // Update player
   }
@@ -237,7 +247,7 @@ function SongPlayer() {
             onChange={(e) => setDevices(e.target.value)} 
             style={{...buttonStyle, width: "250px", position: "absolute", bottom: "10px", left: "10px"}}
           >
-            {devices.map((item, index) => (
+            {devices && devices.map((item, index) => (
               <option key={index} value={item}>{item}</option>
             ))}
           </select>
@@ -255,7 +265,7 @@ function SongPlayer() {
                     <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "30px", right: "70px"}} src={images.queueButton}></img>
                     <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "30px", right: "15px"}} src={images.searchButton}></img>
                     <ItemList 
-                    type="songs" data={queueData} onClick={() => {}}
+                    type="song" data={queueData} onClick={() => {}}
                     buttons={[
                       {text: "-", width: "80px"
                       }
@@ -273,12 +283,12 @@ function SongPlayer() {
                       onChange={(e) => setSearchMode(e.target.value)} 
                       style={{...buttonStyle, width: "150px", position: "absolute", top: "20px", right: "130px"}}
                     >
-                      <option key={0} value="songs">Songs</option>
-                      <option key={1} value="artists">Artists</option>
-                      <option key={2} value="albums">Albums</option>
-                      <option key={3} value="playlists">Playlists</option>
-                      <option key={4} value="episodes">Episodes</option>
-                      <option key={5} value="shows">Shows</option>
+                      <option key={0} value="song">Songs</option>
+                      <option key={1} value="artist">Artists</option>
+                      <option key={2} value="album">Albums</option>
+                      <option key={3} value="playlist">Playlists</option>
+                      <option key={4} value="episode">Episodes</option>
+                      <option key={5} value="show">Shows</option>
                     </select>
                     <div style={buttonContainerStyle}>
                       <input type="text" style={buttonStyle} value={songSearchString}
@@ -287,7 +297,7 @@ function SongPlayer() {
                       <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(songSearchString)}}>Search</button>
                     </div>
                     <ItemList 
-                    type="songs" data={songSearchResults}
+                    type="song" data={songSearchResults}
                     buttons={[
                       {width: "40px", value: "+", size: "30px",
                         onClick: (item) => {}
