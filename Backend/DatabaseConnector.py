@@ -521,7 +521,7 @@ class DatabaseConnector(object):
         query = """SELECT user_match_rejected from pulse.base_stats where spotify_id = %s"""
         self.db_cursor.execute(query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return create_friends_array_from_DB(self.resultset[0])
+        return json.loads(self.resultset[0])
     
     def get_swiped_users_from_DB(self, spotify_id):
         query = """SELECT user_match_swiped from pulse.base_stats where spotify_id = %s"""
@@ -1176,7 +1176,7 @@ class DatabaseConnector(object):
     def update_rejected_users(self, spotify_id, rejected_users):
         try:
             query = """UPDATE pulse.base_stats SET user_match_rejected = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(query, (create_friends_string_for_DB(rejected_users), spotify_id,))
+            self.db_cursor.execute(query, (json.dumps(rejected_users), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
