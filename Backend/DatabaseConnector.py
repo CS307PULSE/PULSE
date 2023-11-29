@@ -584,7 +584,7 @@ class DatabaseConnector(object):
         
         try:
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_header = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(sql_update_advanced_stats_query, (new_advanced_stats, spotify_id,))
+            self.db_cursor.execute(sql_update_advanced_stats_query, (json.dumps(new_advanced_stats), spotify_id,))
             self.db_conn.commit()
             sql_update_advanced_stats_query = """UPDATE pulse.advanced_stats SET advanced_stats_2008 = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(sql_update_advanced_stats_query, (yearly_values[0], spotify_id,))
