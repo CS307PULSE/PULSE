@@ -2268,7 +2268,7 @@ def get_playing():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/player/search_bar', methods=['POST'])
-def get_playing():
+def search_bar():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -2283,6 +2283,8 @@ def get_playing():
         error_message = "The user is not in the session! Please try logging in again!"
         return make_response(jsonify({'error': error_message}), 69), 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/player/add_to_queue', methods=['POST'])
 
 def send_feedback_email(feedback):
     try:
