@@ -31,11 +31,6 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='Strict',
 )
 
-redirect_uri = ""
-if (os.getenv("REDIRECT_URI") == "https://spotify-pulse-efa1395c58ba.herokuapp.com/callback/"):
-    redirect_uri = "https://spotify-pulse-efa1395c58ba.herokuapp.com/callback/"
-else:
-    redirect_uri = "http://127.0.0.1:5000/callback"
 
 scopes = [
     #Images
@@ -106,7 +101,7 @@ def login():
     # Create a SpotifyOAuth instance with the necessary parameters
     sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
                             client_secret=os.getenv("CLIENT_SECRET"), 
-                            redirect_uri=redirect_uri, 
+                            redirect_uri=os.getenv("REDIRECT_URI"), 
                             scope=scope)
     
     # Generate the authorization URL
@@ -122,7 +117,7 @@ def callback():
     # Handle the callback from Spotify after user login
     sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
                             client_secret=os.getenv("CLIENT_SECRET"), 
-                            redirect_uri=redirect_uri, 
+                            redirect_uri=os.getenv("REDIRECT_URI"), 
                             scope=scope)
 
     # Validate the response from Spotify
@@ -134,7 +129,7 @@ def callback():
     payload = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': redirect_uri,
+        'redirect_uri': os.getenv("REDIRECT_URI"),
         'client_id': os.getenv("CLIENT_ID"),
         'client_secret': os.getenv("CLIENT_SECRET"),
         'scopes': scopes,
@@ -2385,7 +2380,7 @@ def get_genre_groups(user):
 def refresh_token(user, e=None):
     sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
                         client_secret=os.getenv("CLIENT_SECRET"), 
-                        redirect_uri=redirect_uri, 
+                        redirect_uri=os.getenv("REDIRECT_URI"), 
                         scope=scope)
     
     if not sp_oauth.is_token_expired(user.login_token): return True, 200, {'Reason-Phrase': 'OK'}
