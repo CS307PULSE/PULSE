@@ -487,6 +487,16 @@ class DatabaseConnector(object):
             return None
         return json.loads(results[0])
     
+    # Returns song_match_swiped from DB in the form of a JSON.
+    def get_emotion_from_DB(self, spotify_id):
+        query = """SELECT emotion from pulse.base_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
+    
     # Returns swiping preferences from DB in the form of a JSON.
     def get_swiping_preferences_from_DB(self, spotify_id):
         sql_get_song_match_preferences_query = """SELECT song_match_preferences from pulse.base_stats WHERE spotify_id = %s"""
@@ -896,6 +906,23 @@ class DatabaseConnector(object):
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating layout:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+
+    # Update layout (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
+    def update_emotion(self, spotify_id, new_emotion):
+        try:
+            query = """UPDATE pulse.base_stats SET emotion = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (json.dumps(new_emotion), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating emotion:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
     
