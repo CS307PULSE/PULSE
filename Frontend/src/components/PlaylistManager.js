@@ -14,6 +14,8 @@ const PlaylistManager = () => {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
+  const [mode, setMode] = useState("edit"); //"edit", "explore", "synthesize"
+
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(-1);
   const [searchString, setSearchString] = useState("");
@@ -128,7 +130,7 @@ const PlaylistManager = () => {
   
   const sectionContainerStyle = {
       backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-      width: "600px",
+      width: "calc(100% - 60px)",
       padding: "20px",
       margin: "20px",
       position: "relative",
@@ -145,83 +147,109 @@ const PlaylistManager = () => {
       <div className="header"><Navbar /></div>
       <div className="content" style={bodyStyle}>
         <div style={{display: "flex"}}>
-        <div>
-          <div style={sectionContainerStyle}>
-            <div style={buttonContainerStyle}>
-                <p style={textStyle}>Playlist Name </p>
-                <input name="playlist-name-field" type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
-            </div>
-            <div style={buttonContainerStyle}>
-                <p style={textStyle}>Public </p>
-                <input name="public-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
-            </div>
-            <div style={buttonContainerStyle}>
-                <p style={textStyle}>Collaborative </p>
-                <input name="collaborative-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
-            </div>
-            <div style={buttonContainerStyle}>
-                <p style={textStyle}>Genre </p>
-                <select style={buttonStyle} value={playlistGenre} onChange={(e) => setPlaylistGenre(e.target.value)}>
-                  <option key={-1} value={"none"}>Blank Playlist</option>
-                  {genreList.map((item, index) => (
-                    <option key={index} value={item}>{item}</option>
-                  ))}
-                </select>
-            </div>
-            <div style={buttonContainerStyle}>
-                <button style={buttonStyle} onClick={() => {
-                  playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre}, getPlaylists)
-                }}>Generate Playlist</button>
-            </div>
-          </div>
-          <div style={{...sectionContainerStyle, height: "400px"}}>
-            <p style={headerTextStyle}>Playlists</p>
-            <ItemList 
-              data={playlists}
-              selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
-            />
+        <div style={{width:"100px"}}> {/* Column 1 */}
+          <div style={{...buttonContainerStyle, position: "sticky", width: "400px", transform: "rotate(270deg) translate(-200px, -150px)"}}>
+            <button style={{...buttonStyle, width:"33%"}} onClick={() => setMode("synthesize")}>Synthesize</button>
+            <button style={{...buttonStyle, width:"33%"}} onClick={() => setMode("explore")}>Explore</button>
+            <button style={{...buttonStyle, width:"33%"}} onClick={() => setMode("edit")}>Edit</button>
           </div>
         </div>
-        <div>
-          <div style={{...sectionContainerStyle, height: "400px"}}>
-            <p style={headerTextStyle}>Selected Playlist: {playlists[selectedPlaylistIndex] ? playlists[selectedPlaylistIndex].name : "None"}</p>
-            <div style={buttonContainerStyle}>
-                <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
-                <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>
+        {(() => { switch (mode) {
+          case "edit": return ( <>
+            <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 2 */}
+              <div style={{...sectionContainerStyle, height: "400px"}}>
+                <p style={headerTextStyle}>Playlists</p>
+                <ItemList 
+                  data={playlists}
+                  selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
+                />
+              </div>
             </div>
-            <div style={buttonContainerStyle}>
-                <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button>
-                <button style={buttonStyle} onClick={() => {playlistPost("follow", {playlist: playlists[selectedPlaylistIndex].id})}}>Follow</button>
-                <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
-                <Link to="/explorer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
+            <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
+              <div style={{...sectionContainerStyle, height: "400px"}}>
+                <p style={headerTextStyle}>Selected Playlist: {playlists[selectedPlaylistIndex] ? playlists[selectedPlaylistIndex].name : "None"}</p>
+                <div style={buttonContainerStyle}>
+                    <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
+                    <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button>
+                    {/* <button style={buttonStyle} onClick={() => {playlistPost("follow", {playlist: playlists[selectedPlaylistIndex].id})}}>Follow</button> */}
+                    <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
+                    <Link to="/explorer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>
+                </div>
+                <ItemList 
+                  data={playlistSongs}
+                  buttons={[
+                    {width: "40px", value: "-", size: "30px",
+                      onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
+                        () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
+                    }
+                  ]}/>
+              </div>
+              <div style={sectionContainerStyle}>
+                <p style={headerTextStyle}>Add Songs</p>
+                <div style={buttonContainerStyle}>
+                    <input type="text" style={buttonStyle} value={searchString}
+                      onChange={e => {setSearchString(e.target.value)}}
+                      onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(searchString)}}}></input>
+                    <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
+                </div>
+                <ItemList
+                  data={searchResults}
+                  buttons={[
+                    {width: "40px", value: "+", size: "30px",
+                      onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
+                        () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
+                    }
+                  ]}/>
+              </div>
             </div>
-            <ItemList 
-              data={playlistSongs}
-              buttons={[
-                {width: "40px", value: "-", size: "30px",
-                  onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
-                    () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
-                }
-              ]}/>
-          </div>
-          <div style={sectionContainerStyle}>
-            <p style={headerTextStyle}>Add Songs</p>
-            <div style={buttonContainerStyle}>
-                <input type="text" style={buttonStyle} value={searchString}
-                  onChange={e => {setSearchString(e.target.value)}}
-                  onKeyDown={(e) => {if (e.key == 'Enter') {searchForSongs(searchString)}}}></input>
-                <button style={{...buttonStyle, width: "30%"}} onClick={() => {searchForSongs(searchString)}}>Search</button>
+          </>);
+          case "explore": return (<>
+            <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 2 */}
+              <div style={sectionContainerStyle}>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>Playlist Name </p>
+                    <input name="playlist-name-field" type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>Public </p>
+                    <input name="public-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>Collaborative </p>
+                    <input name="collaborative-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>Genre </p>
+                    <select style={buttonStyle} value={playlistGenre} onChange={(e) => setPlaylistGenre(e.target.value)}>
+                      <option key={-1} value={"none"}>Blank Playlist</option>
+                      {genreList.map((item, index) => (
+                        <option key={index} value={item}>{item}</option>
+                      ))}
+                    </select>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <button style={buttonStyle} onClick={() => {
+                      playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre}, getPlaylists)
+                    }}>Generate Playlist</button>
+                </div>
+              </div>
+              <div style={{...sectionContainerStyle, height: "400px"}}>
+                <p style={headerTextStyle}>Playlists</p>
+                <ItemList 
+                  data={playlists}
+                  selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
+                />
+              </div>
             </div>
-            <ItemList
-              data={searchResults}
-              buttons={[
-                {width: "40px", value: "+", size: "30px",
-                  onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
-                    () => {getPlaylistSongs(playlists[selectedPlaylistIndex].id)})}
-                }
-              ]}/>
-          </div>
-        </div>
+            <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
+            </div>
+          </>);
+          case "synthesize": return ("");
+        }})()}
+        
         </div>
       </div>
       <div className="footer"><Playback /></div>

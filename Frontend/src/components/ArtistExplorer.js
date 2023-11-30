@@ -27,8 +27,8 @@ const ArtistExplorer = () => {
   async function searchForArtists(searchString) {
     setSearchResults("loading");
     var data = await searchSpotify(searchString, "artist");
-    setSearchResults(data);
     console.log(data);
+    setSearchResults(data);
   }
   
   function renderArtistInfo(artist) {
@@ -44,8 +44,8 @@ const ArtistExplorer = () => {
           }}>{artist.name}</p>
           <p style={textStyle}>{"Genres: " + artist.genres.join(', ')}</p>
           <p style={textStyle}>{"Followers: " + artist.followers.total}</p>
-          <span style={textStyle}>{"Popularity: "}</span>
-          <input type="range" min="0" max="100" value={artist.popularity}></input>
+          <span style={textStyle}>{"Popularity: " + artist.popularity}</span>
+          {/* <input readonly type="range" min="0" max="100" value={artist.popularity}></input> */}
         </div>
       );
     }
@@ -147,7 +147,7 @@ const ArtistExplorer = () => {
             />
           </div>
         </div>
-        <div style={{width:"calc(100% - 460px)"}}> {/* Column 1 */}
+        <div style={{width:"calc(100% - 460px)"}}> {/* Column 2 */}
           <div style={sectionContainerStyle}>
             {renderArtistInfo(currentArtist)}
           </div>

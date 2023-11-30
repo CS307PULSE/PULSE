@@ -136,10 +136,10 @@ function Profile({ testParameter }) {
     borderColor: state.colorBorder,
     borderRadius: "10px",
     cursor: "pointer",
-    margin: "5px", // Small space between buttons
+    margin: "5px",
     width: "100%",
     height: "50px",
-    fontSize: textSizes.body,
+    fontSize: textSizes.body
   };
   const textFieldContainerStyle = {
     position: "relative",

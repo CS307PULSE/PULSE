@@ -15,7 +15,7 @@ export async function playItem(item, syncFunction = () => {}) {
     case "track": return "/player/play_song";
     case "album": return "/player/play_album";
     case "artist": return "/player/play_artist";
-    // case "episode": return "/player/play_song";
+    case "episode": return "/player/play_song";
     // case "show": return "/player/play_song";
     default: return null;
   }})();
