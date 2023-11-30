@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -63,38 +63,38 @@ const DJMixer = () => {
         </div>
         <div style={buttonContainerStyle}>
           <Link
-            to="/DJmixer/ParameterRecommendation"
+            to="/explorer/ParameterRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
             Parameter Recommendation
           </Link>
           <Link
-            to="/DJmixer/SongRecommendation"
+            to="/explorer/SongRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
             Song Recommendation
           </Link>
           <Link
-            to="/DJmixer/PlaylistRecommendation"
+            to="/explorer/PlaylistRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
             Playlist Recommendation
           </Link>
           <Link
-            to="/DJmixer/PlaylistManager"
+            to="/explorer/PlaylistManager"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
             Playlist Manager
           </Link>
-          {/* <Link
-            to="/DJmixer/PlaylistGenerator"
+          <Link
+            to="/explorer/ArtistExplorer"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
-            Playlist Generator
-          </Link> */}
+            Artist Explorer
+          </Link>
         </div>
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

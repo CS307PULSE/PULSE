@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import Friend from './Friend'; 
 import { Link } from "react-router-dom";
 import TextSize from "../theme/TextSize";
@@ -176,7 +176,7 @@ const AddFriends = () => {
         </div>
         {userSearch(recievedRelevantUsers)}
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

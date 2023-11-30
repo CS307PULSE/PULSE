@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "./Stats.css";
 import GraphGrid from "./GraphGrid";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
 
@@ -52,7 +52,7 @@ export default function StatisticsPage() {
       <div style={{ padding: "20px" }} />
       <GraphGrid />
       <div style={{ padding: "30px" }} />
-      <SongPlayer />
+      <Playback />
     </div>
   );
 }

@@ -20,7 +20,6 @@ try {
 }
 
 const textSizes = TextSize(1); //Obtain text size values
-const friendsList = friendData;
 
 const NoFriends = () => {
   if (friendData.length == 0) {
@@ -32,7 +31,7 @@ const NoFriends = () => {
 
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
-
+  
   const cardContainerStyle = {
     border: "1px solid " + state.colorBorder,
     overflowY: "auto",
@@ -84,6 +83,9 @@ const FriendsCard = ({}) => {
               name={friend.name}
               photoFilename={friend.photoUri}
               favoriteSong={friend.favoriteSong}
+              status={friend.status}
+              publicColorText={friend.textColor}
+              publicColorBackground={friend.backgroundColor}
             />
           </div>
         ))}

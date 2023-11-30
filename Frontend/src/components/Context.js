@@ -22,11 +22,11 @@ const reducer = (state, action) => {
         case 'UPDATE_COLOR_ALL':
             // console.log("Updated context colors " + action.payload);
             return { ...state, 
-                        colorBackground: action.payload[0],
-                        colorText: action.payload[1],
-                        colorBorder: action.payload[2],
-                        colorAccent: action.payload[3]
-                    };
+                    colorBackground: action.payload[0],
+                    colorText: action.payload[1],
+                    colorBorder: action.payload[2],
+                    colorAccent: action.payload[3]
+                };
         case 'UPDATE_COLOR_BACKGROUND':
             // console.log("Updated background color context to be " + action.payload);
             return { ...state, colorBackground: action.payload };

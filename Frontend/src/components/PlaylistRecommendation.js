@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ImageGraph from "./Graphs/ImageGraph";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import FriendsCard from "./FriendsCard";
 import TextSize from "../theme/TextSize";
 import axios from "axios";
@@ -299,7 +299,7 @@ const PlaylistRecommendation = () => {
         {generateSongs()} 
         {generateAddSongsButton()}
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

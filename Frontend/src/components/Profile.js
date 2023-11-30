@@ -1,10 +1,11 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import axios from "axios";
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA, presetColors } from "../theme/Colors";
+import Friend from "./Friend";
 axios.defaults.baseURL = process.env.REACT_APP_SITE_URI;
 
 const customBackgrounds = [
@@ -13,31 +14,16 @@ const customBackgrounds = [
   "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/07/five-nights-at-freddys-lore-story-so-far.jpg",
 ];
 
-var storedUserFields;
-try {
-  storedUserFields = {
-    username: await getUserField("/api/profile/get_displayname"),
-    gender: await getUserField("/api/profile/get_gender"),
-    location: await getUserField("/api/profile/get_location"),
-    icon: await getUserField("/api/profile/get_image"),
-    favoriteSong: await getUserField("/api/profile/get_chosen_song"),
-  };
-} catch (e) {
-  console.log("User info fetch failed: " + e);
-  storedUserFields = {
-    username: "undefined",
-    gender: "undefined",
-    location: "undefined",
-    icon: "undefined",
-  };
+async function getUserInfo() {
+  const response = await axios.get("/api/profile/get_user_info", { withCredentials: true });
+  const data = response.data;
+  return data;
 }
-async function getUserField(route) {
-  var response = await axios.get(route, { withCredentials: true });
-  return response.data;
-}
-async function saveUserField(route, payload) {
+var storedUserFields = await getUserInfo();
+
+async function setUserInfo(payload) {
   const axiosInstance = axios.create({ withCredentials: true });
-  const response = await axiosInstance.post(route, payload);
+  const response = await axiosInstance.post("/api/profile/set_user_info", payload);
   return response.data;
 }
 
@@ -45,15 +31,17 @@ function Profile({ testParameter }) {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-  const [imagePath, setImagePath] = useState(storedUserFields.icon);
-  const [username, setUsername] = useState(storedUserFields.username);
+  const [userIcon, setUserIcon] = useState(storedUserFields.icon);
+  const [displayName, setDisplayName] = useState(storedUserFields.display_name);
   const [gender, setGender] = useState(storedUserFields.gender);
   const [location, setLocation] = useState(storedUserFields.location);
-  const [favoriteSong, setFavoriteSong] = useState(
-    storedUserFields.favoriteSong
-  );
-  const [selectedTheme, setSelectedTheme] = useState(0);
+  const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favorite_song);
+  const [status, setStatus] = useState(storedUserFields.status);
+  const [publicColorText, setPublicColorText] = useState(storedUserFields.text_color);
+  const [publicColorBackground, setPublicColorBackground] = useState(storedUserFields.background_color);
+  const [selectedThemeIndex, setSelectedThemeIndex] = useState(-1);
   const [newThemeName, setNewThemeName] = useState("New Theme");
+  const [themeEditsMade, setThemeEditsMade] = useState(false);
 
   const updateTextSize = (newSetting) => {
     dispatch({ type: "UPDATE_TEXT_SIZE", payload: newSetting });
@@ -77,9 +65,11 @@ function Profile({ testParameter }) {
         dispatch({ type: "UPDATE_COLOR_ACCENT", payload: newColor });
         break;
     }
+    setThemeEditsMade(true);
   };
   const updateBackgroundImage = (newSetting) => {
     dispatch({ type: "UPDATE_BACKGROUND_IMAGE", payload: newSetting });
+    setThemeEditsMade(false);
   };
 
   const bodyStyle = {
@@ -131,10 +121,10 @@ function Profile({ testParameter }) {
     borderColor: state.colorBorder,
     borderRadius: "10px",
     cursor: "pointer",
-    margin: "5px", // Small space between buttons
+    margin: "5px",
     width: "100%",
     height: "50px",
-    fontSize: textSizes.body,
+    fontSize: textSizes.body
   };
   const textFieldContainerStyle = {
     position: "relative",
@@ -173,7 +163,7 @@ function Profile({ testParameter }) {
     margin: "20px",
     border: "1px " + state.colorBorder + " solid",
   };
-  function getColorArray() {
+  function getCurrentColorArray() {
     return [
       state.colorBackground,
       state.colorText,
@@ -182,369 +172,204 @@ function Profile({ testParameter }) {
     ];
   }
 
-  function createTheme(name, colors) {
-    var newSavedThemes = state.savedThemes;
-    newSavedThemes.push([name, ...colors]);
-    dispatch({ type: "UPDATE_SAVED_THEMES", payload: newSavedThemes });
-  }
   function retrieveTheme(index) {
-    if (state.savedThemes[index] == undefined) {
+    var retrievedTheme = state.savedThemes[index];
+    if (index < 0 || retrieveTheme == undefined) {
       return;
     }
-    var newColors = state.savedThemes[index].slice(1);
-    setNewThemeName(state.savedThemes[index][0]);
-    dispatch({ type: "UPDATE_COLOR_ALL", payload: newColors });
+    setNewThemeName(retrievedTheme[0]);
+    dispatch({ type: "UPDATE_COLOR_ALL", payload: retrievedTheme.slice(1,5) });
+    if (state.savedThemes[index].length > 5) {
+      dispatch({ type: "UPDATE_BACKGROUND_IMAGE", payload: retrievedTheme[5] });
+    }
+    setThemeEditsMade(false);
+    console.log(state.savedThemes);
   }
-  function deleteTheme(index) {
-    console.log(index);
-    if (state.savedThemes[index] == undefined) {
-      return;
-    }
-    setSelectedTheme(0);
+  useEffect(() => {
+    retrieveTheme(selectedThemeIndex);
+  }, [selectedThemeIndex]);
+  function createTheme() {
     var newSavedThemes = state.savedThemes;
-    newSavedThemes.splice(index, 1);
+    newSavedThemes.push([newThemeName, ...getCurrentColorArray(), state.backgroundImage]);
     dispatch({ type: "UPDATE_SAVED_THEMES", payload: newSavedThemes });
+    setSelectedThemeIndex(newSavedThemes.length - 1);
+    setThemeEditsMade(false);
   }
   function updateTheme(index, name, newColors) {
     if (state.savedThemes[index] == undefined) {
       return;
     }
     var newSavedThemes = state.savedThemes;
-    newSavedThemes[index] = [name, ...newColors];
+    newSavedThemes[index] = [newThemeName, ...getCurrentColorArray(), state.backgroundImage];
     dispatch({ type: "UPDATE_SAVED_THEMES", payload: newSavedThemes });
+    setThemeEditsMade(false);
+  }
+  function deleteTheme(index) {
+    if (state.savedThemes[index] == undefined) {
+      return;
+    }
+    setSelectedThemeIndex(-1);
+    var newSavedThemes = state.savedThemes;
+    newSavedThemes.splice(index, 1);
+    dispatch({ type: "UPDATE_SAVED_THEMES", payload: newSavedThemes });
+    setThemeEditsMade(false);
   }
 
-  async function saveUserInfo() {
-    const savePromises = [
-      saveUserField("/api/profile/set_displayname", { displayname: username }),
-      saveUserField("/api/profile/set_gender", { gender: gender }),
-      saveUserField("/api/profile/set_location", { location: location }),
-      saveUserField("/api/profile/set_image", { filepath: imagePath }),
-      saveUserField("/api/profile/set_chosen_song", { chosen_song: favoriteSong }),
-    ];
-    await Promise.all(savePromises);
+  async function saveUserProfile() {
+    const payload = {
+      display_name: displayName,
+      gender: gender,
+      location: location,
+      icon: userIcon,
+      favorite_song: favoriteSong,
+      status: status,
+      text_color: publicColorText,
+      background_color: publicColorBackground
+    }
+    await setUserInfo(payload);
     window.location.reload();
   }
   async function saveUserSettings() {
+    const axiosInstance = axios.create({ withCredentials: true });
     const savePromises = [
-      saveUserField("/api/profile/set_text_size", {
-        text_size: state.settingTextSize,
-      }),
-      saveUserField("/api/profile/set_background_image", {
-        background: state.backgroundImage,
-      }),
-      saveUserField("/api/profile/set_color_palette", {
-        color_palette: [getColorArray()],
-      }),
-      saveUserField("/api/profile/set_saved_themes", { themes: state.savedThemes }),
+      axiosInstance.post("/api/profile/set_text_size", {text_size: state.settingTextSize}),
+      axiosInstance.post("/api/profile/set_background_image", {background: state.backgroundImage}),
+      axiosInstance.post("/api/profile/set_color_palette", {color_palette: [getCurrentColorArray()]}),
+      axiosInstance.post("/api/profile/set_saved_themes", {themes: state.savedThemes})
     ];
     await Promise.all(savePromises);
     window.location.reload();
   }
   return (
     <div className="wrapper">
-      <div className="header">
-        <Navbar />
-      </div>
+      <div className="header"><Navbar /></div>
       <div className="content" style={bodyStyle}>
-        <div style={sectionContainerStyle}>
-          <p style={headerTextStyle}>Profile</p>
-          <div style={iconContainerStyle}>
-            <img style={iconPictureStyle} src={storedUserFields.icon} />
-          </div>{" "}
-          <br></br>
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Icon Link</label>
-            <input
-              id="icon-url"
-              type="text"
-              style={textFieldStyle}
-              value={imagePath}
-              onChange={(e) => {
-                setImagePath(e.target.value);
-              }}
-            ></input>
-          </div>
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Username</label>
-            <input
-              id="username"
-              type="text"
-              style={textFieldStyle}
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            ></input>
-          </div>
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Gender</label>
-            <input
-              id="gender"
-              type="text"
-              style={textFieldStyle}
-              value={gender}
-              onChange={(e) => {
-                setGender(e.target.value);
-              }}
-            ></input>
-          </div>
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Location</label>
-            <input
-              id="location"
-              type="text"
-              style={textFieldStyle}
-              value={location}
-              onChange={(e) => {
-                setLocation(e.target.value);
-              }}
-            ></input>
-          </div>
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Favorite Song</label>
-            <input
-              id="favorite-song"
-              type="text"
-              style={textFieldStyle}
-              value={favoriteSong}
-              onChange={(e) => {
-                setFavoriteSong(e.target.value);
-              }}
-            ></input>
-          </div>
-          <div style={buttonContainerStyle}>
-            <button
-              onClick={() => {
-                saveUserInfo();
-              }}
-              style={buttonStyle}
-            >
-              <p>Save Profile</p>
-            </button>
-          </div>
-        </div>
-        <div style={sectionContainerStyle}>
-          <p style={headerTextStyle}>Settings</p>
-
-          <p style={profileText}>Text Size</p>
-          <div style={buttonContainerStyle}>
-            <button onClick={() => updateTextSize(0)} style={buttonStyle}>
-              <p>Small</p>
-            </button>
-            <button onClick={() => updateTextSize(1)} style={buttonStyle}>
-              <p>Medium</p>
-            </button>
-            <button onClick={() => updateTextSize(2)} style={buttonStyle}>
-              <p>Large</p>
-            </button>
-          </div>
-
-          <p style={{ ...headerTextStyle, fontSize: textSizes.header2 }}>
-            Color Theme
-          </p>
-          <p style={profileText}>Theme Presets</p>
-          <div style={buttonContainerStyle}>
-            <button
-              onClick={() => {
-                updateColor("all", presetColors.dark);
-              }}
-              style={buttonStyle}
-            >
-              <p>Dark</p>
-            </button>
-            <button
-              onClick={() => {
-                updateColor("all", presetColors.light);
-              }}
-              style={buttonStyle}
-            >
-              <p>Light</p>
-            </button>
-            <button
-              onClick={() => {
-                updateColor("all", presetColors.scary);
-              }}
-              style={buttonStyle}
-            >
-              <p>Scary</p>
-            </button>
-          </div>
-          <p style={profileText}>Custom Theme Colors</p>
-          <div style={customThemeContainerStyle}>
-            <div style={{ width: "100px" }}>
-              <label style={profileText} htmlFor="backgroundColorPicker">
-                Background
-              </label>
-              <br></br>
-              <input
-                style={buttonStyle}
-                type="color"
-                id="backgroundColorPicker"
-                onChange={(e) => {
-                  updateColor("background", e.target.value);
-                }}
-                value={state.colorBackground}
-              ></input>
+        <div style={{display: "flex"}}>
+          <div>
+          <div style={sectionContainerStyle}>
+              <Friend
+                name={displayName}
+                photoFilename={userIcon}
+                favoriteSong={favoriteSong}
+                status={status}
+                publicColorText={publicColorText}
+                publicColorBackground={publicColorBackground}
+              />
             </div>
-            <div style={{ width: "100px" }}>
-              <label style={profileText}>Text</label>
-              <br></br>
-              <input
-                style={buttonStyle}
-                type="color"
-                id="textColorPicker"
-                onChange={(e) => {
-                  updateColor("text", e.target.value);
-                }}
-                value={state.colorText}
-              ></input>
+            <div style={sectionContainerStyle}>
+              <p style={headerTextStyle}>Profile</p>
+              <button style={{...buttonStyle, width:"calc(100% - 300px)", position:"absolute", top:"60px", right:"20px"}}
+                onClick={() => {saveUserProfile()}}>Save Profile</button>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Icon Link</label>
+                <input id="icon-url" type="text" style={textFieldStyle} value={userIcon} onChange={e => {setUserIcon(e.target.value)}}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Display Name</label>
+                <input id="display-name" type="text" style={textFieldStyle} value={displayName} onChange={e => {setDisplayName(e.target.value)}}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Gender</label>
+                <input id="gender" type="text" style={textFieldStyle} value={gender} onChange={e => {setGender(e.target.value)}}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Location</label>
+                <input id="location" type="text" style={textFieldStyle} value={location} onChange={e => {setLocation(e.target.value)}}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Favorite Song</label>
+                <input id="favorite-song" type="text" style={textFieldStyle} value={favoriteSong} onChange={e => {setFavoriteSong(e.target.value)}}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Status</label>
+                <input id="favorite-song" type="text" style={textFieldStyle} value={status} onChange={e => {setStatus(e.target.value)}}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Public Color</label>
+                <input style={{...textFieldStyle, width:"100px", height:"50px"}} type="color" onChange={e => {setPublicColorText(e.target.value)}} value={publicColorText}></input>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Public Background</label>
+                <input style={{...textFieldStyle, width:"100px", height:"50px"}} type="color" onChange={e => {setPublicColorBackground(e.target.value)}} value={publicColorBackground}></input>
+              </div>
             </div>
-            <div style={{ width: "100px" }}>
-              <label style={profileText} htmlFor="borderColorPicker">
-                Border
-              </label>
+          </div> 
+          <div>
+          <div style={sectionContainerStyle}>
+              <p style={headerTextStyle}>Settings</p>
+              <button style={{...buttonStyle, width:"calc(100% - 300px)", position:"absolute", top:"60px", right:"20px"}} 
+                onClick={() => saveUserSettings()}>Save Settings</button>
+              <p style={profileText}>Text Size</p>
+              <div style={buttonContainerStyle}>
+                <button onClick={() => updateTextSize(0)} style={buttonStyle}><p>Small</p></button>
+                <button onClick={() => updateTextSize(1)} style={buttonStyle}><p>Medium</p></button>
+                <button onClick={() => updateTextSize(2)} style={buttonStyle}><p>Large</p></button>
+              </div>
+              <p style={profileText}>Theme Presets</p>
+              <div style={buttonContainerStyle}>
+                <button onClick={() => {
+                  updateColor("all", presetColors.dark);
+                  updateBackgroundImage(customBackgrounds[0]);
+                }} style={buttonStyle}><p>Dark</p></button>
+                <button onClick={() => {
+                  updateColor("all", presetColors.light);
+                  updateBackgroundImage(customBackgrounds[1]);
+                }} style={buttonStyle}><p>Light</p></button>
+                <button onClick={() => {
+                  updateColor("all", presetColors.scary);
+                  updateBackgroundImage(customBackgrounds[2]);
+                }} style={buttonStyle}><p>Scary</p></button>
+              </div>
               <br></br>
-              <input
-                style={buttonStyle}
-                type="color"
-                id="borderColorPicker"
-                onChange={(e) => {
-                  updateColor("border", e.target.value);
-                }}
-                value={state.colorBorder}
-              ></input>
+              <p style={{...headerTextStyle, fontSize: textSizes.header3}} htmlFor="customColors">Custom Themes</p>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Theme Name</label>
+                <input id="save-theme-name-input" type="text" style={textFieldStyle} value={newThemeName} onChange={e => {setNewThemeName(e.target.value); setThemeEditsMade(true);}}></input>
+              </div>
+              <div style={buttonContainerStyle}>
+                <select style={buttonStyle} id="customColors" value={selectedThemeIndex} onChange={(e) => setSelectedThemeIndex(e.target.value)}>
+                  <option key={-1} value={-1}></option>
+                  {state.savedThemes.map((item, index) => (
+                    <option key={index} value={index}>
+                      {item[0]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={buttonContainerStyle}>
+                <button onClick={() => {updateTheme(selectedThemeIndex)}} style={buttonStyle}><p>{"Update Theme" + ((themeEditsMade && selectedThemeIndex >= 0) ? "*" : "")}</p></button>
+                <button onClick={() => {createTheme()}} style={buttonStyle}><p>Create Theme</p></button>
+                <button onClick={() => {deleteTheme(selectedThemeIndex)}} style={buttonStyle}><p>Delete Theme</p></button>
+              </div>
+              <div style={customThemeContainerStyle}>
+                <div style={{width: "100px"}}>
+                  <label style={profileText} htmlFor="backgroundColorPicker">Background</label><br></br>
+                  <input style={buttonStyle} type="color" id="backgroundColorPicker" onChange={e => {updateColor("background", e.target.value)}} value={state.colorBackground}></input>
+                </div>
+                <div style={{width: "100px"}}>
+                  <label style={profileText}>Text</label><br></br>
+                  <input style={buttonStyle} type="color" id="textColorPicker" onChange={e => {updateColor("text", e.target.value)}} value={state.colorText}></input>
+                </div>
+                <div style={{width: "100px"}}>
+                  <label style={profileText} htmlFor="borderColorPicker">Border</label><br></br>
+                  <input style={buttonStyle} type="color" id="borderColorPicker" onChange={e => {updateColor("border", e.target.value)}} value={state.colorBorder}></input>
+                </div>
+                <div style={{width: "100px"}}>
+                  <label style={profileText} htmlFor="accentColorPicker">Accent</label><br></br>
+                  <input style={buttonStyle} type="color" id="accentColorPicker" onChange={e => {updateColor("accent", e.target.value)}} value={state.colorAccent}></input>
+                </div>
+              </div>
+              <div style={textFieldContainerStyle}>
+                <label style={profileText}>Background Image (URL)</label>
+                <input id="custom-background" type="text" style={textFieldStyle} value={state.backgroundImage} onChange={e => {updateBackgroundImage(e.target.value)}}></input>
+                <br></br>
+              </div>
             </div>
-            <div style={{ width: "100px" }}>
-              <label style={profileText} htmlFor="accentColorPicker">
-                Accent
-              </label>
-              <br></br>
-              <input
-                style={buttonStyle}
-                type="color"
-                id="accentColorPicker"
-                onChange={(e) => {
-                  updateColor("accent", e.target.value);
-                }}
-                value={state.colorAccent}
-              ></input>
-            </div>
-          </div>
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Theme Name</label>
-            <input
-              id="save-theme-name-input"
-              type="text"
-              style={textFieldStyle}
-              value={newThemeName}
-              onChange={(e) => {
-                setNewThemeName(e.target.value);
-              }}
-            ></input>
-          </div>
-          <br></br>
-          <p style={profileText} htmlFor="customColors">
-            Saved Themes
-          </p>
-          <div style={buttonContainerStyle}>
-            <select
-              style={buttonStyle}
-              id="customColors"
-              value={selectedTheme}
-              onChange={(e) => {
-                setSelectedTheme(e.target.value);
-              }}
-            >
-              {state.savedThemes.map((item, index) => (
-                <option key={index} value={index}>
-                  {item[0]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div style={buttonContainerStyle}>
-            <button
-              onClick={() => {
-                retrieveTheme(selectedTheme);
-              }}
-              style={buttonStyle}
-            >
-              <p>Use Theme</p>
-            </button>
-            <button
-              onClick={() => {
-                updateTheme(selectedTheme, newThemeName, getColorArray());
-              }}
-              style={buttonStyle}
-            >
-              <p>Save Changes</p>
-            </button>
-            <button
-              onClick={() => {
-                createTheme(newThemeName, getColorArray());
-              }}
-              style={buttonStyle}
-            >
-              <p>Create Theme</p>
-            </button>
-            <button
-              onClick={() => {
-                deleteTheme(selectedTheme);
-              }}
-              style={buttonStyle}
-            >
-              <p>Delete Theme</p>
-            </button>
-          </div>
-          <p style={{ ...headerTextStyle, fontSize: textSizes.header2 }}>
-            Background
-          </p>
-          <div style={buttonContainerStyle}>
-            <button
-              onClick={() => {
-                updateBackgroundImage("");
-              }}
-              style={buttonStyle}
-            >
-              <p>Clear</p>
-            </button>
-          </div>
-          <div style={buttonContainerStyle}>
-            {customBackgrounds.map((item, index) => (
-              <img
-                key={index}
-                style={backgroundOptionStyle}
-                src={item}
-                onClick={() => {
-                  updateBackgroundImage(item);
-                }}
-              ></img>
-            ))}
-          </div>
-
-          <div style={textFieldContainerStyle}>
-            <label style={profileText}>Background URL</label>
-            <input
-              id="custom-background"
-              type="text"
-              style={textFieldStyle}
-              value={state.backgroundImage}
-              onChange={(e) => {
-                updateBackgroundImage(e.target.value);
-              }}
-            ></input>{" "}
-            <br></br>
-          </div>
-          <div style={buttonContainerStyle}>
-            <button style={buttonStyle} onClick={() => saveUserSettings()}>
-              Save Settings
-            </button>
           </div>
         </div>
       </div>
       <div className="footer">
-        <SongPlayer />
+        <Playback />
       </div>
     </div>
   );

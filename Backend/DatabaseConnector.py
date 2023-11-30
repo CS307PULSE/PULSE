@@ -264,13 +264,13 @@ class DatabaseConnector(object):
             if packed_str[i] == ' ':
                 count +=1
         row = 0
-        if count == 4:
+        if count == 5:
             row = 1
         elif count == 0:
             return []
         else:
-            row = int(1 + (count - 4) / 5)
-        return string_to_array_row_by_col(self.resultset[0], row, 5, False)
+            row = int(1 + (count - 5) / 6)
+        return string_to_array_row_by_col(self.resultset[0], row, 6, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
@@ -408,7 +408,7 @@ class DatabaseConnector(object):
     
 
     def get_public_display_text_color_from_DB(self, spotify_id):
-        query = "SELECT public_text_color from pulse.users WHERE spotify_id = %s"
+        query = "SELECT public_display_text_color from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
@@ -972,7 +972,7 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
     def update_public_display_background_color(self, spotify_id, new_public_display_background_color):
         try:
-            query = """UPDATE pulse.users SET public_background_text_color = %s WHERE spotify_id = %s"""
+            query = """UPDATE pulse.users SET public_display_background_color = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (new_public_display_background_color, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
@@ -981,7 +981,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating public_background_text_color:", str(e))
+            print("Error updating public_display_background_color:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         

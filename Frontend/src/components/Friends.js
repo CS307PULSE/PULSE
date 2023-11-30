@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Friend from './Friend';
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 import { useAppContext } from "./Context";
@@ -90,6 +90,9 @@ const Friends = () => {
                 name={friend.name}
                 photoFilename={friend.photoUri}
                 favoriteSong={friend.favoriteSong}
+                status={friend.status}
+                publicColorText={friend.textColor}
+                publicColorBackground={friend.backgroundColor}
               />
               <div class = "center">
                 <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
@@ -126,7 +129,7 @@ const Friends = () => {
         {removeFriendsMessage}
         {friendsData ? (friendsData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };

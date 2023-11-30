@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Friend from './Friend';
 import Navbar from "./NavBar";
-import SongPlayer from "./SongPlayer";
+import Playback from "./Playback";
 import TextSize from "../theme/TextSize";
 import axios from "axios";
 import { useAppContext } from "./Context";
@@ -89,6 +89,9 @@ const FriendRequests = () => {
                 name={friend.name}
                 photoFilename={friend.photoUri}
                 favoriteSong={friend.favoriteSong}
+                status={friend.status}
+                publicColorText={friend.textColor}
+                publicColorBackground={friend.backgroundColor}
               />
               <div class = "center">
                 <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => friendRequestChoice(friend.spotify_id, false).then(data => setRequestsData(data))}>
@@ -121,7 +124,7 @@ const FriendRequests = () => {
         </div>
         {requestsData ? (requestsData.length > 0 ? renderRequestRows() : noRequestsMessage) : noRequestsMessage}
       </div>
-      <div className="footer"><SongPlayer /></div>
+      <div className="footer"><Playback /></div>
     </div>
   );
 };
