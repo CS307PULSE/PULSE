@@ -29,6 +29,7 @@ export const LineGraph = (props) => {
     console.log("Graph props");
     console.log(props);
     if (props.data === undefined || props.data === null) {
+      console.log("data type wrong:" + props.data);
       setData("Bad Data");
       return;
     } else if (props.data === "Empty") {
@@ -88,7 +89,6 @@ export const LineGraph = (props) => {
   } else if (data === "Advanced Data Failed to Load") {
     return <p>Advanced Data is unavailable right now!</p>;
   }
-
   const xAxisTicks =
     xScale.type === "time"
       ? {
@@ -97,7 +97,7 @@ export const LineGraph = (props) => {
       : {};
 
   try {
-    //console.log(data);
+    console.log(data);
     return (
       <div className="GraphSVG">
         {selectionGraph ? (

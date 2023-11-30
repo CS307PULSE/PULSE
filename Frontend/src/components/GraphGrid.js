@@ -53,9 +53,12 @@ async function fetchAdvancedFriendData(spotify_id) {
     const axiosInstance = axios.create({
       withCredentials: true,
     });
-    const response = await axiosInstance.post("/api/friend_get_advanced_stats", {
-      id: spotify_id,
-    });
+    const response = await axiosInstance.post(
+      "/api/friend_get_advanced_stats",
+      {
+        id: spotify_id,
+      }
+    );
     const data = response.data;
     console.log(response);
     return data;
@@ -692,7 +695,7 @@ export default function GraphGrid() {
           breakpoints={{ lg: 1000, xs: 500, xxs: 0 }}
           cols={{
             lg: numLayoutColumns,
-            xs: Math.floor(numLayoutColumns / 2),
+            xs: Math.round(numLayoutColumns / 2),
             xxs: 1,
           }}
           rowHeight={300}
@@ -977,51 +980,70 @@ export default function GraphGrid() {
             );
           })}
         </ResponsiveGridLayout>
-        <div>
-          <p> Current layout is {layoutNumber}</p>
-          <button onClick={() => handleLoadButtonClick(1)}>Load 1</button>
-          <button onClick={() => handleLoadButtonClick(2)}>Load 2</button>
-          <button onClick={() => handleLoadButtonClick(3)}>Load 3</button>
-          <button onClick={handleSaveButtonClick}>Save Current Loadout</button>
-        </div>
-        <div>
-          <p>Set Default Layout: </p>
-          <select
-            name="defaultLayout"
-            value={defaultLayoutNum}
-            onChange={(e) => {
-              setDefaultLayoutNum(e.target.value);
-            }}
-          >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </div>
-        <div>
-          Grid Layout Columns:
-          <input
-            name="numLayoutColumns"
-            value={numLayoutColumns}
-            onChange={(e) => {
-              const regexVal = e.target.value.replace(/\D/g, "");
-              const value = Math.max(1, Math.min(15, Number(regexVal)));
-              if (value === undefined || value === 0) {
-                setNumLayoutColumns(5);
-              } else {
-                setNumLayoutColumns(value);
-              }
-            }}
-            type="number"
-            min="1"
-            max="15"
-            style={{ width: "3em" }}
-          />
-        </div>
-        <div>
-          <button className="TypButton" onClick={openPopup}>
-            Add Graph
-          </button>
+        <div className="overlay">
+          <div className="spacing">Current layout is {layoutNumber}</div>
+          <div className="spacing">
+            <button
+              className="MenuButton"
+              onClick={() => handleLoadButtonClick(1)}
+            >
+              Load 1
+            </button>
+            <button
+              className="MenuButton"
+              onClick={() => handleLoadButtonClick(2)}
+            >
+              Load 2
+            </button>
+            <button
+              className="MenuButton"
+              onClick={() => handleLoadButtonClick(3)}
+            >
+              Load 3
+            </button>
+            <button className="MenuButton" onClick={handleSaveButtonClick}>
+              Save Current Loadout
+            </button>
+          </div>
+          <div className="spacing">
+            Set Default Layout:{" "}
+            <select
+              name="defaultLayout"
+              value={defaultLayoutNum}
+              onChange={(e) => {
+                setDefaultLayoutNum(e.target.value);
+              }}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div className="spacing">
+            Grid Layout Columns:{" "}
+            <input
+              name="numLayoutColumns"
+              value={numLayoutColumns}
+              onChange={(e) => {
+                const regexVal = e.target.value.replace(/\D/g, "");
+                const value = Math.max(1, Math.min(15, Number(regexVal)));
+                if (value === undefined || value === 0) {
+                  setNumLayoutColumns(5);
+                } else {
+                  setNumLayoutColumns(value);
+                }
+              }}
+              type="number"
+              min="1"
+              max="15"
+              style={{ width: "3em" }}
+            />
+          </div>
+          <div className="spacing">
+            <button className="TypButton" onClick={openPopup}>
+              Add Graph
+            </button>
+          </div>
         </div>
         <Popup
           isOpen={isPopupOpen}

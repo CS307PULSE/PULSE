@@ -1,13 +1,3 @@
-/*
-Functions needed
-    followers
-    numMinutes
-    numStreams
-    percentTimes
-    percentTimePeriod
-    numTimesSkipped
-*/
-
 export function formatFollowerData(props) {
   const dataSource = props.bothFriendAndOwnData ? props.data : [props.data];
   if (props.graphType === "Calendar") {
@@ -111,6 +101,11 @@ export function setupAdvancedData(props) {
       if (props.dataVariation === "all") {
         selectionGraph = false;
         data = formatAdvancedGraphData(props, []);
+        return {
+          data: data,
+          itemsSelectable: itemsSelectable,
+          selectionGraph: selectionGraph,
+        };
         //Num time skipped goes always down to this one
       } else {
         itemsSelectable = formatSelectableItems(props);
@@ -136,8 +131,11 @@ export function setupAdvancedData(props) {
     console.error(e);
   }
 
+  const diffData = formatForDifferentGraphs(props, data);
   return {
-    data: formatForDifferentGraphs(props, data),
+    data: diffData.data,
+    graphKeys: diffData.graphKeys,
+    graphIndexBy: diffData.graphIndexBy,
     itemsSelectable: itemsSelectable,
     selectionGraph: selectionGraph,
   };
@@ -202,7 +200,9 @@ export function formatAdvancedGraphData(props, itemsSelected) {
   let dataOrders = [];
   for (const item of dataOrder) {
     dataOrders.push("User " + item);
-    dataOrders.push(props.friendName + " " + item);
+    if (props.friendName !== undefined) {
+      dataOrders.push(props.friendName + " " + item);
+    }
   }
   console.log(dataOrders);
 
@@ -213,6 +213,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     dataOrder: dataOrders,
     dataSource: dataSource,
     highestYear: highestYear,
+    years: years,
   };
 
   let data;
@@ -222,13 +223,23 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     data = formatSelectionGraphData(props, params);
   }
 
-  return formatForDifferentGraphs(props, data);
+  if (props.graphType === "VertBar" || props.graphType === "HortBar") {
+    const diffData = formatForDifferentGraphs(props, data);
+    return {
+      data: diffData.data,
+      graphKeys: diffData.graphKeys,
+      graphIndexBy: diffData.graphIndexBy,
+    };
+  } else {
+    return formatForDifferentGraphs(props, data).data;
+  }
 }
 
 function formatForDifferentGraphs(props, data) {
   switch (props.graphType) {
     case "Pie":
       let pieData = [];
+      console.log(data);
       for (const item of data) {
         pieData.push(
           ...item.data.map((itemDataPoints) => {
@@ -240,29 +251,37 @@ function formatForDifferentGraphs(props, data) {
           })
         );
       }
-      return pieData;
+      return { data: pieData };
     case "VertBar":
     case "HortBar":
       let barData = [];
+      let keys = [];
       for (const item of data) {
-        barData.push(
-          ...item.data.map((itemDataPoints) => {
-            return {
-              id: itemDataPoints.x + " - " + item.id,
-              value: itemDataPoints.y,
-            };
-          })
-        );
+        let itemPoints = {};
+        for (const point of item.data) {
+          itemPoints[point.x] = point.y;
+          if (!keys.includes(point.x)) {
+            keys.push(point.x);
+          }
+        }
+        itemPoints.name = item.id;
+        barData.push(itemPoints);
       }
-      return barData;
+      return { data: barData, graphKeys: keys, graphIndexBy: "name" };
     default:
-      return data;
+      return { data: data };
   }
 }
 
 function formatSelectionGraphData(props, params) {
   let itemsData = [];
   function formatXY(id, data, itemType, item, readVal) {
+    if (data === null) {
+      return {
+        x: id,
+        y: 0,
+      };
+    }
     if (data[itemType][item] !== undefined) {
       return {
         x: id,
@@ -321,7 +340,6 @@ function formatSelectionGraphData(props, params) {
       params.dataSource.forEach((userData, index) => {
         if (index === 0) {
           data = Object.entries(userData)
-
             .map(([timePeriod, timeItems]) => {
               const dateDay =
                 props.timeRange === "year"
@@ -408,7 +426,7 @@ function formatAllTimeGraphData(props, params) {
     });
 
     //Yearly & monthly
-    for (const year of Object.keys(userData.Yearly)) {
+    for (const year of params.years) {
       let dateDay = new Date(yearMonthToDate(year));
       if (props.timeFromTo[0] !== undefined) {
         if (new Date(props.timeFromTo[0]) > dateDay) {
@@ -420,7 +438,6 @@ function formatAllTimeGraphData(props, params) {
           continue;
         }
       }
-
       tempUserData.push({
         x: year,
         y: userData.Yearly[year][params.readVal],

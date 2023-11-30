@@ -124,37 +124,89 @@ const Games = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []); // <-- Add 'scores' as a dependency
 
+  // const getGameData = () => {
+  //   if (!scores || scores.length < 2 || !scores[0] || !scores[1]) {
+  //     return [];
+  //   }
+
+  //   return (
+  //     <div>
+  //       {scores.map((gameType, index1) => (
+  //         <>
+  //           <p>
+  //             {" "}
+  //             <b>
+  //               <u>Game {index1 + 1}</u>
+  //             </b>
+  //           </p>
+  //           <p>
+  //             {gameType.map((gameRound, index2) => (
+  //               <p>
+  //                 Round {index2}:
+  //                 {gameRound.map((gameScore) => (
+  //                   <> {gameScore}</>
+  //                 ))}
+  //               </p>
+  //             ))}
+  //           </p>
+  //         </>
+  //       ))}
+  //     </div>
+  //   );
+  // };
+
   const getGameData = () => {
     if (!scores || scores.length < 2 || !scores[0] || !scores[1]) {
-      return [];
+      return null;
+    }
+  
+    function getGameType(gameId) {
+      const gameTypes = [
+        "Guess the Song",
+        "Guess the Artist",
+        "Guess Who Listens to the Song",
+        "Guess the Next Lyric",
+        "Heads Up",
+      ];
+      return gameTypes[gameId] || "Unknown Game";
     }
 
-    return (
-      <div>
-        {scores.map((gameType, index1) => (
-          <>
-            <p>
-              {" "}
-              <b>
-                <u>Game {index1 + 1}</u>
-              </b>
-            </p>
-            <p>
-              {gameType.map((gameRound, index2) => (
-                <p>
-                  Round {index2}:
-                  {gameRound.map((gameScore) => (
-                    <> {gameScore}</>
-                  ))}
-                </p>
+    const gamesTable = scores.map((gameType, index1) => (
+      <div key={index1}>
+        <h3>
+          <u>{getGameType(index1)}</u>
+        </h3>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
+          <thead>
+            <tr style={{ backgroundColor: state.colorBackground, color: state.colorText }}>
+              <th style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>Pervious Game</th>
+              {gameType[0].map((_, index2) => (
+                <th key={index2} style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>
+                  Player {index2 + 1}
+                </th>
               ))}
-            </p>
-          </>
-        ))}
+            </tr>
+          </thead>
+          <tbody>
+            {gameType.map((gameRound, index2) => (
+              <tr key={index2}>
+                <td style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>
+                  Round {index2 + 1}
+                </td>
+                {gameRound.map((gameScore, index3) => (
+                  <td key={index3} style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>
+                    {gameScore}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    );
+    ));
+  
+    return <div>{gamesTable}</div>;
   };
-
   return (
     <div className="wrapper">
       <div className="header"><Navbar /></div>
@@ -223,10 +275,8 @@ const Games = () => {
         {/* NEED TO FIX PULLING OF GAME STYLE */}
 
         <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
-        <h2 style={gamesSubTitleStyle}>
-          1: Guess the song, 2: Guess the Artist, 4: Guess the next lyric
-        </h2>
-        <div style={{ color: "white", whiteSpace: "pre", marginLeft: "500px" }}>
+
+        <div style={{ color: "white", whiteSpace: "pre", marginRight: "400px" }}>
           {getGameData()}
         </div>
       </div>

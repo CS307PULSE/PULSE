@@ -18,6 +18,8 @@ export const BarGraph = (props) => {
   const [itemsSelectable, setItemsSelectable] = useState([]);
   const [itemsSelected, setItemsSelected] = useState([]);
   const [selectionGraph, setSelectionGraph] = useState(false);
+  const [graphKeys, setGraphKeys] = useState(props.graphKeys);
+  const [graphIndexBy, setGraphIndexBy] = useState(props.graphIndexBy);
 
   //Setup Data per selected values
   useEffect(() => {
@@ -43,6 +45,8 @@ export const BarGraph = (props) => {
         setSelectionGraph(recievedData.selectionGraph);
         setItemsSelectable(recievedData.itemsSelectable);
         setData(recievedData.data);
+        setGraphKeys(recievedData.graphKeys);
+        setGraphIndexBy(recievedData.graphIndexBy);
       } else {
         //Sample data
         setData(props.data);
@@ -63,7 +67,10 @@ export const BarGraph = (props) => {
     }
     //console.log(itemsSelected);
     if (selectionGraph) {
-      setData(formatAdvancedGraphData(props, itemsSelected));
+      const recievedData = formatAdvancedGraphData(props, itemsSelected);
+      setData(recievedData.data);
+      setGraphKeys(recievedData.graphKeys);
+      setGraphIndexBy(recievedData.graphIndexBy);
       props.selectData(itemsSelected, props.graphName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,14 +108,14 @@ export const BarGraph = (props) => {
       <ResponsiveBar
         theme={graphThemes}
         data={data}
-        keys={props.graphKeys}
-        indexBy={props.graphIndexBy}
+        keys={graphKeys}
+        indexBy={graphIndexBy}
         layout={props.graphType === "VertBar" ? "vertical" : "horizontal"}
         margin={{
           top: 30,
           right: props.legendEnabled ? 110 : 50,
           bottom: 75,
-          left: 60,
+          left: props.graphType === "HortBar" ? 100 : 60,
         }}
         padding={0.4}
         valueScale={{ type: "linear" }}
@@ -118,6 +125,9 @@ export const BarGraph = (props) => {
         axisTop={null}
         axisRight={null}
         axisLeft={{
+          format: (v) => {
+            return v.length > 12 ? v.substring(0, 12) + "…" : v;
+          },
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
@@ -126,6 +136,9 @@ export const BarGraph = (props) => {
           legendOffset: -40,
         }}
         axisBottom={{
+          format: (v) => {
+            return v.length > 12 ? v.substring(0, 12) + "…" : v;
+          },
           orient: "bottom",
           tickSize: 5,
           tickPadding: 5,
