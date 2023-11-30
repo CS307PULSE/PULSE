@@ -115,7 +115,7 @@ export const BarGraph = (props) => {
           top: 30,
           right: props.legendEnabled ? 110 : 50,
           bottom: 75,
-          left: 60,
+          left: props.graphType === "HortBar" ? 100 : 60,
         }}
         padding={0.4}
         valueScale={{ type: "linear" }}
@@ -125,6 +125,9 @@ export const BarGraph = (props) => {
         axisTop={null}
         axisRight={null}
         axisLeft={{
+          format: (v) => {
+            return v.length > 12 ? v.substring(0, 12) + "…" : v;
+          },
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
@@ -133,6 +136,9 @@ export const BarGraph = (props) => {
           legendOffset: -40,
         }}
         axisBottom={{
+          format: (v) => {
+            return v.length > 12 ? v.substring(0, 12) + "…" : v;
+          },
           orient: "bottom",
           tickSize: 5,
           tickPadding: 5,
