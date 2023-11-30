@@ -133,7 +133,7 @@
 }
 
 .GraphTooltip {
-  background: --tooltip;
+  background: var(--tooltip-container-background);
   padding: "9px 12px";
   border: "1px solid #ccc";
 }

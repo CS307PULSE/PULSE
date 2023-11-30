@@ -1,13 +1,3 @@
-/*
-Functions needed
-    followers
-    numMinutes
-    numStreams
-    percentTimes
-    percentTimePeriod
-    numTimesSkipped
-*/
-
 export function formatFollowerData(props) {
   const dataSource = props.bothFriendAndOwnData ? props.data : [props.data];
   if (props.graphType === "Calendar") {
@@ -286,20 +276,18 @@ function formatForDifferentGraphs(props, data) {
 function formatSelectionGraphData(props, params) {
   let itemsData = [];
   function formatXY(id, data, itemType, item, readVal) {
-    try {
-      if (data[itemType][item] !== undefined) {
-        return {
-          x: id,
-          y: data[itemType][item][readVal],
-        };
-      } else {
-        return {
-          x: id,
-          y: 0,
-        };
-      }
-    } catch (e) {
-      console.log(e);
+    if (data === null) {
+      return {
+        x: id,
+        y: 0,
+      };
+    }
+    if (data[itemType][item] !== undefined) {
+      return {
+        x: id,
+        y: data[itemType][item][readVal],
+      };
+    } else {
       return {
         x: id,
         y: 0,

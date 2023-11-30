@@ -77,15 +77,36 @@ export default function FilterPopup({
     }
   }
 
-  function selectXindexes(start, end) {
+  function selectXindexes(start = 0, end, random = false) {
     let selected = [];
-    for (let i = start; i < end; i++) {
-      if (i >= itemsSelectable.length) {
-        break;
+    if (!random) {
+      for (let i = start; i < end; i++) {
+        if (i >= itemsSelectable.length) {
+          break;
+        }
+        selected.push(
+          emotionData
+            ? itemsSelectable[i].uri + "," + i
+            : itemsSelectable[i].uri
+        );
       }
-      selected.push(
-        emotionData ? itemsSelectable[i].uri + "," + i : itemsSelectable[i].uri
-      );
+    } else {
+      let randNums = [];
+      for (let i = start; i < end; i++) {
+        const randNum = Math.round(
+          Math.random() * (itemsSelectable.length - 1)
+        );
+        //If num out of bounds or selected already
+        if (randNum >= itemsSelectable.length || randNums.includes(randNum)) {
+          i--;
+          continue;
+        }
+        selected.push(
+          emotionData
+            ? itemsSelectable[randNum].uri + "," + i
+            : itemsSelectable[randNum].uri
+        );
+      }
     }
     setItemsSelected(selected);
   }
@@ -153,10 +174,18 @@ export default function FilterPopup({
               <button
                 className="FilterTopButton"
                 onClick={() => {
-                  selectXindexes(0, 50);
+                  selectXindexes(0, 25);
                 }}
               >
-                Top 50
+                Top 25
+              </button>
+              <button
+                className="FilterTopButton"
+                onClick={() => {
+                  selectXindexes(0, 10, true);
+                }}
+              >
+                Random 10
               </button>
             </div>
           ) : null}
