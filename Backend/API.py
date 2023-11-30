@@ -169,15 +169,16 @@ def callback():
 
     response = requests.post(token_url, data=payload)
     print(response.json())
-    print("=============================================================")
     if response.status_code == 200:
         token_info = response.json()
         print("Login Token:", token_info)
-        print("++++++++++++++++++++++++++++++++++++++++++++++")
     else:
         print("Failed to retrieve Access Token")
-        print("++++++++++++++++++++++++++++++++++++++++++++++")
-        return "resp" , 200, {'Reason-Phrase': 'OK'}
+        error_message = 'Failed to retrieve access token. Please try logging in again.'
+        error_code = 440
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
     if token_info:
         # Create a Spotify object and fetch user data
@@ -2756,8 +2757,6 @@ def catch_all(path):
         error_code = 430
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-        #return send_from_directory(app.static_folder, 'index.html')
-        return send_from_directory(app.static_folder, 'index.html')
 
 def send_feedback_email(feedback):
     try:
