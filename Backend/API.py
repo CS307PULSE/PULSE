@@ -920,7 +920,7 @@ def play_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/explorer/songrec', methods=['POST'])
+@app.route('/api/explorer/songrec', methods=['POST'])
 def songrec():
     data = request.get_json()
     track = data.get('track')

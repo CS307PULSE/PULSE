@@ -182,7 +182,7 @@ const ItemList = ({ data, buttons = [], selectedIndex = -1, onClick = null }) =>
     </div>
   );
   } catch (e) {
-    console.log("Failure to load ItemList: " + e);
+    console.log("Failure to load ItemList: " + e + "\nNow printing input data object:");
     console.log(data);
   }
 };

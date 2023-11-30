@@ -140,7 +140,7 @@ function Playback({syncTrigger = null}) {
     }
   }
   useEffect(() => {
-    console.log(syncTrigger);
+    // console.log(syncTrigger);
     syncPlayer();
   }, [expanded, syncTrigger]);
   async function getSearchResults(query, type) {
