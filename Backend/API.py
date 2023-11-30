@@ -1675,9 +1675,9 @@ def get_friends():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
-                bufferobject['status'] = "needs implemented in backend" #frienduser.status
-                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
-                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
+                bufferobject['status'] = frienduser.status #frienduser.status
+                bufferobject['textColor'] = frienduser.public_display_text_color #frienduser.text_color
+                bufferobject['backgroundColor'] = frienduser.public_display_background_color #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:

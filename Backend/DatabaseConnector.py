@@ -71,7 +71,10 @@ class DatabaseConnector(object):
                                 friends, 
                                 theme, 
                                 location,
-                                gender) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+                                gender,
+                                status,
+                                public_display_text_color,
+                                public_display_background_color) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         
             encrypted_token=new_user.login_token
             with AESCipher(os.getenv("DB_KEY")) as cyph:
@@ -85,7 +88,10 @@ class DatabaseConnector(object):
                                                 create_friends_string_for_DB(new_user.friends),
                                                 int(new_user.theme.value),
                                                 new_user.location,
-                                                new_user.gender,))
+                                                new_user.gender,
+                                                new_user.status,
+                                                new_user.public_display_text_color,
+                                                new_user.public_display_background_color,))
 
             self.db_conn.commit()
             affected_rows = self.db_cursor.rowcount
@@ -565,7 +571,10 @@ class DatabaseConnector(object):
                          theme=Theme(row[5]),
                          location = row[9],
                          gender = row[10],
-                         chosen_song = row[15],)
+                         chosen_song = row[15],
+                         status = row[20],
+                         public_display_text_color=row[21],
+                         public_display_background_color=row[22])
             
             decrypted_token=userFromDB.login_token
             with AESCipher(os.getenv("DB_KEY")) as cyph:
