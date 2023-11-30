@@ -2604,7 +2604,7 @@ def feedback():
             return "Failed", 200, {'Reason-Phrase': 'OK'}
     return "Success", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/sync_player', methods=['GET'])
+@app.route('/api/player/sync_player', methods=['GET'])
 def get_playing():
     if 'user' in session:
         user_data = session['user']
@@ -2642,7 +2642,7 @@ def get_playing():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/search_bar', methods=['POST'])
+@app.route('/api/player/search_bar', methods=['POST'])
 def criteriasearch():
     if 'user' in session:
         user_data = session['user']
@@ -2663,7 +2663,7 @@ def criteriasearch():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/add_to_queue', methods=['POST'])
+@app.route('/api/player/add_to_queue', methods=['POST'])
 def add_song_to_queue():
     if 'user' in session:
         user_data = session['user']
@@ -2683,7 +2683,7 @@ def add_song_to_queue():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/change_device', methods=['POST'])
+@app.route('/api/player/change_device', methods=['POST'])
 def change_device():
     if 'user' in session:
         user_data = session['user']
@@ -2703,7 +2703,7 @@ def change_device():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/info/get_song_dict', methods=['POST'])
+@app.route('/api/info/get_song_dict', methods=['POST'])
 def get_song_dict():
     if 'user' in session:
         user_data = session['user']
@@ -2724,7 +2724,7 @@ def get_song_dict():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/info/get_followed_artists', methods=['GET'])
+@app.route('/api/info/get_followed_artists', methods=['GET'])
 def get_followed_artists():
     if 'user' in session:
         user_data = session['user']
@@ -2743,7 +2743,7 @@ def get_followed_artists():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/info/get_artists_top_songs', methods=['POST'])
+@app.route('/api/info/get_artists_top_songs', methods=['POST'])
 def get_artists_top_songs():
     if 'user' in session:
         user_data = session['user']
@@ -2764,7 +2764,7 @@ def get_artists_top_songs():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/info/follow_artist', methods=['POST'])
+@app.route('/api/info/follow_artist', methods=['POST'])
 def follow_artist():
     if 'user' in session:
         user_data = session['user']
@@ -2786,7 +2786,7 @@ def follow_artist():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/info/related_artists', methods=['POST'])
+@app.route('/api/info/related_artists', methods=['POST'])
 def related_artists():
     if 'user' in session:
         user_data = session['user']
@@ -2806,7 +2806,7 @@ def related_artists():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/info/unfollow_artist', methods=['POST'])
+@app.route('/api/info/unfollow_artist', methods=['POST'])
 def unfollow_artist():
     if 'user' in session:
         user_data = session['user']
