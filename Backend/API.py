@@ -1223,7 +1223,7 @@ def set_background_image():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/profile/get_background_image')
+@app.route('/api/profile/get_background_image', methods=['GET'])
 def get_background_image():
     if 'user' in session:
         user_data = session['user']

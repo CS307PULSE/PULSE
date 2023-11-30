@@ -21,7 +21,7 @@ try {
     gender: await getUserField("/api/profile/get_gender"),
     location: await getUserField("/api/profile/get_location"),
     icon: await getUserField("/api/profile/get_image"),
-    favoriteSong: await getUserField("/api/profile/get_chosen_song"),
+    favoriteSong: await getUserField("/api/profile/get_chosen_song"), 
   };
 } catch (e) {
   console.log("User info fetch failed: " + e);

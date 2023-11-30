@@ -11,16 +11,17 @@ import { formatDate } from "../theme/Format";
 export async function playItem(item, syncFunction = () => {}) {
   if (!item) { return; }
   var route = (() => {switch (item.type) {
-    case "playlist": return "/player/play_playlist";
-    case "track": return "/player/play_song";
-    case "album": return "/player/play_album";
-    case "artist": return "/player/play_artist";
-    case "episode": return "/player/play_song";
-    // case "show": return "/player/play_song";
+    case "playlist": return "/api/player/play_playlist";
+    case "track": return "/api/player/play_song";
+    case "album": return "/api/player/play_album";
+    case "artist": return "/api/player/play_artist";
+    case "episode": return "/api/player/play_song";
+    // case "show": return "/api/player/play_song";
     default: return null;
   }})();
   if (!route) { return; }
-
+  console.log(item);
+  console.log(route);
   const axiosInstance = axios.create({withCredentials: true});
   const response = await axiosInstance.post(route, {spotify_uri: item.uri});
   syncFunction();
@@ -28,15 +29,43 @@ export async function playItem(item, syncFunction = () => {}) {
 }
 export async function queueItem(item, syncFunction = () => {}) {
   const axiosInstance = axios.create({withCredentials: true});
-  const response = await axiosInstance.post("/player/add_to_queue", {song_uri: item.uri});
+  const response = await axiosInstance.post("/api/player/add_to_queue", {song_uri: item.uri});
   syncFunction();
   return response.data;
 }
 export async function searchSpotify(query, type) {
   const axiosInstance = axios.create({withCredentials: true});
-  const response = await axiosInstance.post("/player/search_bar", {query: query, criteria: type});
+  const response = await axiosInstance.post("/api/player/search_bar", {query: query, criteria: type});
   return response.data;
 }
+export function trackData(track, field) {
+  if (!track) {
+    return "";
+  }
+  try {
+    switch (field) {
+      case "name": return track.name;
+      case "creator":
+        switch (track.type) {
+          case "track": return track.artists.map(artist => artist.name).join(', ');
+          case "episode": return "";
+        }
+      case "release_date":
+        switch (track.type) {
+          case "track": return formatDate(track.album.release_date);
+          case "episode": return formatDate(track.release_date);
+        }
+      case "description": 
+        switch (track.type) {
+          case "track": return "";
+          case "episode": return track.description;
+        }
+    }
+  } catch (e) {
+    console.log(`Error getting \"${field}\" from ${track}: ` + e);
+  }
+}
+
 function Playback() {
   
   const { state, dispatch } = useAppContext();
@@ -58,26 +87,26 @@ function Playback() {
   const [searchResults, setSearchResults] = useState([]);
 
   async function nextSong() { //Nexting
-    await axios.get("/player/skip", { withCredentials: true });
+    await axios.get("/api/player/skip", { withCredentials: true });
     syncPlayer();
   }
   async function previousSong() { //Preving
-    await axios.get("/player/prev", { withCredentials: true });
+    await axios.get("/api/player/prev", { withCredentials: true });
     syncPlayer();
   }
   async function toggleRepeat() {
-    await axios.get("/player/repeat", { withCredentials: true });
+    await axios.get("/api/player/repeat", { withCredentials: true });
   }
   async function toggleShuffle() {
-    await axios.get("/player/shuffle", { withCredentials: true });
+    await axios.get("/api/player/shuffle", { withCredentials: true });
   }
   async function togglePlay() {
     var action = playState;
     setPlayState(!playState);
     if (action) { //Play and pause
-      await axios.get("/player/pause", { withCredentials: true });
+      await axios.get("/api/player/pause", { withCredentials: true });
     } else {
-      await axios.get("/player/play", { withCredentials: true });
+      await axios.get("/api/player/play", { withCredentials: true });
     }
     syncPlayer();
   }
@@ -85,13 +114,13 @@ function Playback() {
     console.log("Attempting volume post with value " + volumeParameter);
     setVolumeLevel(volumeParameter);
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/volume", {volume: volumeParameter});
+    const response = await axiosInstance.post("/api/player/volume", {volume: volumeParameter});
     const data = response.data;
     return data;
   }
   async function syncPlayer() {
     const axiosInstance = axios.create({withCredentials: true});
-    var response = await axiosInstance.get("/player/sync_player");
+    var response = await axiosInstance.get("/api/player/sync_player");
     var data = response.data;
     if (data == "failed") {
       setPlayState(false);
@@ -119,7 +148,7 @@ function Playback() {
     setCurrentDevice(newDeviceID);
     console.log(newDeviceID);
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/player/change_device", {uri: newDeviceID});
+    const response = await axiosInstance.post("/api/player/change_device", {uri: newDeviceID});
     const data = response.data;
     syncPlayer();
     return data;
@@ -131,23 +160,23 @@ function Playback() {
     switch (currentTrack.type) {
       case "track": return (
         <div>
-          <p style={headerTextStyle}>{currentTrack.name}</p>
+          <p style={headerTextStyle}>{trackData(currentTrack, "name")}</p>
           <a style={headerTextStyle} 
             href={currentTrack.album.external_urls.spotify} target="_blank">
             {"Album: " + currentTrack.album.name}</a>
-          <p style={textStyle}>{"Released " + formatDate(currentTrack.album.release_date)}</p>
+          <p style={textStyle}>{"Released " + trackData(currentTrack, "release_date")}</p>
           <p style={textStyle}>{currentTrack.album.total_tracks + " Tracks"}</p>
           <p style={headerTextStyle}>
-            {"Artists: " + currentTrack.artists.map(artist => artist.name).join(', ')}
+            {"Artists: " + trackData(currentTrack, "creator")}
           </p>
         </div>
       );
       case "episode": return (
         <div>
-          <p style={headerTextStyle}>{currentTrack.name}</p>
-          <p style={textStyle}>{"Released " + formatDate(currentTrack.release_date)}</p>
+          <p style={headerTextStyle}>{trackData(currentTrack, "name")}</p>
+          <p style={textStyle}>{"Released " + trackData(currentTrack, "release_date")}</p>
           <p style={headerTextStyle}>Description</p>
-          <p style={textStyle}>{currentTrack.description}</p>
+          <p style={textStyle}>{trackData(currentTrack, "description")}</p>
         </div>
       );
     }
@@ -263,7 +292,7 @@ function Playback() {
           <img style={expandedAlbumArtStyle} src={albumArt}></img>
           <button onClick={() => syncPlayer()} style={{...buttonStyle, position: "absolute", bottom: "10px", right: "10px", width: "60px"}}>Sync</button>
           <p style={{...textStyle, fontSize: textSizes.header3}}>{currentTrack ? currentTrack.name : ""}</p>
-          <p style={textStyle}>{currentTrack ? currentTrack.artists.map(artist => artist.name).join(', ') : ""}</p>
+          <p style={textStyle}>{trackData(currentTrack, "creator")}</p>
           <select 
             value={currentDevice} 
             onChange={(e) => {changeDevice(e.target.value); console.log(e.target.value);}}
@@ -357,14 +386,14 @@ function Playback() {
         <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
         <img id="albumArt" style={{...songPlayerButtonStyle, left:"360px"}} src={albumArt} onClick={() => {setExpanded(true); syncPlayer();}}></img>
         <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", left:"420px", margin: "10px", top: "0px"}}>{
-          currentTrack ? currentTrack.name : ""}</p>
+          trackData(currentTrack, "name")}</p>
         <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", left:"420px", margin: "10px", bottom: "0px"}}>{
-          currentTrack ? currentTrack.artists.map(artist => artist.name).join(', ') : ""}</p>
+          trackData(currentTrack, "creator")}</p>
       </div>
       <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px"}} src={images.expandButton} onClick={() => {setExpanded(true)}} alt="Expand"></img>
     </div>
   );
-}
+  }
 }
 
 export default Playback;
