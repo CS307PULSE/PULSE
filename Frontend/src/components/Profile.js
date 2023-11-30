@@ -198,6 +198,7 @@ function Profile({ testParameter }) {
       dispatch({ type: "UPDATE_BACKGROUND_IMAGE", payload: retrievedTheme[5] });
     }
     setThemeEditsMade(false);
+    console.log(state.savedThemes);
   }
   useEffect(() => {
     retrieveTheme(selectedThemeIndex);

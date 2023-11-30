@@ -20,6 +20,8 @@ const ArtistExplorer = () => {
   const [searchString, setSearchString] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
+  const [artistTopSongs, setArtistTopSongs] = useState([]);
+
   useEffect(() => {
     setCurrentArtist(searchResults[selectedArtistIndex]);
   }, [selectedArtistIndex]);

@@ -1270,6 +1270,7 @@ def get_saved_themes():
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
+            print(response_data)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410

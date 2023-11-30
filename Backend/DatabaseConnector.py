@@ -264,13 +264,13 @@ class DatabaseConnector(object):
             if packed_str[i] == ' ':
                 count +=1
         row = 0
-        if count == 4:
+        if count == 5:
             row = 1
         elif count == 0:
             return []
         else:
-            row = int(1 + (count - 4) / 5)
-        return string_to_array_row_by_col(self.resultset[0], row, 5, False)
+            row = int(1 + (count - 5) / 6)
+        return string_to_array_row_by_col(self.resultset[0], row, 6, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
