@@ -1005,11 +1005,11 @@ def get_text_size():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/api/profile/set_details', methods=['POST'])
+@app.route('/api/profile/set_user_info', methods=['POST'])
 def set_profile():
     if 'user' in session:
         data = request.get_json()
-        display_name = data.get('username')
+        display_name = data.get('display_name')
         gender = data.get('gender').capitalize()
         location = data.get('location').title()
         icon = data.get('icon')
@@ -1081,7 +1081,7 @@ def set_profile():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/profile/get_details', methods=['GET'])
+@app.route('/api/profile/get_user_info', methods=['GET'])
 def get_profile():
     if 'user' in session:
         user_data = session['user']
@@ -1175,7 +1175,6 @@ def get_saved_themes():
         user = User.from_json(user_data)
         with DatabaseConnector(db_config) as conn:
             response_data = conn.get_saved_themes_from_user_DB(user.spotify_id)
-            print(response_data)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
@@ -1676,6 +1675,9 @@ def get_friends():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1702,6 +1704,9 @@ def get_requests():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -2678,7 +2683,7 @@ def follow_artist():
         artist_id = data.get('artist_id')
         try:
             refresh_token(user)
-            user.spotify_user.user_follow_artists(artist_id)
+            user.spotify_user.user_follow_artists([artist_id])
             user.update_followed_artists()
             response_data = user.stats.followed_artists
         except Exception as e:
@@ -2720,7 +2725,7 @@ def unfollow_artist():
         artist_id = data.get('artist_id')
         try:
             refresh_token(user)
-            user.spotify_user.user_unfollow_artists(artist_id)
+            user.spotify_user.user_unfollow_artists([artist_id])
             user.update_followed_artists()
             response_data = user.stats.followed_artists
         except Exception as e:

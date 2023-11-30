@@ -89,6 +89,9 @@ const FriendRequests = () => {
                 name={friend.name}
                 photoFilename={friend.photoUri}
                 favoriteSong={friend.favoriteSong}
+                status={friend.status}
+                publicColorText={friend.textColor}
+                publicColorBackground={friend.backgroundColor}
               />
               <div class = "center">
                 <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => friendRequestChoice(friend.spotify_id, false).then(data => setRequestsData(data))}>

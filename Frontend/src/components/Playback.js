@@ -7,6 +7,7 @@ import ItemList from "./ItemList";
 import { hexToRGBA } from "../theme/Colors";
 import { getImage } from "./ItemList";
 import { formatDate } from "../theme/Format";
+import { parameterInfo } from "../theme/Emotions";
 
 export async function playItem(item, syncFunction = () => {}) {
   if (!item) { return; }
@@ -20,8 +21,6 @@ export async function playItem(item, syncFunction = () => {}) {
     default: return null;
   }})();
   if (!route) { return; }
-  console.log(item);
-  console.log(route);
   const axiosInstance = axios.create({withCredentials: true});
   const response = await axiosInstance.post(route, {spotify_uri: item.uri});
   syncFunction();
@@ -66,7 +65,7 @@ export function trackData(track, field) {
   }
 }
 
-function Playback() {
+function Playback({syncTrigger = null}) {
   
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
@@ -75,11 +74,13 @@ function Playback() {
   const [playState, setPlayState] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("queue");
+  const [syncing, setSyncing] = useState(false);
   
   const [currentTrack, setCurrentTrack] = useState(null);
   const [albumArt, setAlbumArt] = useState("");
   const [devices, setDevices] = useState(null);
   const [currentDevice, setCurrentDevice] = useState();
+  const [songParameters, setSongParameters] = useState();
 
   const [queueData, setQueueData] = useState([]);
   const [searchQueryType, setSearchQueryType] = useState("track");
@@ -100,13 +101,13 @@ function Playback() {
   async function toggleShuffle() {
     await axios.get("/api/player/shuffle", { withCredentials: true });
   }
-  async function togglePlay() {
-    var action = playState;
-    setPlayState(!playState);
+  async function togglePlayPause() {
+    var action = !playState;
+    setPlayState(action);
     if (action) { //Play and pause
-      await axios.get("/api/player/pause", { withCredentials: true });
-    } else {
       await axios.get("/api/player/play", { withCredentials: true });
+    } else {
+      await axios.get("/api/player/pause", { withCredentials: true });
     }
     syncPlayer();
   }
@@ -119,9 +120,11 @@ function Playback() {
     return data;
   }
   async function syncPlayer() {
+    setSyncing(true);
     const axiosInstance = axios.create({withCredentials: true});
     var response = await axiosInstance.get("/api/player/sync_player");
     var data = response.data;
+    setSyncing(false);
     if (data == "failed") {
       setPlayState(false);
     } else {
@@ -137,8 +140,9 @@ function Playback() {
     }
   }
   useEffect(() => {
+    console.log(syncTrigger);
     syncPlayer();
-  }, []);
+  }, [expanded, syncTrigger]);
   async function getSearchResults(query, type) {
     setSearchResults("loading");
     var data = await searchSpotify(query, type);
@@ -146,12 +150,47 @@ function Playback() {
   }
   async function changeDevice(newDeviceID) {
     setCurrentDevice(newDeviceID);
-    console.log(newDeviceID);
     const axiosInstance = axios.create({withCredentials: true});
     const response = await axiosInstance.post("/api/player/change_device", {uri: newDeviceID});
     const data = response.data;
     syncPlayer();
     return data;
+  }
+  async function getSongParameters(song) {
+    if (!song) { return; }
+    const axiosInstance = axios.create({withCredentials: true});
+    const response = await axiosInstance.post("/api/info/get_song_dict", {song_uri: song.uri});
+    const data = response.data[0];
+    const newParameters = [
+        Math.round(data.target_energy * 100) / 100,
+        song.popularity,
+        Math.round(data.target_acousticness * 100) / 100,
+        Math.round(data.target_danceability * 100) / 100,
+        Math.round((data.target_duration_ms / 60000) * 100) / 100,
+        Math.round(data.target_instrumentalness * 100) / 100,
+        Math.round(data.target_liveness * 100) / 100,
+        Math.round(data.target_loudness * 100) / 100,
+        data.target_mode,
+        Math.round(data.target_speechiness * 100) / 100,
+        Math.round(data.target_tempo),
+        Math.round(data.target_valence * 100) / 100
+    ]
+    setSongParameters(newParameters);
+  }
+  useEffect(() => {
+    getSongParameters(currentTrack);
+  }, [currentTrack]);
+  function renderPlayerButtons() {
+    return (<div>
+      <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
+      <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} src={playState ? images.pauseButton : images.playButton} 
+        onClick={() => togglePlayPause()} alt="Play Song"
+      ></img>
+      <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => {nextSong()}} alt="Next Song"></img>
+      <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
+      <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
+      <input style={volumeSliderStyle} type="range" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>    
+    </div>);
   }
   function renderInfo(currentTrack) {
     if (!currentTrack) {
@@ -161,14 +200,25 @@ function Playback() {
       case "track": return (
         <div>
           <p style={headerTextStyle}>{trackData(currentTrack, "name")}</p>
-          <a style={headerTextStyle} 
+          {/* <a style={headerTextStyle} 
             href={currentTrack.album.external_urls.spotify} target="_blank">
-            {"Album: " + currentTrack.album.name}</a>
+            {"Album: " + currentTrack.album.name}</a> */}
+          <p style={{...headerTextStyle, cursor:"pointer"}} onClick={() => playItem(currentTrack.album, syncPlayer)}>
+            {"Album: " + currentTrack.album.name}</p>
           <p style={textStyle}>{"Released " + trackData(currentTrack, "release_date")}</p>
           <p style={textStyle}>{currentTrack.album.total_tracks + " Tracks"}</p>
-          <p style={headerTextStyle}>
+          <p style={{...headerTextStyle, cursor:"pointer"}} onClick={() => playItem(currentTrack.artists[0], syncPlayer)}>
             {"Artists: " + trackData(currentTrack, "creator")}
           </p>
+          <p style={headerTextStyle}>Song Parameters</p>
+          {songParameters && parameterInfo.map((item, index) => (
+            <div style={sliderRowStyle} key={index}>
+              <span style={{...sliderTextStyle, textAlign: "right", width: "140px"}}>{item.name}</span>
+              <input readOnly style={sliderStyle} type="range" min={item.min} max={item.max} step={item.step}
+                value={songParameters[index]}></input>
+              <span style={{...sliderTextStyle, textAlign: "left", width: "40px"}}>{songParameters[index]}</span>
+            </div>
+          ))}
         </div>
       );
       case "episode": return (
@@ -212,7 +262,7 @@ function Playback() {
     cursor: 'pointer'
   };
   const volumeSliderStyle = {
-    width: "10%",
+    width: "160px",
     height: "40px",
     margin: "10px auto",
     position: "absolute",
@@ -282,6 +332,25 @@ function Playback() {
     height: "60%",
     borderRadius: "10px"
   };
+  const sliderStyle = {
+    width: "calc(100% - 200px)",
+    height: "10px",
+    appearance: "none",
+    background: state.colorBackground,
+    outline: "none", 
+    border: "none",
+    borderRadius: "0px"
+}
+const sliderTextStyle = {
+    display: "inline-block",
+    margin: "10px",
+    color: state.colorText
+}
+const sliderRowStyle = {
+    height: "30px",
+    display: "flex",
+    alignItems: "center",
+}
   
   if (expanded) { return (
     <div style={expandedPlayerStyle}>
@@ -307,49 +376,49 @@ function Playback() {
         </div>
       </div>
       <div style={{width:"34%"}}> {/* Column 2 */}
-          {(() => {
-            switch (mode) {
-              case "queue":
-                return (
-                  <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
-                    <p style={headerTextStyle}>Queue</p>
-                    <img onClick={() => {setMode("queue"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
-                    <img onClick={() => {setMode("search"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
-                    <ItemList data={queueData} onClick={(index) => {playItem(queueData[index], syncPlayer);}}/>
+        {(() => {
+          switch (mode) {
+            case "queue":
+              return (
+                <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
+                  <p style={headerTextStyle}>Queue</p>
+                  <img onClick={() => {setMode("queue"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
+                  <img onClick={() => {setMode("search"); syncPlayer();}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
+                  <ItemList data={queueData} onClick={(index) => {playItem(queueData[index], syncPlayer);}}/>
+                </div>
+              );
+            case "search":
+              return (
+                <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
+                  <p style={headerTextStyle}>Add Songs</p>
+                  <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
+                  <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
+                  <select 
+                    value={searchQueryType}
+                    onChange={(e) => {setSearchQueryType(e.target.value); getSearchResults(searchString, e.target.value);}}
+                    style={{...buttonStyle, width: "max(calc(100% - 270px), 60px)", position: "absolute", top: "10px", right: "130px"}}
+                  >
+                    <option key={0} value="track">Songs</option>
+                    <option key={1} value="artist">Artists</option>
+                    <option key={2} value="album">Albums</option>
+                    <option key={3} value="playlist">Playlists</option>
+                    <option key={4} value="episode">Episodes</option>
+                    <option key={5} value="show">Shows</option>
+                  </select>
+                  <div style={buttonContainerStyle}>
+                    <input type="text" style={buttonStyle} value={searchString}
+                      onChange={e => {setSearchString(e.target.value)}}
+                      onKeyDown={(e) => {if (e.key == 'Enter') {getSearchResults(searchString, searchQueryType)}}}></input>
+                    <button style={{...buttonStyle, width: "30%"}} onClick={() => {getSearchResults(searchString, searchQueryType)}}>Search</button>
                   </div>
-                );
-              case "search":
-                return (
-                  <div style={{...sectionContainerStyle, overflowY: "scroll"}}>
-                    <p style={headerTextStyle}>Add Songs</p>
-                    <img onClick={() => {setMode("queue")}} style={{height: "40px", position: "absolute", top: "20px", right: "70px"}} src={images.queueButton}></img>
-                    <img onClick={() => {setMode("search")}} style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}></img>
-                    <select 
-                      value={searchQueryType}
-                      onChange={(e) => {setSearchQueryType(e.target.value); getSearchResults(searchString, e.target.value);}}
-                      style={{...buttonStyle, width: "max(calc(100% - 270px), 60px)", position: "absolute", top: "10px", right: "130px"}}
-                    >
-                      <option key={0} value="track">Songs</option>
-                      <option key={1} value="artist">Artists</option>
-                      <option key={2} value="album">Albums</option>
-                      <option key={3} value="playlist">Playlists</option>
-                      <option key={4} value="episode">Episodes</option>
-                      <option key={5} value="show">Shows</option>
-                    </select>
-                    <div style={buttonContainerStyle}>
-                      <input type="text" style={buttonStyle} value={searchString}
-                        onChange={e => {setSearchString(e.target.value)}}
-                        onKeyDown={(e) => {if (e.key == 'Enter') {getSearchResults(searchString, searchQueryType)}}}></input>
-                      <button style={{...buttonStyle, width: "30%"}} onClick={() => {getSearchResults(searchString, searchQueryType)}}>Search</button>
-                    </div>
-                    <ItemList
-                    type="song" data={searchResults} onClick={(index) => playItem(searchResults[index], syncPlayer)}
-                    buttons={(searchQueryType == "track" || searchQueryType == "episode") ? 
-                      [{width: "40px", value: "+", size: "30px", onClick: (item) => queueItem(item, syncPlayer)}] : []}/>
-                  </div>
-                );
-            }
-          })()}
+                  <ItemList
+                  type="song" data={searchResults} onClick={(index) => playItem(searchResults[index], syncPlayer)}
+                  buttons={(searchQueryType == "track" || searchQueryType == "episode") ? 
+                    [{width: "40px", value: "+", size: "30px", onClick: (item) => queueItem(item, syncPlayer)}] : []}/>
+                </div>
+              );
+          }
+        })()}
       </div>
       <div style={{width:"32%"}}> {/* Column 3 */}
         <div style={sectionContainerStyle}>
@@ -358,39 +427,27 @@ function Playback() {
         </div>
       </div>
       <div style={songPlayerStyle}>
-        <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
-        <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} 
-          src={playState ? images.pauseButton : images.playButton} 
-          onClick={() => togglePlay()}
-          alt="Play Song"
-        ></img>
-        <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => nextSong()} alt="Next Song"></img>
-        <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => toggleRepeat(true)} alt="Repeat"></img>
-        <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => toggleShuffle(true)} alt="Shuffle"></img>
-        {/* <p style={{color: "black", fontSize: "20px", left: "360px", position: "fixed"}}>{playerStatus ? "Active Player" : "Inactive Player"}</p> */}
+        {renderPlayerButtons()}
+        <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", right:"300px", margin: "10px", bottom: "10px"}}>{
+          syncing ? "Syncing..." : ""}</p>
         <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
       </div> 
-      <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px", transform:"rotate(180deg)"}} src={images.expandButton} onClick={() => {setExpanded(false); syncPlayer();}} alt="Expand"></img>
+      <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px", transform:"rotate(180deg)"}} src={images.expandButton} onClick={() => setExpanded(false)} alt="Expand"></img>
     </div>
   );
   } else { return (
     <div>
       <div style={songPlayerStyle}>
-        <img id="prevButton" style={{...songPlayerButtonStyle, left:"20px"}} src={images.prevButton} onClick={() => {previousSong()}} alt="Previous Song"></img>
-        <img id="playButton" style={{...songPlayerButtonStyle, left:"80px"}} src={playState ? images.pauseButton : images.playButton} 
-          onClick={() => {setPlayState(!playState)}} alt="Play Song"
-        ></img>
-        <img id="nextButton" style={{...songPlayerButtonStyle, left:"140px"}} src={images.nextButton} onClick={() => {nextSong()}} alt="Next Song"></img>
-        <img id="repeatButton" style={{...songPlayerButtonStyle, left:"200px"}} src={images.repeatButton} onClick={() => {toggleRepeat(true)}} alt="Repeat"></img>
-        <img id="shuffleButton" style={{...songPlayerButtonStyle, left:"260px"}} src={images.shuffleButton} onClick={() => {toggleShuffle(true)}} alt="Shuffle"></img>
-        <input style={volumeSliderStyle} type="range" id="mySlider" min="0" max="100" value={volumeLevel} step="10" onChange={(e) => saveVolume(e.target.value)}></input>
-        <img id="albumArt" style={{...songPlayerButtonStyle, left:"360px"}} src={albumArt} onClick={() => {setExpanded(true); syncPlayer();}}></img>
+        {renderPlayerButtons()}
+        <img id="albumArt" style={{...songPlayerButtonStyle, left:"360px"}} src={albumArt} onClick={() => setExpanded(true)}></img>
         <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", left:"420px", margin: "10px", top: "0px"}}>{
           trackData(currentTrack, "name")}</p>
         <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", left:"420px", margin: "10px", bottom: "0px"}}>{
           trackData(currentTrack, "creator")}</p>
+        <p style={{color: pulseColors.black, fontSize: "16px", position: "absolute", width: "auto", right:"300px", margin: "10px", bottom: "10px"}}>{
+          syncing ? "Syncing..." : ""}</p>
       </div>
-      <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px"}} src={images.expandButton} onClick={() => {setExpanded(true)}} alt="Expand"></img>
+      <img id="expanderButton" style={{...songPlayerButtonStyle, right:"20px"}} src={images.expandButton} onClick={() => setExpanded(true)} alt="Expand"></img>
     </div>
   );
   }

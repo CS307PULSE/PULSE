@@ -14,31 +14,16 @@ const customBackgrounds = [
   "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/07/five-nights-at-freddys-lore-story-so-far.jpg",
 ];
 
-var storedUserFields;
-try {
-  storedUserFields = {
-    username: await getUserField("/api/profile/get_displayname"),
-    gender: await getUserField("/api/profile/get_gender"),
-    location: await getUserField("/api/profile/get_location"),
-    icon: await getUserField("/api/profile/get_image"),
-    favoriteSong: await getUserField("/api/profile/get_chosen_song"), 
-  };
-} catch (e) {
-  console.log("User info fetch failed: " + e);
-  storedUserFields = {
-    username: "undefined",
-    gender: "undefined",
-    location: "undefined",
-    icon: "undefined",
-  };
+async function getUserInfo() {
+  const response = await axios.get("/api/profile/get_user_info", { withCredentials: true });
+  const data = response.data;
+  return data;
 }
-async function getUserField(route) {
-  var response = await axios.get(route, { withCredentials: true });
-  return response.data;
-}
-async function saveUserField(route, payload) {
+var storedUserFields = await getUserInfo();
+
+async function setUserInfo(payload) {
   const axiosInstance = axios.create({ withCredentials: true });
-  const response = await axiosInstance.post(route, payload);
+  const response = await axiosInstance.post("/api/profile/set_user_info", payload);
   return response.data;
 }
 
@@ -46,14 +31,14 @@ function Profile({ testParameter }) {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-  const [imagePath, setImagePath] = useState(storedUserFields.icon);
-  const [username, setUsername] = useState(storedUserFields.username);
+  const [userIcon, setUserIcon] = useState(storedUserFields.icon);
+  const [displayName, setDisplayName] = useState(storedUserFields.display_name);
   const [gender, setGender] = useState(storedUserFields.gender);
   const [location, setLocation] = useState(storedUserFields.location);
-  const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favoriteSong);
-  const [status, setStatus] = useState("No Status"); //storedUserFields.status
-  const [publicColorText, setPublicColorText] = useState("#FFFFFF"); //storedUserFields.publicColor
-  const [publicColorBackground, setPublicColorBackground] = useState("#000000"); //storedUserFields.publicColor
+  const [favoriteSong, setFavoriteSong] = useState(storedUserFields.favorite_song);
+  const [status, setStatus] = useState(storedUserFields.status);
+  const [publicColorText, setPublicColorText] = useState(storedUserFields.text_color);
+  const [publicColorBackground, setPublicColorBackground] = useState(storedUserFields.background_color);
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(-1);
   const [newThemeName, setNewThemeName] = useState("New Theme");
   const [themeEditsMade, setThemeEditsMade] = useState(false);
@@ -230,29 +215,27 @@ function Profile({ testParameter }) {
     setThemeEditsMade(false);
   }
 
-  async function saveUserInfo() {
-    const savePromises = [
-      saveUserField("/api/profile/set_displayname", { displayname: username }),
-      saveUserField("/api/profile/set_gender", { gender: gender }),
-      saveUserField("/api/profile/set_location", { location: location }),
-      saveUserField("/api/profile/set_image", { filepath: imagePath }),
-      saveUserField("/api/profile/set_chosen_song", { chosen_song: favoriteSong }),
-    ];
-    await Promise.all(savePromises);
+  async function saveUserProfile() {
+    const payload = {
+      display_name: displayName,
+      gender: gender,
+      location: location,
+      icon: userIcon,
+      favorite_song: favoriteSong,
+      status: status,
+      text_color: publicColorText,
+      background_color: publicColorBackground
+    }
+    await setUserInfo(payload);
     window.location.reload();
   }
   async function saveUserSettings() {
+    const axiosInstance = axios.create({ withCredentials: true });
     const savePromises = [
-      saveUserField("/api/profile/set_text_size", {
-        text_size: state.settingTextSize,
-      }),
-      saveUserField("/api/profile/set_background_image", {
-        background: state.backgroundImage,
-      }),
-      saveUserField("/api/profile/set_color_palette", {
-        color_palette: [getCurrentColorArray()],
-      }),
-      saveUserField("/api/profile/set_saved_themes", { themes: state.savedThemes }),
+      axiosInstance.post("/api/profile/set_text_size", {text_size: state.settingTextSize}),
+      axiosInstance.post("/api/profile/set_background_image", {background: state.backgroundImage}),
+      axiosInstance.post("/api/profile/set_color_palette", {color_palette: [getCurrentColorArray()]}),
+      axiosInstance.post("/api/profile/set_saved_themes", {themes: state.savedThemes})
     ];
     await Promise.all(savePromises);
     window.location.reload();
@@ -265,9 +248,9 @@ function Profile({ testParameter }) {
           <div>
           <div style={sectionContainerStyle}>
               <Friend
-                name={storedUserFields.username}
-                photoFilename={storedUserFields.icon}
-                favoriteSong={storedUserFields.favoriteSong}
+                name={displayName}
+                photoFilename={userIcon}
+                favoriteSong={favoriteSong}
                 status={status}
                 publicColorText={publicColorText}
                 publicColorBackground={publicColorBackground}
@@ -276,14 +259,14 @@ function Profile({ testParameter }) {
             <div style={sectionContainerStyle}>
               <p style={headerTextStyle}>Profile</p>
               <button style={{...buttonStyle, width:"calc(100% - 300px)", position:"absolute", top:"60px", right:"20px"}}
-                onClick={() => {saveUserInfo()}}>Save Profile</button>
+                onClick={() => {saveUserProfile()}}>Save Profile</button>
               <div style={textFieldContainerStyle}>
                 <label style={profileText}>Icon Link</label>
-                <input id="icon-url" type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
+                <input id="icon-url" type="text" style={textFieldStyle} value={userIcon} onChange={e => {setUserIcon(e.target.value)}}></input>
               </div>
               <div style={textFieldContainerStyle}>
-                <label style={profileText}>Username</label>
-                <input id="username" type="text" style={textFieldStyle} value={username} onChange={e => {setUsername(e.target.value)}}></input>
+                <label style={profileText}>Display Name</label>
+                <input id="display-name" type="text" style={textFieldStyle} value={displayName} onChange={e => {setDisplayName(e.target.value)}}></input>
               </div>
               <div style={textFieldContainerStyle}>
                 <label style={profileText}>Gender</label>
@@ -354,7 +337,7 @@ function Profile({ testParameter }) {
                 </select>
               </div>
               <div style={buttonContainerStyle}>
-                <button onClick={() => {updateTheme(selectedThemeIndex)}} style={buttonStyle}><p>{"Update Theme" + (themeEditsMade ? "*" : "")}</p></button>
+                <button onClick={() => {updateTheme(selectedThemeIndex)}} style={buttonStyle}><p>{"Update Theme" + ((themeEditsMade && selectedThemeIndex >= 0) ? "*" : "")}</p></button>
                 <button onClick={() => {createTheme()}} style={buttonStyle}><p>Create Theme</p></button>
                 <button onClick={() => {deleteTheme(selectedThemeIndex)}} style={buttonStyle}><p>Delete Theme</p></button>
               </div>
