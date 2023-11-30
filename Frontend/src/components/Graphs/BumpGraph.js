@@ -31,16 +31,20 @@ export const BumpGraph = (props) => {
         let dataTemp = [];
         props.data.forEach((arr, index_age) => {
           arr.forEach((item, index_top) => {
+            let y = index_top + 1;
+            if (y > 50) {
+              y = 50;
+            }
             const index = dataTemp.findIndex((obj) => obj.id === item.name);
             if (index === -1) {
               dataTemp.push({
                 id: item.name,
-                data: [{ x: indexToString(index_age), y: index_top }],
+                data: [{ x: indexToString(index_age), y: y }],
               });
             } else {
               dataTemp[index].data.push({
                 x: indexToString(index_age),
-                y: index_top,
+                y: y,
               });
             }
           });
@@ -138,6 +142,7 @@ export const BumpGraph = (props) => {
                 ]
               : undefined
           }
+          animate={false}
         />
       </div>
     );
