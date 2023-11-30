@@ -383,7 +383,6 @@ def statistics_short():
 
 @app.route('/api/statistics/update_followers')
 def update_followers():
-    return send_from_directory(app.static_folder, 'index.html')
     start_time = time.time()
     if 'user' in session:
         user_data = session['user']
@@ -2753,6 +2752,11 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
+        error_message = "The page does not exist! Please try going back to the homepage!"
+        error_code = 430
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+        #return send_from_directory(app.static_folder, 'index.html')
         return send_from_directory(app.static_folder, 'index.html')
 
 def send_feedback_email(feedback):
@@ -2815,9 +2819,6 @@ def update_data(user,
             if (retries > max_retries):
                 raise Exception
             return update_data(user, retries=retries+1), 200, {'Reason-Phrase': 'OK'}
-
-
-
 
 def get_user_seed_tracks(user):
     # Two seed tracks from past month and three from recent history
