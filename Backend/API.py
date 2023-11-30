@@ -118,7 +118,7 @@ def index():
 @app.route('/boot')
 def boot():
     user_id = request.cookies.get('user_id_cookie')
-    if (user_id):
+    if user_id:
         user_exists = False
         with DatabaseConnector(db_config) as conn:
             user_exists = conn.does_user_exist_in_user_DB(user_id)
@@ -217,9 +217,13 @@ def callback():
         return resp , 302, {'Reason-Phrase': 'OK'}
 
     else:
-        return 'Login failed. Please try again.' , 200, {'Reason-Phrase': 'OK'}
+        error_message = 'Login failed. Please try logging in again.'
+        error_code = 425
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/statistics')
+@app.route('/api/statistics')
 def statistics():
     start_time = time.time()
     if 'user' in session:
@@ -277,7 +281,7 @@ def statistics():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
-@app.route('/statistics/friend', methods=['POST'])
+@app.route('/api/statistics/friend', methods=['POST'])
 def friend_statistics():
     start_time = time.time()
     data = request.get_json()
@@ -332,7 +336,7 @@ def friend_statistics():
     print(f"Execution time: {execution_time} seconds")
     return jsonify(data), 200, {'Reason-Phrase': 'OK'}
     
-@app.route('/statistics/short')
+@app.route('/api/statistics/short')
 def statistics_short():
     start_time = time.time()
     if 'user' in session:
@@ -377,7 +381,7 @@ def statistics_short():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/statistics/update_followers')
+@app.route('/api/statistics/update_followers')
 def update_followers():
     start_time = time.time()
     if 'user' in session:
@@ -417,7 +421,7 @@ def update_followers():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/statistics/get_saved_playlists')
+@app.route('/api/statistics/get_saved_playlists')
 def get_saved_playlists():
     if 'user' in session:
         user_data = session['user']
@@ -451,7 +455,7 @@ def get_saved_playlists():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/statistics/get_friends_recent_songs', methods=['POST'])
+@app.route('/api/statistics/get_friends_recent_songs', methods=['POST'])
 def get_friends_recent_songs():
     data = request.get_json()
     friend_ids = data.get('friend_ids')
@@ -483,7 +487,7 @@ def get_friends_recent_songs():
             return "error", 200, {'Reason-Phrase': 'OK'}
     return jsonify(friend_songs), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/statistics/set_layout', methods=['POST'])
+@app.route('/api/statistics/set_layout', methods=['POST'])
 def set_layout():
     data = request.get_json()
     layout = data.get('layout')
@@ -500,7 +504,7 @@ def set_layout():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/search_bar', methods=['POST'])
+@app.route('/api/search_bar', methods=['POST'])
 def search_bar():
     data = request.get_json()
     query = data.get('query')
@@ -518,7 +522,7 @@ def search_bar():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/games/playback', methods=['POST'])
+@app.route('/api/games/playback', methods=['POST'])
 def playback():
     data = request.get_json()
     filter_search = data.get('artist')
@@ -559,14 +563,14 @@ def playback():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/games/random_friend', methods=['POST'])
+@app.route('/api/games/random_friend', methods=['POST'])
 def random_friend():
     data = request.get_json()
     id_dict = data.get('friend_songs')
     random_id = random.choice(list(id_dict.keys()))
     return jsonify(random_id), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/games/playback_friends', methods=['POST'])
+@app.route('/api/games/playback_friends', methods=['POST'])
 def playback_friends():
     data = request.get_json()
     f_songs = data.get('songs')
@@ -592,7 +596,7 @@ def playback_friends():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/games/store_scores', methods=['POST'])
+@app.route('/api/games/store_scores', methods=['POST'])
 def store_scores():
     data = request.get_json()
     game_code = data.get('gameCode')
@@ -619,7 +623,7 @@ def store_scores():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
-@app.route('/games/get_scores')
+@app.route('/api/games/get_scores')
 def get_scores():
     if 'user' in session:
         user_data = session['user']
@@ -640,7 +644,7 @@ def get_scores():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
-@app.route('/games/get_settings')
+@app.route('/api/games/get_settings')
 def get_settings():
     if 'user' in session:
         user_data = session['user']
@@ -658,7 +662,7 @@ def get_settings():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/games/set_settings', methods=['POST'])
+@app.route('/api/games/set_settings', methods=['POST'])
 def set_settings():
     data = request.get_json()
     game_code = data.get('gameCode')
@@ -683,7 +687,7 @@ def set_settings():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/player/play')
+@app.route('/api/player/play')
 def play():
     if 'user' in session:
         user_data = session['user']
@@ -704,7 +708,7 @@ def play():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/pause')
+@app.route('/api/player/pause')
 def pause():
     if 'user' in session:
         user_data = session['user']
@@ -725,7 +729,7 @@ def pause():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/skip')
+@app.route('/api/player/skip')
 def skip():
     if 'user' in session:
         user_data = session['user']
@@ -746,7 +750,7 @@ def skip():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/prev')
+@app.route('/api/player/prev')
 def prev():
     if 'user' in session:
         user_data = session['user']
@@ -766,7 +770,7 @@ def prev():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/shuffle')
+@app.route('/api/player/shuffle')
 def shuffle():
     if 'user' in session:
         user_data = session['user']
@@ -786,7 +790,7 @@ def shuffle():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/repeat')
+@app.route('/api/player/repeat')
 def repeat():
     if 'user' in session:
         user_data = session['user']
@@ -806,7 +810,7 @@ def repeat():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/volume', methods=['POST'])
+@app.route('/api/player/volume', methods=['POST'])
 def volume_change():
     if 'user' in session:
         data = request.get_json()
@@ -828,7 +832,7 @@ def volume_change():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/play_playlist', methods=['POST'])
+@app.route('/api/player/play_playlist', methods=['POST'])
 def play_playlist():
     if 'user' in session:
         data = request.get_json()
@@ -850,7 +854,7 @@ def play_playlist():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/play_artist', methods=['POST'])
+@app.route('/api/player/play_artist', methods=['POST'])
 def play_artist():
     if 'user' in session:
         data = request.get_json()
@@ -872,7 +876,7 @@ def play_artist():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/play_album', methods=['POST'])
+@app.route('/api/player/play_album', methods=['POST'])
 def play_album():
     if 'user' in session:
         data = request.get_json()
@@ -894,7 +898,7 @@ def play_album():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/player/play_song', methods=['POST'])
+@app.route('/api/player/play_song', methods=['POST'])
 def play_song():
     data = request.get_json()
     song_uri = data.get('spotify_uri')
@@ -939,7 +943,7 @@ def songrec():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_theme', methods=['POST'])
+@app.route('/api/profile/set_theme', methods=['POST'])
 def set_theme():
     data = request.get_json()
     theme = data.get('theme')
@@ -956,7 +960,7 @@ def set_theme():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/profile/get_theme')
+@app.route('/api/profile/get_theme')
 def get_theme():
     if 'user' in session:
         user_data = session['user']
@@ -970,7 +974,7 @@ def get_theme():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/profile/set_text_size', methods=['POST'])
+@app.route('/api/profile/set_text_size', methods=['POST'])
 def set_text_size():
     data = request.get_json()
     text_size = data.get('text_size')
@@ -987,7 +991,7 @@ def set_text_size():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/profile/get_text_size')
+@app.route('/api/profile/get_text_size')
 def get_text_size():
     if 'user' in session:
         user_data = session['user']
@@ -1001,7 +1005,7 @@ def get_text_size():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/profile/set_image', methods=['POST'])
+@app.route('/api/profile/set_image', methods=['POST'])
 def set_image():
     if 'user' in session:
         data = request.get_json()
@@ -1024,7 +1028,7 @@ def set_image():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_image', methods=['GET'])
+@app.route('/api/profile/get_image', methods=['GET'])
 def get_image():
     if 'user' in session:
         user_data = session['user']
@@ -1039,7 +1043,7 @@ def get_image():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_displayname', methods=['POST'])
+@app.route('/api/profile/set_displayname', methods=['POST'])
 def set_displayname():
     if 'user' in session:
         data = request.get_json()
@@ -1065,7 +1069,7 @@ def set_displayname():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_displayname', methods=['GET'])
+@app.route('/api/profile/get_displayname', methods=['GET'])
 def get_displayname():
     if 'user' in session:
         user_data = session['user']
@@ -1076,7 +1080,7 @@ def get_displayname():
         response_data = 'User session not found. Please log in again.', 200, {'Reason-Phrase': 'OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_gender', methods=['POST'])
+@app.route('/api/profile/set_gender', methods=['POST'])
 def set_gender():
     if 'user' in session:
         data = request.get_json()
@@ -1099,7 +1103,7 @@ def set_gender():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_gender', methods=['GET'])
+@app.route('/api/profile/get_gender', methods=['GET'])
 def get_gender():
     if 'user' in session:
         user_data = session['user']
@@ -1114,7 +1118,7 @@ def get_gender():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_chosen_song', methods=['POST'])
+@app.route('/api/profile/set_chosen_song', methods=['POST'])
 def set_chosen_song():
     if 'user' in session:
         data = request.get_json()
@@ -1140,7 +1144,7 @@ def set_chosen_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_chosen_song', methods=['GET'])
+@app.route('/api/profile/get_chosen_song', methods=['GET'])
 def get_chosen_song():
     if 'user' in session:
         user_data = session['user']
@@ -1155,7 +1159,7 @@ def get_chosen_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_location', methods=['POST'])
+@app.route('/api/profile/set_location', methods=['POST'])
 def set_location():
     if 'user' in session:
         data = request.get_json()
@@ -1181,7 +1185,7 @@ def set_location():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_location', methods=['GET'])
+@app.route('/api/profile/get_location', methods=['GET'])
 def get_location():
     if 'user' in session:
         user_data = session['user']
@@ -1196,7 +1200,7 @@ def get_location():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_background_image', methods=['POST'])
+@app.route('/api/profile/set_background_image', methods=['POST'])
 def set_background_image():
     if 'user' in session:
         data = request.get_json()
@@ -1219,7 +1223,7 @@ def set_background_image():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_background_image')
+@app.route('/api/profile/get_background_image')
 def get_background_image():
     if 'user' in session:
         user_data = session['user']
@@ -1234,7 +1238,7 @@ def get_background_image():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_saved_themes', methods=['POST'])
+@app.route('/api/profile/set_saved_themes', methods=['POST'])
 def set_saved_themes():
     if 'user' in session:
         data = request.get_json()
@@ -1259,7 +1263,7 @@ def set_saved_themes():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_saved_themes')
+@app.route('/api/profile/get_saved_themes')
 def get_saved_themes():
     if 'user' in session:
         user_data = session['user']
@@ -1274,7 +1278,7 @@ def get_saved_themes():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/set_color_palette', methods=['POST'])
+@app.route('/api/profile/set_color_palette', methods=['POST'])
 def set_color_palette():
     if 'user' in session:
         data = request.get_json()
@@ -1297,7 +1301,7 @@ def set_color_palette():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/profile/get_color_palette', methods=['GET'])
+@app.route('/api/profile/get_color_palette', methods=['GET'])
 def get_color_palette():
     if 'user' in session:
         user_data = session['user']
@@ -1308,7 +1312,7 @@ def get_color_palette():
         response_data = 'User session not found. Please log in again.'
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/advanced_data_check')
+@app.route('/api/advanced_data_check')
 def advanced_data_check():
     if 'user' in session:
         user_data = session['user']
@@ -1323,7 +1327,7 @@ def advanced_data_check():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/import_advanced_stats', methods=['POST'])
+@app.route('/api/import_advanced_stats', methods=['POST'])
 def import_advanced_stats():
     start_time = datetime.now()
     if 'user' in session:
@@ -1403,7 +1407,7 @@ def import_advanced_stats():
     print(response_data)
     return jsonify(has_error_in_file), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/get_advanced_stats')
+@app.route('/api/get_advanced_stats')
 def get_advanced_stats():
     if 'user' in session:
         user_data = session['user']
@@ -1431,7 +1435,7 @@ def get_advanced_stats():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/friend_get_advanced_stats', methods=['POST'])
+@app.route('/api/friend_get_advanced_stats', methods=['POST'])
 def friend_get_advanced_stats():
     if 'user' in session:
         user_data = session['user']
@@ -1448,11 +1452,13 @@ def friend_get_advanced_stats():
                 error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
                 return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         
+        '''
         emotions = get_emotions(user, response_data["Tracks"])
         if emotions is None:
             response_data["Emotions"] = {}
         else:
             response_data["Emotions"] = emotions
+        '''
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
@@ -1486,7 +1492,7 @@ def get_emotions(user, tracks):
 
     return emotions, 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/store_advanced_stats')
+@app.route('/api/store_advanced_stats')
 def store_advanced_stats():
     current_dir = os.path.dirname(os.getcwd())
     id = "0ajzwwwmv2hwa3k1bj2z19obr"
@@ -1502,7 +1508,7 @@ def store_advanced_stats():
             return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Stored!", 200, {'Reason-Phrase': 'OK'}
 """
-@app.route('/advanced_stats_test')
+@app.route('/api/advanced_stats_test')
 def api_advanced_stats_test():
     if 'user' in session:
         with DatabaseConnector(db_config) as conn:
@@ -1634,7 +1640,7 @@ def api_advanced_stats_test():
         return 'User session not found. Please log in again.'
 """
 
-@app.route('/friends/friend_request', methods=['POST'])
+@app.route('/api/friends/friend_request', methods=['POST'])
 def friend_requests():
     if 'user' in session:
         user_data = session['user']
@@ -1658,7 +1664,7 @@ def friend_requests():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "added request", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/friends/remove_friend', methods=['POST'])
+@app.route('/api/friends/remove_friend', methods=['POST'])
 def remove_friend():
     if 'user' in session:
         user_data = session['user']
@@ -1688,7 +1694,7 @@ def remove_friend():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/friends/friend_request_choice', methods=['POST'])
+@app.route('/api/friends/friend_request_choice', methods=['POST'])
 def request_choice():
     if 'user' in session:
         user_data = session['user']
@@ -1724,7 +1730,7 @@ def request_choice():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/friends/add_friends_search', methods=['POST'])
+@app.route('/api/friends/add_friends_search', methods=['POST'])
 def friend_request_search():
     if 'user' in session:
         data = request.get_json()
@@ -1750,7 +1756,7 @@ def friend_request_search():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/friends/get_friends', methods=['GET'])
+@app.route('/api/friends/get_friends', methods=['GET'])
 def get_friends():
     if 'user' in session:
         user_data = session['user']
@@ -1776,7 +1782,7 @@ def get_friends():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/friends/get_requests', methods=['GET'])
+@app.route('/api/friends/get_requests', methods=['GET'])
 def get_requests():
     if 'user' in session:
         user_data = session['user']
@@ -1802,7 +1808,7 @@ def get_requests():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/add_song', methods=['POST'])
+@app.route('/api/playlist/add_song', methods=['POST'])
 def playlist_add_song():
     if 'user' in session:
         song = []
@@ -1821,7 +1827,7 @@ def playlist_add_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Added track!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/get_recs', methods=['POST'])
+@app.route('/api/playlist/get_recs', methods=['POST'])
 def get_playlist_recs():
     if 'user' in session:
         user_data = session['user']
@@ -1839,7 +1845,7 @@ def get_playlist_recs():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(song_array), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/stats/emotion_percent', methods=['POST'])
+@app.route('/api/stats/emotion_percent', methods=['POST'])
 def emotion_percent():
     if 'user' in session:
         user_data = session['user']
@@ -1872,7 +1878,7 @@ def emotion_percent():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/playlist/create', methods=['POST'])
+@app.route('/api/playlist/create', methods=['POST'])
 def playlist_create():
     if 'user' in session:
         user_data = session['user']
@@ -1895,7 +1901,7 @@ def playlist_create():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Created playlist!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/get_tracks', methods = ['POST'])
+@app.route('/api/playlist/get_tracks', methods = ['POST'])
 def playlist_get_tracks():
     if 'user' in session:
         user_data = session['user']
@@ -1912,7 +1918,7 @@ def playlist_get_tracks():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/add_track', methods=['POST'])
+@app.route('/api/playlist/add_track', methods=['POST'])
 def playlist_add_track():
     if 'user' in session:
         song = []
@@ -1931,7 +1937,7 @@ def playlist_add_track():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Added track!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/remove_track', methods=['POST'])
+@app.route('/api/playlist/remove_track', methods=['POST'])
 def playlist_remove_track():
     if 'user' in session:
         user_data = session['user']
@@ -1949,7 +1955,7 @@ def playlist_remove_track():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Removed track!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/change_image', methods=['POST'])
+@app.route('/api/playlist/change_image', methods=['POST'])
 def playlist_change_image():
     if 'user' in session:
         user_data = session['user']
@@ -1967,7 +1973,7 @@ def playlist_change_image():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Changed image!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/reorder_tracks', methods=['POST'])
+@app.route('/api/playlist/reorder_tracks', methods=['POST'])
 def playlist_reorder_tracks():
     if 'user' in session:
         user_data = session['user']
@@ -1984,7 +1990,7 @@ def playlist_reorder_tracks():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Reordered tracks!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/follow', methods=['POST'])
+@app.route('/api/playlist/follow', methods=['POST'])
 def playlist_follow():
     if 'user' in session:
         user_data = session['user']
@@ -2001,7 +2007,7 @@ def playlist_follow():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Playlist followed!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/playlist/unfollow', methods=['POST'])
+@app.route('/api/playlist/unfollow', methods=['POST'])
 def playlist_unfollow():
     if 'user' in session:
         user_data = session['user']
@@ -2018,7 +2024,7 @@ def playlist_unfollow():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "Playlist unfollowed!", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/chatbot/pull_songs', methods=['POST'])
+@app.route('/api/chatbot/pull_songs', methods=['POST'])
 def pull_songs():
     if 'user' in session:
         #return "gotHere"
@@ -2075,7 +2081,7 @@ def pull_songs():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return "successful completion", 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/recommendations/get_playlist_dict', methods=['POST'])
+@app.route('/api/recommendations/get_playlist_dict', methods=['POST'])
 def get_playlist_dict():
     if 'user' in session:
         user_data = session['user']
@@ -2092,7 +2098,7 @@ def get_playlist_dict():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(playlist_dict), 200, {'Reason-Phrase': 'OK'}
     
-@app.route('/recommendations/get_songs_from_dict', methods=['POST'])
+@app.route('/api/recommendations/get_songs_from_dict', methods=['POST'])
 def get_songs_dict():
     if 'user' in session:
         user_data = session['user']
@@ -2124,7 +2130,7 @@ def get_songs_dict():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(recommendations), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/emotions/get_emotions')
+@app.route('/api/emotions/get_emotions')
 def analyze_emotions():
     if 'user' in session:
         user_data = session['user']
@@ -2144,7 +2150,7 @@ def analyze_emotions():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(emotion), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/song_matcher/get_next_song')
+@app.route('/api/song_matcher/get_next_song')
 def get_next_song():
     if 'user' in session:
         user_data = session['user']
@@ -2237,7 +2243,7 @@ def get_next_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(song), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/song_matcher/swipe_left', methods=['POST'])
+@app.route('/api/song_matcher/swipe_left', methods=['POST'])
 def song_swipe_left():
     if 'user' in session:
         user_data = session['user']
@@ -2301,7 +2307,7 @@ def song_swipe_left():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/song_matcher/swipe_right', methods=['POST'])
+@app.route('/api/song_matcher/swipe_right', methods=['POST'])
 def song_swipe_right():
     if 'user' in session:
         user_data = session['user']
@@ -2365,7 +2371,7 @@ def song_swipe_right():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/song_matcher/view_swiped_songs')
+@app.route('/api/song_matcher/view_swiped_songs')
 def view_swiped_songs():
     if 'user' in session:
         user_data = session['user']
@@ -2383,7 +2389,7 @@ def view_swiped_songs():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(songs), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/song_matcher/remove_swiped_song', methods=['POST'])
+@app.route('/api/song_matcher/remove_swiped_song', methods=['POST'])
 def remove_swiped_song():
     if 'user' in session:
         user_data = session['user']
@@ -2417,7 +2423,7 @@ def remove_swiped_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/user_matcher/get_next_user')
+@app.route('/api/user_matcher/get_next_user')
 def get_next_user():
     if 'user' in session:
         user_data = session['user']
@@ -2456,7 +2462,7 @@ def get_next_user():
 
         # We get the First User in the Queue
         first_user = queue.pop()
-        user = first_user
+        match_user = first_user
         with DatabaseConnector(db_config) as conn:
             rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
         if rejected_users is None:
@@ -2464,9 +2470,9 @@ def get_next_user():
         user_expiration_length = 2 # If you reject a user, in two days you can be recommended it again
 
         # Attempt to get a User that Wasn't Recently Rejected by Current User
-        while user in rejected_users.keys():
+        while match_user in rejected_users.keys():
             current_timestamp = datetime.now()
-            previous_timestamp_str = rejected_users.get(user, datetime(2020, 1, 1).isoformat())
+            previous_timestamp_str = rejected_users.get(match_user, datetime(2020, 1, 1).isoformat())
             previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
             time_difference = current_timestamp - previous_timestamp
             is_user_expired = time_difference.days > user_expiration_length
@@ -2475,7 +2481,7 @@ def get_next_user():
                 rejected_users.pop(user)
 
             elif len(queue) > 0:
-                user = queue.pop()
+                match_user = queue.pop()
 
             else:
                 return {}
@@ -2503,9 +2509,9 @@ def get_next_user():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(user), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(match_user), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/user_matcher/swipe_left', methods=['POST'])
+@app.route('/api/user_matcher/swipe_left', methods=['POST'])
 def user_swipe_left():
     if 'user' in session:
         user_data = session['user']
@@ -2516,8 +2522,8 @@ def user_swipe_left():
         with DatabaseConnector(db_config) as conn:
             rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
             if rejected_users is None:
-                rejected_users = []
-            rejected_users.append(rejected_user)
+                rejected_users = {}
+            rejected_users[rejected_user] = datetime.now().isoformat()
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_rejected_users(user.spotify_id, rejected_users) == -1):
@@ -2537,7 +2543,7 @@ def user_swipe_left():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp)
 
-@app.route('/user_matcher/swipe_right', methods=['POST'])
+@app.route('/api/user_matcher/swipe_right', methods=['POST'])
 def user_swipe_right():
     if 'user' in session:
         user_data = session['user']
@@ -2569,7 +2575,7 @@ def user_swipe_right():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp)
 
-@app.route('/user_matcher/view_swiped_users')
+@app.route('/api/user_matcher/view_swiped_users')
 def view_swiped_users():
     if 'user' in session:
         user_data = session['user']
@@ -2577,7 +2583,7 @@ def view_swiped_users():
         refresh_token(user)
 
         with DatabaseConnector(db_config) as conn:
-            songs = conn.get_swiped_users_from_DB(user.spotify_id)
+            users = conn.get_swiped_users_from_DB(user.spotify_id)
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -2585,9 +2591,9 @@ def view_swiped_users():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(songs)
+    return jsonify(users)
 
-@app.route('/feedback', methods=['POST'])
+@app.route('/api/feedback', methods=['POST'])
 def feedback():
     data = request.get_json()
     feedback = data.get('feedback')

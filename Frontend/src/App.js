@@ -85,7 +85,7 @@ function App() {
           <Route path="/game/guess-the-lyric" element={<GuessTheLyric />} />
           <Route path="/game/guess-who-listens" element={<GuessWhoListens />} />
           <Route path="/game/heads-up" element={<HeadsUp />} />
-          <Route path="/StatisticsPage" element={<StatisticsPage />} />
+          <Route path="/statistics" element={<StatisticsPage />} />
           <Route path="/PulseBot" element={<ChatBot />} />
           <Route path="/games" element={<Games />} />
           <Route path="/explorer" element={<DJMixer />} />

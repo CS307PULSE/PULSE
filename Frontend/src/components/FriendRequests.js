@@ -9,7 +9,7 @@ import { useAppContext } from "./Context";
 
 var initialRequestsData;
 try {
-  var requestsResponse = await axios.get("/friends/get_requests", {
+  var requestsResponse = await axios.get("/api/friends/get_requests", {
     withCredentials: true,
   });
   initialRequestsData = requestsResponse.data;
@@ -67,7 +67,7 @@ const FriendRequests = () => {
       withCredentials: true,
     });
     const response = await axiosInstance.post(
-      "/friends/friend_request_choice",
+      "/api/friends/friend_request_choice",
       { spotify_id: spotify_id,
         accepted: choice}
     );

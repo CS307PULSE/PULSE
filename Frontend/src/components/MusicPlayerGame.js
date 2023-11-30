@@ -100,7 +100,7 @@ const MusicPlayerGame = ({
   const handlePlayButtonClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .post("/games/playback", { artist: selectedArtist })
+      .post("/api/games/playback", { artist: selectedArtist })
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("Playback initiated successfully:", response.data);
@@ -129,7 +129,7 @@ const MusicPlayerGame = ({
   const handleEveryoneWrongClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("/player/pause")
+      .get("/api/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -148,7 +148,7 @@ const MusicPlayerGame = ({
   const handlePlayersSelectedRightClick = () => {
     const axiosInstance = axios.create({ withCredentials: true });
     axiosInstance
-      .get("/player/pause")
+      .get("/api/player/pause")
       .then((response) => {
         // Handle the response from the backend if needed
         console.log("pause initiated successfully:", response.data);
@@ -195,7 +195,7 @@ const MusicPlayerGame = ({
   // Function to send player data to the backend
   const sendPlayerDataToBackend = () => {
     // Assuming your backend API endpoint is 'your-backend-api-endpoint'
-    const backendEndpoint = "/games/store_scores";
+    const backendEndpoint = "/api/games/store_scores";
 
     // Extract player scores as an array of integers
     const playerScores = players.map((player) => player.score);

@@ -521,7 +521,10 @@ class DatabaseConnector(object):
         query = """SELECT user_match_rejected from pulse.base_stats where spotify_id = %s"""
         self.db_cursor.execute(query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return create_friends_array_from_DB(self.resultset[0])
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
     
     def get_swiped_users_from_DB(self, spotify_id):
         query = """SELECT user_match_swiped from pulse.base_stats where spotify_id = %s"""
@@ -533,7 +536,7 @@ class DatabaseConnector(object):
         query = """SELECT user_match_genre_groups from pulse.base_stats where spotify_id = %s"""
         self.db_cursor.execute(query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
-        return create_friends_array_from_DB(self.resultset[0])   
+        return create_genres_array_from_DB(self.resultset[0])     
 
 
     # Returns a newly created user object recreated from the user database given spotify_id
@@ -566,8 +569,8 @@ class DatabaseConnector(object):
     def get_entire_genre_groups_from_DB(self, spotify_id, genre_groups):
         entire_genre_groups = []
         for genre in genre_groups:
-            query = """SELECT %s from pulse.user_match_genres WHERE iduser_match_genres = 1"""
-            self.db_cursor.execute(query, ("genre" + str(genre),))
+            query = """SELECT {} from pulse.user_match_genres WHERE iduser_match_genres = 1""".format("genre_" + str(genre))
+            self.db_cursor.execute(query)
             self.resultset = self.db_cursor.fetchone()
             if (self.resultset != None and self.resultset != '' ):
                 for spotify_id in create_friends_array_from_DB(self.resultset[0]):
@@ -577,6 +580,9 @@ class DatabaseConnector(object):
         else:
             no_dupes = []
             [no_dupes.append(x) for x in entire_genre_groups if x not in no_dupes]
+            while (spotify_id in no_dupes):
+                no_dupes.remove(spotify_id)
+            
             return no_dupes
     #--------------------------------------------------------------------------------------------------------
     # Database storage/update 
@@ -1173,7 +1179,7 @@ class DatabaseConnector(object):
     def update_rejected_users(self, spotify_id, rejected_users):
         try:
             query = """UPDATE pulse.base_stats SET user_match_rejected = %s WHERE spotify_id = %s"""
-            self.db_cursor.execute(query, (create_friends_string_for_DB(rejected_users), spotify_id,))
+            self.db_cursor.execute(query, (json.dumps(rejected_users), spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
             # If you want to fetch the updated record, you can do it separately.
@@ -1201,6 +1207,7 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
 
     def update_user_genre_groups(self, spotify_id, genre_groups):
+
         try:
             query = """UPDATE pulse.base_stats SET user_match_genre_groups = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (create_friends_string_for_DB(genre_groups), spotify_id,))
@@ -1213,26 +1220,26 @@ class DatabaseConnector(object):
             # Handle any exceptions that may occur during the database operation.
             print("Error updating user genre groups:", str(e))
             self.db_conn.rollback()
-            return -1  # Indicate that the update failed            
+            return -1  # Indicate that the update failed       
         
     def update_entire_genre_groups(self, spotify_id, genre_groups):
             for genre in genre_groups:
-                checker_query = """SELECT %s from pulse.user_match_genres WHERE iduser_match_genres = 1"""
-                self.db_cursor.execute(checker_query, ("genre" + str(genre),))
+                checker_query = """SELECT {} from pulse.user_match_genres WHERE iduser_match_genres = 1""".format("genre_" + str(genre))
+                self.db_cursor.execute(checker_query)
                 self.resultset = self.db_cursor.fetchone()
                 if (self.resultset != None and self.resultset != '' ):
                     id_list = create_friends_array_from_DB(self.resultset[0])
                     if (spotify_id not in id_list):
                         id_list.append(spotify_id)
-                        adder_query = """UPDATE pulse.user_match_genres SET %s = %s WHERE iduser_match_genres = 1"""
+                        adder_query = """UPDATE pulse.user_match_genres SET {} = %s WHERE iduser_match_genres = 1""".format("genre_" + str(genre))
                         try:
-                            self.db_cursor.execute(adder_query, ("genre" + str(genre), create_friends_string_for_DB(id_list),))
+                            self.db_cursor.execute(adder_query, (create_friends_string_for_DB(id_list),))
                             self.db_conn.commit()
                         except Exception as e:
                             # Handle any exceptions that may occur during the database operation.
                             print("Error updating game_settings:", str(e))
                             self.db_conn.rollback()
-                            return -1  # Indicate that the update failed  
+                            return -1  # Indicate that the update failed
 #--------------------------------------------------------------------------------------------------------
 # Conversion functions to and from DB
 
@@ -1240,9 +1247,9 @@ def create_friends_string_for_DB(friends_input_array):
     friends_string = ""
     for friend in friends_input_array:
         if (friends_string == ""):
-            friends_string = friends_string + friend
+            friends_string = friends_string + str(friend)
         else:
-            friends_string = friends_string + "," + friend
+            friends_string = friends_string + "," + str(friend)
     return friends_string
 
 def create_highscore_string_for_DB(highscore_input_array):
@@ -1267,6 +1274,15 @@ def create_friends_array_from_DB(friends_input_string):
     if (friends_input_string == "" or friends_input_string == None):
         return []
     return friends_input_string.split(',')
+
+def create_genres_array_from_DB(genre_input_string):
+    if (genre_input_string == "" or genre_input_string == None):
+        return []
+    int_genres = []
+    for genre in genre_input_string.split(','):
+        int_genres.append(int(genre))
+    return int_genres
+
 
 def create_highscores_array_from_DB(highscore_input_string):
     if (highscore_input_string == ""):

@@ -12,13 +12,8 @@ import { playItem, queueItem } from "./Playback";
 // eslint-disable-next-line no-unused-vars
 
 async function sendAndFetchSongReqs(sentTrack) {
-  const axiosInstance = axios.create({
-    withCredentials: true,
-  });
-  const response = await axiosInstance.post(
-    "/explorer/songrec",
-    { track: sentTrack }
-  );
+  const axiosInstance = axios.create({withCredentials: true});
+  const response = await axiosInstance.post("/api/explorer/songrec", { track: sentTrack });
   const data = response.data;
   return data;
 }
@@ -28,7 +23,7 @@ async function sendSearchAndReturn(sendSerach) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "/search_bar",
+    "/api/search_bar",
     { query: sendSerach }
   );
   const data = response.data;

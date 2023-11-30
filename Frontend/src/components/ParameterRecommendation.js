@@ -87,8 +87,8 @@ const ParameterRecommendations = () => {
     async function getPlaylists() {
         setPlaylists("loading");
         const axiosInstance = axios.create({withCredentials: true});
-        var response = await axiosInstance.get("/statistics/get_saved_playlists");
-        const parsedPlaylists = response.data.saved_playlists ? JSON.parse(response.data.saved_playlists) : [];
+        var response = await axiosInstance.get("/api/statistics/get_saved_playlists");
+        const parsedPlaylists = JSON.parse(response.data.saved_playlists);
         setPlaylists(parsedPlaylists);
     }
     useEffect(() => {
@@ -104,7 +104,7 @@ const ParameterRecommendations = () => {
     }, []);
     async function derivePlaylistEmotion(playlistID) {
         const axiosInstance = axios.create({withCredentials: true});
-        const response = await axiosInstance.post("/recommendations/get_playlist_dict", {playlist: playlistID});
+        const response = await axiosInstance.post("/api/recommendations/get_playlist_dict", {playlist: playlistID});
         const data = response.data;
         const newParameters = [
             data.target_energy,
@@ -125,7 +125,7 @@ const ParameterRecommendations = () => {
     }
     async function getEmotionRecommendations(name, parameters, genre) {
         const axiosInstance = axios.create({withCredentials: true});
-        const response = await axiosInstance.post("/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
+        const response = await axiosInstance.post("/api/recommendations/get_songs_from_dict", {parameters: [name, ...parameters], genre: genre});
         setSongRecommendations(response.data);
     }
     

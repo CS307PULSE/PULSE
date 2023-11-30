@@ -9,7 +9,7 @@ async function getEmotion(track_uri, track_popularity) {
     withCredentials: true,
   });
   const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/stats/emotion_percent",
+    "http://127.0.0.1:5000/api/stats/emotion_percent",
     { trackid: track_uri, popularity: track_popularity }
   );
   const data = response.data;
