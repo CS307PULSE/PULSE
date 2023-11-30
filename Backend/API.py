@@ -112,7 +112,6 @@ scopes = [
 scope = ' '.join(scopes)
 @app.route('/')
 def index():
-    print("RIGHT HERE RIGHT HERE RIGHT HERE")
     return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/boot')
@@ -146,7 +145,6 @@ def login():
 @app.route('/callback')
 def callback():
     code = request.args.get('code', "")
-    print(code + "______________________________________________________________")
     # Handle the callback from Spotify after user login
     sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
                             client_secret=os.getenv("CLIENT_SECRET"), 
@@ -168,7 +166,6 @@ def callback():
     }
 
     response = requests.post(token_url, data=payload)
-    print(response.json())
     if response.status_code == 200:
         token_info = response.json()
         print("Login Token:", token_info)
@@ -192,7 +189,6 @@ def callback():
             spotify_id=user_data['id'],
             spotify_user=sp
         )
-        print (user.spotify_id + "HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
         expires_in = token_info['expires_in']
         current_time = int(time.time())  # Current time in seconds since the epoch
@@ -2747,12 +2743,9 @@ def unfollow_artist():
 @app.route("/<string:path>") 
 @app.route("/<path:path>")
 def catch_all(path):
-    print("in catchall path")
     if path != "" and os.path.exists(app.static_folder + '/' + path):
-        print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
-        print("in catchall path else")
         error_message = "The page does not exist! Please try going back to the homepage!"
         error_code = 430
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
