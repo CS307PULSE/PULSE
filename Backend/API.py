@@ -1005,178 +1005,74 @@ def get_text_size():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
-@app.route('/api/profile/set_image', methods=['POST'])
-def set_image():
+@app.route('/api/profile/set_details', methods=['POST'])
+def set_profile():
     if 'user' in session:
         data = request.get_json()
-        newImage = data.get('filepath')
-        user_data = session['user']
-        user = User.from_json(user_data)
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_icon(user.spotify_id, newImage) == -1):
-                error_message = "Error storing/getting information! Please try logging in again!"
-                error_code = 415
-                
-                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-        response_data = 'username updated.'
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/get_image', methods=['GET'])
-def get_image():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data) 
-        with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_icon_from_DB(user.spotify_id)
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/set_displayname', methods=['POST'])
-def set_displayname():
-    if 'user' in session:
-        data = request.get_json()
-        newname = data.get('displayname')
-        # newname = newname.title()
-        user_data = session['user']
-        user = User.from_json(user_data)
-        user.display_name = newname
-        session['user'] = user.to_json()
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_display_name(user.spotify_id, user.display_name) == -1):
-                error_message = "Error storing/getting information! Please try logging in again!"
-                error_code = 415
-                
-                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-        response_data = 'username updated.'
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/get_displayname', methods=['GET'])
-def get_displayname():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data) 
-        with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_display_name_from_user_DB(user.spotify_id)
-    else:
-        response_data = 'User session not found. Please log in again.', 200, {'Reason-Phrase': 'OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/set_gender', methods=['POST'])
-def set_gender():
-    if 'user' in session:
-        data = request.get_json()
-        gender = data.get('gender')
-        gender = gender.capitalize()
+        display_name = data.get('username')
+        gender = data.get('gender').capitalize()
+        location = data.get('location').title()
+        icon = data.get('icon')
+        favorite_song = data.get('favorite_song').title()
+        status = data.get('status')
+        text_color = data.get('text_color')
+        background_color = data.get('background_color')
         user_data = session['user']
         user = User.from_json(user_data)
         user.gender = gender
-        session['user'] = user.to_json()
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_gender(user.spotify_id, user.gender) == -1):
-                error_message = "Gender has not been stored!"
-                return make_response(jsonify({'error': error_message}), 404), 200, {'Reason-Phrase': 'OK'}
-        response_data = 'gender updated.'
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/get_gender', methods=['GET'])
-def get_gender():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data) 
-        with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_gender_from_user_DB(user.spotify_id)
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/set_chosen_song', methods=['POST'])
-def set_chosen_song():
-    if 'user' in session:
-        data = request.get_json()
-        chosen_song = data.get('chosen_song')
-        chosen_song = chosen_song.title()
-        user_data = session['user']
-        user = User.from_json(user_data)
-        user.chosen_song = chosen_song
-        session['user'] = user.to_json()
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_chosen_song(user.spotify_id, user.chosen_song) == -1):
-                error_message = "Error storing/getting information! Please try logging in again!"
-                error_code = 415
-                
-                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-        response_data = 'chosen_song updated.'
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/get_chosen_song', methods=['GET'])
-def get_chosen_song():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_chosen_song_from_user_DB(user.spotify_id)
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/profile/set_location', methods=['POST'])
-def set_location():
-    if 'user' in session:
-        data = request.get_json()
-        location = data.get('location')
-        location = location.title()
-        user_data = session['user']
-        user = User.from_json(user_data)
+        user.display_name = display_name
+        user.chosen_song = favorite_song
         user.location = location
-        session['user'] = user.to_json()
         with DatabaseConnector(db_config) as conn:
-            if (conn.update_location(user.spotify_id, user.location) == -1):
+            if (conn.update_display_name(user.spotify_id, display_name) == -1):
                 error_message = "Error storing/getting information! Please try logging in again!"
                 error_code = 415
                 
                 error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
                 return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-        response_data = 'location updated.'
+            if (conn.update_gender(user.spotify_id, gender) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+            if (conn.update_location(user.spotify_id, location) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+            if (conn.update_chosen_song(user.spotify_id, favorite_song) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+            if (conn.update_icon(user.spotify_id, icon) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+            if (conn.update_status(user.spotify_id, status) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+            if (conn.update_public_display_text_color(user.spotify_id, text_color) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+            if (conn.update_public_display_background_color(user.spotify_id, background_color) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+        response_data = 'profile updated.'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
@@ -1185,13 +1081,22 @@ def set_location():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/profile/get_location', methods=['GET'])
-def get_location():
+@app.route('/api/profile/get_details', methods=['GET'])
+def get_profile():
     if 'user' in session:
         user_data = session['user']
-        user = User.from_json(user_data) 
+        user = User.from_json(user_data)
+        profile = {}
         with DatabaseConnector(db_config) as conn:
-            response_data = conn.get_location_from_user_DB(user.spotify_id)
+            profile['display_name'] = conn.get_display_name_from_user_DB(user.spotify_id)
+            profile['gender'] = conn.get_gender_from_user_DB(user.spotify_id)
+            profile['location'] = conn.get_location_from_user_DB(user.spotify_id)
+            profile['icon'] = conn.get_icon_from_DB(user.spotify_id)
+            profile['favorite_song'] = conn.get_chosen_song_from_user_DB(user.spotify_id)
+            profile['status'] = conn.get_status_from_DB(user.spotify_id)
+            profile['text_color'] = conn.get_public_display_text_color_from_DB(user.spotify_id)
+            profile['background_color'] = conn.get_public_display_background_color_from_DB(user.spotify_id)
+        response_data = profile
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
