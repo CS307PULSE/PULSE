@@ -145,7 +145,7 @@ def login():
 
 @app.route('/callback')
 def callback():
-    code = request.args.get('code')
+    code = request.args.get('code', "")
     print(code + "______________________________________________________________")
     # Handle the callback from Spotify after user login
     sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
