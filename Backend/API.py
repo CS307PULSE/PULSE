@@ -383,6 +383,7 @@ def statistics_short():
 
 @app.route('/api/statistics/update_followers')
 def update_followers():
+    return send_from_directory(app.static_folder, 'index.html')
     start_time = time.time()
     if 'user' in session:
         user_data = session['user']
@@ -1253,11 +1254,15 @@ def import_advanced_stats():
         DATA = {}
         #time.sleep(30)
         for filepath in filepaths: 
-            #time.sleep(5)
+            time.sleep(5)
             if filepath:
                 if filepath.startswith('"') and filepath.endswith('"'):
                     filepath = filepath[1:-1]
                 try: 
+                    file_size = os.path.getsize(filepath)
+                    file_size_mb = file_size / 1000000
+                    if file_size_mb > 20:
+                        raise Exception
                     temp = user.stats.advanced_stats_import(filepath=filepath, 
                                                             token=user.login_token['access_token'], 
                                                             more_data=True, 
