@@ -95,12 +95,9 @@ const Friends = () => {
                 publicColorBackground={friend.backgroundColor}
               />
               <div class = "center">
-              <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={async () => {
-                const data = await removeFriend(friend.spotify_id);
-                setFriendsData(data);
-              }}>
-                Remove Friend
-              </button>
+                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
+                  Remove Friend
+                </button>
               </div>
             </div>
       ))}
