@@ -142,7 +142,7 @@ const HeadsUp = () => {
       const payload = {
         friend_ids: playerNamesArray.reduce((acc, name) => ({ ...acc, [name]: true }), {}),
       };
-      const response = await axiosInstance.post('/api/get_friends_recent_songs', payload);
+      const response = await axiosInstance.post('/api/statistics/get_friends_recent_songs', payload);
       const data = response.data;
       console.log(data);
       setFriendsRecentSongs(data);
@@ -167,6 +167,7 @@ const HeadsUp = () => {
       </label>
     </div>
   ));
+
 
 if(!flag){
   return (<div> Loading content</div>);
@@ -235,7 +236,7 @@ if(!flag){
             playerNames={playerNames} // Pass the playerNames to the game component
             numberOfPlayers={numberOfPlayers}
             numberOfRounds={numberOfRounds}
-            gameCode={2}
+            gameCode={4}
             selectedArtist={""}
             friendsRecentSongs={friendsRecentSongs}
           />
