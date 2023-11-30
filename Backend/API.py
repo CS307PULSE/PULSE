@@ -1588,6 +1588,9 @@ def remove_friend():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1598,6 +1601,7 @@ def remove_friend():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    print(jsonarray)
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/friends/friend_request_choice', methods=['POST'])
@@ -1624,6 +1628,9 @@ def request_choice():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1650,6 +1657,9 @@ def friend_request_search():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:

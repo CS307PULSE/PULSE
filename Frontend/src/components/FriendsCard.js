@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Friend from './Friend'; 
-import styled from 'styled-components';
 import { Link } from "react-router-dom";
 import { useAppContext } from './Context';
 import TextSize from "../theme/TextSize";
 import axios from 'axios';
-import Colors from '../theme/Colors';
 
 var friendData;
 try {
@@ -19,19 +17,34 @@ try {
   friendData = [[]];
 }
 
-const textSizes = TextSize(1); //Obtain text size values
 
-const NoFriends = () => {
-  if (friendData.length == 0) {
-    return (
-      <img style={{width: "100%", height: "100%"}} src={"https://i.imgflip.com/7bw89a.jpg"}></img>
-    )
-  }
-}
+
 
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
+  const [friendData, setFriendData] = useState([]);
+
+  const textSizes = TextSize(1); // Obtain text size values
   
+
+  useEffect(() => {
+    const fetchFriendsData = async () => {
+      try {
+        const friendResponse = await axios.get(
+          "/api/friends/get_friends",
+          { withCredentials: true }
+        );
+        setFriendData(friendResponse.data);
+      } catch (e) {
+        console.log("Friends fetch failed: " + e);
+        setFriendData([]); // Set an empty array or handle the error accordingly
+      }
+    };
+
+    fetchFriendsData();
+  }, []); // Empty dependency array ensures that the effect runs only once on mount
+
+
   const cardContainerStyle = {
     border: "1px solid " + state.colorBorder,
     overflowY: "auto",
@@ -72,13 +85,13 @@ const FriendsCard = ({}) => {
   };
   return (
     <div style={cardContainerStyle}>
-      <Link style={styledLink} to="/friends">
+      <Link to="/friends">
         <div style={header}>FRIENDS</div>
       </Link>
-      
+
       <div className="friend-list">
         {friendData.map((friend, index) => (
-          <div style={{marginBottom: "20px"}} key={index}>
+          <div style={{ marginBottom: "20px" }} key={index}>
             <Friend
               name={friend.name}
               photoFilename={friend.photoUri}
@@ -89,10 +102,12 @@ const FriendsCard = ({}) => {
             />
           </div>
         ))}
-        {NoFriends()}
+        {friendData.length === 0 && (
+          <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default FriendsCard;
