@@ -145,7 +145,7 @@ def login():
 
 @app.route('/callback')
 def callback():
-    code = request.args.get('code')
+    code = request.args.get('code', "")
     print(code + "______________________________________________________________")
     # Handle the callback from Spotify after user login
     sp_oauth = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"), 
@@ -169,15 +169,16 @@ def callback():
 
     response = requests.post(token_url, data=payload)
     print(response.json())
-    print("=============================================================")
     if response.status_code == 200:
         token_info = response.json()
         print("Login Token:", token_info)
-        print("++++++++++++++++++++++++++++++++++++++++++++++")
     else:
         print("Failed to retrieve Access Token")
-        print("++++++++++++++++++++++++++++++++++++++++++++++")
-        return "resp" , 200, {'Reason-Phrase': 'OK'}
+        error_message = 'Failed to retrieve access token. Please try logging in again.'
+        error_code = 440
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     
     if token_info:
         # Create a Spotify object and fetch user data
@@ -1253,11 +1254,15 @@ def import_advanced_stats():
         DATA = {}
         #time.sleep(30)
         for filepath in filepaths: 
-            #time.sleep(5)
+            time.sleep(5)
             if filepath:
                 if filepath.startswith('"') and filepath.endswith('"'):
                     filepath = filepath[1:-1]
                 try: 
+                    file_size = os.path.getsize(filepath)
+                    file_size_mb = file_size / 1000000
+                    if file_size_mb > 20:
+                        raise Exception
                     temp = user.stats.advanced_stats_import(filepath=filepath, 
                                                             token=user.login_token['access_token'], 
                                                             more_data=True, 
@@ -2748,7 +2753,10 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        return send_from_directory(app.static_folder, 'index.html')
+        error_message = "The page does not exist! Please try going back to the homepage!"
+        error_code = 430
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 def send_feedback_email(feedback):
     try:
@@ -2810,9 +2818,6 @@ def update_data(user,
             if (retries > max_retries):
                 raise Exception
             return update_data(user, retries=retries+1), 200, {'Reason-Phrase': 'OK'}
-
-
-
 
 def get_user_seed_tracks(user):
     # Two seed tracks from past month and three from recent history
