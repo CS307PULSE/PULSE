@@ -27,7 +27,10 @@ class User:
                  recommendation_params=None,
                  gender=None,
                  location=None,
-                 chosen_song = "Not Yet Chosen"
+                 chosen_song = "Not Yet Chosen",
+                 status = "needs implemented in backend",
+                 public_display_text_color = "#FFFFFFF",
+                 public_display_background_color = "#000000"
                 ):
     
         self.display_name = display_name                                                                   # String
@@ -42,6 +45,9 @@ class User:
         self.gender = gender                                                                               # String                                   
         self.location = location                                                                           # String
         self.chosen_song = chosen_song                                                                     # String
+        self.status = status
+        self.public_display_text_color = public_display_text_color
+        self.public_display_background_color = public_display_background_color
 
     def stringify(self, obj):
         if obj is None:
