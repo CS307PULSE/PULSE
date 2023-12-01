@@ -4,12 +4,9 @@ async function sendSongRequest(spotify_uri) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/api/player/play_song",
-    {
-      spotify_uri: spotify_uri,
-    }
-  );
+  const response = await axiosInstance.post("/api/player/play_song", {
+    spotify_uri: spotify_uri,
+  });
   const data = response.data;
   return data;
 }
@@ -18,12 +15,9 @@ async function sendPlaylistRequest(spotify_uri) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/api/player/play_playlist",
-    {
-      spotify_uri: spotify_uri,
-    }
-  );
+  const response = await axiosInstance.post("/api/player/play_playlist", {
+    spotify_uri: spotify_uri,
+  });
   const data = response.data;
   return data;
 }
@@ -32,12 +26,9 @@ async function sendAlbumRequest(spotify_uri) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/api/player/play_album",
-    {
-      spotify_uri: spotify_uri,
-    }
-  );
+  const response = await axiosInstance.post("/api/player/play_album", {
+    spotify_uri: spotify_uri,
+  });
   const data = response.data;
   return data;
 }

@@ -6,12 +6,9 @@ async function sendSongRequest(spotify_uri) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/api/player/play_song",
-    {
-      spotify_uri: spotify_uri,
-    }
-  );
+  const response = await axiosInstance.post("/api/player/play_song", {
+    spotify_uri: spotify_uri,
+  });
   const data = response.data;
   return data;
 }
@@ -20,12 +17,9 @@ async function sendPlaylistRequest(spotify_uri) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/api/player/play_playlist",
-    {
-      spotify_uri: spotify_uri,
-    }
-  );
+  const response = await axiosInstance.post("/api/player/play_playlist", {
+    spotify_uri: spotify_uri,
+  });
   const data = response.data;
   return data;
 }
@@ -34,12 +28,9 @@ async function sendAlbumRequest(spotify_uri) {
   const axiosInstance = axios.create({
     withCredentials: true,
   });
-  const response = await axiosInstance.post(
-    "http://127.0.0.1:5000/api/player/play_album",
-    {
-      spotify_uri: spotify_uri,
-    }
-  );
+  const response = await axiosInstance.post("/api/player/play_album", {
+    spotify_uri: spotify_uri,
+  });
   const data = response.data;
   return data;
 }
@@ -180,8 +171,16 @@ export const ImageGraph = (props) => {
                 playlist.name + " created by " + playlist.owner.display_name
               }
               onClick={() => {
-                if (props.selectedSongID !== null && props.selectedSongID !== playlist.id) {
-                  props.updateParentState(null, null, playlist.id, playlist.name);
+                if (
+                  props.selectedSongID !== null &&
+                  props.selectedSongID !== playlist.id
+                ) {
+                  props.updateParentState(
+                    null,
+                    null,
+                    playlist.id,
+                    playlist.name
+                  );
                   props.setRefreshSongRecs(true);
                 } else {
                   props.setRefreshSongRecs(false);
@@ -208,12 +207,7 @@ export const ImageGraph = (props) => {
               data-tooltip-content={track.name + " by " + track.artists[0].name}
               onClick={() => {
                 sendSongRequest(track.uri);
-                props.updateParentState(
-                  track.uri,
-                  track.name,
-                  null,
-                  null
-                );
+                props.updateParentState(track.uri, track.name, null, null);
               }}
               style={{ cursor: "pointer" }}
               key={track.id + index}
