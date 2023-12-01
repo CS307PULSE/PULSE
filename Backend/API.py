@@ -64,6 +64,28 @@ error_html = """
 </body>
 </html>
 """
+frontendRoutes = ["/dashboard",
+                  "/profile", 
+                  "game/guess-the-song", 
+                  "/game/guess-the-song", 
+                  "/game/guess-the-artist", 
+                  "/game/guess-the-lyric",
+                  "/game/guess-who-listens",
+                  "/game/heads-up",
+                  "/statistics",
+                  "/PulseBot",
+                  "/games",
+                  "/explorer",
+                  "/explorer/SongRecommendation",
+                  "/explorer/ParameterRecommendation",
+                  "/explorer/PlaylistRecommendation",
+                  "/explorer/PlaylistManager",
+                  "/explorer/ArtistExplorer",
+                  "/Friends/addFriends",
+                  "/Friends/friendRequests",
+                  "/friends",
+                  "/match",
+                  ]
 
 scopes = [
     #Images
@@ -2774,42 +2796,62 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
+        if (path not in frontendRoutes):
+            error_message = "The page does not exist! Please try going back to the homepage!"
+            error_code = 430
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         return send_from_directory(app.static_folder, 'index.html')
     
 @app.route("/", defaults={"path": ""})
 @app.route("/explorer/<string:path>") 
 @app.route("/explorer/<path:path>")
 def catch_all_explorer(path):
-    print("in catchall path")
+    print("in catchall path: " + path)
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
+        if (path not in frontendRoutes):
+            error_message = "The page does not exist! Please try going back to the homepage!"
+            error_code = 430
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            return error_html_f, 404, {'Reason-Phrase': 'Not OK'}        
         return send_from_directory(app.static_folder, 'index.html')
     
 @app.route("/", defaults={"path": ""})
 @app.route("/game/<string:path>") 
 @app.route("/game/<path:path>")
 def catch_all_game(path):
-    print("in catchall path")
+    print("in catchall path: " + path)
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
+        if (path not in frontendRoutes):
+            error_message = "The page does not exist! Please try going back to the homepage!"
+            error_code = 430
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            return error_html_f, 404, {'Reason-Phrase': 'Not OK'}        
         return send_from_directory(app.static_folder, 'index.html')
     
 @app.route("/", defaults={"path": ""})
 @app.route("/Friends/<string:path>") 
 @app.route("/Friends/<path:path>")
 def catch_all_friends(path):
-    print("in catchall path")
+    print("in catchall path: " + path)
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
+        if (path not in frontendRoutes):
+            error_message = "The page does not exist! Please try going back to the homepage!"
+            error_code = 430
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         return send_from_directory(app.static_folder, 'index.html')
 
 
