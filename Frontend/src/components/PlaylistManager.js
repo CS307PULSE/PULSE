@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./NavBar";
-import Playback from "./Playback";
+import Playback, { trackData } from "./Playback";
 import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
@@ -52,6 +52,10 @@ const PlaylistManager = () => {
   const [synthSearch1, setSynthSearch1] = useState("");
   const [synthSearch2, setSynthSearch2] = useState("");
   const [newSynthPlaylistName, setNewSynthPlaylistName] = useState("New Synthesized Playlist");
+  const [reorderIndexStart, setReorderIndexStart] = useState(0);
+  const [reorderIndexAmount, setReorderIndexAmount] = useState(0);
+  const [reorderIndexInsert, setReorderIndexInsert] = useState(0);
+  const [reorderResponseText, setReorderResponseText] = useState("");
 
   const [imagePath, setImagePath] = useState("");
 
@@ -97,6 +101,20 @@ const PlaylistManager = () => {
   async function handleSynthSearch2() {
     const data = await searchSpotify(synthSearch2, "playlist");
     setSynthPlaylists2(data);
+  }
+  async function reorderPlaylist(playlist, start, amount, insert) {
+    try {
+      setReorderResponseText("Reordering playlist...");
+      const data = await playlistPost(
+        "reorder_tracks",
+        {playlist: playlist.id, start: parseInt(start), insert: parseInt(insert), amount: parseInt(amount)}
+      )
+      console.log(playlist.id);
+      console.log(start);
+      console.log(insert);
+      console.log(amount);
+      setReorderResponseText(data);
+    } catch (e) { setReorderResponseText("Error reordering playlist!"); console.log(e); }
   }
   async function mergePlaylists() {
     playlistPost(
@@ -204,10 +222,27 @@ const PlaylistManager = () => {
                   selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
                 />
               </div>
+              <div style={sectionContainerStyle}>
+                <p style={headerTextStyle}>Playlist Reordering</p>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>First Song Index</p>
+                    <input name="reorder-index-1" type="number" style={buttonStyle} value={reorderIndexStart} onChange={e => {setReorderIndexStart(e.target.value)}}></input>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>Number of Songs</p>
+                    <input name="reorder-index-2" type="number" style={buttonStyle} value={reorderIndexAmount} onChange={e => {setReorderIndexAmount(e.target.value)}}></input>
+                </div>
+                <div style={buttonContainerStyle}>
+                    <p style={textStyle}>Destination Index</p>
+                    <input name="reorder-index-3" type="number" style={buttonStyle} value={reorderIndexInsert} onChange={e => {setReorderIndexInsert(e.target.value)}}></input>
+                </div>
+                <p style={textStyle}>{reorderResponseText}</p>
+                <button style={buttonStyle} onClick={() => reorderPlaylist(playlists[selectedPlaylistIndex], reorderIndexStart, reorderIndexAmount, reorderIndexStart)}>Reorder</button>
+              </div>
             </div>
             <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
               <div style={{...sectionContainerStyle, height: "400px"}}>
-                <p style={headerTextStyle}>Selected Playlist: {playlists[selectedPlaylistIndex] ? playlists[selectedPlaylistIndex].name : "None"}</p>
+                <p style={headerTextStyle}>Selected Playlist: {playlists ? trackData(playlists[selectedPlaylistIndex], "name") : ""}</p>
                 <div style={buttonContainerStyle}>
                     <input type="text" style={textFieldStyle} value={imagePath} onChange={e => {setImagePath(e.target.value)}}></input>
                     <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>

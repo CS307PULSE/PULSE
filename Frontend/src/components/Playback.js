@@ -62,6 +62,8 @@ export function trackData(track, field) {
     switch (field) {
       case "name":
         return track.name;
+      case "playlist":
+        return track.name;
       case "creator":
         switch (track.type) {
           case "track":
@@ -90,7 +92,7 @@ export function trackData(track, field) {
             return "";
         }
       default:
-        return;
+        return "";
     }
   } catch (e) {
     console.log(`Error getting "${field}" from ${track}: ` + e);
