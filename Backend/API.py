@@ -387,18 +387,18 @@ def update_followers():
         try:
             refresh_token(user)
             follower_data = user.get_followers_with_time()
+            current_time = follower_data[0]
+            with DatabaseConnector(db_config) as conn:
+                followers = conn.get_followers_from_DB(user.spotify_id)
+                if followers:
+                    most_recent_time_str = max(followers.keys())
+                    most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
+                else:
+                    most_recent_time = current_time - timedelta(days=1)
+                if current_time - most_recent_time >= timedelta(days=1):
+                    return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
         except Exception as e:
             print(e)
-        with DatabaseConnector(db_config) as conn:
-            current_time = follower_data[0]
-            followers = conn.get_followers_from_DB(user.spotify_id)
-            if followers:
-                most_recent_time_str = max(followers.keys())
-                most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
-            else:
-                most_recent_time = current_time - timedelta(days=1)
-            if current_time - most_recent_time >= timedelta(days=1):
-                return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
@@ -2439,7 +2439,7 @@ def get_next_user():
             response = {}
             response['id'] = match_user
             response['name'] = user.display_name
-            response['image'] = conn.get_icon_from_DB(user)
+            response['image'] = conn.get_icon_from_DB(match_user)
             response['song'] = user.chosen_song
             response['status'] = user.status #user.status
             response['text_color'] = user.public_display_text_color #user.text_color
