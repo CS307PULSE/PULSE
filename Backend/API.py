@@ -2799,7 +2799,7 @@ def catch_all(path):
         if (path not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
-            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
             return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         return send_from_directory(app.static_folder, 'index.html')
     
@@ -2816,7 +2816,7 @@ def catch_all_explorer(path):
         if (("explorer/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
-            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
             return error_html_f, 404, {'Reason-Phrase': 'Not OK'}        
         return send_from_directory(app.static_folder, 'index.html')
     
@@ -2833,7 +2833,7 @@ def catch_all_game(path):
         if (("game/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
-            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
             return error_html_f, 404, {'Reason-Phrase': 'Not OK'}        
         return send_from_directory(app.static_folder, 'index.html')
     
@@ -2850,7 +2850,7 @@ def catch_all_friends(path):
         if (("Friends/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
-            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
+            error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
             return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         return send_from_directory(app.static_folder, 'index.html')
 
