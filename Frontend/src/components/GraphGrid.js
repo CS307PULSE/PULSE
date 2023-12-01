@@ -614,7 +614,7 @@ export default function GraphGrid() {
               case "all":
                 return topSongs[2];
               default:
-                return topSongs;
+                return topSongs[2];
             }
           case "top_artists":
             switch (props.timeRange) {

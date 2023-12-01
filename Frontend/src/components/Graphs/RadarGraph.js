@@ -48,7 +48,7 @@ export const RadarGraph = (props) => {
       },
     ];
     for (let item of itemsSelected) {
-      const newData = props.data[2][Number(item.split(",")[1])];
+      const newData = props.data[Number(item.split(",")[1])];
       tempKeys.push(newData.name);
       await getEmotion(newData.id, newData.popularity).then((emotions) => {
         tempData[0] = {
@@ -73,7 +73,7 @@ export const RadarGraph = (props) => {
     try {
       if (props.dataName === "emotionData") {
         setSelectionGraph(true);
-        setItemsSelectable(props.data[2]);
+        setItemsSelectable(props.data);
       } else {
         setSelectionGraph(false);
         setKeys(props.keys);
