@@ -41,6 +41,7 @@ function Mainpage() {
     color: state.colorText,
     fontSize: textSizes.body,
     fontFamily: "'Poppins', sans-serif",
+    overflow: "hidden",
   };
   const buttonContainerStyle = {
     display: "flex",

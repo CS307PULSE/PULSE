@@ -1,19 +1,19 @@
-import React from 'react';
+import React from "react";
 import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
-import { hexToRGBA } from '../theme/Colors';
+import { hexToRGBA } from "../theme/Colors";
 
-const Card = ({ headerText, children, width = "500px", height = "300px"}) => {  
+const Card = ({ headerText, children, width = "500px", height = "300px" }) => {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const cardContainerStyle = {
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
     border: "1px solid " + state.colorBorder,
-    overflow: "auto",
+    overflow: "hidden",
     width: width,
     height: height,
-    margin: "20px"
+    margin: "20px",
   };
   const headerStyle = {
     backgroundColor: state.colorAccent, // Set background color to green
@@ -38,8 +38,9 @@ const Card = ({ headerText, children, width = "500px", height = "300px"}) => {
     lineHeight: "normal",
     textTransform: "uppercase",
     padding: "16px",
+    overflow: "hidden",
   };
-  
+
   return (
     <div style={cardContainerStyle}>
       <div style={headerStyle}>{headerText}</div>
