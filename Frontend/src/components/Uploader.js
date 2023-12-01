@@ -111,7 +111,7 @@ const Uploader = () => {
     if (!test) {
       setLoadingData(false);
       setLoadDataFailed(true);
-      alert("One or more of your filepaths may be incorrect or too large");
+      alert("One or more of your filepaths may be too large. Please make sure it is a valid file");
     } else {
       setLoadingData(true);
       setLoadDataFailed(false);
