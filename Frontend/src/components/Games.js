@@ -6,6 +6,7 @@ import axios from "axios";
 import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
+import Playback from "./Playback";
 
 function getGameType(gameId) {
   // Define your game types here
@@ -47,12 +48,18 @@ async function fetchDataScores() {
 }
 
 const Games = () => {
+  //eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   const [scores, setScores] = useState([]);
 
   const bodyStyle = {
     backgroundColor: state.colorBackground,
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
+    height: "100%",
   };
 
   const friendContainerStyle = {
@@ -61,7 +68,7 @@ const Games = () => {
     right: "0px",
     bottom: "60px",
     left: "80%",
-    backgroundColor: hexToRGBA(state.colorBackground, 0.5)
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
 
   const cardStyle = {
@@ -159,7 +166,7 @@ const Games = () => {
     if (!scores || scores.length < 2 || !scores[0] || !scores[1]) {
       return null;
     }
-  
+
     function getGameType(gameId) {
       const gameTypes = [
         "Guess the Song",
@@ -176,12 +183,36 @@ const Games = () => {
         <h3>
           <u>{getGameType(index1)}</u>
         </h3>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginTop: "10px",
+          }}
+        >
           <thead>
-            <tr style={{ backgroundColor: state.colorBackground, color: state.colorText }}>
-              <th style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>Pervious Game</th>
+            <tr
+              style={{
+                backgroundColor: state.colorBackground,
+                color: state.colorText,
+              }}
+            >
+              <th
+                style={{
+                  padding: "10px",
+                  border: "1px solid " + state.colorBorder,
+                }}
+              >
+                Pervious Game
+              </th>
               {gameType[0].map((_, index2) => (
-                <th key={index2} style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>
+                <th
+                  key={index2}
+                  style={{
+                    padding: "10px",
+                    border: "1px solid " + state.colorBorder,
+                  }}
+                >
                   Player {index2 + 1}
                 </th>
               ))}
@@ -190,11 +221,22 @@ const Games = () => {
           <tbody>
             {gameType.map((gameRound, index2) => (
               <tr key={index2}>
-                <td style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>
+                <td
+                  style={{
+                    padding: "10px",
+                    border: "1px solid " + state.colorBorder,
+                  }}
+                >
                   Round {index2 + 1}
                 </td>
                 {gameRound.map((gameScore, index3) => (
-                  <td key={index3} style={{ padding: "10px", border: "1px solid " + state.colorBorder }}>
+                  <td
+                    key={index3}
+                    style={{
+                      padding: "10px",
+                      border: "1px solid " + state.colorBorder,
+                    }}
+                  >
                     {gameScore}
                   </td>
                 ))}
@@ -204,12 +246,14 @@ const Games = () => {
         </table>
       </div>
     ));
-  
+
     return <div>{gamesTable}</div>;
   };
   return (
     <div className="wrapper">
-      <div className="header"><Navbar /></div>
+      <div className="header">
+        <Navbar />
+      </div>
       <div className="content" style={bodyStyle}>
         <div style={friendContainerStyle}>
           <FriendsCard />
@@ -276,11 +320,15 @@ const Games = () => {
 
         <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
 
-        <div style={{ color: "white", whiteSpace: "pre", marginRight: "400px" }}>
+        <div
+          style={{ color: "white", whiteSpace: "pre", marginRight: "400px" }}
+        >
           {getGameData()}
         </div>
       </div>
-      <div className="footer"></div>
+      <div className="footer">
+        <Playback />
+      </div>
     </div>
   );
 };
