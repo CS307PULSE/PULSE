@@ -2363,6 +2363,7 @@ def get_next_user():
                 genre_groups = list(map(str, genre_groups))
             if genre_groups is None or genre_groups == []:
                 genre_groups = get_genre_groups(user)
+                genre_groups = [x + 1 for x in genre_groups] # 1-indexed
                 genre_groups = list(map(str, genre_groups))
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
