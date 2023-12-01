@@ -923,14 +923,12 @@ def play_song():
 @app.route('/api/explorer/songrec', methods=['POST'])
 def songrec():
     data = request.get_json()
-    track = data.get('track')
+    track_id = data.get('track_id')
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
         try:
             refresh_token(user)
-            found = user.search_for_items(max_items=1, query=track)
-            track_id = found[0]['id']
             suggested_tracks = user.get_recommendations(seed_tracks=[track_id])
         except Exception as e:
             return f"{e}"
@@ -2774,6 +2772,24 @@ def pull_emotions():
             refresh_token(user)
             with DatabaseConnector(db_config) as conn:
                 response_data = conn.get_emotion_from_DB(user.spotify_id)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/api/playlist/get_owned', methods=['POST'])
+def get_owned():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        try:
+            refresh_token(user)
+            response_data = user.spotify_user.current_user_playlists()
         except Exception as e:
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
