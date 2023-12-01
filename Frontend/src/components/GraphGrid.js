@@ -764,7 +764,9 @@ export default function GraphGrid() {
                             : "User") +
                           "<br />" +
                           (!emptyData(container.data)
-                            ? "Data Type: " + container.data + "<br />"
+                            ? "Data Type: " +
+                              nameFromDataName(container.data) +
+                              "<br />"
                             : "") +
                           (!emptyData(container.dataVariation)
                             ? "Data variation: " +
@@ -826,7 +828,9 @@ export default function GraphGrid() {
                         : "User") +
                       "<br />" +
                       (!emptyData(container.data)
-                        ? "Data Type: " + container.data + "<br />"
+                        ? "Data Type: " +
+                          nameFromDataName(container.data) +
+                          "<br />"
                         : "") +
                       (!emptyData(container.dataVariation)
                         ? "Data variation: " +
