@@ -116,6 +116,7 @@ export default function GraphGrid() {
   const [friendAdvancedDataAvailable, setAdvancedFriendsAvailable] = useState(
     {}
   );
+  const [finishGettingFriends, setFinishedGettingFriends] = useState(false);
   const [advancedData, setAdvancedData] = useState();
   const [finishedPullingAdvancedData, setFinishedAdvanced] = useState(false);
 
@@ -309,7 +310,50 @@ export default function GraphGrid() {
     };
 
     fetchFriends().then((result) => {
-      setFriends(result.map((friend) => friend.spotify_id));
+      setFriends(
+        result.map((friend) => {
+          fetchBasicFriendData(friend.spotify_id).then((basicFriendData) => {
+            fetchAdvancedFriendData(friend.spotify_id).then(
+              (advancedFriendData) => {
+                setFriendDatas([
+                  ...friendDatas,
+                  {
+                    id: friend.spotify_id,
+                    name: friend.name,
+                    basicData: basicFriendData,
+                    advancedData: advancedFriendData,
+                  },
+                ]);
+                let obj = friendAdvancedDataAvailable;
+                if (advancedFriendData !== null) {
+                  obj[friend.spotify_id] = "available";
+                } else {
+                  obj[friend.spotify_id] = "unavailable";
+                  console.alert(
+                    "Page failed fetching " +
+                      friend.spotify_id +
+                      "'s advanced data"
+                  );
+                }
+                setAdvancedFriendsAvailable(obj);
+              }
+            );
+            let obj = friendBasicDataAvailable;
+            if (basicFriendData !== null) {
+              obj[friend.spotify_id] = "available";
+            } else {
+              obj[friend.spotify_id] = "unavailable";
+              console.alert(
+                "Page failed fetching " + friend.spotify_id + "'s basic data"
+              );
+            }
+            setBasicFriendsAvailable(obj);
+          });
+
+          return friend.spotify_id;
+        })
+      );
+      setFinishedGettingFriends(true);
     });
 
     fetchData();
@@ -393,44 +437,6 @@ export default function GraphGrid() {
           { graphKeys: ["value"], graphIndexBy: "id" },
           newGraph.graphSettings
         );
-      }
-    }
-
-    if (newGraphData.friendDataOn === "on") {
-      if (
-        !friendDatas.some((element) => element.id === newGraphData.friendID)
-      ) {
-        fetchBasicFriendData(newGraphData.friendID).then((basicFriendData) => {
-          fetchAdvancedFriendData(newGraphData.friendID).then(
-            (advancedFriendData) => {
-              setFriendDatas([
-                ...friendDatas,
-                {
-                  id: newGraphData.friendID,
-                  name: newGraphData.friendName,
-                  basicData: basicFriendData,
-                  advancedData: advancedFriendData,
-                },
-              ]);
-              let obj = friendAdvancedDataAvailable;
-              if (advancedFriendData !== null) {
-                obj[newGraphData.friendID] = true;
-              } else {
-                obj[newGraphData.friendID] = false;
-                alert("Page failed fetching friend advanced data");
-              }
-              setAdvancedFriendsAvailable(obj);
-            }
-          );
-          let obj = friendBasicDataAvailable;
-          if (basicFriendData !== null) {
-            obj[newGraphData.friendID] = true;
-          } else {
-            obj[newGraphData.friendID] = false;
-            alert("Page failed fetching friend advanced data");
-          }
-          setBasicFriendsAvailable(obj);
-        });
       }
     }
     console.log("New Layout item added:");
@@ -715,6 +721,12 @@ export default function GraphGrid() {
                   friendBasicDataAvailable[container.friendID] === undefined
                 ) {
                   msg = "Loading graph data";
+                  if (
+                    finishGettingFriends &&
+                    !friends.includes(container.friendID)
+                  ) {
+                    msg = "You're no longer friends";
+                  }
                 } else if (!friendBasicDataAvailable[container.friendID]) {
                   msg = "Friends basic data unavailable";
                 }
@@ -723,6 +735,12 @@ export default function GraphGrid() {
                   friendAdvancedDataAvailable[container.friendID] === undefined
                 ) {
                   msg = "Loading graph data";
+                  if (
+                    finishGettingFriends &&
+                    !friends.includes(container.friendID)
+                  ) {
+                    msg = "You're no longer friends";
+                  }
                 } else if (!friendAdvancedDataAvailable[container.friendID]) {
                   msg = "Friends advanced data unavailable";
                 }
@@ -734,21 +752,46 @@ export default function GraphGrid() {
                       <div
                         style={{ fontSize: "var(--title-text-size)" }}
                         data-tooltip-id={container.i + "-tooltip"}
-                        data-tooltip-content={
-                          container.graphType +
-                          ' of "' +
-                          nameFromDataName(container.data) +
-                          '"' +
-                          (container.data === "numMinutes" ||
-                          container.data === "numStreams" ||
-                          container.data === "percentTimes"
-                            ? " for " + container.dataVariation
+                        data-tooltip-html={
+                          (!emptyData(container.graphType)
+                            ? "Graph Type: " + container.graphType + "<br />"
                             : "") +
-                          (container.data.includes("num") ||
-                          container.data.includes("percent") ||
-                          (container.data.includes("top") &&
-                            !(container.graphType === "Bump"))
-                            ? " for " + container.timeRange
+                          "Data from: " +
+                          (container.bothFriendAndOwnData
+                            ? "Both User and " + container.friendName
+                            : container.friendDataOn
+                            ? container.friendName
+                            : "User") +
+                          "<br />" +
+                          (!emptyData(container.data)
+                            ? "Data Type: " +
+                              nameFromDataName(container.data) +
+                              "<br />"
+                            : "") +
+                          (!emptyData(container.dataVariation)
+                            ? "Data variation: " +
+                              container.dataVariation +
+                              "<br />"
+                            : "") +
+                          (!emptyData(container.timeRange)
+                            ? "Time Range: " + container.timeRange + "<br />"
+                            : "") +
+                          (!emptyData(container.timeFromTo)
+                            ? "Data from to: " +
+                              container.timeFromTo[0] +
+                              " , " +
+                              container.timeFromTo[1] +
+                              "<br />"
+                            : "") +
+                          (!emptyData(container.graphSettings.graphTheme)
+                            ? "Graph Theme: " +
+                              container.graphSettings.graphTheme +
+                              "<br />"
+                            : "") +
+                          (!emptyData(container.graphSettings.clickAction)
+                            ? "Link Click Action: " +
+                              container.graphSettings.clickAction +
+                              "<br />"
                             : "")
                         }
                       >
@@ -773,25 +816,46 @@ export default function GraphGrid() {
                   <div
                     style={{ fontSize: "var(--title-text-size)" }}
                     data-tooltip-id={container.i + "-tooltip"}
-                    data-tooltip-content={
-                      (container.friendName !== undefined
-                        ? container.friendName + "'s "
+                    data-tooltip-html={
+                      (!emptyData(container.graphType)
+                        ? "Graph Type: " + container.graphType + "<br />"
                         : "") +
-                      (container.bothFriendAndOwnData ? "and own " : "") +
-                      container.graphType +
-                      ' of "' +
-                      nameFromDataName(container.data) +
-                      '"' +
-                      (container.data === "numMinutes" ||
-                      container.data === "numStreams" ||
-                      container.data === "percentTimes"
-                        ? " for " + container.dataVariation
+                      "Data from: " +
+                      (container.bothFriendAndOwnData
+                        ? "Both User and " + container.friendName
+                        : container.friendDataOn
+                        ? container.friendName
+                        : "User") +
+                      "<br />" +
+                      (!emptyData(container.data)
+                        ? "Data Type: " +
+                          nameFromDataName(container.data) +
+                          "<br />"
                         : "") +
-                      (container.data.includes("num") ||
-                      container.data.includes("percent") ||
-                      (container.data.includes("top") &&
-                        !(container.graphType === "Bump"))
-                        ? " for " + container.timeRange
+                      (!emptyData(container.dataVariation)
+                        ? "Data variation: " +
+                          container.dataVariation +
+                          "<br />"
+                        : "") +
+                      (!emptyData(container.timeRange)
+                        ? "Time Range: " + container.timeRange + "<br />"
+                        : "") +
+                      (!emptyData(container.timeFromTo)
+                        ? "Data from to: " +
+                          container.timeFromTo[0] +
+                          " , " +
+                          container.timeFromTo[1] +
+                          "<br />"
+                        : "") +
+                      (!emptyData(container.graphSettings.graphTheme)
+                        ? "Graph Theme: " +
+                          container.graphSettings.graphTheme +
+                          "<br />"
+                        : "") +
+                      (!emptyData(container.graphSettings.clickAction)
+                        ? "Link Click Action: " +
+                          container.graphSettings.clickAction +
+                          "<br />"
                         : "")
                     }
                   >
@@ -803,7 +867,10 @@ export default function GraphGrid() {
                   >
                     X
                   </button>
-                  <Tooltip id={container.i + "-tooltip"} />
+                  <Tooltip
+                    id={container.i + "-tooltip"}
+                    style={{ zIndex: 1 }}
+                  />
                 </div>
 
                 {container.graphType === "VertBar" ||
@@ -1056,5 +1123,20 @@ export default function GraphGrid() {
         />
       </React.Fragment>
     );
+  }
+}
+
+function emptyData(data) {
+  if (data === undefined || data === null || data === "") {
+    return true;
+  } else if (typeof data === "object") {
+    if (
+      data.filter((e) => e !== undefined && e !== "" && e !== null).length === 0
+    ) {
+      return true;
+    }
+    return false;
+  } else {
+    return false;
   }
 }

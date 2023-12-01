@@ -45,6 +45,7 @@ export default function Popup({
   const [graphType, setGraph] = useState("ImageGraph");
   const [validName, setValidName] = useState(false);
   const [previewData, setPreviewData] = useState(undefined);
+  const [dataVariation, setDataVariation] = useState("Track");
 
   //Use states to selectively disable choices depending on data type
   const [imageGraph, setImageGraph] = useState(true);
@@ -75,10 +76,10 @@ export default function Popup({
   const [friends, setFriends] = useState();
   const [dataSelected, setDataSelected] = useState();
   const [dataOptions, setDataOptions] = useState([
-    { value: "bar1", label: "Sample Data1", visible: true },
-    { value: "line1", label: "Sample Data1", visible: true },
-    { value: "pie1", label: "Sample Data1", visible: true },
-    { value: "pie2", label: "Sample Data2", visible: false },
+    //{ value: "bar1", label: "Sample Data1", visible: true },
+    //{ value: "line1", label: "Sample Data1", visible: true },
+    //{ value: "pie1", label: "Sample Data1", visible: true },
+    //{ value: "pie2", label: "Sample Data2", visible: false },
     {
       value: "numMinutes",
       label: "Number of minutes listened to",
@@ -615,7 +616,14 @@ export default function Popup({
           {specTimesDataEN ? (
             <div>
               Type of Data:{" "}
-              <select name="dataVariation" disabled={!specTimesDataEN}>
+              <select
+                name="dataVariation"
+                value={dataVariation}
+                onChange={(e) => {
+                  setDataVariation(e.target.value);
+                }}
+                disabled={!specTimesDataEN}
+              >
                 <option value="Tracks">Songs</option>
                 <option value="Artists">Artists</option>
                 <option value="Genres">Genres</option>
@@ -633,14 +641,18 @@ export default function Popup({
                 name="timeRange"
                 disabled={!timesField && !timeRangeImageGraph}
               >
-                <option value="all">All Time</option>
+                <option value="all">
+                  {dataVariation === "all" ? "Year and Month" : "All Time"}
+                </option>
                 {timesDataEN ? (
                   <>
                     <option value="year" disabled={!timesDataEN}>
                       All years
                     </option>
                     <option value="month" disabled={!timesDataEN}>
-                      Past 12 months
+                      {dataVariation === "all"
+                        ? "All months"
+                        : "Past 12 months"}
                     </option>
                   </>
                 ) : (

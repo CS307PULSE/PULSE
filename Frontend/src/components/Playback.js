@@ -763,7 +763,6 @@ function Playback({ syncTrigger = null }) {
             style={{ ...songPlayerButtonStyle, left: "360px" }}
             src={albumArt}
             onClick={() => setExpanded(true)}
-            alt="Album Art"
           />
           <p
             style={{
