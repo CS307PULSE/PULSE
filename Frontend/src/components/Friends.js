@@ -107,7 +107,7 @@ const Friends = () => {
                 publicColorText={friend.textColor}
                 publicColorBackground={friend.backgroundColor}
               />
-              <div class = "center">
+              <div style={{alignContent: "center"}}>
                 <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
                   Remove Friend
                 </button>

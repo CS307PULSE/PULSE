@@ -53,8 +53,19 @@ const Games = () => {
 
   const bodyStyle = {
     backgroundColor: state.colorBackground,
+    // backgroundImage: "url('" + state.backgroundImage + "')",
+    // backgroundSize: "cover", //Adjust the image size to cover the element
+    // backgroundRepeat: "no-repeat", //Prevent image repetition
+    // backgroundAttachment: "fixed", //Keep the background fixed
   };
-
+  const sectionContainerStyle = {
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+    width: "calc(100% - 60px)",
+    padding: "20px",
+    margin: "20px",
+    position: "relative",
+    overflow: "auto"
+  }
   const friendContainerStyle = {
     position: "fixed",
     top: "64px",
@@ -214,70 +225,71 @@ const Games = () => {
         <div style={friendContainerStyle}>
           <FriendsCard />
         </div>
-
-        <h2 style={gamesTitleStyle}>AVAILABLE GAMES</h2>
-        <div style={cardContent}>
-          <div style={buttonContainerStyle}>
-            {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
-            <Link
-              to="/game/guess-the-song"
-              style={{
-                ...buttonStyle,
-                textDecoration: "none",
-                textAlign: "center",
-              }}
-            >
-              GUESS THE SONG
-            </Link>
-            <Link
-              to="/game/guess-the-artist"
-              style={{
-                ...buttonStyle,
-                textDecoration: "none",
-                textAlign: "center",
-              }}
-            >
-              GUESS THE ARTIST
-            </Link>
-            <Link
-              to="/game/guess-who-listens"
-              style={{
-                ...buttonStyle,
-                textDecoration: "none",
-                textAlign: "center",
-              }}
-            >
-              GUESS WHO LISTENS TO THE SONG
-            </Link>
-            <Link
-              to="/game/guess-the-lyric"
-              style={{
-                ...buttonStyle,
-                textDecoration: "none",
-                textAlign: "center",
-              }}
-            >
-              GUESS THE NEXT LYRIC
-            </Link>
-            <Link
-              to="/game/heads-up"
-              style={{
-                ...buttonStyle,
-                textDecoration: "none",
-                textAlign: "center",
-              }}
-            >
-              HEADS UP
-            </Link>
+        <div>
+          <h2 style={gamesTitleStyle}>AVAILABLE GAMES</h2>
+          <div style={cardContent}>
+            <div style={buttonContainerStyle}>
+              {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
+              <Link
+                to="/game/guess-the-song"
+                style={{
+                  ...buttonStyle,
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                GUESS THE SONG
+              </Link>
+              <Link
+                to="/game/guess-the-artist"
+                style={{
+                  ...buttonStyle,
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                GUESS THE ARTIST
+              </Link>
+              <Link
+                to="/game/guess-who-listens"
+                style={{
+                  ...buttonStyle,
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                GUESS WHO LISTENS TO THE SONG
+              </Link>
+              <Link
+                to="/game/guess-the-lyric"
+                style={{
+                  ...buttonStyle,
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                GUESS THE NEXT LYRIC
+              </Link>
+              <Link
+                to="/game/heads-up"
+                style={{
+                  ...buttonStyle,
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                HEADS UP
+              </Link>
+            </div>
           </div>
         </div>
-
         {/* NEED TO FIX PULLING OF GAME STYLE */}
+        <div>
+          <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
 
-        <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
-
-        <div style={{ color: "white", whiteSpace: "pre", marginRight: "400px" }}>
-          {getGameData()}
+          <div style={{ color: "white", whiteSpace: "pre", marginRight: "400px" }}>
+            {getGameData()}
+          </div>
         </div>
       </div>
       <div className="footer"></div>

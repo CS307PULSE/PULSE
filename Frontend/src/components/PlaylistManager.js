@@ -40,12 +40,24 @@ const PlaylistManager = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [playlistSongs, setPlaylistSongs] = useState([]);
 
-  const [playlistName, setPlaylistName] = useState("New Playlist");
-  const [playlistPublic, setPlaylistPublic] = useState(true);
-  const [playlistCollaborative, setPlaylistCollaborative] = useState(true);
-  const [playlistGenre, setPlaylistGenre] = useState("none");
+  const [newPlaylistName, setNewPlaylistName] = useState("New Playlist");
+  const [newPlaylistPublic, setNewPlaylistPublic] = useState(true);
+  const [newPlaylistCollaborative, setNewPlaylistCollaborative] = useState(true);
+  const [newPlaylistGenre, setNewPlaylistGenre] = useState("none");
+
+  const [synthPlaylists1, setSynthPlaylists1] = useState([]);
+  const [synthPlaylists2, setSynthPlaylists2] = useState([]);
+  const [selectedSynthIndex1, setSelectedSynthIndex1] = useState(-1);
+  const [selectedSynthIndex2, setSelectedSynthIndex2] = useState(-1);
+  const [synthSearch1, setSynthSearch1] = useState("");
+  const [synthSearch2, setSynthSearch2] = useState("");
 
   const [imagePath, setImagePath] = useState("");
+
+  const images = {
+    expandButton: "https://www.svgrepo.com/show/93813/up-arrow.svg",
+    searchButton: "https://cdn-icons-png.flaticon.com/256/3917/3917132.png",
+  };
 
   async function searchForSongs(searchString) {
     setSearchResults("loading");
@@ -56,6 +68,8 @@ const PlaylistManager = () => {
     setPlaylists("loading");
     const data = await getPlaylists();
     setPlaylists(data);
+    setSynthPlaylists1(data);
+    setSynthPlaylists2(data);
   }
   useEffect(() => {
     updatePlaylists();
@@ -75,6 +89,14 @@ const PlaylistManager = () => {
       getPlaylistSongs(playlists[selectedPlaylistIndex].id);
     }
   }, [selectedPlaylistIndex]);
+  async function handleSynthSearch1() {
+    const data = await searchSpotify(synthSearch1, "playlist");
+    setSynthPlaylists1(data);
+  }
+  async function handleSynthSearch2() {
+    const data = await searchSpotify(synthSearch2, "playlist");
+    setSynthPlaylists2(data);
+  }
 
   const bodyStyle = {
     backgroundColor: state.colorBackground,
@@ -83,7 +105,6 @@ const PlaylistManager = () => {
     backgroundRepeat: "no-repeat", //Prevent image repetition
     backgroundAttachment: "fixed", //Keep the background fixed
   };
-
   const textStyle = {
     color: state.colorText,
     fontSize: textSizes.body,
@@ -144,11 +165,6 @@ const PlaylistManager = () => {
       margin: "20px",
       position: "relative",
       overflow: "auto"
-  }
-  const imageStyle = {
-    width: "40px",
-    height: "40px",
-    margin: "10px"
   }
 
   return (
@@ -222,19 +238,19 @@ const PlaylistManager = () => {
               <div style={sectionContainerStyle}>
                 <div style={buttonContainerStyle}>
                     <p style={textStyle}>Playlist Name </p>
-                    <input name="playlist-name-field" type="text" style={buttonStyle} value={playlistName} onChange={e => {setPlaylistName(e.target.value)}}></input>
+                    <input name="playlist-name-field" type="text" style={buttonStyle} value={newPlaylistName} onChange={e => {setNewPlaylistName(e.target.value)}}></input>
                 </div>
                 <div style={buttonContainerStyle}>
                     <p style={textStyle}>Public </p>
-                    <input name="public-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistPublic} onChange={e => {setPlaylistPublic(e.target.value)}}></input>
+                    <input name="public-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={newPlaylistPublic} onChange={e => {setNewPlaylistPublic(e.target.value)}}></input>
                 </div>
                 <div style={buttonContainerStyle}>
                     <p style={textStyle}>Collaborative </p>
-                    <input name="collaborative-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={playlistCollaborative} onChange={e => {setPlaylistCollaborative(e.target.value)}}></input>
+                    <input name="collaborative-field" type="checkbox" style={{position: "absolute", right: "20px", width: "50px"}} value={newPlaylistCollaborative} onChange={e => {setNewPlaylistCollaborative(e.target.value)}}></input>
                 </div>
                 <div style={buttonContainerStyle}>
                     <p style={textStyle}>Genre </p>
-                    <select style={buttonStyle} value={playlistGenre} onChange={(e) => setPlaylistGenre(e.target.value)}>
+                    <select style={buttonStyle} value={newPlaylistGenre} onChange={(e) => setNewPlaylistGenre(e.target.value)}>
                       <option key={-1} value={"none"}>Blank Playlist</option>
                       {genreList.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
@@ -243,7 +259,7 @@ const PlaylistManager = () => {
                 </div>
                 <div style={buttonContainerStyle}>
                     <button style={buttonStyle} onClick={() => {
-                      playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre}, updatePlaylists)
+                      playlistPost("create", {name: newPlaylistName, public: newPlaylistPublic, collaborative: newPlaylistCollaborative, genre: newPlaylistGenre}, updatePlaylists)
                     }}>Generate Playlist</button>
                 </div>
               </div>
@@ -258,7 +274,48 @@ const PlaylistManager = () => {
             <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
             </div>
           </>);
-          case "synthesize": return ("");
+          case "synthesize": return (<>
+            <div style={{width:"calc((100% - 120px) * 0.7)"}}> {/* Column 2 */}
+              <div style={{...sectionContainerStyle, display:"flex", height:"calc(100vh - 240px)"}}>
+                <div style={{width:"50%", overflowY:"scroll"}}>
+                  <div style={buttonContainerStyle}>
+                    <input type="text" style={buttonStyle} value={synthSearch1}
+                      onChange={(e) => setSynthSearch1(e.target.value)}
+                      onKeyDown={(e) => {if (e.key === "Enter") {handleSynthSearch1()}}}
+                    />
+                    {/* <img style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}
+                      onClick={() => handleSynthSearch1()}
+                    /> */}
+                  </div>
+                  <ItemList
+                    data={synthPlaylists1}
+                    selectedIndex={selectedSynthIndex1}
+                    onClick={setSelectedSynthIndex1}
+                  />
+                </div>
+                <div style={{width:"50%", overflowY:"scroll"}}>
+                  <div style={buttonContainerStyle}>
+                    <input type="text" style={buttonStyle} value={synthSearch2}
+                      onChange={(e) => setSynthSearch2(e.target.value)}
+                      onKeyDown={(e) => {if (e.key === "Enter") {handleSynthSearch2()}}}
+                    />
+                    {/* <img style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}
+                      onClick={() => handleSynthSearch2()}
+                    /> */}
+                  </div>
+                  <ItemList
+                    data={synthPlaylists2}
+                    selectedIndex={selectedSynthIndex2}
+                    onClick={setSelectedSynthIndex2}
+                  />
+                </div>
+              </div>
+            </div>
+            <div style={{width:"calc((100% - 120px) * 0.3)"}}> {/* Column 2 */}
+              <div style={sectionContainerStyle}>
+              </div>
+            </div>
+          </>);
         }})()}
         
         </div>

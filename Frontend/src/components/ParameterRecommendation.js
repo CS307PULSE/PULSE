@@ -257,7 +257,7 @@ const ParameterRecommendations = () => {
                                 </option>
                             ))}
                         </select>
-                        <button onClick={() => {createEmotion(emotionName, parameters)}} style={buttonStyle}><p>Create</p></button>
+                        <button onClick={() => {createEmotion("New Emotion", parameters)}} style={buttonStyle}><p>Create</p></button>
                         <button onClick={() => {deleteEmotion(selectedEmotionIndex)}} style={buttonStyle}><p>Delete</p></button>
                     </div>
                     {parameterInfo.map((item, index) => (
