@@ -5,24 +5,10 @@ import { useAppContext } from './Context';
 import TextSize from "../theme/TextSize";
 import axios from 'axios';
 
-var friendData;
-try {
-  var friendResponse = await axios.get(
-    "/api/friends/get_friends",
-    { withCredentials: true }
-  );
-  friendData = friendResponse.data;
-} catch (e) {
-  console.log("Friends fetch failed: " + e);
-  friendData = [[]];
-}
-
-
-
 
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
-  const [friendData, setFriendData] = useState([]);
+  const [friendsData, setFriendsData] = useState([]);
 
   const textSizes = TextSize(1); // Obtain text size values
   
@@ -30,14 +16,14 @@ const FriendsCard = ({}) => {
   useEffect(() => {
     const fetchFriendsData = async () => {
       try {
-        const friendResponse = await axios.get(
+        const friendsResponse = await axios.get(
           "/api/friends/get_friends",
           { withCredentials: true }
         );
-        setFriendData(friendResponse.data);
+        setFriendsData(friendsResponse.data);
       } catch (e) {
         console.log("Friends fetch failed: " + e);
-        setFriendData([]); // Set an empty array or handle the error accordingly
+        setFriendsData([]); // Set an empty array or handle the error accordingly
       }
     };
 
@@ -83,6 +69,26 @@ const FriendsCard = ({}) => {
     textDecoration: "none",
     color: "inherit"
   };
+
+  const noFriendsMessage = (
+    <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
+  );
+
+  const renderFriends = () => {
+    return friendsData.map((friend, index) => (
+      <div style={{ marginBottom: "20px" }} key={index}>
+        <Friend
+          name={friend.name}
+          photoFilename={friend.photoUri}
+          favoriteSong={friend.favoriteSong}
+          status={friend.status}
+          publicColorText={friend.textColor}
+          publicColorBackground={friend.backgroundColor}
+        />
+      </div>
+    ));
+  };
+
   return (
     <div style={cardContainerStyle}>
       <Link to="/friends">
@@ -90,21 +96,7 @@ const FriendsCard = ({}) => {
       </Link>
 
       <div className="friend-list">
-        {friendData.map((friend, index) => (
-          <div style={{ marginBottom: "20px" }} key={index}>
-            <Friend
-              name={friend.name}
-              photoFilename={friend.photoUri}
-              favoriteSong={friend.favoriteSong}
-              status={friend.status}
-              publicColorText={friend.textColor}
-              publicColorBackground={friend.backgroundColor}
-            />
-          </div>
-        ))}
-        {friendData.length === 0 && (
-          <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
-        )}
+      {friendsData ? (friendsData.length > 0 ? renderFriends() : noFriendsMessage) : noFriendsMessage}
       </div>
     </div>
   );
