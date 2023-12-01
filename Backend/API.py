@@ -2779,7 +2779,7 @@ def catch_all(path):
 @app.route("/", defaults={"path": ""})
 @app.route("/explorer/<string:path>") 
 @app.route("/explorer/<path:path>")
-def catch_all(path):
+def catch_all_explorer(path):
     print("in catchall path")
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         print("in catchall path if")
