@@ -4,6 +4,7 @@ import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 
 const Card = ({ headerText, children, width = "500px", height = "300px" }) => {
+  //eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 

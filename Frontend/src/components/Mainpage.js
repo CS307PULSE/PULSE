@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
@@ -7,11 +7,11 @@ import Uploader from "./Uploader";
 import Playback from "./Playback";
 import { useAppContext } from "./Context";
 import StatsCard from "./StatsCard";
-import axios from "axios";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 
 function Mainpage() {
+  //eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
@@ -69,31 +69,7 @@ function Mainpage() {
     left: "80%",
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
-  const searchContainerStyle = {
-    display: "flex",
-    marginLeft: "230px",
-    // justifyContent: 'center',
-    marginBottom: "20px",
-  };
-  const searchInputStyle = {
-    padding: "8px",
-    width: "50%",
-  };
 
-  //Update follower data
-  async function updateFollowers() {
-    const response = await axios.get("/api/statistics/update_followers", {
-      withCredentials: true,
-    });
-    const data = response.data;
-    console.log("Followers response:");
-    console.log(response);
-    return data;
-  }
-
-  const handleChatbotClick = () => {
-    alert("Chatbot clicked!");
-  };
   useEffect(() => {
     document.title = "PULSE - Dashboard";
   }, []);
