@@ -2753,13 +2753,16 @@ def unfollow_artist():
 @app.route("/<string:path>") 
 @app.route("/<path:path>")
 def catch_all(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
+    full_path = os.path.join(app.static_folder, path)
+    
+    if path != "" and os.path.exists(full_path):
         return send_from_directory(app.static_folder, path)
     else:
-        error_message = "The page does not exist! Please try going back to the homepage!"
+        error_message = f"The page does not exist! Path: {path}, Full Path: {full_path}"
         error_code = 430
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+
 
 def send_feedback_email(feedback):
     try:
