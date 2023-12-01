@@ -186,7 +186,14 @@ const Games = () => {
     }
 
     const gamesTable = scores.map((gameType, index1) => (
-      <div key={index1}>
+      <div
+        style={{
+          backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+          borderRadius: "20px",
+          padding: "10px",
+        }}
+        key={index1}
+      >
         <h3>
           <u>{getGameType(index1)}</u>
         </h3>
@@ -195,6 +202,7 @@ const Games = () => {
             width: "100%",
             borderCollapse: "collapse",
             marginTop: "10px",
+            overflowX: "scroll",
           }}
         >
           <thead>
@@ -210,7 +218,7 @@ const Games = () => {
                   border: "1px solid " + state.colorBorder,
                 }}
               >
-                Pervious Game
+                Previous Game
               </th>
               {gameType[0].map((_, index2) => (
                 <th
@@ -327,12 +335,9 @@ const Games = () => {
         <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
         <div
           style={{
-            color: "white",
+            color: state.colorText,
             whiteSpace: "pre",
-            padding: "10px",
-            marginRight: "400px",
-            backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-            borderRadius: "20px",
+            marginRight: "20vw",
           }}
         >
           {getGameData()}

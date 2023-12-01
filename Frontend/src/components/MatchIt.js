@@ -3,6 +3,7 @@ import Navbar from './NavBar';
 import MatchCardUser from './MatchCardUser';
 import MatchCardSong from './MatchCardSong';
 import axios from 'axios';
+import PopupPage from './PopupPage';
 
 
 
@@ -19,6 +20,9 @@ class MatchIt extends Component {
       loadingSong: true, // Added loadingSong state
       userId: null, // Added userId state
       songId: null, // Added songId state
+      likedUsers: null,
+      likedSongs: null,
+      showPopup: false,
     };
   }
 
@@ -72,7 +76,9 @@ class MatchIt extends Component {
     }
   };
 
-  onSwipeLeft = async (userId) => {
+  onSwipeLeft = async () => {
+    const { userId } = this.state;
+    console.log("UserID:" + userId)
     console.log("Swiped Left!");
 
     try {
@@ -90,7 +96,8 @@ class MatchIt extends Component {
     }
   };
 
-  onSwipeRight = async (userId) => {
+  onSwipeRight = async () => {
+     const { userId } = this.state;
     console.log("Swiped Right!");
     // Add your custom logic here
     try {
@@ -147,6 +154,65 @@ class MatchIt extends Component {
     }
   };
 
+  handleClosePopup = () => {
+    // Placeholder function for handling popup close
+    this.setState({ showPopup: false });
+  };
+
+  handleViewLiked = () => {
+    const { currentPage } = this.state;
+
+    if (currentPage === 'user') {
+      this.viewLikedUsers();
+
+    } else {
+      this.viewLikedSongs();
+
+    }
+  };
+
+  viewLikedUsers = async () => {
+    // Add logic for viewing liked users
+    console.log("View Liked Users");
+
+    try {
+      // Call the backend view_swiped_users endpoint using GET method
+      const response = await axios.get("/api/user_matcher/view_swiped_users", {
+        withCredentials: true,
+      });
+
+      // Handle the response data and update the state
+      const { data: likedUsers } = response;
+      console.log("Liked Users:", likedUsers);
+
+      this.setState({ likedUsers , showPopup: true});
+    } catch (error) {
+      console.error("Error viewing liked users:", error);
+      // Handle the error as needed
+    }
+  };
+
+
+  viewLikedSongs = async() => {
+    // Add logic for viewing liked songs
+    console.log("View Liked Songs");
+    // Add any additional logic or API calls needed for viewing liked songs
+    try {
+      // Call the backend view_swiped_users endpoint using GET method
+      const response = await axios.get("/api/song_matcher/view_swiped_songs", {
+        withCredentials: true,
+      });
+
+      // Handle the response data and update the state
+      const { data: likedSongs } = response;
+      console.log("Liked Songs:", likedSongs);
+
+      this.setState({ likedSongs, showPopup: true});
+    } catch (error) {
+      console.error("Error viewing liked users:", error);
+      // Handle the error as needed
+    }
+  };
 
   render() {
     const { currentPage, nextUserData, loading, loadingSong } = this.state;
@@ -206,7 +272,7 @@ class MatchIt extends Component {
             {loading ? (
               <p>Loading...</p>
             ) : (
-              <MatchCardUser onSwipeLeft={this.onSwipeLeft} onSwipeRight={this.onSwipeRight} data={nextUserData} handleViewLiked={""} />
+              <MatchCardUser onSwipeLeft={this.onSwipeLeft} onSwipeRight={this.onSwipeRight} data={nextUserData} />
             )}
           </div>
         )}
@@ -222,6 +288,14 @@ class MatchIt extends Component {
        
        
           <div>
+          {this.state.showPopup ? (
+           <PopupPage
+           handleClose={this.handleClosePopup}
+           currentPage={this.state.currentPage}
+           data={this.state.currentPage === 'user' ? this.state.likedUsers : this.state.likedSongs}
+         />
+         
+          ) : (
             <button
               className="view-liked-button"
               onClick={this.handleViewLiked}
@@ -229,6 +303,7 @@ class MatchIt extends Component {
             >
               {viewLikedButtonText}
             </button>
+          )}
           </div>
         </div>
       </div>

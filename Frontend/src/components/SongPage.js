@@ -3,6 +3,8 @@
 import React from "react";
 import MatchCard from "./MatchCardUser";
 import axios from "axios";
+import PopupPage from "./PopupPage"; 
+
 
 const SongPage = ({
   onSwipeLeft,
@@ -11,6 +13,8 @@ const SongPage = ({
   loading,
   handleViewLiked,
 }) => {
+  const [showPopup, setShowPopup] = useState(false);
+
   const centerStyle = {
     display: "flex",
     justifyContent: "center",
@@ -29,7 +33,17 @@ const SongPage = ({
     cursor: "pointer",
   };
 
-  const viewLikedButtonText = "View Liked Song";
+
+
+
+  const handleOpenPopup = () => {
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
 
   return (
     <div>
@@ -44,18 +58,7 @@ const SongPage = ({
           />
         )}
       </div>
-      <div>
-        <button
-          className="view-liked-button"
-          onClick={() => {
-            handleViewLiked();
-            console.log("Hey");
-          }}
-          style={bottomButtonStyle}
-        >
-          {viewLikedButtonText}
-        </button>
-      </div>
+      
     </div>
   );
 };
