@@ -1925,8 +1925,13 @@ def playlist_reorder_tracks():
         range_start = data.get('start')
         insertion_point = data.get('insert')
         amount_of_songs = data.get('amount')
-        refresh_token(user)
-        Playlist.track_reorder(user=user, playlist=playlist, range_start=range_start, insertion_point=insertion_point, amount_of_songs=amount_of_songs)
+        if amount_of_songs > 100 or amount_of_songs < 0:
+            return "The amount of songs must be less than 100!", 200, {'Reason-Phrase': 'OK'}
+        try:
+            refresh_token(user)
+            Playlist.track_reorder(user=user, playlist=playlist, range_start=range_start, insertion_point=insertion_point, amount_of_songs=amount_of_songs)
+        except Exception as e:
+            return "Ensure your indexes correct!", 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
