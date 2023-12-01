@@ -2739,7 +2739,7 @@ def unfollow_artist():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/emotion/save_emotions', methods=['POST'])
-def unfollow_artist():
+def save_emotions():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
@@ -2766,7 +2766,7 @@ def unfollow_artist():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/emotion/pull_emotions', methods=['POST'])
-def unfollow_artist():
+def pull_emotions():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
