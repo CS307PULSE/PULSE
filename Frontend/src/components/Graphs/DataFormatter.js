@@ -208,6 +208,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
   }
   let dataOrders = [];
   for (const item of dataOrder) {
+    dataOrders.push(item);
     dataOrders.push("User " + item);
     if (props.friendName !== undefined) {
       dataOrders.push(props.friendName + " " + item);
