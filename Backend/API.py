@@ -18,7 +18,7 @@ import spotipy
 import requests
 from spotipy.oauth2 import SpotifyOAuth
 
-app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
+app = Flask(__name__, static_folder='../Frontend/build/', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
@@ -112,7 +112,7 @@ scopes = [
 scope = ' '.join(scopes)
 @app.route('/')
 def index():
-    return app.send_static_file('index.html'), 200, {'Reason-Phrase': 'OK'}
+    return app.send_static_file('../index.html'), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/boot')
 def boot():
@@ -2754,14 +2754,13 @@ def unfollow_artist():
 @app.route("/<string:path>") 
 @app.route("/<path:path>")
 def catch_all(path):
-
+    print("in catchall path")
     if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
-        error_message = "The page does not exist! Please try going back to the homepage!"
-        error_code = 430
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
 
 
 def send_feedback_email(feedback):
