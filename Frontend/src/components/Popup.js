@@ -76,10 +76,10 @@ export default function Popup({
   const [friends, setFriends] = useState();
   const [dataSelected, setDataSelected] = useState();
   const [dataOptions, setDataOptions] = useState([
-    { value: "bar1", label: "Sample Data1", visible: true },
-    { value: "line1", label: "Sample Data1", visible: true },
-    { value: "pie1", label: "Sample Data1", visible: true },
-    { value: "pie2", label: "Sample Data2", visible: false },
+    //{ value: "bar1", label: "Sample Data1", visible: true },
+    //{ value: "line1", label: "Sample Data1", visible: true },
+    //{ value: "pie1", label: "Sample Data1", visible: true },
+    //{ value: "pie2", label: "Sample Data2", visible: false },
     {
       value: "numMinutes",
       label: "Number of minutes listened to",
