@@ -55,11 +55,11 @@ const Games = () => {
 
   const bodyStyle = {
     backgroundColor: state.colorBackground,
-    backgroundImage: "url('" + state.backgroundImage + "')",
-    backgroundSize: "cover", //Adjust the image size to cover the element
-    backgroundRepeat: "no-repeat", //Prevent image repetition
-    backgroundAttachment: "fixed", //Keep the background fixed
-    height: "100%",
+    // backgroundImage: "url('" + state.backgroundImage + "')",
+    // backgroundSize: "cover", //Adjust the image size to cover the element
+    // backgroundRepeat: "no-repeat", //Prevent image repetition
+    // backgroundAttachment: "fixed", //Keep the background fixed
+    // height: "100%",
   };
   const sectionContainerStyle = {
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),

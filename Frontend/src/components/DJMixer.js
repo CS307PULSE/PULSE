@@ -3,9 +3,9 @@ import Navbar from "./NavBar";
 import Playback from "./Playback";
 import FriendsCard from "./FriendsCard";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import TextSize from "../theme/TextSize";
 import { useAppContext } from "./Context";
+import { hexToRGBA } from "../theme/Colors";
 
 const DJMixer = () => {
   const { state, dispatch } = useAppContext();
@@ -31,9 +31,13 @@ const DJMixer = () => {
   const buttonContainerStyle = {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "flex-start",
+    alignContent: "center",
     height: "auto", // Take up the full height
     width: "70%", // Adjust the width of the button container
+    padding: "20px",
+    margin: "20px",
+    overflow: "auto",
+    alignContent: "center"
   };
   
   const buttonStyle = {
@@ -46,7 +50,7 @@ const DJMixer = () => {
     borderRadius: "10px",
     cursor: "pointer",
     margin: "5px",
-    width: "70%", // Adjust the width to take up the entire space available
+    width: "calc(100% - 100px)", // Adjust the width to take up the entire space available
     textAlign: "center", // Center the text horizontally
   };
 
