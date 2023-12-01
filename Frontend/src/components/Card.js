@@ -4,14 +4,13 @@ import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 
 const Card = ({ headerText, children, width = "500px", height = "300px" }) => {
-  //eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const cardContainerStyle = {
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
     border: "1px solid " + state.colorBorder,
-    overflow: "hidden",
+    overflow: "auto",
     width: width,
     height: height,
     margin: "20px",
@@ -39,7 +38,6 @@ const Card = ({ headerText, children, width = "500px", height = "300px" }) => {
     lineHeight: "normal",
     textTransform: "uppercase",
     padding: "16px",
-    overflow: "hidden",
   };
 
   return (
