@@ -1922,9 +1922,9 @@ def playlist_reorder_tracks():
         user = User.from_json(user_data)
         data = request.get_json()
         playlist = data.get('playlist')
-        range_start = data.get('start')
-        insertion_point = data.get('insert')
-        amount_of_songs = data.get('amount')
+        range_start = int(data.get('start'))
+        insertion_point = int(data.get('insert'))
+        amount_of_songs = int(data.get('amount'))
         if amount_of_songs > 100 or amount_of_songs < 0:
             return "The amount of songs must be less than 100!", 200, {'Reason-Phrase': 'OK'}
         try:
