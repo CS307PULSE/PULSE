@@ -372,7 +372,7 @@ function formatSelectionGraphData(props, params) {
                   ? props.friendName + " " + timePeriod
                   : props.friendName !== undefined
                   ? props.friendName + " " + timePeriod
-                  : "User " + timePeriod,
+                  : "" + timePeriod,
                 timeItems,
                 params.itemType,
                 item,
