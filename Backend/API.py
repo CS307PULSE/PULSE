@@ -2759,7 +2759,8 @@ def catch_all(path):
     if path != "" and os.path.exists(full_path):
         return send_from_directory(app.static_folder, path)
     else:
-        error_message = f"The page does not exist! Path: {path}"
+        return send_from_directory(app.static_folder, "index.html")
+        error_message = "The page does not exist! Please try going back to the homepage!"
         error_code = 430
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
