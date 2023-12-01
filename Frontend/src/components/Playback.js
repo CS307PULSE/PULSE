@@ -359,8 +359,7 @@ function Playback({ syncTrigger = null }) {
     shuffleButton: "https://cdn-icons-png.flaticon.com/512/5356/5356895.png",
     expandButton: "https://www.svgrepo.com/show/93813/up-arrow.svg",
     searchButton: "https://cdn-icons-png.flaticon.com/256/3917/3917132.png",
-    queueButton:
-      "https://static-00.iconduck.com/assets.00/queue-icon-512x465-8e7ju60m.png",
+    queueButton: "https://static-00.iconduck.com/assets.00/queue-icon-512x465-8e7ju60m.png",
   };
   const songPlayerStyle = {
     position: "fixed",

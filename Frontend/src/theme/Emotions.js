@@ -14,7 +14,7 @@ export const parameterInfo = [
 ];
 
 export function parseParameters(data, popularity = null) {
-    return [Math.round(data.target_energy * 100) / 100,
+    const result = [Math.round(data.target_energy * 100) / 100,
       popularity ? popularity : Math.round(data.target_popularity),
       Math.round(data.target_acousticness * 100) / 100,
       Math.round(data.target_danceability * 100) / 100,
@@ -26,6 +26,7 @@ export function parseParameters(data, popularity = null) {
       Math.round(data.target_speechiness * 100) / 100,
       Math.round(data.target_tempo),
       Math.round(data.target_valence * 100) / 100];
+    return result;
 }
 
 export const presetEmotions = [

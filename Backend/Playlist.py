@@ -177,10 +177,10 @@ class Playlist:
                     if song['track']['uri'] is not None:
                         track = song['track']['uri']
                         song_list_2.append(track)
-            new_playlist = Playlist.create_playlist(user=user, name=name)
+            new_playlist = Playlist.create_playlist(user=user, name=name).get('id')
             combined_list = song_list_1 + song_list_2
             random.shuffle(combined_list)
-            split_index = len(combined_list)/2
+            split_index = int(len(combined_list)/2)
             song_list_1 = combined_list[:split_index]
             song_list_2 = combined_list[split_index:]
             Playlist.add_track(user, new_playlist, song_list_1)
@@ -190,6 +190,7 @@ class Playlist:
             
     def playlist_fusion(user, name, playlist_1, playlist_2):
         try: 
+            print("entered")
             first_playlist = user.spotify_user.playlist_tracks(playlist_id = playlist_1, limit = 15)
             second_playlist = user.spotify_user.playlist_tracks(playlist_id = playlist_2, limit = 15)
             song_list_1 = []
@@ -208,18 +209,22 @@ class Playlist:
             emotion_1 = Playlist.playlist_genre_analysis(user, playlist_1)
             emotion_2 = Playlist.playlist_genre_analysis(user, playlist_2)
             combined_genre = Emotion.update_and_average_dict(user, emotion_1, emotion_2)
-            seed_tracks = [first_playlist[0], second_playlist[0]]
-            recommended_songs = Emotion.get_emotion_recommendations(user, emotiondict=combined_genre, track=seed_tracks, max_items=80)
-            for song in recommended_songs['tracks']:
+            seed_tracks = [song_list_1[0], song_list_2[0]]
+            recommended_songs = Emotion.get_emotion_recommendations(user, emotiondict=combined_genre, track=seed_tracks, max_items=70)
+            for song in recommended_songs: #['tracks']:
                 uri = song['uri']
                 song_list_3.append(uri)
-            new_playlist = Playlist.create_playlist(user=user, name=name)
+            new_playlist = Playlist.create_playlist(user=user, name=name).get('id')
             combined_list = song_list_1 + song_list_2 + song_list_3
+            print(song_list_3)
+            print(len(song_list_3))
             random.shuffle(combined_list)
-            split_index = len(combined_list)/2
+            split_index = int(len(combined_list)/2)
             song_list_1 = combined_list[:split_index]
             song_list_2 = combined_list[split_index:]
             Playlist.add_track(user, new_playlist, song_list_1)
             Playlist.add_track(user, new_playlist, song_list_2)
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
+        except Exception as e:
+            print(e)
