@@ -1,4 +1,5 @@
 from flask import Flask, redirect, request, session, url_for, make_response, render_template, jsonify, render_template_string, Response, send_from_directory
+from werkzeug.utils import safe_join
 from flask_cors import CORS, cross_origin
 from .User import User
 from datetime import datetime, timedelta
@@ -2768,7 +2769,9 @@ def unfollow_artist():
 @app.route("/<path:path>")
 def catch_all(path):
     print("in catchall path")
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
+    full_path = safe_join(app.static_folder, path)
+
+    if path != "" and os.path.exists(full_path) and os.path.isfile(full_path):
         print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
