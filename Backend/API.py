@@ -2195,6 +2195,7 @@ def song_swipe_left():
         user = User.from_json(user_data)
         data = request.get_json()
         rejected_song = data.get('song')
+        print(rejected_song)
         refresh_token(user)
 
         with DatabaseConnector(db_config) as conn:
@@ -3089,7 +3090,7 @@ def refresh_token(user, e=None):
         try_count += 1
 
     print("Couldn't refresh token")
-    return False
+    return False, 200, {'Reason-Phrase': 'OK'}
 
 """
 if __name__ == '__main__':
