@@ -105,9 +105,10 @@ class Playlist:
             genredict = None
             song_list = []
             for song in analysis['items']:
-                track = song['track']['id']
-                popularity = song['track']['popularity']
-                song_list.append(track)
+                if song['track'] != None:
+                    track = song.get('track').get('id')
+                    popularity = song.get('track').get('popularity')
+                    song_list.append(track)
             dict_list = Emotion.convert_tracks(user, song_list, popularity)
             for dict in dict_list:
                 if first_iteration:
@@ -202,7 +203,7 @@ class Playlist:
             combined_genre = Emotion.update_and_average_dict(user, emotion_1, emotion_2)
             seed_tracks = [first_playlist[0], second_playlist[0]]
             recommended_songs = Emotion.get_emotion_recommendations(user, emotiondict=combined_genre, track=seed_tracks, max_items=80)
-            for song in recommended_songs['tracks']
+            for song in recommended_songs['tracks']:
                 uri = song['uri']
                 song_list_3.append(uri)
             new_playlist = Playlist.create_playlist(user=user, name=name)
