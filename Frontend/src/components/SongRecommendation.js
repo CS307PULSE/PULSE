@@ -12,10 +12,10 @@ import { playItem, queueItem } from "./Playback";
 // eslint-disable-next-line no-unused-vars
 
 async function getRecommendationsFromSong(track) {
-  if (track) { return; }
+  if (!track) { return; }
   try {
     const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post("/api/explorer/songrec", { track: track.id });
+    const response = await axiosInstance.post("/api/explorer/songrec", { track_id: track.id });
     const data = response.data;
     return data;
   } catch (e) {
@@ -40,10 +40,10 @@ const SongRecommendation = () => {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
+  const [syncValue, setSyncValue] = useState(Date.now());
   const [receivedSearchData, setReceivedSearchData] = useState(null);
   const [receivedRecData, setReceivedRecData] = useState(null);
   const [searchString, setSearchString] = useState("");
-  const [recString, setRecString] = useState("");
   const [selectedSongIndex, setSelectedSongIndex] = useState(-1);
   const [selectedSongName, setSelectedSongName] = useState();
 
@@ -65,16 +65,14 @@ const SongRecommendation = () => {
 
   async function updateRecommendations() {
     try {
-      if (recString) {
+      if (receivedSearchData) {
         setReceivedRecData("loading");
-        const response = await getRecommendationsFromSong(receivedSearchData[selectedSongIndex]);
-        const data = response.data;
-        if (data) {
-          setReceivedRecData(data);
-        }
+        const data = await getRecommendationsFromSong(receivedSearchData[selectedSongIndex]);
+        setReceivedRecData(data);
       }
     } catch (e) {
       console.log(e);
+      setReceivedRecData(null);
     }
   }
   useEffect(() => {
@@ -156,15 +154,15 @@ const SongRecommendation = () => {
             />
           </div>
           <div style={sectionContainerStyle}>
-            <p style={headerTextStyle}>Recommendations {selectedSongName ? "based on: " + selectedSongName : ""}</p>
+            <p style={headerTextStyle}>Recommendations: {selectedSongName}</p>
             <ItemList
               data={receivedRecData}
-              onClick={(index) => playItem(receivedRecData[index])}
+              onClick = {(index) => playItem(receivedRecData[index], () => setSyncValue(Date.now()))}
             />
           </div>
         </div>
       </div>
-      <div className="footer"><Playback /></div>
+      <div className="footer"><Playback syncTrigger={syncValue}/></div>
     </div>
   );
 };

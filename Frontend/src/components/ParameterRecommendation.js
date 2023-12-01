@@ -8,13 +8,14 @@ import { parameterInfo, presetEmotions } from "../theme/Emotions";
 import axios from "axios";
 import { genreList, parseParameters } from "../theme/Emotions";
 import ItemList from "./ItemList";
+import { getPlaylists } from "./PlaylistManager";
 
 const ParameterRecommendations = () => {  
     const { state, dispatch } = useAppContext();
     const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
-    const [parameters, setParameters] = useState([0,0,0,0,0,0,0,0,0,0,0,0]);
-    const [emotions, setEmotions] = useState([...presetEmotions]);
+    const [parameters, setParameters] = useState([0.5,0.5,0.5,0.5,5,0.5,0.5,-7,1,0.5,120,0.5]);
+    const [emotions, setEmotions] = useState([]);
     const [selectedEmotionIndex, setSelectedEmotionIndex] = useState(-1);
     const [playlists, setPlaylists] = useState([]);
     const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(0);
@@ -28,7 +29,7 @@ const ParameterRecommendations = () => {
         updatedValues[index] = newValue;
         setParameters(updatedValues);
         if(selectedEmotionIndex >= 0) {
-            if (selectedEmotionIndex < 3) {
+            if (selectedEmotionIndex < presetEmotions.length) {
                 setSelectedEmotionIndex(-1);
                 setEmotionName(emotionName + " (edited)");
             } else {
@@ -57,14 +58,15 @@ const ParameterRecommendations = () => {
             console.error("Error retrieving emotion: " + e);
         }
     }
-    async function createEmotion(name, parameters) {
-        var newEmotion = {name: name, parameters: parameters};
+    async function createEmotion(newName, newParameters) {
+        var newEmotion = {name: newName, parameters: newParameters};
         var tempEmotions = emotions;
         tempEmotions.push(newEmotion);
         setEmotions(tempEmotions);
         setSelectedEmotionIndex(emotions.length - 1);
-        setEmotionName(name);
-        setParameters(await parameters);
+        setEmotionName(newName);
+        setParameters(await newParameters);
+        saveEmotions(emotions.slice(presetEmotions.length));
     }
     function deleteEmotion(index) {
         try {
@@ -85,32 +87,62 @@ const ParameterRecommendations = () => {
         } else {
           return "https://iaaglobal.s3.amazonaws.com/bulk_images/no-image.png";
         }
-      }
-    async function getPlaylists() {
-        setPlaylists("loading");
-        const axiosInstance = axios.create({withCredentials: true});
-        var response = await axiosInstance.get("/api/statistics/get_saved_playlists");
-        const parsedPlaylists = JSON.parse(response.data.saved_playlists);
-        setPlaylists(parsedPlaylists);
     }
     useEffect(() => {
-        getPlaylists();
+        (async () => {
+            setPlaylists("loading");
+            const parsedPlaylists = await getPlaylists();
+            setPlaylists(parsedPlaylists);
+        })();
     }, []);
     async function getEmotions() {
-        var response = await axios.get("/statistics/get_saved_playlists", {withCredentials: true});
-        const parsedPlaylists = JSON.parse(response.data.saved_playlists);
-        setPlaylists(parsedPlaylists);
+        try {
+            const response = await axios.get("/api/emotion/pull_emotions", {withCredentials: true});
+            const data = response.data;
+            const newEmotions = data.map(item => ({name: item.name, parameters: parseParameters(item.parameters)})); 
+            setEmotions([...presetEmotions, ...newEmotions]);
+        } catch (e) {
+            console.log(e);
+            setEmotions(presetEmotions);
+        }
+    }
+    async function saveEmotions(data) {
+        const emotions = (await data).map(item => ({
+            name: item.name, 
+            parameters: ({
+                target_energy: item.parameters[0],
+                target_popularity: item.parameters[1],
+                target_acousticness: item.parameters[2],
+                target_danceability: item.parameters[3],
+                target_duration_ms: item.parameters[4],
+                target_instrumentalness: item.parameters[5],
+                target_liveness: item.parameters[6],
+                target_loudness: item.parameters[7],
+                target_mode: item.parameters[8],
+                target_speechiness: item.parameters[9],
+                target_tempo: item.parameters[10],
+                target_valence: item.parameters[11]
+            })
+        }));
+        const axiosInstance = axios.create({withCredentials: true});
+        const response = await axiosInstance.post("/api/emotion/save_emotions", {emotions: emotions});
+        return response.data;
     }
     useEffect(() => {
-        //getEmotions();
+        getEmotions();
     }, []);
     async function derivePlaylistEmotion(playlistID) {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("/api/recommendations/get_playlist_dict", {playlist: playlistID});
         const data = response.data;
         const newParameters = parseParameters(data);
-        console.log(newParameters);
         return newParameters;
+    }
+    async function handleDeriveEmotion() {
+        if (!playlists) { return; }
+        try {
+            createEmotion(derivedEmotionName, await derivePlaylistEmotion(playlists[selectedPlaylistIndex].id))
+        } catch (e) { console.log(e); }
     }
     async function getEmotionRecommendations(name, parameters, genre) {
         const axiosInstance = axios.create({withCredentials: true});
@@ -268,7 +300,7 @@ const ParameterRecommendations = () => {
                     <div style={buttonContainerStyle}>
                         <input type="text" style={buttonStyle} value={derivedEmotionName} onChange={e => {setDerivedEmotionName(e.target.value)}}></input>
                         <button style={{...buttonStyle, width: "200px"}} 
-                            onClick={() => {createEmotion(derivedEmotionName, derivePlaylistEmotion(playlists[selectedPlaylistIndex].id))}}>Derive Emotion</button>
+                            onClick={() => {handleDeriveEmotion()}}>Derive Emotion</button>
                     </div>
                     <ItemList 
                         type="playlists" data={playlists} 

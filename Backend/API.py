@@ -2812,9 +2812,10 @@ def save_emotions():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    response_data = "updated emotions"
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/emotion/pull_emotions', methods=['POST'])
+@app.route('/api/emotion/pull_emotions', methods=['GET'])
 def pull_emotions():
     if 'user' in session:
         user_data = session['user']
@@ -2833,7 +2834,7 @@ def pull_emotions():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/playlist/get_owned', methods=['POST'])
+@app.route('/api/playlist/get_owned', methods=['GET'])
 def get_owned():
     if 'user' in session:
         user_data = session['user']

@@ -20,9 +20,9 @@ async function playlistPost(action, payload, reloadFunction = () => {}) {
 }
 export async function getPlaylists() {
   try {
-      const axiosInstance = axios.create({withCredentials: true});
-    var response = await axiosInstance.get("/api/statistics/get_saved_playlists");
-    const parsedPlaylists = response.data.saved_playlists ? JSON.parse(response.data.saved_playlists) : [];
+    const axiosInstance = axios.create({withCredentials: true});
+    var response = await axiosInstance.get("/api/playlist/get_owned"); 
+    const parsedPlaylists = response.data.items ? response.data.items : [];
     return parsedPlaylists;
   } catch (e) { console.log("Error getting playlists: " + e); }
 }
