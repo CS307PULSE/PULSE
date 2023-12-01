@@ -1125,7 +1125,7 @@ export default function GraphGrid() {
 function emptyData(data) {
   if (data === undefined || data === null || data === "") {
     return true;
-  } else if (data === Array) {
+  } else if (typeof data === "object") {
     if (
       data.filter((e) => e !== undefined && e !== "" && e !== null).length === 0
     ) {
