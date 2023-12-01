@@ -66,19 +66,19 @@ const DJMixer = () => {
             to="/explorer/ParameterRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
-            Parameter Recommendation
+            Parameter Wizard
           </Link>
           <Link
             to="/explorer/SongRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
-            Song Recommendation
+            Song Recommender
           </Link>
           <Link
             to="/explorer/PlaylistRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}
           >
-            Playlist Recommendation
+            Recommendations for Playlists
           </Link>
           <Link
             to="/explorer/PlaylistManager"
