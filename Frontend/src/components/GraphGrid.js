@@ -680,9 +680,17 @@ export default function GraphGrid() {
   }, [finishedPullingData]);
 
   if (!finishedPullingData) {
-    return <>Still Loading...</>;
+    return (
+      <div style={{ textAlign: "center" }}>
+        <p className="loadingText">Still Loading...</p>
+      </div>
+    );
   } else if (!finishedPullingAdvancedData) {
-    return <>Loading Advanced Data...</>;
+    return (
+      <div style={{ textAlign: "center" }}>
+        <p className="loadingText">Loading advanced data...</p>
+      </div>
+    );
   } else {
     return (
       <React.Fragment>

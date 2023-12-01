@@ -158,6 +158,14 @@
   margin: auto;
 }
 
+.loadingText {
+  font-size: 30px;
+  font-style: "normal";
+  font-family: "'Poppins', sans-serif";
+  margin: "20px";
+  font-style: "italic";
+}
+
 html {
   color-scheme: var(--light-dark-scheme) !important;
   color: var(--graph-text-fill);

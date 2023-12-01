@@ -8,7 +8,7 @@ const Card = ({ headerText, children, width = "500px", height = "300px" }) => {
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const cardContainerStyle = {
-    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+    backgroundColor: hexToRGBA(state.colorBackground, 0.6),
     border: "1px solid " + state.colorBorder,
     overflow: "auto",
     width: width,
