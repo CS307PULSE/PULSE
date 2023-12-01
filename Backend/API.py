@@ -418,21 +418,21 @@ def update_followers():
                 else:
                     most_recent_time = current_time - timedelta(days=1)
                 if current_time - most_recent_time >= timedelta(days=1):
-                    return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}    
-                if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
-                    error_message = "Error storing/getting information! Please try logging in again!"
-                    error_code = 415
-                    
-                    error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                    return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-                end_time = time.time()
-                execution_time = end_time - start_time
-                print(f"Execution time: {execution_time} seconds")
-                return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
+                    return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
         except Exception as e:
             print(e)
 
-        
+        with DatabaseConnector(db_config) as conn:
+            if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
+                error_message = "Error storing/getting information! Please try logging in again!"
+                error_code = 415
+                
+                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time} seconds")
+        return jsonify("Success!"), 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
@@ -2195,7 +2195,6 @@ def song_swipe_left():
         user = User.from_json(user_data)
         data = request.get_json()
         rejected_song = data.get('song')
-        print(rejected_song)
         refresh_token(user)
 
         with DatabaseConnector(db_config) as conn:
@@ -2502,7 +2501,7 @@ def user_swipe_left():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(resp)
+    return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/user_matcher/swipe_right', methods=['POST'])
 def user_swipe_right():
@@ -2534,7 +2533,7 @@ def user_swipe_right():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(resp)
+    return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/user_matcher/view_swiped_users')
 def view_swiped_users():
@@ -2543,8 +2542,23 @@ def view_swiped_users():
         user = User.from_json(user_data)
         refresh_token(user)
 
+        swiped_users_response = []
         with DatabaseConnector(db_config) as conn:
             users = conn.get_swiped_users_from_DB(user.spotify_id)
+            for swiped_user_id in users:
+                swiped_user = conn.get_user_from_user_DB(swiped_user_id)
+                if user is not None:
+                    response = {}
+                    response['id'] = swiped_user_id
+                    response['name'] = swiped_user.display_name
+                    response['image'] = conn.get_icon_from_DB(swiped_user_id)
+                    response['song'] = swiped_user.chosen_song
+                    response['status'] = swiped_user.status #user.status
+                    response['text_color'] = swiped_user.public_display_text_color #user.text_color
+                    response['background_color'] = swiped_user.public_display_background_color #user.background_color
+                else:
+                    response = {}
+                swiped_users_response.append(response)
 
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -2552,7 +2566,7 @@ def view_swiped_users():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(users)
+    return jsonify(swiped_users_response), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/feedback', methods=['POST'])
 def feedback():
@@ -2813,10 +2827,9 @@ def save_emotions():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    response_data = "updated emotions"
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/emotion/pull_emotions', methods=['GET'])
+@app.route('/api/emotion/pull_emotions', methods=['POST'])
 def pull_emotions():
     if 'user' in session:
         user_data = session['user']
@@ -2835,7 +2848,7 @@ def pull_emotions():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/playlist/get_owned', methods=['GET'])
+@app.route('/api/playlist/get_owned', methods=['POST'])
 def get_owned():
     if 'user' in session:
         user_data = session['user']
@@ -2852,56 +2865,6 @@ def get_owned():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/playlist/merge', methods=['POST'])
-def playlist_merge():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        data = request.get_json()
-        data = request.get_json()
-        name = data.get('name')
-        playlist_1 = data.get('first_playlist')
-        playlist_2 = data.get('second_playlist')
-        try:
-            refresh_token(user)
-            Playlist.playlist_merge(user, name, playlist_1, playlist_2)
-        except Exception as e:
-            return f"{e}", 200, {'Reason-Phrase': 'OK'}
-        response_data = 'Merged playlists!'
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-    
-@app.route('/api/playlist/fuse', methods=['POST'])
-def playlist_fuse():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        data = request.get_json()
-        name = data.get('name')
-        playlist_1 = data.get('first_playlist')
-        playlist_2 = data.get('second_playlist')
-        try:
-            refresh_token(user)
-            Playlist.playlist_fusion(user, name, playlist_1, playlist_2)
-        except Exception as e:
-            return f"{e}", 200, {'Reason-Phrase': 'OK'}
-        response_data = 'Fuseed playlists!'
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-    
 
 @app.route("/", defaults={"path": ""})
 @app.route("/<string:path>") 
@@ -3141,7 +3104,7 @@ def refresh_token(user, e=None):
         try_count += 1
 
     print("Couldn't refresh token")
-    return False, 200, {'Reason-Phrase': 'OK'}
+    return False
 
 """
 if __name__ == '__main__':
