@@ -2813,7 +2813,7 @@ def catch_all_explorer(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        if (path not in frontendRoutes):
+        if (("explorer/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
             error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
@@ -2830,7 +2830,7 @@ def catch_all_game(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        if (path not in frontendRoutes):
+        if (("game/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
             error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
@@ -2847,7 +2847,7 @@ def catch_all_friends(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        if (path not in frontendRoutes):
+        if (("Friends/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
             error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
