@@ -16,7 +16,6 @@ const FriendsCard = ({}) => {
 
   useEffect(() => {
     const fetchFriendsData = async () => {
-      setLoading(true)
       try {
         const friendsResponse = await axios.get(
           "/api/friends/get_friends",
@@ -30,6 +29,7 @@ const FriendsCard = ({}) => {
     };
 
     fetchFriendsData();
+    setLoading(false)
   }, []); // Empty dependency array ensures that the effect runs only once on mount
 
 
@@ -111,7 +111,7 @@ const loadingTextStyle = {
       </Link>
 
       <div className="friend-list">
-      {(friendsData ? (friendsData.length > 0 ? renderFriends() : noFriendsMessage) : loadingText)}
+        {loading ? loadingText : (friendsData && friendsData.length > 0 ? renderFriends() : noFriendsMessage)}
       </div>
     </div>
   );
