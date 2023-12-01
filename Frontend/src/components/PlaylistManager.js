@@ -56,7 +56,8 @@ const PlaylistManager = () => {
   const [reorderIndexAmount, setReorderIndexAmount] = useState(0);
   const [reorderIndexInsert, setReorderIndexInsert] = useState(0);
   const [reorderResponseText, setReorderResponseText] = useState("");
-
+  const [playlistSearchString, setPlaylistSearchString] = useState("");
+  const [playlistSearch, setPlaylistSearch] = useState([]);
   const [imagePath, setImagePath] = useState("");
 
   const images = {
@@ -102,12 +103,18 @@ const PlaylistManager = () => {
     const data = await searchSpotify(synthSearch2, "playlist");
     setSynthPlaylists2(data);
   }
+  async function handlePlaylistSearch() {
+    const data = await searchSpotify(playlistSearchString, "playlist");
+    setPlaylistSearch(data);
+  }
   async function reorderPlaylist(playlist, start, amount, insert) {
+    if (!playlist) { setReorderResponseText("Please select a playlist!"); return; }
     try {
       setReorderResponseText("Reordering playlist...");
       const data = await playlistPost(
         "reorder_tracks",
-        {playlist: playlist.id, start: parseInt(start), insert: parseInt(insert), amount: parseInt(amount)}
+        {playlist: playlist.id, start: parseInt(start), insert: parseInt(insert), amount: parseInt(amount)},
+        () => getPlaylistSongs(playlists[selectedPlaylistIndex].id)
       )
       console.log(playlist.id);
       console.log(start);
@@ -237,7 +244,7 @@ const PlaylistManager = () => {
                     <input name="reorder-index-3" type="number" style={buttonStyle} value={reorderIndexInsert} onChange={e => {setReorderIndexInsert(e.target.value)}}></input>
                 </div>
                 <p style={textStyle}>{reorderResponseText}</p>
-                <button style={buttonStyle} onClick={() => reorderPlaylist(playlists[selectedPlaylistIndex], reorderIndexStart, reorderIndexAmount, reorderIndexStart)}>Reorder</button>
+                <button style={buttonStyle} onClick={() => reorderPlaylist(playlists[selectedPlaylistIndex], reorderIndexStart, reorderIndexAmount, reorderIndexInsert)}>Reorder</button>
               </div>
             </div>
             <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
@@ -322,6 +329,33 @@ const PlaylistManager = () => {
               </div>
             </div>
             <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
+              <div style={sectionContainerStyle}>
+                <div style={buttonContainerStyle}>
+                  <input type="text" style={buttonStyle} value={playlistSearchString}
+                    onChange={(e) => setPlaylistSearchString(e.target.value)}
+                    onKeyDown={(e) => {if (e.key === "Enter") {handlePlaylistSearch()}}}
+                  />
+                </div>
+                <ItemList
+                  data={playlistSearch}
+                  buttons={
+                  [
+                    {
+                      width: "40px",
+                      value: "-",
+                      size: "30px",
+                      onClick: (item) => {playlistPost("unfollow", {playlist: item.id}, updatePlaylists)}
+                    },
+                    {
+                      width: "40px",
+                      value: "+",
+                      size: "30px",
+                      onClick: (item) => {playlistPost("follow", {playlist: item.id}, updatePlaylists)}
+                    }
+                  ]
+                }
+                />
+              </div>
             </div>
           </>);
           case "synthesize": return (<>

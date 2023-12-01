@@ -8,7 +8,6 @@ const UserPage = ({
   onSwipeRight,
   data,
   loading,
-  handleViewLiked,
 }) => {
   const centerStyle = {
     display: "flex",
@@ -42,18 +41,6 @@ const UserPage = ({
             data={data}
           />
         )}
-      </div>
-      <div>
-        <button
-          className="view-liked-button"
-          onClick={() => {
-            handleViewLiked();
-            console.log("Hey");
-          }}
-          style={bottomButtonStyle}
-        >
-          {viewLikedButtonText}
-        </button>
       </div>
     </div>
   );
