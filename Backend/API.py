@@ -2345,25 +2345,6 @@ def remove_swiped_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/user_matcher/get_user_info', methods=['POST'])
-def get_user_info():
-    data = request.get_json()
-    user_id = data.get('user')
-    with DatabaseConnector(db_config) as conn:
-        user = conn.get_user_from_user_DB(user_id)
-        if user is not None:
-            response = {}
-            response['name'] = user.display_name
-            response['photoUri'] = conn.get_icon_from_DB(user)
-            response['favoriteSong'] = user.chosen_song
-            response['status'] = user.status #user.status
-            response['textColor'] = user.public_display_text_color #user.text_color
-            response['backgroundColor'] = user.public_display_background_color #user.background_color
-            response['spotify_id'] = user.spotify_id
-        else:
-            return {}
-    return json.dumps(response), 200, {'Reason-Phrase': 'OK'}
-
 @app.route('/api/user_matcher/get_next_user')
 def get_next_user():
     if 'user' in session:
@@ -2426,7 +2407,7 @@ def get_next_user():
                 match_user = queue.pop()
 
             else:
-                return {}
+                return {}, 200, {'Reason-Phrase': 'OK'}
 
         # Update DB Parameters
         with DatabaseConnector(db_config) as conn:
@@ -2451,7 +2432,21 @@ def get_next_user():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(match_user), 200, {'Reason-Phrase': 'OK'}
+
+    with DatabaseConnector(db_config) as conn:
+        user = conn.get_user_from_user_DB(match_user)
+        if user is not None:
+            response = {}
+            response['id'] = match_user
+            response['name'] = user.display_name
+            response['image'] = conn.get_icon_from_DB(user)
+            response['song'] = user.chosen_song
+            response['status'] = user.status #user.status
+            response['text_color'] = user.public_display_text_color #user.text_color
+            response['background_color'] = user.public_display_background_color #user.background_color
+        else:
+            return {}
+    return jsonify(response), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/user_matcher/swipe_left', methods=['POST'])
 def user_swipe_left():
