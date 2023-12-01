@@ -15,8 +15,8 @@ import TextGraph from "./Graphs/TextGraph.js";
 import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
-import tempBasicData from "./TempData/BasicStats.js";
-import tempAdvancedData from "./TempData/AdvancedStats";
+//import tempBasicData from "./TempData/BasicStats.js";
+//import tempAdvancedData from "./TempData/AdvancedStats";
 import defaultLayout from "./TempData/defaultLayout";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -293,19 +293,9 @@ export default function GraphGrid() {
 
         setFinished(true);
       } catch (error) {
-        alert("Page failed fetching - loading backup data");
+        alert("Page failed fetching - try refreshing?");
         console.error("Error fetching data:", error);
-        // Temporary measure to keep things going
-        setTopArtists(tempBasicData.top_artists);
-        setTopSongs(tempBasicData.top_songs);
-        setFollowers(tempBasicData.follower_data);
-        setRecentSongs(tempBasicData.recent_history);
-        setSavedSongs(tempBasicData.saved_songs);
-        setSavedAlbums(JSON.parse(tempBasicData.saved_albums));
-        setFollowedArtists(tempBasicData.followed_artists);
-        setSavedPlaylists(tempBasicData.saved_playlists);
-
-        setFinished(true);
+        setFinished(false);
       }
     };
 
@@ -378,10 +368,10 @@ export default function GraphGrid() {
         setAdvancedData("Empty");
         */
         alert(
-          "Page failed fetching advanced data - loading backup advanced data"
+          "Page failed fetching advanced data - please upload your advanced data"
         );
         console.error("Error fetching advanced data:", error);
-        setAdvancedData(tempAdvancedData);
+        //setAdvancedData(tempAdvancedData);
       }
     };
     fetchData();

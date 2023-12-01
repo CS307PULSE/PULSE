@@ -579,11 +579,17 @@ export default function Popup({
             Graph Type:{" "}
             <select name="graphType" value={graphType} onChange={changeGraph}>
               <option value="ImageGraph">Images</option>
-              <option value="VertBar">Vertical Bar</option>
-              <option value="HortBar">Horizontal Bar</option>
+              <option value="VertBar" disabled={!advancedDataAvailable}>
+                Vertical Bar
+              </option>
+              <option value="HortBar" disabled={!advancedDataAvailable}>
+                Horizontal Bar
+              </option>
               <option value="RadBar">Radial Bar</option>
               <option value="Line">Line</option>
-              <option value="Pie">Pie</option>
+              <option value="Pie" disabled={!advancedDataAvailable}>
+                Pie
+              </option>
               <option value="Bump">Bump</option>
               <option value="Radar">Radar</option>
               <option value="Scatter">Scatter</option>
