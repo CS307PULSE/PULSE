@@ -65,9 +65,8 @@ export default function StatisticsPage() {
       <div className="content" style={bodyStyle}>
         <div style={{ padding: "20px" }} />
         <GraphGrid />
-        <div style={{ padding: "30px" }} />
-        <Playback />
       </div>
+      <Playback />
     </div>
   );
 }
