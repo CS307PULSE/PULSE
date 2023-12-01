@@ -500,7 +500,7 @@ export default function Popup({
       }
     }
     if (formJson.timeFrom !== undefined && formJson.timeTo !== undefined) {
-      if (new Date(formJson.timeTo) > new Date(formJson.timeFrom)) {
+      if (new Date(formJson.timeTo) < new Date(formJson.timeFrom)) {
         alert("Invalid time range - time to cannot be later than time from!");
         return;
       }
