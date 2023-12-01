@@ -2914,7 +2914,7 @@ def update_data(user,
         else:
             if (retries > max_retries):
                 raise Exception
-            return update_data(user, retries=retries+1), 200, {'Reason-Phrase': 'OK'}
+            return update_data(user, retries=retries+1)
 
 def get_user_seed_tracks(user):
     # Two seed tracks from past month and three from recent history
@@ -2937,7 +2937,7 @@ def get_user_seed_tracks(user):
 
     for i, seed_track in enumerate(seed_tracks):
         seed_tracks[i] = seed_track.split(":")[-1]
-    return seed_tracks, 200, {'Reason-Phrase': 'OK'}
+    return seed_tracks
 
 def initialize_swiping_perferences(user, seed_tracks):
     audio_features_list = []
@@ -2955,7 +2955,7 @@ def initialize_swiping_perferences(user, seed_tracks):
                 total = sum([af[key] for af in audio_features_list])
                 average_audio_features[key] = total / num_tracks
 
-        return average_audio_features, 200, {'Reason-Phrase': 'OK'}
+        return average_audio_features
     else:
         return {
                 "danceability": 0.5,         # Typical range: 0 to 1
@@ -2970,7 +2970,7 @@ def initialize_swiping_perferences(user, seed_tracks):
                 "valence": 0.5,             # Typical range: 0 to 1
                 "tempo": 120,               # Typical range: 60 to 200 (beats per minute)
                 "time_signature": 4         # Typical values: 3, 4, 5
-                }, 200, {'Reason-Phrase': 'OK'}
+                }
 
 def get_genre_groups(user):
     update_data(user)
@@ -3016,7 +3016,7 @@ def refresh_token(user, e=None):
                         raise UserNotFoundError
                 session["user"] = user.to_json()
                 print("Token successfully refreshed!")
-                return True, 200, {'Reason-Phrase': 'OK'}
+                return True
             
         except Exception as ex:
             print(f"An unexpected error occurred: {ex}")
@@ -3024,7 +3024,7 @@ def refresh_token(user, e=None):
         try_count += 1
 
     print("Couldn't refresh token")
-    return False, 200, {'Reason-Phrase': 'OK'}
+    return False
 
 """
 if __name__ == '__main__':
