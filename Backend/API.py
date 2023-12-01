@@ -2363,6 +2363,7 @@ def get_next_user():
                 genre_groups = list(map(str, genre_groups))
             if genre_groups is None or genre_groups == []:
                 genre_groups = get_genre_groups(user)
+                genre_groups = [x + 1 for x in genre_groups] # 1-indexed
                 genre_groups = list(map(str, genre_groups))
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
@@ -2758,7 +2759,8 @@ def catch_all(path):
     if path != "" and os.path.exists(full_path):
         return send_from_directory(app.static_folder, path)
     else:
-        error_message = f"The page does not exist! Path: {path}, Full Path: {full_path}"
+        return send_from_directory(app.static_folder, "index.html")
+        error_message = "The page does not exist! Please try going back to the homepage!"
         error_code = 430
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
