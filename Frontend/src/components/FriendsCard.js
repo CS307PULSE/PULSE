@@ -9,12 +9,14 @@ import axios from 'axios';
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
   const [friendsData, setFriendsData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const textSizes = TextSize(1); // Obtain text size values
   
 
   useEffect(() => {
     const fetchFriendsData = async () => {
+      setLoading(true)
       try {
         const friendsResponse = await axios.get(
           "/api/friends/get_friends",
@@ -74,6 +76,19 @@ const FriendsCard = ({}) => {
     <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
   );
 
+const loadingTextStyle = {
+    color: state.colorText,
+    fontSize: textSizes.header2,
+    fontStyle: "normal",
+    fontFamily: "'Poppins', sans-serif",
+    margin: "20px",
+    fontStyle: "italic"
+  };
+
+  const loadingText =(  <div style={{textAlign: "center"}}>
+  <p style={loadingTextStyle}>Loading...</p>
+</div>);
+
   const renderFriends = () => {
     return friendsData.map((friend, index) => (
       <div style={{ marginBottom: "20px" }} key={index}>
@@ -96,7 +111,7 @@ const FriendsCard = ({}) => {
       </Link>
 
       <div className="friend-list">
-      {friendsData ? (friendsData.length > 0 ? renderFriends() : noFriendsMessage) : noFriendsMessage}
+      {(friendsData ? (friendsData.length > 0 ? renderFriends() : noFriendsMessage) : loadingText)}
       </div>
     </div>
   );
