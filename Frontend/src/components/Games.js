@@ -55,11 +55,11 @@ const Games = () => {
 
   const bodyStyle = {
     backgroundColor: state.colorBackground,
-    // backgroundImage: "url('" + state.backgroundImage + "')",
-    // backgroundSize: "cover", //Adjust the image size to cover the element
-    // backgroundRepeat: "no-repeat", //Prevent image repetition
-    // backgroundAttachment: "fixed", //Keep the background fixed
-    // height: "100%",
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
+    height: "100%",
   };
   const sectionContainerStyle = {
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
@@ -67,8 +67,8 @@ const Games = () => {
     padding: "20px",
     margin: "20px",
     position: "relative",
-    overflow: "auto"
-  }
+    overflow: "auto",
+  };
   const friendContainerStyle = {
     position: "fixed",
     top: "64px",
@@ -326,7 +326,14 @@ const Games = () => {
         {/* NEED TO FIX PULLING OF GAME STYLE */}
         <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
         <div
-          style={{ color: "white", whiteSpace: "pre", marginRight: "400px" }}
+          style={{
+            color: "white",
+            whiteSpace: "pre",
+            padding: "10px",
+            marginRight: "400px",
+            backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+            borderRadius: "20px",
+          }}
         >
           {getGameData()}
         </div>
