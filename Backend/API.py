@@ -2345,6 +2345,25 @@ def remove_swiped_song():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(resp), 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/api/user_matcher/get_user_info', methods=['POST'])
+def get_user_info():
+    data = request.get_json()
+    user_id = data.get('user')
+    with DatabaseConnector(db_config) as conn:
+        user = conn.get_user_from_user_DB(user_id)
+        if user is not None:
+            response = {}
+            response['name'] = user.display_name
+            response['photoUri'] = conn.get_icon_from_DB(user)
+            response['favoriteSong'] = user.chosen_song
+            response['status'] = user.status #user.status
+            response['textColor'] = user.public_display_text_color #user.text_color
+            response['backgroundColor'] = user.public_display_background_color #user.background_color
+            response['spotify_id'] = user.spotify_id
+        else:
+            return {}
+    return json.dumps(response), 200, {'Reason-Phrase': 'OK'}
+
 @app.route('/api/user_matcher/get_next_user')
 def get_next_user():
     if 'user' in session:
@@ -2363,7 +2382,7 @@ def get_next_user():
                 genre_groups = list(map(str, genre_groups))
             if genre_groups is None or genre_groups == []:
                 genre_groups = get_genre_groups(user)
-                genre_groups = [x + 1 for x in genre_groups] # 1-indexed
+                genre_groups = [x + 1 for x in genre_groups] # 1-inde
                 genre_groups = list(map(str, genre_groups))
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
