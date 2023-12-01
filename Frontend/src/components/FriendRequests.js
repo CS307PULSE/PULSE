@@ -124,7 +124,7 @@ const FriendRequests = () => {
         <div style={buttonContainerStyle}>
           <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
         </div>
-        {requestsData.length > 0 ? renderRequestRows() : noRequestsMessage}
+        {requestsData ? (requestsData.length > 0 ? renderRequestRows() : noRequestsMessage) : noRequestsMessage}
       </div>
       <div className="footer"><Playback /></div>
     </div>
