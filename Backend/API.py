@@ -2703,7 +2703,7 @@ def get_song_dict():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/emotion/pull_emotions', methods=['POST'])
+@app.route('/api/emotion/pull_emotions', methods=['GET'])
 def pull_emotions():
     if 'user' in session:
         user_data = session['user']
@@ -2722,7 +2722,7 @@ def pull_emotions():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/api/playlist/get_owned', methods=['POST'])
+@app.route('/api/playlist/get_owned', methods=['GET'])
 def get_owned():
     if 'user' in session:
         user_data = session['user']
@@ -2870,43 +2870,6 @@ def save_emotions():
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     response_data = "Saved emotions!"
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/emotion/pull_emotions', methods=['GET'])
-def pull_emotions():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        try:
-            refresh_token(user)
-            with DatabaseConnector(db_config) as conn:
-                response_data = conn.get_emotion_from_DB(user.spotify_id)
-        except Exception as e:
-            return f"{e}", 200, {'Reason-Phrase': 'OK'}
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
-
-@app.route('/api/playlist/get_owned', methods=['GET'])
-def get_owned():
-    if 'user' in session:
-        user_data = session['user']
-        user = User.from_json(user_data)
-        try:
-            refresh_token(user)
-            response_data = user.spotify_user.current_user_playlists()
-        except Exception as e:
-            return f"{e}", 200, {'Reason-Phrase': 'OK'}
-    else:
-        error_message = "The user is not in the session! Please try logging in again!"
-        error_code = 410
-        
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route("/", defaults={"path": ""})
