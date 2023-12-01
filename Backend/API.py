@@ -2738,6 +2738,52 @@ def unfollow_artist():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/api/emotion/save_emotions', methods=['POST'])
+def unfollow_artist():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        emotions = data.get('emotions')
+        try:
+            refresh_token(user)
+            with DatabaseConnector(db_config) as conn:
+                if (conn.update_emotion(user.spotify_id, emotions) == -1):
+                    error_message = "Error storing/getting information! Please try logging in again!"
+                    error_code = 415
+                    
+                    error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                    return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/api/emotion/pull_emotions', methods=['POST'])
+def unfollow_artist():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        try:
+            refresh_token(user)
+            with DatabaseConnector(db_config) as conn:
+                response_data = conn.get_emotion_from_DB(user.spotify_id)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
 @app.route("/", defaults={"path": ""})
 @app.route("/<string:path>") 
 @app.route("/<path:path>")
