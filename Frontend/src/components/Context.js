@@ -59,17 +59,15 @@ export const AppContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     async function fetchContextData() {
-        dispatch({type: 'UPDATE_TEXT_SIZE', payload: await getUserField('/api/profile/get_text_size')});
-        dispatch({type: 'UPDATE_BACKGROUND_IMAGE', payload: await getUserField('/api/profile/get_background_image')});
-        dispatch({type: 'UPDATE_COLOR_ALL', payload: await getUserField('/api/profile/get_color_palette')});
-        dispatch({type: 'UPDATE_SAVED_THEMES', payload: await getUserField('/api/profile/get_saved_themes')});
+        try {
+            dispatch({type: 'UPDATE_TEXT_SIZE', payload: await getUserField('/api/profile/get_text_size')});
+            dispatch({type: 'UPDATE_BACKGROUND_IMAGE', payload: await getUserField('/api/profile/get_background_image')});
+            dispatch({type: 'UPDATE_COLOR_ALL', payload: await getUserField('/api/profile/get_color_palette')});
+            dispatch({type: 'UPDATE_SAVED_THEMES', payload: await getUserField('/api/profile/get_saved_themes')});
+        } catch (e) { console.error("Error fetching context: " + e); }
     }
     useEffect(() => {
-        try {
-            fetchContextData();
-        } catch (e) {
-            console.error("Error fetching context: " + e);
-        }
+        fetchContextData();
     }, []);
 
     return (

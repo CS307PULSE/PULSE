@@ -16,14 +16,22 @@ const customBackgrounds = [
 
 async function getUserInfo() {
   try {
-    const response = await axios.get("/api/profile/get_user_info", {
-      withCredentials: true,
-    });
+    const response = await axios.get("/api/profile/get_user_info", { withCredentials: true });
     const data = response.data;
     return data;
   } catch (e) {
-    console.error(e);
-    return;
+    console.log("Failed to get user data:");
+    console.log(e);
+    return {
+      display_name: "undefined",
+      gender: "",
+      location: "",
+      icon: "",
+      favorite_song: "",
+      status: "",
+      text_color: "",
+      background_color: ""
+    }
   }
 }
 var storedUserFields = await getUserInfo();

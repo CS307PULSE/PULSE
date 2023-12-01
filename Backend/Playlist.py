@@ -51,11 +51,9 @@ class Playlist:
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
-    def track_reorder(user, playlist):
+    def track_reorder(user, playlist, range_start, insertion_point, amount_of_songs):
         try:
-            analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
-            length = len(analysis['items'])
-            user.spotify_user.user_playlist_reorder_tracks(user, playlist, range_start = round(length/2), insert_before = 0, range_length = round(length/2))
+            user.spotify_user.user_playlist_reorder_tracks(user, playlist, range_start = range_start, insert_before = insertion_point, range_length = amount_of_songs)
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
 
@@ -105,9 +103,10 @@ class Playlist:
             genredict = None
             song_list = []
             for song in analysis['items']:
-                track = song['track']['id']
-                popularity = song['track']['popularity']
-                song_list.append(track)
+                if song['track'] != None:
+                    track = song.get('track').get('id')
+                    popularity = song.get('track').get('popularity')
+                    song_list.append(track)
             dict_list = Emotion.convert_tracks(user, song_list, popularity)
             for dict in dict_list:
                 if first_iteration:
@@ -124,7 +123,7 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             artistarray = []
             for item in analysis['items']:
-                if len(artistarray) < 5:
+                if len(artistarray) < 5 and item['track'] != None:
                     artist = item['track'].get('artists',{})[0].get('id',None)
                     if artist not in artistarray and artist is not None:
                         artistarray.append(artist)
@@ -139,18 +138,20 @@ class Playlist:
             genredict = None
             song_list = []
             for song in analysis['items']:
-                album = song['track']['album']['id']
-                albumsongs = user.spotify_user.album_tracks(album, limit=5)
-                for song in albumsongs['items']:
-                    track = song['id']
-                    song_list.append(track)
-                dict_list = Emotion.convert_tracks(user, song_list)    
-                for dict in dict_list:
-                    if first_iteration:
-                        genredict = dict
-                        first_iteration = False
-                    else:
-                        genredict = Emotion.update_and_average_dict(user, genredict, dict)
+                if song['track'] != None:
+                    album = song['track']['album']['id']
+                    albumsongs = user.spotify_user.album_tracks(album, limit=5)
+                    for song in albumsongs['items']:
+                        if song['id'] != None:
+                            track = song['id']
+                            song_list.append(track)
+                    dict_list = Emotion.convert_tracks(user, song_list)    
+                    for dict in dict_list:
+                        if first_iteration:
+                            genredict = dict
+                            first_iteration = False
+                        else:
+                            genredict = Emotion.update_and_average_dict(user, genredict, dict)
             return genredict
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
@@ -168,11 +169,13 @@ class Playlist:
             song_list_1 = []
             song_list_2 = []
             for song in first_playlist['items']:
-                track = song['track']['uri']
-                song_list_1.append(track)
+                if song['track'] != None:
+                    track = song['track']['uri']
+                    song_list_1.append(track)
             for song in second_playlist['items']:
-                track = song['track']['uri']
-                song_list_2.append(track)
+                if song['track'] != None:
+                    track = song['track']['uri']
+                    song_list_2.append(track)
             new_playlist = Playlist.create_playlist(user=user, name=name)
             combined_list = song_list_1 + song_list_2
             random.shuffle(combined_list)
@@ -192,11 +195,13 @@ class Playlist:
             song_list_2 = []
             song_list_3 = []
             for song in first_playlist['items']:
-                track = song['track']['uri']
-                song_list_1.append(track)
+                if song['track'] != None:
+                    track = song['track']['uri']
+                    song_list_1.append(track)
             for song in second_playlist['items']:
-                track = song['track']['uri']
-                song_list_2.append(track)
+                if song['track'] != None:
+                    track = song['track']['uri']
+                    song_list_2.append(track)
             emotion_1 = Playlist.playlist_genre_analysis(user, playlist_1)
             emotion_2 = Playlist.playlist_genre_analysis(user, playlist_2)
             combined_genre = Emotion.update_and_average_dict(user, emotion_1, emotion_2)
