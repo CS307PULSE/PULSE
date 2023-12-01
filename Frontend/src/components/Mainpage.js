@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Navbar from "./NavBar";
 import Card from "./Card";
 import FriendsCard from "./FriendsCard";
@@ -7,11 +7,11 @@ import Uploader from "./Uploader";
 import Playback from "./Playback";
 import { useAppContext } from "./Context";
 import StatsCard from "./StatsCard";
-import axios from "axios";
 import TextSize from "../theme/TextSize";
 import { hexToRGBA } from "../theme/Colors";
 
 function Mainpage() {
+  //eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
@@ -35,6 +35,7 @@ function Mainpage() {
     padding: "20px",
     textAlign: "center",
     fontFamily: "'Poppins', sans-serif",
+    overflow: "hidden",
   };
   const cardContent = {
     color: state.colorText,
@@ -67,31 +68,7 @@ function Mainpage() {
     left: "80%",
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
-  const searchContainerStyle = {
-    display: "flex",
-    marginLeft: "230px",
-    // justifyContent: 'center',
-    marginBottom: "20px",
-  };
-  const searchInputStyle = {
-    padding: "8px",
-    width: "50%",
-  };
 
-  //Update follower data
-  async function updateFollowers() {
-    const response = await axios.get("/api/statistics/update_followers", {
-      withCredentials: true,
-    });
-    const data = response.data;
-    console.log("Followers response:");
-    console.log(response);
-    return data;
-  }
-
-  const handleChatbotClick = () => {
-    alert("Chatbot clicked!");
-  };
   useEffect(() => {
     document.title = "PULSE - Dashboard";
   }, []);
@@ -106,8 +83,62 @@ function Mainpage() {
           <Card headerText="STATISTICS" style={cardStyle}>
             <StatsCard />
           </Card>
-          <Card headerText="DJ MIXER" style={cardStyle}>
-            <p style={cardContent}>This is the content of Card 2.</p>
+          <Card headerText="Explorer" style={cardStyle}>
+            <div style={cardContent}>
+              <div style={buttonContainerStyle}>
+                {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
+                <Link
+                  to="/explorer/ParameterRecommendation"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  PARAMETER RECOMMENDATION
+                </Link>
+                <Link
+                  to="/explorer/SongRecommendation"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  SONG RECOMMENDATION
+                </Link>
+                <Link
+                  to="/explorer/PlaylistRecommendation"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  PLAYLIST RECOMMENDATION
+                </Link>
+                <Link
+                  to="/explorer/PlaylistManager"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  PLAYLIST MANAGER
+                </Link>
+                <Link
+                  to="/explorer/ArtistExplorer"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  ARTIST EXPLORER
+                </Link>
+              </div>
+            </div>
           </Card>
           <Card headerText="GAMES" style={cardStyle}>
             <div style={cardContent}>

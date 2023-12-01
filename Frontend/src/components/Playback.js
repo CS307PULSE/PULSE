@@ -745,7 +745,12 @@ function Playback({ syncTrigger = null }) {
       <div>
         <div style={songPlayerStyle}>
           {renderPlayerButtons()}
-          <img id="albumArt" style={{ ...songPlayerButtonStyle, left: "360px" }} src={albumArt} onClick={() => setExpanded(true)}/>
+          <img
+            id="albumArt"
+            style={{ ...songPlayerButtonStyle, left: "360px" }}
+            src={albumArt}
+            onClick={() => setExpanded(true)}
+          />
           <p
             style={{
               color: pulseColors.black,

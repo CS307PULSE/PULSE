@@ -4709,7 +4709,7 @@ export const nameFromDataName = (name) => {
     case "numStreams":
       return "Number of streams listened to";
     case "percentTimes":
-      return "% of music listened to";
+      return "% of item listened to on average";
     case "percentTimePeriod":
       return "Times listened to per time period";
     case "numTimesSkipped":

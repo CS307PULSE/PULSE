@@ -126,7 +126,7 @@ export const BarGraph = (props) => {
         axisRight={null}
         axisLeft={{
           format: (v) => {
-            return v.length > 12 ? v.substring(0, 12) + "…" : v;
+            return v.length > 7 ? v.substring(0, 7) + "…" : v;
           },
           tickSize: 5,
           tickPadding: 5,
@@ -137,7 +137,7 @@ export const BarGraph = (props) => {
         }}
         axisBottom={{
           format: (v) => {
-            return v.length > 12 ? v.substring(0, 12) + "…" : v;
+            return v.length > 7 ? v.substring(0, 7) + "…" : v;
           },
           orient: "bottom",
           tickSize: 5,

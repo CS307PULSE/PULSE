@@ -98,12 +98,16 @@ export default function FilterPopup({
         );
         //If num out of bounds or selected already
         if (randNum >= itemsSelectable.length || randNums.includes(randNum)) {
+          if (randNums.length > (end - start) * 3) {
+            break;
+          }
           i--;
           continue;
         }
+        randNums.push(randNums);
         selected.push(
           emotionData
-            ? itemsSelectable[randNum].uri + "," + i
+            ? itemsSelectable[randNum].uri + "," + randNum
             : itemsSelectable[randNum].uri
         );
       }

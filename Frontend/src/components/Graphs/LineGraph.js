@@ -132,7 +132,7 @@ export const LineGraph = (props) => {
           xScale={xScale}
           yScale={{
             type: "linear",
-            min: "auto",
+            min: 0,
             max: "auto",
             stacked: false,
             reverse: false,
@@ -141,6 +141,9 @@ export const LineGraph = (props) => {
           axisTop={null}
           axisRight={null}
           axisBottom={{
+            format: (v) => {
+              return v.length > 5 ? v.substring(0, 5) + "…" : v;
+            },
             orient: "bottom",
             tickSize: 5,
             tickPadding: 5,
