@@ -103,10 +103,11 @@ class Playlist:
             genredict = None
             song_list = []
             for song in analysis['items']:
-                if song['track'] != None:
+                if song['track'] is not None:
                     track = song.get('track').get('id')
                     popularity = song.get('track').get('popularity')
                     song_list.append(track)
+            print(song_list)
             dict_list = Emotion.convert_tracks(user, song_list, popularity)
             for dict in dict_list:
                 if first_iteration:
@@ -123,7 +124,7 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             artistarray = []
             for item in analysis['items']:
-                if len(artistarray) < 5 and item['track'] != None:
+                if len(artistarray) < 5 and item['track'] is not None:
                     artist = item['track'].get('artists',{})[0].get('id',None)
                     if artist not in artistarray and artist is not None:
                         artistarray.append(artist)
@@ -138,11 +139,11 @@ class Playlist:
             genredict = None
             song_list = []
             for song in analysis['items']:
-                if song['track'] != None:
+                if song['track'] is not None:
                     album = song['track']['album']['id']
                     albumsongs = user.spotify_user.album_tracks(album, limit=5)
                     for song in albumsongs['items']:
-                        if song['id'] != None:
+                        if song['id'] is not None:
                             track = song['id']
                             song_list.append(track)
                     dict_list = Emotion.convert_tracks(user, song_list)    
@@ -169,11 +170,11 @@ class Playlist:
             song_list_1 = []
             song_list_2 = []
             for song in first_playlist['items']:
-                if song['track'] != None:
+                if song['track'] is not None:
                     track = song['track']['uri']
                     song_list_1.append(track)
             for song in second_playlist['items']:
-                if song['track'] != None:
+                if song['track'] is not None:
                     track = song['track']['uri']
                     song_list_2.append(track)
             new_playlist = Playlist.create_playlist(user=user, name=name)
@@ -195,11 +196,11 @@ class Playlist:
             song_list_2 = []
             song_list_3 = []
             for song in first_playlist['items']:
-                if song['track'] != None:
+                if song['track'] is not None:
                     track = song['track']['uri']
                     song_list_1.append(track)
             for song in second_playlist['items']:
-                if song['track'] != None:
+                if song['track'] is not None:
                     track = song['track']['uri']
                     song_list_2.append(track)
             emotion_1 = Playlist.playlist_genre_analysis(user, playlist_1)
