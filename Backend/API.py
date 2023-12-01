@@ -1588,6 +1588,9 @@ def remove_friend():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1598,6 +1601,7 @@ def remove_friend():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    print(jsonarray)
     return json.dumps(jsonarray), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/friends/friend_request_choice', methods=['POST'])
@@ -1624,6 +1628,9 @@ def request_choice():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1650,6 +1657,9 @@ def friend_request_search():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
+                bufferobject['status'] = "needs implemented in backend" #frienduser.status
+                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
+                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -2353,6 +2363,7 @@ def get_next_user():
                 genre_groups = list(map(str, genre_groups))
             if genre_groups is None or genre_groups == []:
                 genre_groups = get_genre_groups(user)
+                genre_groups = [x + 1 for x in genre_groups] # 1-inde
                 genre_groups = list(map(str, genre_groups))
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
@@ -2396,7 +2407,7 @@ def get_next_user():
                 match_user = queue.pop()
 
             else:
-                return {}
+                return {}, 200, {'Reason-Phrase': 'OK'}
 
         # Update DB Parameters
         with DatabaseConnector(db_config) as conn:
@@ -2421,7 +2432,21 @@ def get_next_user():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(match_user), 200, {'Reason-Phrase': 'OK'}
+
+    with DatabaseConnector(db_config) as conn:
+        user = conn.get_user_from_user_DB(match_user)
+        if user is not None:
+            response = {}
+            response['id'] = match_user
+            response['name'] = user.display_name
+            response['image'] = conn.get_icon_from_DB(user)
+            response['song'] = user.chosen_song
+            response['status'] = user.status #user.status
+            response['text_color'] = user.public_display_text_color #user.text_color
+            response['background_color'] = user.public_display_background_color #user.background_color
+        else:
+            return {}
+    return jsonify(response), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/user_matcher/swipe_left', methods=['POST'])
 def user_swipe_left():
@@ -2743,13 +2768,50 @@ def unfollow_artist():
 @app.route("/<string:path>") 
 @app.route("/<path:path>")
 def catch_all(path):
+    print("in catchall path")
     if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
         return send_from_directory(app.static_folder, path)
     else:
-        error_message = "The page does not exist! Please try going back to the homepage!"
-        error_code = 430
-        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
+    
+@app.route("/", defaults={"path": ""})
+@app.route("/explorer/<string:path>") 
+@app.route("/explorer/<path:path>")
+def catch_all_explorer(path):
+    print("in catchall path")
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
+        return send_from_directory(app.static_folder, path)
+    else:
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
+    
+@app.route("/", defaults={"path": ""})
+@app.route("/game/<string:path>") 
+@app.route("/game/<path:path>")
+def catch_all_game(path):
+    print("in catchall path")
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
+        return send_from_directory(app.static_folder, path)
+    else:
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
+    
+@app.route("/", defaults={"path": ""})
+@app.route("/Friends/<string:path>") 
+@app.route("/Friends/<path:path>")
+def catch_all_friends(path):
+    print("in catchall path")
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        print("in catchall path if")
+        return send_from_directory(app.static_folder, path)
+    else:
+        print("in catchall path else")
+        return send_from_directory(app.static_folder, 'index.html')
+
 
 def send_feedback_email(feedback):
     try:

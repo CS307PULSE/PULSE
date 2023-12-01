@@ -27,7 +27,20 @@ const Friends = () => {
 
   useEffect(() => {
     document.title = "PULSE - Friends";
+    fetchFriendsData();
   }, []);
+  
+  const [friendsData, setFriendsData] = useState([]);
+
+  const fetchFriendsData = async () => {
+    try {
+      const friendResponse = await axios.get("/api/friends/get_friends", { withCredentials: true });
+      setFriendsData(friendResponse.data);
+    } catch (e) {
+      console.log("Friends fetch failed: " + e);
+      setFriendsData([]); // Set an empty array or handle the error accordingly
+    }
+  };
 
   const contentStyle = {
     flex: 1, // Ensure content takes available space
@@ -62,7 +75,7 @@ const Friends = () => {
     marginBottom: "16px", // Add vertical space between rows
   };
 
-  const [friendsData, setFriendsData] = useState(initialFriendData); 
+  
 
   async function removeFriend(spotify_id) {
     console.log("friend to be removed is sent to dane:" + spotify_id)
