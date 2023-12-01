@@ -104,13 +104,14 @@ const Uploader = () => {
 
   async function doneTypingPaths() {
     //false if failed
-    var test = !(await sendFilepaths(filepaths));
+    var test = false
+    //!(await sendFilepaths(filepaths));
     console.log("HERE");
     setFilepaths([]);
     if (!test) {
       setLoadingData(false);
       setLoadDataFailed(true);
-      alert("One or more of your filepaths may be incorrect");
+      alert("One or more of your filepaths may be incorrect or too large");
     } else {
       setLoadingData(true);
       setLoadDataFailed(false);
