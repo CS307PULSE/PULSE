@@ -131,7 +131,7 @@ export function setupAdvancedData(props) {
         );
       } else {
         data = formatPercentTimePeriod(
-          props.friendName !== undefined ? props.friendName : "User",
+          props.friendName !== undefined ? props.friendName : "",
           props.data
         );
       }
@@ -325,9 +325,11 @@ function formatSelectionGraphData(props, params) {
         if (index === 0) {
           data = [
             formatXY(
-              props.bothFriendAndOwnData
-                ? props.friendName + " Overall"
-                : "User Overall",
+              props.friendName !== undefined
+                ? props.bothFriendAndOwnData
+                  ? "User Overall"
+                  : props.friendName + " Overall"
+                : "Overall",
               userData,
               params.itemType,
               item,
@@ -426,7 +428,7 @@ function formatSelectionGraphData(props, params) {
 
 function formatAllTimeGraphData(props, params) {
   const newData = props.bothFriendAndOwnData ? props.data : [props.data];
-  const itemName = ["User", props.friendName];
+  const itemName = ["", props.friendName];
   let tempDataArr = newData.map((userData, index) => {
     let tempUserData = [];
     if (props.timeRange === "all") {
