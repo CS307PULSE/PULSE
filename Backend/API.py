@@ -2852,6 +2852,56 @@ def get_owned():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/api/playlist/merge', methods=['POST'])
+def playlist_merge():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        data = request.get_json()
+        name = data.get('name')
+        playlist_1 = data.get('first_playlist')
+        playlist_2 = data.get('second_playlist')
+        try:
+            refresh_token(user)
+            Playlist.playlist_merge(user, name, playlist_1, playlist_2)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+        response_data = 'Merged playlists!'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+    
+@app.route('/api/playlist/fuse', methods=['POST'])
+def playlist_fuse():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        name = data.get('name')
+        playlist_1 = data.get('first_playlist')
+        playlist_2 = data.get('second_playlist')
+        try:
+            refresh_token(user)
+            Playlist.playlist_fusion(user, name, playlist_1, playlist_2)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+        response_data = 'Fuseed playlists!'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+    
+
 @app.route("/", defaults={"path": ""})
 @app.route("/<string:path>") 
 @app.route("/<path:path>")
