@@ -125,7 +125,7 @@ export function setupAdvancedData(props) {
       selectionGraph = false;
       //Yearly -> Monthly
       if (props.bothFriendAndOwnData) {
-        data = formatPercentTimePeriod("User", props.data[0]);
+        data = formatPercentTimePeriod("", props.data[0]);
         data = data.concat(
           formatPercentTimePeriod(props.friendName, props.data[1])
         );

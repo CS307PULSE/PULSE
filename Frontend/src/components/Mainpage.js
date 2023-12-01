@@ -35,6 +35,7 @@ function Mainpage() {
     padding: "20px",
     textAlign: "center",
     fontFamily: "'Poppins', sans-serif",
+    overflow: "hidden",
   };
   const cardContent = {
     color: state.colorText,
@@ -106,8 +107,62 @@ function Mainpage() {
           <Card headerText="STATISTICS" style={cardStyle}>
             <StatsCard />
           </Card>
-          <Card headerText="DJ MIXER" style={cardStyle}>
-            <p style={cardContent}>This is the content of Card 2.</p>
+          <Card headerText="Explorer" style={cardStyle}>
+            <div style={cardContent}>
+              <div style={buttonContainerStyle}>
+                {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
+                <Link
+                  to="/explorer/ParameterRecommendation"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  PARAMETER RECOMMENDATION
+                </Link>
+                <Link
+                  to="/explorer/SongRecommendation"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  SONG RECOMMENDATION
+                </Link>
+                <Link
+                  to="/explorer/PlaylistRecommendation"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  PLAYLIST RECOMMENDATION
+                </Link>
+                <Link
+                  to="/explorer/PlaylistManager"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  PLAYLIST MANAGER
+                </Link>
+                <Link
+                  to="/explorer/ArtistExplorer"
+                  style={{
+                    ...buttonStyle,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  ARTIST EXPLORER
+                </Link>
+              </div>
+            </div>
           </Card>
           <Card headerText="GAMES" style={cardStyle}>
             <div style={cardContent}>
