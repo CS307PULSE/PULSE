@@ -11,11 +11,16 @@ import { playItem, queueItem } from "./Playback";
 
 // eslint-disable-next-line no-unused-vars
 
-async function sendAndFetchSongReqs(sentTrack) {
-  const axiosInstance = axios.create({withCredentials: true});
-  const response = await axiosInstance.post("/api/explorer/songrec", { track: sentTrack });
-  const data = response.data;
-  return data;
+async function getRecommendationsFromSong(track) {
+  if (track) { return; }
+  try {
+    const axiosInstance = axios.create({withCredentials: true});
+    const response = await axiosInstance.post("/api/explorer/songrec", { track: track.id });
+    const data = response.data;
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 async function sendSearchAndReturn(sendSerach) {
@@ -27,7 +32,7 @@ async function sendSearchAndReturn(sendSerach) {
     { query: sendSerach }
   );
   const data = response.data;
-  console.log(response);
+  // console.log(response);
   return data;
 }
 
@@ -37,47 +42,49 @@ const SongRecommendation = () => {
 
   const [receivedSearchData, setReceivedSearchData] = useState(null);
   const [receivedRecData, setReceivedRecData] = useState(null);
-  const [searchString, setSearchString] = useState(null);
-  const [recString, setRecString] = useState(null);
+  const [searchString, setSearchString] = useState("");
+  const [recString, setRecString] = useState("");
+  const [selectedSongIndex, setSelectedSongIndex] = useState(-1);
+  const [selectedSongName, setSelectedSongName] = useState();
 
   useEffect(() => {
     document.title = "PULSE - Song Recommendations";
   }, []);
 
-  function songRecs(receivedSongs) {
-    if (receivedSongs !== undefined) {
-      return <ImageGraph data={receivedSongs} dataName={"top_song"} />;
-    } else {
-      return <p></p>;
-    }
-  }
-
   const getSearch = async () => {
-    if (searchString !== null && searchString !== undefined) {
-      console.log("searching for " + searchString);
-      sendSearchAndReturn(searchString).then((data) => {
-        if (data !== null && data !== undefined) {
-          console.log(data);
-          setReceivedSearchData(data);
-        }
-      });
-    } else {
-      alert("Please enter value in search bar before getting recommendations!");
-    }
+    setReceivedSearchData("loading");
+    setSelectedSongIndex(-1);
+    // console.log("searching for " + searchString);
+    sendSearchAndReturn(searchString).then((data) => {
+      if (data !== null && data !== undefined) {
+        // console.log(data);
+        setReceivedSearchData(data);
+      }
+    });
   };
 
-  const getRecommendations = async () => {
-    if (recString) {
-      console.log("searching for " + recString);
-      sendAndFetchSongReqs(recString).then((data) => {
-        if (data !== null && data !== undefined) {
+  async function updateRecommendations() {
+    try {
+      if (recString) {
+        setReceivedRecData("loading");
+        const response = await getRecommendationsFromSong(receivedSearchData[selectedSongIndex]);
+        const data = response.data;
+        if (data) {
           setReceivedRecData(data);
         }
-      });
-    } else {
-      alert("Please enter value in search bar before getting recommendations!");
+      }
+    } catch (e) {
+      console.log(e);
     }
-  };
+  }
+  useEffect(() => {
+    try {
+      setSelectedSongName(receivedSearchData[selectedSongIndex].name);
+    } catch (e) { 
+      setSelectedSongName("");
+    }
+    updateRecommendations();
+  }, [selectedSongIndex]);
 
   const bodyStyle = {
     backgroundColor: state.colorBackground,
@@ -86,7 +93,19 @@ const SongRecommendation = () => {
     backgroundRepeat: "no-repeat", //Prevent image repetition
     backgroundAttachment: "fixed", //Keep the background fixed
   };
-  
+  const textStyle = {
+    color: state.colorText,
+    fontSize: textSizes.body,
+    margin: "5px"
+  };
+  const headerTextStyle = {
+    color: state.colorText,
+    fontFamily: "'Poppins', sans-serif",
+    fontSize: textSizes.header3,
+    fontStyle: "normal",
+    fontWeight: 600,
+    lineHeight: "normal"
+  };
   const buttonContainerStyle = {
     display: 'flex',
     alignItems: 'center', // Center buttons horizontally
@@ -123,18 +142,7 @@ const SongRecommendation = () => {
       <div className="content" style={bodyStyle}>
         <div style={{display: "flex"}}>
           <div style={sectionContainerStyle}>
-            <div style={buttonContainerStyle}>
-              <input type="text" style={buttonStyle} value={recString}
-                onChange={e => {setRecString(e.target.value)}}
-                onKeyDown={(e) => {if (e.key == 'Enter') {getRecommendations()}}}></input>
-              <button style={{...buttonStyle, width: "30%"}} onClick={() => {getRecommendations()}}>Recommend</button>
-            </div>
-            <ItemList
-              data={receivedRecData}
-              // onClick={(index) => playItem(receivedRecData[index])}
-            />
-          </div>
-          <div style={sectionContainerStyle}>
+            <p style={headerTextStyle}>Search Songs</p>
             <div style={buttonContainerStyle}>
               <input type="text" style={buttonStyle} value={searchString}
                 onChange={e => {setSearchString(e.target.value)}}
@@ -143,7 +151,15 @@ const SongRecommendation = () => {
             </div>
             <ItemList
               data={receivedSearchData}
-              onClick={(index) => playItem(receivedSearchData[index])}
+              selectedIndex={selectedSongIndex}
+              onClick={setSelectedSongIndex}
+            />
+          </div>
+          <div style={sectionContainerStyle}>
+            <p style={headerTextStyle}>Recommendations {selectedSongName ? "based on: " + selectedSongName : ""}</p>
+            <ItemList
+              data={receivedRecData}
+              onClick={(index) => playItem(receivedRecData[index])}
             />
           </div>
         </div>

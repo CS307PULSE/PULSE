@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { hexToRGBA } from "../theme/Colors";
 import { parameterInfo, presetEmotions } from "../theme/Emotions";
 import axios from "axios";
-import { genreList } from "../theme/Emotions";
+import { genreList, parseParameters } from "../theme/Emotions";
 import ItemList from "./ItemList";
 
 const ParameterRecommendations = () => {  
@@ -57,12 +57,14 @@ const ParameterRecommendations = () => {
             console.error("Error retrieving emotion: " + e);
         }
     }
-    function createEmotion(name, parameters) {
+    async function createEmotion(name, parameters) {
         var newEmotion = {name: name, parameters: parameters};
         var tempEmotions = emotions;
         tempEmotions.push(newEmotion);
         setEmotions(tempEmotions);
         setSelectedEmotionIndex(emotions.length - 1);
+        setEmotionName(name);
+        setParameters(await parameters);
     }
     function deleteEmotion(index) {
         try {
@@ -106,22 +108,9 @@ const ParameterRecommendations = () => {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("/api/recommendations/get_playlist_dict", {playlist: playlistID});
         const data = response.data;
-        const newParameters = [
-            data.target_energy,
-            data.target_popularity,
-            data.target_acousticness,
-            data.target_danceability,
-            data.target_duration_ms / 60000,
-            data.target_instrumentalness,
-            data.target_liveness,
-            data.target_loudness,
-            data.target_mode,
-            data.target_speechiness,
-            data.target_tempo,
-            data.target_valence
-        ]
-        setParameters(newParameters);
+        const newParameters = parseParameters(data);
         console.log(newParameters);
+        return newParameters;
     }
     async function getEmotionRecommendations(name, parameters, genre) {
         const axiosInstance = axios.create({withCredentials: true});
@@ -222,6 +211,7 @@ const ParameterRecommendations = () => {
             <div style={{display: "flex"}}>
             <div>
                 <div style={sectionContainerStyle}>
+                    <p style={headerTextStyle}>Manage Emotions</p>
                     <div style={buttonContainerStyle}>
                         <label style={textStyle}>Emotion Name</label>
                         <input id="emotion-name" type="text" style={buttonStyle} value={emotionName} onChange={e => {setEmotionName(e.target.value)}}></input>
@@ -250,6 +240,7 @@ const ParameterRecommendations = () => {
             </div>
             <div>
                 <div style={{...sectionContainerStyle, height: "400px"}}>
+                    <p style={headerTextStyle}>Emotion Recommendations</p>
                     <div style={buttonContainerStyle}>
                         <label style={textStyle}>Genre </label>
                         <select style={buttonStyle} value={genreSelection} onChange={(e) => setGenreSelection(e.target.value)}>
@@ -273,9 +264,11 @@ const ParameterRecommendations = () => {
                     ))}
                 </div>
                 <div style={{...sectionContainerStyle, height: "400px"}}>
+                    <p style={headerTextStyle}>Derive Emotions</p>
                     <div style={buttonContainerStyle}>
                         <input type="text" style={buttonStyle} value={derivedEmotionName} onChange={e => {setDerivedEmotionName(e.target.value)}}></input>
-                        <button style={{...buttonStyle, width: "200px"}} onClick={() => {derivePlaylistEmotion(playlists[selectedPlaylistIndex].id)}}>Derive Emotion</button>
+                        <button style={{...buttonStyle, width: "200px"}} 
+                            onClick={() => {createEmotion(derivedEmotionName, derivePlaylistEmotion(playlists[selectedPlaylistIndex].id))}}>Derive Emotion</button>
                     </div>
                     <ItemList 
                         type="playlists" data={playlists} 

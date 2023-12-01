@@ -109,9 +109,8 @@ const ArtistExplorer = () => {
           <div>
             <p style={textStyle}>{"Genres: " + artist.genres.join(', ')}</p>
             <p style={textStyle}>{"Followers: " + artist.followers.total}</p>
-            <span style={textStyle}>{"Popularity: " + artist.popularity}</span>
+            <span style={textStyle}>{"Popularity: " + artist.popularity + "%"}</span>
           </div>
-          {/* <input readonly type="range" min="0" max="100" value={artist.popularity}></input> */}
         </div>
       );
     }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Friend from './Friend';
 import Navbar from "./NavBar";
@@ -13,59 +13,54 @@ const FriendRequests = () => {
 
   const [requestsData, setRequestsData] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/api/friends/get_requests", {
-          withCredentials: true,
-        });
-        setRequestsData(response.data);
-      } catch (error) {
-        console.log("Friend requests fetch failed: " + error);
-      }
-    };
 
-    fetchData();
-  }, []); // Empty dependency array to run the effect only once during component mount
+  useEffect(() => {
+    document.title = "PULSE - Friends";
+    fetchFriendRequestsData();
+  }, []);
+  
+
+  const fetchFriendRequestsData = async () => {
+    try {
+      const requestResponse = await axios.get('/api/friends/get_requests', { withCredentials: true });
+      setRequestsData(requestResponse.data);
+    } catch (e) {
+      console.log("Requests fetch failed: " + e);
+      setRequestsData([]); // Set an empty array or handle the error accordingly
+    }
+  };
 
   const bodyStyle = {
-    backgroundColor: state.colorBackground
+    backgroundColor: state.colorBackground,
   };
-  
-  const contentStyle = {
-    flex: 1, // Ensure content takes available space
-    padding: "16px",
-    overflow: "auto",
-  };
-  
-  
+
   const buttonStyle = {
     backgroundColor: state.colorBackground,
     color: state.colorText,
-    padding: "20px 40px", // Increase the padding for taller buttons
+    padding: "20px 40px",
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: state.colorBorder,
     borderRadius: "10px",
     cursor: "pointer",
     margin: "5px",
-    width: "100%", // Adjust the width to take up the entire space available
-    textAlign: "center", // Center the text horizontally
+    width: "100%",
+    textAlign: "center",
   };
-  
-  const friendRowStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // Adjust column width as needed
-    gap: "10vw", // Adjust the gap between friends
-    marginBottom: "16px", // Add vertical space between rows
-    alignItems: "center", // Align items vertically in the center
-    textAlign: "center", // Center text horizontally
-  };
-  
+
   const buttonContainerStyle = {
     display: "flex",
-    justifyContent: "center", // Center buttons horizontally
+    justifyContent: "center",
     marginBottom: "16px",
+  };
+
+  const friendRowStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+    gap: "10vw",
+    marginBottom: "16px",
+    alignItems: "center",
+    textAlign: "center",
   };
 
   async function friendRequestChoice(spotify_id, choice) {
@@ -81,6 +76,7 @@ const FriendRequests = () => {
     console.log("Friend request accepted: " + choice + "___" + spotify_id);
     return data;
   }
+
 
   const renderRequestRows = () => {
     const rows = [];
@@ -99,11 +95,11 @@ const FriendRequests = () => {
                 publicColorText={friend.textColor}
                 publicColorBackground={friend.backgroundColor}
               />
-              <div class = "center">
-                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => friendRequestChoice(friend.spotify_id, false).then(data => setRequestsData(data))}>
+              <div className="center">
+                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {friendRequestChoice(friend.spotify_id, false).then(data => setRequestsData(data))}}>
                   Deny
                 </button>
-                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => friendRequestChoice(friend.spotify_id, true).then(data => setRequestsData(data))}>
+                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {friendRequestChoice(friend.spotify_id, true).then(data => setRequestsData(data))}}>
                   Accept
                 </button>
               </div>
@@ -120,22 +116,6 @@ const FriendRequests = () => {
       <p>You have no pending friend requests</p>
     </div>
   );
-
-  async function friendRequestChoice(spotify_id, choice) {
-    const axiosInstance = axios.create({
-      withCredentials: true,
-    });
-    try {
-      const response = await axiosInstance.post(
-        "/api/friends/friend_request_choice",
-        { spotify_id: spotify_id, accepted: choice }
-      );
-      setRequestsData(response.data);
-      console.log("Friend request accepted: " + choice + "___" + spotify_id);
-    } catch (error) {
-      console.log("Friend request choice failed: " + error);
-    }
-  }
 
   return (
     <div className="wrapper">
