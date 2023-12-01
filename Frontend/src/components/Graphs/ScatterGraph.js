@@ -169,13 +169,13 @@ export const ScatterGraph = (props) => {
             props.dataName === "percentTimes" ||
             props.dataName === "percentTimePeriod" ||
             props.dataName === "numTimesSkipped"
-              ? ({ point }) => {
-                  if (point === undefined) {
+              ? ({ node }) => {
+                  if (node === undefined) {
                     return undefined;
                   } else {
                     return (
                       <div className="GraphTooltip">
-                        <div>{point.id.slice(0, -2)}</div>
+                        <div>{node.id.slice(0, -2)}</div>
                         <div>
                           {props.dataName.includes("percent")
                             ? "% of time"
@@ -185,7 +185,7 @@ export const ScatterGraph = (props) => {
                             ? "Number of streams"
                             : "Times skipped"}
                           :{" "}
-                          {point.data.yFormatted *
+                          {node.yValue *
                             (props.dataName === "percentTimes" ? 100.0 : 1.0)}
                         </div>
                       </div>

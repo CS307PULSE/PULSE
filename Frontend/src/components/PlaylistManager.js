@@ -9,11 +9,29 @@ import { Link } from "react-router-dom";
 import { genreList } from "../theme/Emotions";
 import ItemList from "./ItemList";
 import { searchSpotify } from "./Playback";
+import { playItem } from "./Playback";
+
+async function playlistPost(action, payload, reloadFunction = () => {}) {
+  const route = "/api/playlist/" + action;
+  const axiosInstance = axios.create({withCredentials: true});
+  const response = await axiosInstance.post(route, payload);
+  reloadFunction();
+  return response.data;
+}
+export async function getPlaylists() {
+  try {
+      const axiosInstance = axios.create({withCredentials: true});
+    var response = await axiosInstance.get("/api/statistics/get_saved_playlists");
+    const parsedPlaylists = response.data.saved_playlists ? JSON.parse(response.data.saved_playlists) : [];
+    return parsedPlaylists;
+  } catch (e) { console.log("Error getting playlists: " + e); }
+}
 
 const PlaylistManager = () => {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
+  const [syncValue, setSyncValue] = useState(Date.now());
   const [mode, setMode] = useState("edit"); //"edit", "explore", "synthesize"
 
   const [playlists, setPlaylists] = useState([]);
@@ -34,22 +52,13 @@ const PlaylistManager = () => {
     var data = await searchSpotify(searchString, "track");
     setSearchResults(data);
   }
-  async function playlistPost(action, payload, reloadFunction = () => {}) {
-    const route = "/api/playlist/" + action;
-    const axiosInstance = axios.create({withCredentials: true});
-    const response = await axiosInstance.post(route, payload);
-    reloadFunction();
-    return response.data;
-  }
-  async function getPlaylists() {
+  async function updatePlaylists() {
     setPlaylists("loading");
-    const axiosInstance = axios.create({withCredentials: true});
-    var response = await axiosInstance.get("/api/statistics/get_saved_playlists");
-    const parsedPlaylists = response.data.saved_playlists ? JSON.parse(response.data.saved_playlists) : [];
-    setPlaylists(parsedPlaylists);
+    const data = await getPlaylists();
+    setPlaylists(data);
   }
   useEffect(() => {
-    getPlaylists();
+    updatePlaylists();
   }, []);
   async function getPlaylistSongs(playlistID) {
     setPlaylistSongs("loading");
@@ -180,6 +189,7 @@ const PlaylistManager = () => {
                 </div>
                 <ItemList 
                   data={playlistSongs}
+                  onClick={(index) => playItem(playlistSongs[index], () => setSyncValue(Date.now()))}
                   buttons={[
                     {width: "40px", value: "-", size: "30px",
                       onClick: (item) => {playlistPost("remove_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
@@ -197,6 +207,7 @@ const PlaylistManager = () => {
                 </div>
                 <ItemList
                   data={searchResults}
+                  onClick={(index) => playItem(searchResults[index], () => setSyncValue(Date.now()))}
                   buttons={[
                     {width: "40px", value: "+", size: "30px",
                       onClick: (item) => {playlistPost("add_track", {song: item.uri, playlist: playlists[selectedPlaylistIndex].id},
@@ -232,7 +243,7 @@ const PlaylistManager = () => {
                 </div>
                 <div style={buttonContainerStyle}>
                     <button style={buttonStyle} onClick={() => {
-                      playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre}, getPlaylists)
+                      playlistPost("create", {name: playlistName, public: playlistPublic, collaborative: playlistCollaborative, genre: playlistGenre}, updatePlaylists)
                     }}>Generate Playlist</button>
                 </div>
               </div>
@@ -252,7 +263,7 @@ const PlaylistManager = () => {
         
         </div>
       </div>
-      <div className="footer"><Playback /></div>
+      <div className="footer"><Playback syncTrigger={syncValue}/></div>
     </div>
   );
 };

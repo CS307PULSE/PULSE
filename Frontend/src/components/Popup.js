@@ -91,7 +91,7 @@ export default function Popup({
     },
     {
       value: "percentTimes",
-      label: "% of music listened to",
+      label: "% of item listened to on average",
       visible: timesDataEN,
     },
     {

@@ -27,7 +27,7 @@ async function sendSearchAndReturn(sendSerach) {
     { query: sendSerach }
   );
   const data = response.data;
-  console.log(response);
+  // console.log(response);
   return data;
 }
 
@@ -37,8 +37,8 @@ const SongRecommendation = () => {
 
   const [receivedSearchData, setReceivedSearchData] = useState(null);
   const [receivedRecData, setReceivedRecData] = useState(null);
-  const [searchString, setSearchString] = useState(null);
-  const [recString, setRecString] = useState(null);
+  const [searchString, setSearchString] = useState("");
+  const [recString, setRecString] = useState("");
 
   useEffect(() => {
     document.title = "PULSE - Song Recommendations";
@@ -54,10 +54,11 @@ const SongRecommendation = () => {
 
   const getSearch = async () => {
     if (searchString !== null && searchString !== undefined) {
-      console.log("searching for " + searchString);
+      setReceivedSearchData("loading");
+      // console.log("searching for " + searchString);
       sendSearchAndReturn(searchString).then((data) => {
         if (data !== null && data !== undefined) {
-          console.log(data);
+          // console.log(data);
           setReceivedSearchData(data);
         }
       });
@@ -68,7 +69,8 @@ const SongRecommendation = () => {
 
   const getRecommendations = async () => {
     if (recString) {
-      console.log("searching for " + recString);
+      setReceivedRecData("loading");
+      // console.log("searching for " + recString);
       sendAndFetchSongReqs(recString).then((data) => {
         if (data !== null && data !== undefined) {
           setReceivedRecData(data);

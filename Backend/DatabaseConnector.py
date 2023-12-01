@@ -71,7 +71,10 @@ class DatabaseConnector(object):
                                 friends, 
                                 theme, 
                                 location,
-                                gender) VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+                                gender,
+                                status,
+                                public_display_text_color,
+                                public_display_background_color) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         
             encrypted_token=new_user.login_token
             with AESCipher(os.getenv("DB_KEY")) as cyph:
@@ -85,7 +88,10 @@ class DatabaseConnector(object):
                                                 create_friends_string_for_DB(new_user.friends),
                                                 int(new_user.theme.value),
                                                 new_user.location,
-                                                new_user.gender,))
+                                                new_user.gender,
+                                                new_user.status,
+                                                new_user.public_display_text_color,
+                                                new_user.public_display_background_color,))
 
             self.db_conn.commit()
             affected_rows = self.db_cursor.rowcount
@@ -264,13 +270,13 @@ class DatabaseConnector(object):
             if packed_str[i] == ' ':
                 count +=1
         row = 0
-        if count == 4:
+        if count == 5:
             row = 1
         elif count == 0:
             return []
         else:
-            row = int(1 + (count - 4) / 5)
-        return string_to_array_row_by_col(self.resultset[0], row, 5, False)
+            row = int(1 + (count - 5) / 6)
+        return string_to_array_row_by_col(self.resultset[0], row, 6, False)
     
     # Returns the custom background from DB as a string.
     def get_custom_background_from_user_DB(self, spotify_id,):
@@ -408,7 +414,7 @@ class DatabaseConnector(object):
     
 
     def get_public_display_text_color_from_DB(self, spotify_id):
-        query = "SELECT public_text_color from pulse.users WHERE spotify_id = %s"
+        query = "SELECT public_display_text_color from pulse.users WHERE spotify_id = %s"
         self.db_cursor.execute(query, (spotify_id,))
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
@@ -487,6 +493,16 @@ class DatabaseConnector(object):
             return None
         return json.loads(results[0])
     
+    # Returns song_match_swiped from DB in the form of a JSON.
+    def get_emotion_from_DB(self, spotify_id):
+        query = """SELECT emotion from pulse.base_stats WHERE spotify_id = %s"""
+        self.db_cursor.execute(query, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        results = self.resultset
+        if (results[0] is None or results == [] or results == "[]"):
+            return None
+        return json.loads(results[0])
+    
     # Returns swiping preferences from DB in the form of a JSON.
     def get_swiping_preferences_from_DB(self, spotify_id):
         sql_get_song_match_preferences_query = """SELECT song_match_preferences from pulse.base_stats WHERE spotify_id = %s"""
@@ -555,7 +571,10 @@ class DatabaseConnector(object):
                          theme=Theme(row[5]),
                          location = row[9],
                          gender = row[10],
-                         chosen_song = row[15],)
+                         chosen_song = row[15],
+                         status = row[20],
+                         public_display_text_color=row[21],
+                         public_display_background_color=row[22])
             
             decrypted_token=userFromDB.login_token
             with AESCipher(os.getenv("DB_KEY")) as cyph:
@@ -898,6 +917,23 @@ class DatabaseConnector(object):
             print("Error updating layout:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
+        
+
+    # Update layout (expected JSON object) in user DB. Returns 1 if successful, -1 if not.
+    def update_emotion(self, spotify_id, new_emotion):
+        try:
+            query = """UPDATE pulse.base_stats SET emotion = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(query, (json.dumps(new_emotion), spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating emotion:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
     
     # Update layout (expected string) in user DB. Returns 1 if successful, -1 if not.
     def update_location(self, spotify_id, new_location):
@@ -945,7 +981,7 @@ class DatabaseConnector(object):
             return -1  # Indicate that the update failed
     def update_public_display_background_color(self, spotify_id, new_public_display_background_color):
         try:
-            query = """UPDATE pulse.users SET public_background_text_color = %s WHERE spotify_id = %s"""
+            query = """UPDATE pulse.users SET public_display_background_color = %s WHERE spotify_id = %s"""
             self.db_cursor.execute(query, (new_public_display_background_color, spotify_id,))
             self.db_conn.commit()
             # Optionally, you can check if any rows were affected by the UPDATE operation.
@@ -954,7 +990,7 @@ class DatabaseConnector(object):
             return affected_rows
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
-            print("Error updating public_background_text_color:", str(e))
+            print("Error updating public_display_background_color:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
         
