@@ -1889,8 +1889,11 @@ def playlist_reorder_tracks():
         user = User.from_json(user_data)
         data = request.get_json()
         playlist = data.get('playlist')
+        range_start = data.get('start')
+        insertion_point = data.get('insert')
+        amount_of_songs = data.get('amount')
         refresh_token(user)
-        Playlist.track_reorder(user=user, playlist=playlist)
+        Playlist.track_reorder(user=user, playlist=playlist, range_start=range_start, insertion_point=insertion_point, amount_of_songs=amount_of_songs)
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
