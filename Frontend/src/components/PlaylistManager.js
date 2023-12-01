@@ -43,7 +43,7 @@ const PlaylistManager = () => {
   const [playlistName, setPlaylistName] = useState("New Playlist");
   const [playlistPublic, setPlaylistPublic] = useState(true);
   const [playlistCollaborative, setPlaylistCollaborative] = useState(true);
-  const [playlistGenre, setPlaylistGenre] = useState(genreList[0]);
+  const [playlistGenre, setPlaylistGenre] = useState("none");
 
   const [imagePath, setImagePath] = useState("");
 

@@ -495,7 +495,7 @@ function Playback({ syncTrigger = null }) {
             <p style={headerTextStyle}>
               {currentTrack ? "" : "Playback Inactive"}
             </p>
-            <img style={expandedAlbumArtStyle} src={albumArt} alt="Album Art" />
+            <img style={expandedAlbumArtStyle} src={albumArt}/>
             <button
               onClick={() => syncPlayer()}
               style={{
