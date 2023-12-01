@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { hexToRGBA } from "../theme/Colors";
 import { parameterInfo, presetEmotions } from "../theme/Emotions";
 import axios from "axios";
-import { genreList } from "../theme/Emotions";
+import { genreList, parseParameters } from "../theme/Emotions";
 import ItemList from "./ItemList";
 
 const ParameterRecommendations = () => {  
@@ -57,14 +57,14 @@ const ParameterRecommendations = () => {
             console.error("Error retrieving emotion: " + e);
         }
     }
-    function createEmotion(name, parameters) {
+    async function createEmotion(name, parameters) {
         var newEmotion = {name: name, parameters: parameters};
         var tempEmotions = emotions;
         tempEmotions.push(newEmotion);
         setEmotions(tempEmotions);
         setSelectedEmotionIndex(emotions.length - 1);
         setEmotionName(name);
-        setParameters(parameters);
+        setParameters(await parameters);
     }
     function deleteEmotion(index) {
         try {
@@ -108,20 +108,7 @@ const ParameterRecommendations = () => {
         const axiosInstance = axios.create({withCredentials: true});
         const response = await axiosInstance.post("/api/recommendations/get_playlist_dict", {playlist: playlistID});
         const data = response.data;
-        const newParameters = [
-            data.target_energy,
-            data.target_popularity,
-            data.target_acousticness,
-            data.target_danceability,
-            data.target_duration_ms / 60000,
-            data.target_instrumentalness,
-            data.target_liveness,
-            data.target_loudness,
-            data.target_mode,
-            data.target_speechiness,
-            data.target_tempo,
-            data.target_valence
-        ]
+        const newParameters = parseParameters(data);
         console.log(newParameters);
         return newParameters;
     }

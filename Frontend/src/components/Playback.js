@@ -7,7 +7,7 @@ import ItemList from "./ItemList";
 import { hexToRGBA } from "../theme/Colors";
 import { getImage } from "./ItemList";
 import { formatDate } from "../theme/Format";
-import { parameterInfo } from "../theme/Emotions";
+import { parameterInfo, parseParameters } from "../theme/Emotions";
 
 export async function playItem(item, syncFunction = () => {}) {
   if (!item) {
@@ -205,20 +205,7 @@ function Playback({ syncTrigger = null }) {
       song_uri: song.uri,
     });
     const data = response.data[0];
-    const newParameters = [
-      Math.round(data.target_energy * 100) / 100,
-      song.popularity,
-      Math.round(data.target_acousticness * 100) / 100,
-      Math.round(data.target_danceability * 100) / 100,
-      Math.round((data.target_duration_ms / 60000) * 100) / 100,
-      Math.round(data.target_instrumentalness * 100) / 100,
-      Math.round(data.target_liveness * 100) / 100,
-      Math.round(data.target_loudness * 100) / 100,
-      data.target_mode,
-      Math.round(data.target_speechiness * 100) / 100,
-      Math.round(data.target_tempo),
-      Math.round(data.target_valence * 100) / 100,
-    ];
+    const newParameters = parseParameters(data, song.popularity);
     setSongParameters(newParameters);
   }
   useEffect(() => {
@@ -758,13 +745,7 @@ function Playback({ syncTrigger = null }) {
       <div>
         <div style={songPlayerStyle}>
           {renderPlayerButtons()}
-          <img
-            id="albumArt"
-            style={{ ...songPlayerButtonStyle, left: "360px" }}
-            src={albumArt}
-            onClick={() => setExpanded(true)}
-            alt="Album Art"
-          />
+          <img id="albumArt" style={{ ...songPlayerButtonStyle, left: "360px" }} src={albumArt} onClick={() => setExpanded(true)}/>
           <p
             style={{
               color: pulseColors.black,

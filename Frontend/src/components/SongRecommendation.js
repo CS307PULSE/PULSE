@@ -80,7 +80,9 @@ const SongRecommendation = () => {
   useEffect(() => {
     try {
       setSelectedSongName(receivedSearchData[selectedSongIndex].name);
-    } catch (e) { console.log(e); }
+    } catch (e) { 
+      setSelectedSongName("");
+    }
     updateRecommendations();
   }, [selectedSongIndex]);
 
@@ -154,7 +156,7 @@ const SongRecommendation = () => {
             />
           </div>
           <div style={sectionContainerStyle}>
-            <p style={headerTextStyle}>Recommendations{selectedSongName ? "based on: " + selectedSongName : ""}</p>
+            <p style={headerTextStyle}>Recommendations {selectedSongName ? "based on: " + selectedSongName : ""}</p>
             <ItemList
               data={receivedRecData}
               onClick={(index) => playItem(receivedRecData[index])}
