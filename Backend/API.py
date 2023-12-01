@@ -64,27 +64,27 @@ error_html = """
 </body>
 </html>
 """
-frontendRoutes = ["/dashboard",
-                  "/profile", 
+frontendRoutes = ["dashboard",
+                  "profile", 
                   "game/guess-the-song", 
-                  "/game/guess-the-song", 
-                  "/game/guess-the-artist", 
-                  "/game/guess-the-lyric",
-                  "/game/guess-who-listens",
-                  "/game/heads-up",
-                  "/statistics",
-                  "/PulseBot",
-                  "/games",
-                  "/explorer",
-                  "/explorer/SongRecommendation",
-                  "/explorer/ParameterRecommendation",
-                  "/explorer/PlaylistRecommendation",
-                  "/explorer/PlaylistManager",
-                  "/explorer/ArtistExplorer",
-                  "/Friends/addFriends",
-                  "/Friends/friendRequests",
-                  "/friends",
-                  "/match",
+                  "game/guess-the-song", 
+                  "game/guess-the-artist", 
+                  "game/guess-the-lyric",
+                  "game/guess-who-listens",
+                  "game/heads-up",
+                  "statistics",
+                  "PulseBot",
+                  "games",
+                  "explorer",
+                  "explorer/SongRecommendation",
+                  "explorer/ParameterRecommendation",
+                  "explorer/PlaylistRecommendation",
+                  "explorer/PlaylistManager",
+                  "explorer/ArtistExplorer",
+                  "Friends/addFriends",
+                  "Friends/friendRequests",
+                  "friends",
+                  "match",
                   ]
 
 scopes = [
@@ -409,18 +409,18 @@ def update_followers():
         try:
             refresh_token(user)
             follower_data = user.get_followers_with_time()
+            current_time = follower_data[0]
+            with DatabaseConnector(db_config) as conn:
+                followers = conn.get_followers_from_DB(user.spotify_id)
+                if followers:
+                    most_recent_time_str = max(followers.keys())
+                    most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
+                else:
+                    most_recent_time = current_time - timedelta(days=1)
+                if current_time - most_recent_time >= timedelta(days=1):
+                    return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
         except Exception as e:
             print(e)
-        with DatabaseConnector(db_config) as conn:
-            current_time = follower_data[0]
-            followers = conn.get_followers_from_DB(user.spotify_id)
-            if followers:
-                most_recent_time_str = max(followers.keys())
-                most_recent_time = datetime.strptime(most_recent_time_str, '%Y-%m-%d %H:%M:%S')
-            else:
-                most_recent_time = current_time - timedelta(days=1)
-            if current_time - most_recent_time >= timedelta(days=1):
-                return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
 
         with DatabaseConnector(db_config) as conn:
             if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
@@ -2461,7 +2461,7 @@ def get_next_user():
             response = {}
             response['id'] = match_user
             response['name'] = user.display_name
-            response['image'] = conn.get_icon_from_DB(user)
+            response['image'] = conn.get_icon_from_DB(match_user)
             response['song'] = user.chosen_song
             response['status'] = user.status #user.status
             response['text_color'] = user.public_display_text_color #user.text_color
@@ -2813,7 +2813,7 @@ def catch_all_explorer(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        if (path not in frontendRoutes):
+        if (("explorer/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
             error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
@@ -2830,7 +2830,7 @@ def catch_all_game(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        if (path not in frontendRoutes):
+        if (("game/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
             error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
@@ -2847,7 +2847,7 @@ def catch_all_friends(path):
         return send_from_directory(app.static_folder, path)
     else:
         print("in catchall path else")
-        if (path not in frontendRoutes):
+        if (("Friends/" + path) not in frontendRoutes):
             error_message = "The page does not exist! Please try going back to the homepage!"
             error_code = 430
             error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com%22/")
