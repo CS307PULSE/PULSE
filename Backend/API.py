@@ -2363,7 +2363,7 @@ def get_next_user():
                 genre_groups = list(map(str, genre_groups))
             if genre_groups is None or genre_groups == []:
                 genre_groups = get_genre_groups(user)
-                genre_groups = [x + 1 for x in genre_groups] # 1-indexed
+                genre_groups = [x + 1 for x in genre_groups] # 1-inde
                 genre_groups = list(map(str, genre_groups))
                 with DatabaseConnector(db_config) as conn:
                     if (conn.update_user_genre_groups(user.spotify_id, genre_groups) == -1):
@@ -2407,7 +2407,7 @@ def get_next_user():
                 match_user = queue.pop()
 
             else:
-                return {}
+                return {}, 200, {'Reason-Phrase': 'OK'}
 
         # Update DB Parameters
         with DatabaseConnector(db_config) as conn:
@@ -2432,7 +2432,21 @@ def get_next_user():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(match_user), 200, {'Reason-Phrase': 'OK'}
+
+    with DatabaseConnector(db_config) as conn:
+        user = conn.get_user_from_user_DB(match_user)
+        if user is not None:
+            response = {}
+            response['id'] = match_user
+            response['name'] = user.display_name
+            response['image'] = conn.get_icon_from_DB(user)
+            response['song'] = user.chosen_song
+            response['status'] = user.status #user.status
+            response['text_color'] = user.public_display_text_color #user.text_color
+            response['background_color'] = user.public_display_background_color #user.background_color
+        else:
+            return {}
+    return jsonify(response), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/user_matcher/swipe_left', methods=['POST'])
 def user_swipe_left():
