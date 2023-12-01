@@ -4716,6 +4716,8 @@ export const nameFromDataName = (name) => {
       return "Times listened to or skipped or repeated";
     case "emotion":
       return "Emotion of music listened to";
+    case "emotionData":
+      return "Emotion of selected music listened to";
     case "followers":
       return "Followers";
     case "top_songs":

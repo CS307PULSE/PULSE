@@ -139,6 +139,7 @@ export default function FilterPopup({
               <select
                 name="items"
                 value={itemsSelected}
+                style={{ width: "100%" }}
                 onChange={(e) => {
                   const selectedOptions = Array.from(
                     e.target.selectedOptions

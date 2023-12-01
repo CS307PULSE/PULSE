@@ -428,7 +428,7 @@ function formatSelectionGraphData(props, params) {
 
 function formatAllTimeGraphData(props, params) {
   const newData = props.bothFriendAndOwnData ? props.data : [props.data];
-  const itemName = ["", props.friendName];
+  const itemName = ["User", props.friendName];
   let tempDataArr = newData.map((userData, index) => {
     let tempUserData = [];
     if (props.timeRange === "all") {
