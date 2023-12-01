@@ -7,21 +7,27 @@ import TextSize from "../theme/TextSize";
 import axios from "axios";
 import { useAppContext } from "./Context";
 
-var initialRequestsData;
-try {
-  var requestsResponse = await axios.get("/api/friends/get_requests", {
-    withCredentials: true,
-  });
-  initialRequestsData = requestsResponse.data;
-} catch (e) {
-  console.log("Formatting settings fetch failed: " + e);
-}
 const FriendRequests = () => {
   const { state, dispatch } = useAppContext();
-  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
-  // should be useState(requestsData) when connecting to backend
-  const [requestsData, setRequestsData] = useState(initialRequestsData)  
-  
+  const textSizes = TextSize(state.settingTextSize);
+
+  const [requestsData, setRequestsData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/friends/get_requests", {
+          withCredentials: true,
+        });
+        setRequestsData(response.data);
+      } catch (error) {
+        console.log("Friend requests fetch failed: " + error);
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array to run the effect only once during component mount
+
   const bodyStyle = {
     backgroundColor: state.colorBackground
   };
@@ -115,14 +121,30 @@ const FriendRequests = () => {
     </div>
   );
 
+  async function friendRequestChoice(spotify_id, choice) {
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    try {
+      const response = await axiosInstance.post(
+        "/api/friends/friend_request_choice",
+        { spotify_id: spotify_id, accepted: choice }
+      );
+      setRequestsData(response.data);
+      console.log("Friend request accepted: " + choice + "___" + spotify_id);
+    } catch (error) {
+      console.log("Friend request choice failed: " + error);
+    }
+  }
+
   return (
     <div className="wrapper">
       <div className="header"><Navbar /></div>
       <div className="content" style={bodyStyle}>
         <div style={buttonContainerStyle}>
-            <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
+          <Link to="/friends" style={{ ...buttonStyle, textDecoration: 'none' }}>Back</Link>
         </div>
-        {requestsData ? (requestsData.length > 0 ? renderRequestRows() : noRequestsMessage) : noRequestsMessage}
+        {requestsData.length > 0 ? renderRequestRows() : noRequestsMessage}
       </div>
       <div className="footer"><Playback /></div>
     </div>
