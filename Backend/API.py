@@ -2765,7 +2765,6 @@ def unfollow_artist():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route("/", defaults={"path": ""})
-@app.route("/<string:path>") 
 @app.route("/<path:path>")
 def catch_all(path):
     print("in catchall path")
