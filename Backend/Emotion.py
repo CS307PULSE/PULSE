@@ -231,12 +231,12 @@ class Emotion:
                 emotion_list.append("undefined")
         return emotion_list
         
-    def get_emotion_recommendations(user, emotiondict, track = [], artist = [], genre = []):
+    def get_emotion_recommendations(user, emotiondict, track = [], artist = [], genre = [], max_items = 10):
         return user.get_recommendations(
                             seed_tracks=track,
                             seed_artists=artist,
                             seed_genres=genre, 
-                            max_items=10,
+                            max_items=max_items,
                             target_energy=emotiondict["target_energy"],
                             target_popularity=int(round(emotiondict["target_popularity"])),
                             target_acousticness=emotiondict["target_acousticness"],

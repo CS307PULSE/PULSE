@@ -51,6 +51,7 @@ const PlaylistManager = () => {
   const [selectedSynthIndex2, setSelectedSynthIndex2] = useState(-1);
   const [synthSearch1, setSynthSearch1] = useState("");
   const [synthSearch2, setSynthSearch2] = useState("");
+  const [newSynthPlaylistName, setNewSynthPlaylistName] = useState("New Synthesized Playlist");
 
   const [imagePath, setImagePath] = useState("");
 
@@ -96,6 +97,20 @@ const PlaylistManager = () => {
   async function handleSynthSearch2() {
     const data = await searchSpotify(synthSearch2, "playlist");
     setSynthPlaylists2(data);
+  }
+  async function mergePlaylists() {
+    playlistPost(
+      "merge", 
+      {name: newSynthPlaylistName, first_playlist: synthPlaylists1[selectedSynthIndex1].id, second_playlist: synthPlaylists2[selectedSynthIndex2].id},
+      updatePlaylists
+    );
+  }
+  async function fusePlaylists() {
+    playlistPost(
+      "fuse", 
+      {name: newSynthPlaylistName, first_playlist: synthPlaylists1[selectedSynthIndex1].id, second_playlist: synthPlaylists2[selectedSynthIndex2].id},
+      updatePlaylists
+    );
   }
 
   const bodyStyle = {
@@ -313,6 +328,13 @@ const PlaylistManager = () => {
             </div>
             <div style={{width:"calc((100% - 120px) * 0.3)"}}> {/* Column 2 */}
               <div style={sectionContainerStyle}>
+                <div>
+                  <input type="text" style={buttonStyle} value={newSynthPlaylistName}
+                    onChange={(e) => setNewSynthPlaylistName(e.target.value)}
+                  />
+                </div>
+                <button style={buttonStyle} onClick={() => mergePlaylists()}>Merge Playlists</button>
+                <button style={buttonStyle} onClick={() => fusePlaylists()}>Fuse Playlists</button>
               </div>
             </div>
           </>);
