@@ -39,8 +39,6 @@ class Playlist:
     
     def track_remove(user, playlist, spotify_uri):
         try:
-            print(playlist)
-            print(spotify_uri)
             user.spotify_user.user_playlist_remove_all_occurrences_of_tracks(user.spotify_id, playlist, [spotify_uri])
         except spotipy.exceptions.SpotifyException as e:
             ErrorHandler.handle_error(e)
@@ -104,10 +102,10 @@ class Playlist:
             song_list = []
             for song in analysis['items']:
                 if song['track'] is not None:
-                    track = song.get('track').get('id')
-                    popularity = song.get('track').get('popularity')
-                    song_list.append(track)
-            print(song_list)
+                    if song['track']['id'] is not None:
+                        track = song.get('track').get('id')
+                        popularity = song.get('track').get('popularity')
+                        song_list.append(track)
             dict_list = Emotion.convert_tracks(user, song_list, popularity)
             for dict in dict_list:
                 if first_iteration:
@@ -171,12 +169,14 @@ class Playlist:
             song_list_2 = []
             for song in first_playlist['items']:
                 if song['track'] is not None:
-                    track = song['track']['uri']
-                    song_list_1.append(track)
+                    if song['track']['uri'] is not None:
+                        track = song['track']['uri']
+                        song_list_1.append(track)
             for song in second_playlist['items']:
                 if song['track'] is not None:
-                    track = song['track']['uri']
-                    song_list_2.append(track)
+                    if song['track']['uri'] is not None:
+                        track = song['track']['uri']
+                        song_list_2.append(track)
             new_playlist = Playlist.create_playlist(user=user, name=name)
             combined_list = song_list_1 + song_list_2
             random.shuffle(combined_list)
@@ -197,12 +197,14 @@ class Playlist:
             song_list_3 = []
             for song in first_playlist['items']:
                 if song['track'] is not None:
-                    track = song['track']['uri']
-                    song_list_1.append(track)
+                    if song['track']['uri'] is not None:
+                        track = song['track']['uri']
+                        song_list_1.append(track)
             for song in second_playlist['items']:
                 if song['track'] is not None:
-                    track = song['track']['uri']
-                    song_list_2.append(track)
+                    if song['track']['uri'] is not None:
+                        track = song['track']['uri']
+                        song_list_2.append(track)
             emotion_1 = Playlist.playlist_genre_analysis(user, playlist_1)
             emotion_2 = Playlist.playlist_genre_analysis(user, playlist_2)
             combined_genre = Emotion.update_and_average_dict(user, emotion_1, emotion_2)
