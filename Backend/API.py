@@ -18,7 +18,7 @@ import spotipy
 import requests
 from spotipy.oauth2 import SpotifyOAuth
 
-app = Flask(__name__, static_folder='../Frontend/build', static_url_path='/')
+app = Flask(__name__, static_folder='../Frontend/build/static', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://127.0.0.1:3000","https://spotify-pulse-efa1395c58ba.herokuapp.com/"]}}, supports_credentials=True)
 
 app.secret_key = 'your_secret_key'
@@ -2759,7 +2759,7 @@ def catch_all(path):
     if path != "" and os.path.exists(full_path):
         return send_from_directory(app.static_folder, path)
     else:
-        error_message = f"The page does not exist! Path: {path}, Full Path: {full_path}"
+        error_message = f"The page does not exist! Path: {path}"
         error_code = 430
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
