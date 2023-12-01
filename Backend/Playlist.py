@@ -125,7 +125,7 @@ class Playlist:
             analysis = user.spotify_user.playlist_tracks(playlist_id = playlist)
             artistarray = []
             for item in analysis['items']:
-                if len(artistarray) < 5:
+                if len(artistarray) < 5 and item['track'] != None:
                     artist = item['track'].get('artists',{})[0].get('id',None)
                     if artist not in artistarray and artist is not None:
                         artistarray.append(artist)
