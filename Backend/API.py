@@ -2165,6 +2165,23 @@ def get_next_song():
             else:
                 song = first_song
                 rejected_songs.pop(song.get('id', ''))
+        
+        with DatabaseConnector(db_config) as conn:
+            swiped_songs = conn.get_swiped_songs_from_DB(user.spotify_id)
+        if swiped_songs is None:
+            swiped_songs = []
+        
+        swiped_songs_ids = []
+        for swiped_song in swiped_songs:
+            id = swiped_song.get('id', '')
+            swiped_songs_ids.append(id)
+
+        # Attempt to get a Song that Wasn't Swiped on by User
+        while song.get('id', '') in swiped_songs_ids:
+            if len(queue) > 0:
+                song = queue.pop()
+            else:
+                song = {}
 
         # Update DB Parameters
         recommendation_queue['tracks'] = queue
@@ -2429,11 +2446,23 @@ def get_next_user():
             is_user_expired = time_difference.days > user_expiration_length
 
             if is_user_expired:
-                rejected_users.pop(user)
+                rejected_users.pop(match_user)
 
             elif len(queue) > 0:
                 match_user = queue.pop()
 
+            else:
+                return {}, 200, {'Reason-Phrase': 'OK'}
+            
+        with DatabaseConnector(db_config) as conn:
+            swiped_users = conn.get_swiped_users_from_DB(user.spotify_id)
+        if swiped_users is None:
+            swiped_users = []
+        
+        # Attempt to get a Song that Wasn't Swiped on by User
+        while match_user in swiped_users:
+            if len(queue) > 0:
+                match_user = queue.pop()
             else:
                 return {}, 200, {'Reason-Phrase': 'OK'}
 
