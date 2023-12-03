@@ -2148,24 +2148,6 @@ def get_next_song():
         if rejected_songs is None:
             rejected_songs = {}
         song_expiration_length = 2 # If you reject a song, in two days you can be recommended it again
-
-        # Attempt to get a Song that Wasn't Recently Rejected by User
-        while song.get('id', '') in rejected_songs.keys():
-            previous_timestamp_str = rejected_songs.get(song.get('id', ''), datetime(2020, 1, 1).isoformat())
-            previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
-            time_difference = current_timestamp - previous_timestamp
-            is_song_expired = time_difference.days > song_expiration_length
-
-            if is_song_expired:
-                rejected_songs.pop(song.get('id', ''))
-
-            elif len(queue) > 0:
-                song = queue.pop()
-
-            else:
-                song = first_song
-                rejected_songs.pop(song.get('id', ''))
-        
         with DatabaseConnector(db_config) as conn:
             swiped_songs = conn.get_swiped_songs_from_DB(user.spotify_id)
         if swiped_songs is None:
@@ -2176,12 +2158,23 @@ def get_next_song():
             id = swiped_song.get('id', '')
             swiped_songs_ids.append(id)
 
-        # Attempt to get a Song that Wasn't Swiped on by User
-        while song.get('id', '') in swiped_songs_ids:
-            if len(queue) > 0:
+        # Attempt to get a Song that Wasn't Recently Rejected by User
+        while song.get('id', '') in rejected_songs.keys() or song.get('id', '') in swiped_songs_ids:
+            previous_timestamp_str = rejected_songs.get(song.get('id', ''), datetime(2020, 1, 1).isoformat())
+            previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
+            time_difference = current_timestamp - previous_timestamp
+            is_song_expired = time_difference.days > song_expiration_length
+
+            if is_song_expired and song.get('id', '') not in swiped_songs_ids:
+                rejected_songs.pop(song.get('id', ''))
+
+            elif len(queue) > 0:
                 song = queue.pop()
+
             else:
-                song = {}
+                song = first_song
+                if song.get('id', '') in rejected_songs.keys():
+                    rejected_songs.pop(song.get('id', ''))
 
         # Update DB Parameters
         recommendation_queue['tracks'] = queue
@@ -2435,40 +2428,25 @@ def get_next_user():
         if rejected_users is None:
             rejected_users = {}
         user_expiration_length = 2 # If you reject a user, in two days you can be recommended it again
+        with DatabaseConnector(db_config) as conn:
+            swiped_users = conn.get_swiped_users_from_DB(user.spotify_id)
+        if swiped_users is None:
+            swiped_users = []
 
-        # Attempt to get a User that Wasn't Recently Rejected by Current User
-        while match_user in rejected_users.keys():
+        # Attempt to get a User that Wasn't Recently Rejected or Swiped by Current User
+        while match_user in rejected_users.keys() or match_user in swiped_users:
             current_timestamp = datetime.now()
             previous_timestamp_str = rejected_users.get(match_user, datetime(2020, 1, 1).isoformat())
             previous_timestamp = datetime.fromisoformat(previous_timestamp_str)
             time_difference = current_timestamp - previous_timestamp
             is_user_expired = time_difference.days > user_expiration_length
 
-            if is_user_expired:
+            if is_user_expired and match_user not in swiped_users:
                 rejected_users.pop(match_user)
 
             elif len(queue) > 0:
                 match_user = queue.pop()
 
-            else:
-                return {}, 200, {'Reason-Phrase': 'OK'}
-            
-        with DatabaseConnector(db_config) as conn:
-            swiped_users = conn.get_swiped_users_from_DB(user.spotify_id)
-        if swiped_users is None:
-            swiped_users = []
-        
-        # Attempt to get a User that Wasn't Swiped on by User
-        while match_user in swiped_users:
-            if len(queue) > 0:
-                match_user = queue.pop()
-            else:
-                return {}, 200, {'Reason-Phrase': 'OK'}
-        
-        # Attempt to get a User that isn't Themselves
-        while match_user == user.spotify_id:
-            if len(queue) > 0:
-                match_user = queue.pop()
             else:
                 return {}, 200, {'Reason-Phrase': 'OK'}
 
