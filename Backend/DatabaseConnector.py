@@ -592,8 +592,9 @@ class DatabaseConnector(object):
             self.db_cursor.execute(query)
             self.resultset = self.db_cursor.fetchone()
             if (self.resultset != None and self.resultset != '' ):
-                for spotify_id in create_friends_array_from_DB(self.resultset[0]):
-                    entire_genre_groups.append(spotify_id)
+                for id in create_friends_array_from_DB(self.resultset[0]):
+                    if (spotify_id != id):
+                        entire_genre_groups.append(id)
         if (entire_genre_groups == []):
             return []
         else:
