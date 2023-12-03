@@ -2459,8 +2459,15 @@ def get_next_user():
         if swiped_users is None:
             swiped_users = []
         
-        # Attempt to get a Song that Wasn't Swiped on by User
+        # Attempt to get a User that Wasn't Swiped on by User
         while match_user in swiped_users:
+            if len(queue) > 0:
+                match_user = queue.pop()
+            else:
+                return {}, 200, {'Reason-Phrase': 'OK'}
+        
+        # Attempt to get a User that isn't Themselves
+        while match_user != user.spotify_id:
             if len(queue) > 0:
                 match_user = queue.pop()
             else:
