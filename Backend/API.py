@@ -2429,8 +2429,7 @@ def get_next_user():
                     return {}
 
         # We get the First User in the Queue
-        first_user = queue.pop()
-        match_user = first_user
+        match_user = queue.pop()
         with DatabaseConnector(db_config) as conn:
             rejected_users = conn.get_rejected_users_from_DB(user.spotify_id)
         if rejected_users is None:
@@ -2467,7 +2466,7 @@ def get_next_user():
                 return {}, 200, {'Reason-Phrase': 'OK'}
         
         # Attempt to get a User that isn't Themselves
-        while match_user != user.spotify_id:
+        while match_user == user.spotify_id:
             if len(queue) > 0:
                 match_user = queue.pop()
             else:
