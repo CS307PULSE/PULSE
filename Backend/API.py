@@ -170,8 +170,8 @@ def logout():
         user_data = session['user']
         user = User.from_json(user_data)
         resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
-        resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict')
-        resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict')
+        resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict', max_age=0)
+        resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict', max_age=0)
         session.clear()
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv("CLIENT_ID"),
                                                     client_secret=os.getenv("CLIENT_SECRET"), 
