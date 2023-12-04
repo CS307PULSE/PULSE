@@ -311,10 +311,16 @@ function formatSelectionGraphData(props, params) {
     if (props.dataVariation === "Tracks" || props.dataVariation === "Artists") {
       const tempData = props.bothFriendAndOwnData ? props.data : [props.data];
       tempData.forEach((userData) => {
+        if (userData[params.itemType][item] === undefined) {
+          return;
+        }
         if (userData[params.itemType][item].Name !== undefined) {
           id = userData[params.itemType][item].Name;
         }
       });
+      if (id === "") {
+        continue;
+      }
     } else {
       id = item;
     }

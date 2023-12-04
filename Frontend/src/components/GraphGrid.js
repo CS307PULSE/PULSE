@@ -299,6 +299,8 @@ export default function GraphGrid() {
       }
     };
 
+    fetchData();
+
     fetchFriends().then((result) => {
       setFriends(
         result.map((friend) => {
@@ -319,7 +321,7 @@ export default function GraphGrid() {
                   obj[friend.spotify_id] = "available";
                 } else {
                   obj[friend.spotify_id] = "unavailable";
-                  console.alert(
+                  console.error(
                     "Page failed fetching " +
                       friend.spotify_id +
                       "'s advanced data"
@@ -333,7 +335,7 @@ export default function GraphGrid() {
               obj[friend.spotify_id] = "available";
             } else {
               obj[friend.spotify_id] = "unavailable";
-              console.alert(
+              console.error(
                 "Page failed fetching " + friend.spotify_id + "'s basic data"
               );
             }
@@ -346,7 +348,6 @@ export default function GraphGrid() {
       setFinishedGettingFriends(true);
     });
 
-    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
