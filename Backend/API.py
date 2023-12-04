@@ -164,6 +164,14 @@ def login():
     # Redirect the user to the Spotify login page
     return auth_url, 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/logout')
+def logout():
+    resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
+    resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict')
+    resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict')
+    session.clear()
+    return resp , 302, {'Reason-Phrase': 'OK'}
+
 @app.route('/callback')
 def callback():
     code = request.args.get('code', "")
