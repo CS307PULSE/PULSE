@@ -9,9 +9,9 @@ async function sendSearchAndReturn(sendSearch) {
     query: sendSearch,
   });
   const data = response.data;
-  console.log("Got");
-  console.log(response);
-  console.log(sendSearch);
+  //console.log("Got");
+  //console.log(response);
+  //console.log(sendSearch);
   return data;
 }
 
@@ -61,8 +61,8 @@ export default function FilterPopup({
       sendSearchAndReturn(formJson.searchItem).then((data) => {
         if (data !== null && data !== undefined) {
           setItems(data);
-          console.log("This is filter selection:");
-          console.log(data);
+          //console.log("This is filter selection:");
+          //console.log(data);
           onClose();
         } else {
           alert("Invalid Selection!");
@@ -70,8 +70,8 @@ export default function FilterPopup({
       });
     } else {
       setItems(formJson.items);
-      console.log("This is filter selection:");
-      console.log(formJson);
+      //console.log("This is filter selection:");
+      //console.log(formJson);
       onClose();
     }
   }

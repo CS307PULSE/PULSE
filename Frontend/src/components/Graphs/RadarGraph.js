@@ -13,8 +13,8 @@ async function getEmotion(track_uri, track_popularity) {
     popularity: track_popularity,
   });
   const data = response.data;
-  console.log("Got");
-  console.log(response);
+  //console.log("Got");
+  //console.log(response);
   return data;
 }
 
@@ -88,7 +88,7 @@ export const RadarGraph = (props) => {
   }, []);
 
   useEffect(() => {
-    console.log(itemsSelected);
+    //console.log(itemsSelected);
     if (itemsSelected === undefined || itemsSelected.length === 0) {
       return;
     }

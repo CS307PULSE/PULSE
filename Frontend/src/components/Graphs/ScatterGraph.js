@@ -25,8 +25,8 @@ export const ScatterGraph = (props) => {
   const [xScale, setXScale] = useState({ type: "point" });
   //Setup Data per selected values
   useEffect(() => {
-    console.log("Graph props");
-    console.log(props);
+    //console.log("Graph props");
+    //console.log(props);
     if (props.data === undefined || props.data === null) {
       setData("Bad Data");
       return;

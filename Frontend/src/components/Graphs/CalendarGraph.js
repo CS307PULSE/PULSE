@@ -34,7 +34,7 @@ export const CalendarGraph = (props) => {
   }
 
   try {
-    console.log(data);
+    //console.log(data);
     return (
       <div className="GraphSVG">
         <ResponsiveCalendar

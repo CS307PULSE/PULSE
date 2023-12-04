@@ -214,7 +214,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
       dataOrders.push(props.friendName + " " + item);
     }
   }
-  console.log(dataOrders);
+  //console.log(dataOrders);
 
   let params = {
     itemType: itemType,
@@ -249,7 +249,7 @@ function formatForDifferentGraphs(props, data) {
   switch (props.graphType) {
     case "Pie":
       let pieData = [];
-      console.log(data);
+      //console.log(data);
       for (const item of data) {
         pieData.push(
           ...item.data.map((itemDataPoints) => {
@@ -594,7 +594,7 @@ function formatSelectableItems(props) {
     });
   });
 
-  console.log(itemsSelectable);
+  //console.log(itemsSelectable);
   return itemsSelectable.sort(function (a, b) {
     return b.value - a.value;
   });

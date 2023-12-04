@@ -20,8 +20,8 @@ export const BumpGraph = (props) => {
     }
 
     if (props.data === undefined || props.data === null) {
-      console.log(props.data);
-      console.log("Got shit data");
+      //console.log(props.data);
+      //console.log("Got shit data");
       setData("Bad Data");
       return;
     }
@@ -49,7 +49,7 @@ export const BumpGraph = (props) => {
             }
           });
         });
-        console.log(dataTemp);
+        //console.log(dataTemp);
         setData(dataTemp);
       } else {
         setData(props.data);

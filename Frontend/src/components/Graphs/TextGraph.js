@@ -145,7 +145,7 @@ export const TextGraph = (props) => {
       </div>
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return <p>Your data is empty!</p>;
   }
 };

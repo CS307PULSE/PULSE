@@ -26,7 +26,6 @@ async function fetchBasicData() {
     withCredentials: true,
   });
   const data = response.data;
-  console.log(response);
   return data;
 }
 
@@ -35,7 +34,6 @@ async function fetchFriends() {
     withCredentials: true,
   });
   const data = response.data;
-  console.log(response);
   return data;
 }
 
@@ -44,7 +42,6 @@ async function fetchBasicFriendData(spotify_id) {
     id: spotify_id,
   });
   const data = response.data;
-  console.log(response);
   return data;
 }
 
@@ -60,7 +57,6 @@ async function fetchAdvancedFriendData(spotify_id) {
       }
     );
     const data = response.data;
-    console.log(response);
     return data;
   } catch (e) {
     return null;
@@ -72,7 +68,6 @@ async function fetchAdvancedData() {
     withCredentials: true,
   });
   const data = response.data;
-  console.log(response);
   return data;
 }
 
@@ -88,7 +83,6 @@ async function sendLayouts(layouts, defaultLayout, numLayoutColumns) {
     },
   });
   const data = response.data;
-  console.log(response);
   return data;
 }
 
@@ -148,7 +142,7 @@ export default function GraphGrid() {
       }
       return newLayout;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       saveToLS(key, defaultLayout);
       return defaultLayout;
     }
@@ -165,11 +159,6 @@ export default function GraphGrid() {
   //Send layout to local storage
   const saveToLS = (key, storingLayout) => {
     try {
-      /*
-      console.log(
-        "Layout " + key + " (should be " + layoutNumber + " ) stored as"
-      );
-      console.log(storingLayout);*/
       localStorage.setItem(key, JSON.stringify(storingLayout));
     } catch (e) {
       alert(e);
@@ -179,7 +168,7 @@ export default function GraphGrid() {
   //Function for save button
   const handleSaveButtonClick = () => {
     saveToLS(layoutNumber, layout);
-    console.log(layout);
+    //console.log(layout);
     sendLayouts(getAllFromLS(), defaultLayoutNum, numLayoutColumns);
   };
 
@@ -226,10 +215,11 @@ export default function GraphGrid() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("getting basic stats");
+        //("getting basic stats");
         const data = await fetchBasicData();
 
         //Log data in console to view
+        /*
         try {
           console.log("Got below data");
           const objData = {
@@ -247,6 +237,7 @@ export default function GraphGrid() {
         } catch (e) {
           console.log(e);
         }
+        */
 
         setTopArtists(data.top_artists);
         setTopSongs(data.top_songs);
@@ -258,20 +249,20 @@ export default function GraphGrid() {
 
         //Followers
         if (data.follower_data === "") {
-          console.log("Followers empty");
+          //console.log("Followers empty");
         } else {
           setFollowers(data.follower_data);
         }
 
         //Layout
         if (data.layout_data === "") {
-          console.log("Layout empty");
+          //console.log("Layout empty");
         } else {
-          console.log("Getting databse layouts");
+          //console.log("Getting databse layouts");
           //Set local storage of layouts
           const layout_data = data.layout_data;
           let newLayouts = layout_data.layouts;
-          console.log(newLayouts);
+          //console.log(newLayouts);
 
           for (let i = 0; i < 3; i++) {
             setlayoutNumber(i + 1);
@@ -355,13 +346,14 @@ export default function GraphGrid() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Getting advanced data");
+        //console.log("Getting advanced data");
         const data = await fetchAdvancedData();
         if (data === null) {
           // Error thrown here to trigger backup advanced data
           throw new Error("No advanced data found!");
         } else {
           setAdvancedData(data);
+          setFinishedAdvanced(true);
         }
       } catch (error) {
         /*
@@ -373,10 +365,10 @@ export default function GraphGrid() {
         );
         console.error("Error fetching advanced data:", error);
         setAdvancedData(tempAdvancedData);
+        setFinishedAdvanced(true);
       }
     };
     fetchData();
-    setFinishedAdvanced(true);
   }, []);
 
   //Functions to enable opening and closing of the "Add Graph" menu
@@ -430,8 +422,8 @@ export default function GraphGrid() {
         );
       }
     }
-    console.log("New Layout item added:");
-    console.log(newGraph);
+    //console.log("New Layout item added:");
+    //console.log(newGraph);
     addContainer(newGraph);
   };
 
@@ -458,7 +450,7 @@ export default function GraphGrid() {
         if (!friends.includes(props.friendID)) {
           return null;
         }
-        console.log(props);
+        //console.log(props);
 
         const friendIndex = friendDatas.findIndex((element, index) => {
           return element.id === props.friendID;
@@ -652,7 +644,7 @@ export default function GraphGrid() {
       }
       //console.log("Got this data: " + dataName);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return "";
     }
   }
@@ -693,6 +685,8 @@ export default function GraphGrid() {
       </div>
     );
   } else {
+    //console.log(finishedPullingAdvancedData);
+    //console.log(advancedData);
     return (
       <React.Fragment>
         <ResponsiveGridLayout

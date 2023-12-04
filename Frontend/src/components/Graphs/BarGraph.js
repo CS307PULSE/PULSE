@@ -23,8 +23,8 @@ export const BarGraph = (props) => {
 
   //Setup Data per selected values
   useEffect(() => {
-    console.log("Graph props");
-    console.log(props);
+    //console.log("Graph getting built");
+    //console.log(props);
     if (props.data === undefined || props.data === null) {
       setData("Bad Data");
       return;
@@ -83,7 +83,7 @@ export const BarGraph = (props) => {
   } else if (data === "Advanced Data Failed to Load") {
     return <p>Advanced Data is unavailable right now!</p>;
   }
-  console.log(data);
+  //console.log(data);
 
   return (
     <div className="GraphSVG">

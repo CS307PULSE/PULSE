@@ -22,8 +22,8 @@ export const PieGraph = (props) => {
 
   //Setup Data per selected values
   useEffect(() => {
-    console.log("Graph props");
-    console.log(props);
+    //console.log("Graph props");
+    //console.log(props);
     if (props.data === undefined || props.data === null) {
       setData("Bad Data");
       return;
@@ -79,7 +79,7 @@ export const PieGraph = (props) => {
   }
 
   try {
-    console.log(data);
+    //console.log(data);
     return (
       <div className="GraphSVG">
         {selectionGraph ? (
@@ -152,7 +152,7 @@ export const PieGraph = (props) => {
       </div>
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return <p>Your data is empty!</p>;
   }
 };

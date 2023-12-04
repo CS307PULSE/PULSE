@@ -26,10 +26,10 @@ export const LineGraph = (props) => {
 
   //Setup Data per selected values
   useEffect(() => {
-    console.log("Graph props");
-    console.log(props);
+    //console.log("Graph props");
+    //console.log(props);
     if (props.data === undefined || props.data === null) {
-      console.log("data type wrong:" + props.data);
+      //console.log("data type wrong: " + props.data);
       setData("Bad Data");
       return;
     } else if (props.data === "Empty") {
@@ -97,7 +97,7 @@ export const LineGraph = (props) => {
       : {};
 
   try {
-    console.log(data);
+    //console.log(data);
     return (
       <div className="GraphSVG">
         {selectionGraph ? (
