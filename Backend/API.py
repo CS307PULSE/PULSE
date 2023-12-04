@@ -166,11 +166,28 @@ def login():
 
 @app.route('/logout')
 def logout():
-    resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
-    resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict')
-    resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict')
-    session.clear()
-    return resp , 302, {'Reason-Phrase': 'OK'}
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
+        resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict')
+        resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict')
+        session.clear()
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv("CLIENT_ID"),
+                                                    client_secret=os.getenv("CLIENT_SECRET"), 
+                                                    redirect_uri=os.getenv("REDIRECT_URI"), 
+                                                    scope=scope,
+                                                    username=user.spotify_id))
+
+        sp.auth_manager._session.request("DELETE", sp.auth_manager.TOKEN_URL, headers=sp.auth_manager.headers)
+
+        return resp , 302, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
 
 @app.route('/callback')
 def callback():
