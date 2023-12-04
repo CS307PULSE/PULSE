@@ -28,7 +28,7 @@ class User:
                  gender=None,
                  location=None,
                  chosen_song = "Not Yet Chosen",
-                 status = "needs implemented in backend",
+                 status = "Not Yet Chosen",
                  public_display_text_color = "#FFFFFFF",
                  public_display_background_color = "#000000"
                 ):
