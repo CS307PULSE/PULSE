@@ -2752,7 +2752,7 @@ def play_context():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify('Changed Playback'), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(context_uri), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/info/get_song_dict', methods=['POST'])
 def get_song_dict():
