@@ -198,6 +198,8 @@ function Playback({ syncTrigger = null }) {
     const response = await axiosInstance.post("/api/player/play_context", {
       spotify_uri: item.uri,
     });
+    console.log("SkipInQueue Response:");
+    console.log(response);
     syncFunction();
   }
   async function changeDevice(newDeviceID) {
