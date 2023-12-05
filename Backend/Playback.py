@@ -164,7 +164,7 @@ class Playback:
       try:
         "playlist = self.user.spotify_user.playlist(=playlist_uri)"
         "playlist_first_song = playlist['tracks']['items']['track']['TrackObject']"
-        self.select_song(playlist_uri, playlist_uri)
+        self.select_song(playlist_uri, None)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
@@ -172,7 +172,7 @@ class Playback:
       try:
         "artist_tracks = self.user.spotify_user.artist_top_tracks(artist_uri)"
         "artist_first_song = artist_tracks[1]"
-        self.select_song(artist_uri, artist_uri)
+        self.select_song(artist_uri, None)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
@@ -180,7 +180,7 @@ class Playback:
       try:
         "album = self.user.spotify_user.album(album_uri)"
         "album_first_song = album['tracks']['items'][1]['uri']"
-        self.select_song(album_uri, album_uri)
+        self.select_song(album_uri, None)
       except spotipy.exceptions.SpotifyException as e:
         ErrorHandler.handle_error(e)
 
