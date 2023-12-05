@@ -240,7 +240,7 @@ function Profile({ testParameter }) {
       "/api/logout",
     );
     const data = response.data;
-    navigate.push("/")
+    navigate("/")
     return
   }
 
