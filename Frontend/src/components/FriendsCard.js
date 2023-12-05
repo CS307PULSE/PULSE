@@ -34,7 +34,7 @@ const FriendsCard = ({}) => {
 
 
   const cardContainerStyle = {
-    border: "1px solid " + state.colorBorder,
+    border: "none", //"1px solid " + state.colorBorder,
     overflowY: "auto",
     maxWidth: "500px",
     width: "100%",
