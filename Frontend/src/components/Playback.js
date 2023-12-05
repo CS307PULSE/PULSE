@@ -109,6 +109,7 @@ function Playback({ syncTrigger = null }) {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("queue");
   const [syncing, setSyncing] = useState(false);
+  const [skipping, setSkipping] = useState(false);
 
   const [currentTrack, setCurrentTrack] = useState(null);
   const [albumArt, setAlbumArt] = useState("");
@@ -164,8 +165,6 @@ function Playback({ syncTrigger = null }) {
     const axiosInstance = axios.create({ withCredentials: true });
     var response = await axiosInstance.get("/api/player/sync_player");
     var data = response.data;
-    console.log("ballin");
-    console.log(response);
     setSyncing(false);
     if (data === "failed") {
       setPlayState(false);
@@ -189,6 +188,19 @@ function Playback({ syncTrigger = null }) {
     setSearchResults("loading");
     var data = await searchSpotify(query, type);
     setSearchResults(data);
+  }
+  async function skipInQueue(number, syncFunction) {
+    if (skipping) {
+      return;
+    }
+    setSkipping(true);
+    var promises = [];
+    for (var i = 0; i < number; i++) {
+      promises.push(axios.get("/api/player/skip", { withCredentials: true }));
+    }
+    await Promise.all(promises);
+    setSkipping(false);
+    syncPlayer();
   }
   async function changeDevice(newDeviceID) {
     setCurrentDevice(newDeviceID);
@@ -568,7 +580,7 @@ function Playback({ syncTrigger = null }) {
                     <ItemList
                       data={queueData}
                       onClick={(index) => {
-                        playItem(queueData[index], syncPlayer);
+                        skipInQueue(index + 1, syncPlayer);
                       }}
                     />
                   </div>
