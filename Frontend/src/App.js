@@ -78,6 +78,7 @@ function App() {
               )
             }
           />
+          <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Mainpage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/game/guess-the-song" element={<GuessTheSong />} />

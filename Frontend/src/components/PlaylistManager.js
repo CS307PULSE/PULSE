@@ -52,6 +52,8 @@ const PlaylistManager = () => {
   const [synthSearch1, setSynthSearch1] = useState("");
   const [synthSearch2, setSynthSearch2] = useState("");
   const [newSynthPlaylistName, setNewSynthPlaylistName] = useState("New Synthesized Playlist");
+  const [synthResponseText, setSynthResponseText] = useState("");
+
   const [reorderIndexStart, setReorderIndexStart] = useState(0);
   const [reorderIndexAmount, setReorderIndexAmount] = useState(0);
   const [reorderIndexInsert, setReorderIndexInsert] = useState(0);
@@ -124,18 +126,22 @@ const PlaylistManager = () => {
     } catch (e) { setReorderResponseText("Error reordering playlist!"); console.log(e); }
   }
   async function mergePlaylists() {
-    playlistPost(
+    setSynthResponseText("Merging playlists...")
+    const response = await playlistPost(
       "merge", 
       {name: newSynthPlaylistName, first_playlist: synthPlaylists1[selectedSynthIndex1].id, second_playlist: synthPlaylists2[selectedSynthIndex2].id},
       updatePlaylists
     );
+    setSynthResponseText(response);
   }
   async function fusePlaylists() {
-    playlistPost(
+    setSynthResponseText("Fusing playlists...")
+    const response = await playlistPost(
       "fuse", 
       {name: newSynthPlaylistName, first_playlist: synthPlaylists1[selectedSynthIndex1].id, second_playlist: synthPlaylists2[selectedSynthIndex2].id},
       updatePlaylists
     );
+    setSynthResponseText(response);
   }
 
   const bodyStyle = {
@@ -428,6 +434,7 @@ const PlaylistManager = () => {
                 </div>
                 <button style={buttonStyle} onClick={() => mergePlaylists()}>Merge Playlists</button>
                 <button style={buttonStyle} onClick={() => fusePlaylists()}>Fuse Playlists</button>
+                <p style={textStyle}>{synthResponseText}</p>
               </div>
             </div>
           </>);
