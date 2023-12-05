@@ -2737,7 +2737,9 @@ def play_context():
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        song_uri = data.get('spotify_uri')
+        song_uri = {
+            "uri": data.get('spotify_uri')
+            }
         try:
             refresh_token(user)
             playback = user.spotify_user.current_playback()
