@@ -94,7 +94,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  PARAMETER RECOMMENDATION
+                  Parameter Wizard
                 </Link>
                 <Link
                   to="/explorer/SongRecommendation"
@@ -104,7 +104,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  SONG RECOMMENDATION
+                  Song Recommender
                 </Link>
                 <Link
                   to="/explorer/PlaylistRecommendation"
@@ -114,7 +114,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  PLAYLIST RECOMMENDATION
+                  Recommendations for Playlists
                 </Link>
                 <Link
                   to="/explorer/PlaylistManager"
@@ -124,7 +124,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  PLAYLIST MANAGER
+                  Playlist Manager
                 </Link>
                 <Link
                   to="/explorer/ArtistExplorer"
@@ -134,7 +134,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  ARTIST EXPLORER
+                  Artist Explorer
                 </Link>
               </div>
             </div>
@@ -151,7 +151,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  GUESS THE SONG
+                  Guess The Song
                 </Link>
                 <Link
                   to="/game/guess-the-artist"
@@ -161,7 +161,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  GUESS THE ARTIST
+                  Guess The Artist
                 </Link>
                 <Link
                   to="/game/guess-who-listens"
@@ -171,7 +171,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  GUESS WHO LISTENS TO THE SONG
+                  Guess Who Listens To The Song
                 </Link>
                 <Link
                   to="/game/guess-the-lyric"
@@ -181,7 +181,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  GUESS THE NEXT LYRIC
+                  Guess The Next Lyric
                 </Link>
                 <Link
                   to="/game/heads-up"
@@ -191,7 +191,7 @@ function Mainpage() {
                     textAlign: "center",
                   }}
                 >
-                  HEADS UP
+                  Heads Up
                 </Link>
               </div>
             </div>
