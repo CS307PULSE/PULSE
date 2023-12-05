@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import { useState } from 'react';
 import Navbar from './NavBar';
 import MatchCardUser from './MatchCardUser';
 import MatchCardSong from './MatchCardSong';
 import axios from 'axios';
 import PopupPage from './PopupPage';
+import Playback from './Playback';
 
 class MatchIt extends Component {
  // const { states, dispatch } = useAppContext();
@@ -200,6 +202,7 @@ class MatchIt extends Component {
       const response = await axios.get("/api/song_matcher/view_swiped_songs", {
         withCredentials: true,
       });
+      console.log(response);
 
       // Handle the response data and update the state
       const { data: likedSongs } = response;
@@ -217,7 +220,7 @@ class MatchIt extends Component {
 
     const topButtonStyle = {
       position: 'absolute',
-      top: '65px',
+      top: '10px',
       right: 0,
       margin: '10px',
       backgroundColor: '#6EEB4D',
@@ -292,11 +295,12 @@ class MatchIt extends Component {
       currentPage === 'user' ? 'View Liked User' : 'View Liked Song';
 
     return (
-      <div style={{background:"black", height: "100vh" }}>
-        <Navbar />
-        <div style={{ paddingLeft: '10px'}}>
+      <div className="wrapper" style={{background:"black", height: "100vh" }}>
+        <div className="header"><Navbar /></div>
+        <div className="content" style={{ paddingLeft: '10px'}}>
           <h2 style={HeaderStyle}>{currentPage === 'user' ? 'User Matcher' : 'Song Matcher'}</h2>
-          <p style={{color: "white"}}>{currentPage === 'user' ? 'Match with other users based on the genres you listen to! Add users you match with as friends to be able to see the songs and artists they listen to.' : 'Match with songs based on the music you listen to and your listening preferences! As you swipe left or right your preferences will be dynamically updated to recommend you songs that better reflect your tastes.'}</p>
+          <p style={{color: "white"}}>{
+            currentPage === 'user' ? 'Match with other users based on the genres you listen to! Add users you match with as friends to be able to see the songs and artists they listen to.' : 'Match with songs based on your listening preferences! As you swipe left or right your preferences will dynamically update to recommend you songs that better reflect your tastes.'}</p>
           <div>
             <button
               className="toggle-button"
@@ -305,8 +309,8 @@ class MatchIt extends Component {
               
             >
               {currentPage === 'user'
-                ? 'Go to Song Page'
-                : 'Go to User Page'}
+                ? 'Go to Song Match'
+                : 'Go to User Match'}
             </button>
           </div>
           {currentPage === 'user' && (
@@ -349,6 +353,7 @@ class MatchIt extends Component {
           )}
           </div>
         </div>
+        <div className="footer"><Playback/></div>
       </div>
     );
   }
