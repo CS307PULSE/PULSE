@@ -34,13 +34,11 @@ const AddFriends = () => {
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const bodyStyle = {
-    backgroundColor: state.colorBackground
-  };
-  
-  const contentStyle = {
-    flex: 1, // Ensure content takes available space
-    padding: "16px",
-    overflow: "auto",
+    backgroundColor: state.colorBackground,
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
   };
   
   const friendRowStyle = {
@@ -60,7 +58,11 @@ const AddFriends = () => {
     height: "900",
     backgroundColor: state.colorBackground,
   };
-  
+  const textStyle = {
+    color: state.colorText,
+    fontSize: textSizes.body,
+    margin: "5px"
+  };
   const buttonStyle = {
     backgroundColor: state.colorBackground,
     color: state.colorText,
@@ -76,16 +78,10 @@ const AddFriends = () => {
   };
   
   const searchContainerStyle = {
-    display: "flex",
-    marginLeft: "30px",
-    // justifyContent: 'center',
-    marginBottom: "20px",
-  };
-  
-  const searchInputStyle = {
-    padding: "8px",
-    width: "75%",
-    display: "flex-grow",
+    display: 'flex',
+    alignItems: 'center', // Center buttons horizontally
+    marginTop: '20px', // Space between cards and buttons
+    width: "100%"
   };
   
   const buttonContainerStyle = {
@@ -118,6 +114,9 @@ const AddFriends = () => {
               name={friend.name}
               photoFilename={friend.photoUri}
               favoriteSong={friend.favoriteSong}
+              status={friend.status}
+              publicColorText={friend.textColor}
+              publicColorBackground={friend.backgroundColor}
             />
             <div className = "center">
               <button style={{ ...buttonStyle, textDecoration: 'none' }}   onClick={() => sendFriendRequest(friend.spotify_id)}>
@@ -161,17 +160,19 @@ const AddFriends = () => {
         <div style={searchContainerStyle}>
           <input
             type="text"
-            placeholder="Search for users..."
-            style={searchInputStyle}
+            puttonslaceholder="Search for users..."
+            style={{...buttonStyle, textAlign: "left"}}
             value={searchUserValue}
             onChange={changeSearchUserValue}
+            onKeyDown={(e) => {if (e.key == 'Enter') {getUserSearch()}}}
           />
           <button
-            style={{ ...buttonStyle, textDecoration: "none" }}
+            style={{ ...buttonStyle, width: "30%", textDecoration: "none" }}
             onClick={() => getUserSearch()}
           >
             Search
           </button>
+          
           
         </div>
         {userSearch(recievedRelevantUsers)}

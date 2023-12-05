@@ -92,7 +92,7 @@ const loadingTextStyle = {
 
   const renderFriends = () => {
     return friendsData.map((friend, index) => (
-      <div style={{ marginBottom: "20px" }} key={index}>
+      <div style={{padding: "10px", marginBottom: "20px"}} key={index}>
         <Friend
           name={friend.name}
           photoFilename={friend.photoUri}

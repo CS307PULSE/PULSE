@@ -164,6 +164,8 @@ function Playback({ syncTrigger = null }) {
     const axiosInstance = axios.create({ withCredentials: true });
     var response = await axiosInstance.get("/api/player/sync_player");
     var data = response.data;
+    console.log("ballin");
+    console.log(response);
     setSyncing(false);
     if (data === "failed") {
       setPlayState(false);

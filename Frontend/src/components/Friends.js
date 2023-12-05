@@ -22,7 +22,11 @@ const Friends = () => {
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   
   const bodyStyle = {
-    backgroundColor: state.colorBackground
+    backgroundColor: state.colorBackground,
+    backgroundImage: "url('" + state.backgroundImage + "')",
+    backgroundSize: "cover", //Adjust the image size to cover the element
+    backgroundRepeat: "no-repeat", //Prevent image repetition
+    backgroundAttachment: "fixed", //Keep the background fixed
   };
 
   useEffect(() => {
