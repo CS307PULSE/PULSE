@@ -2731,6 +2731,29 @@ def change_device():
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
+@app.route('/api/player/play_context', methods=['POST'])
+def change_device():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        song_uri = data.get('spotify_uri')
+        try:
+            refresh_token(user)
+            playback = user.spotify_user.current_playback()
+            if playback.get('item') != None: 
+                context_uri = playback.get('context').get('uri')
+            user.spotify_user.start_playback(None, context_uri, song_uri, None, None)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify('Changed Playback'), 200, {'Reason-Phrase': 'OK'}
+
 @app.route('/api/info/get_song_dict', methods=['POST'])
 def get_song_dict():
     if 'user' in session:
