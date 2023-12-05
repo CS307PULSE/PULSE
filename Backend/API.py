@@ -2737,13 +2737,15 @@ def play_context():
         user_data = session['user']
         user = User.from_json(user_data)
         data = request.get_json()
-        song_uri = data.get('spotify_uri')
+        song_uri = {
+            "uri": data.get('spotify_uri')
+            }
         try:
             refresh_token(user)
             playback = user.spotify_user.current_playback()
             if playback.get('item') != None: 
                 context_uri = playback.get('context').get('uri')
-            user.spotify_user.start_playback(None, context_uri, song_uri, None, None)
+            user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
         except Exception as e:
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
