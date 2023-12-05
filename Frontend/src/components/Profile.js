@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // If using React Router for navigation
+import { Link, useNavigate } from "react-router-dom"; // If using React Router for navigation
 import Navbar from "./NavBar";
 import Playback from "./Playback";
 import axios from "axios";
@@ -50,6 +50,8 @@ function Profile({ testParameter }) {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize);
   const [changesMade, setChangesMade] = useState(false);
+
+  const navigate = useNavigate()
 
   const [userIcon, setUserIcon] = useState(storedUserFields.icon);
   const [displayName, setDisplayName] = useState(storedUserFields.display_name);
@@ -238,6 +240,7 @@ function Profile({ testParameter }) {
       "/api/logout",
     );
     const data = response.data;
+    navigate.push("/")
     return
   }
 
@@ -621,8 +624,7 @@ function Profile({ testParameter }) {
               </div>
             </div>
             <div style={sectionContainerStyle}>
-              <div>
-                <div
+                <button
                   onClick={handleLogout}
                   style={{
                     ...buttonStyle,
@@ -635,11 +637,8 @@ function Profile({ testParameter }) {
                     textAlign: "center",
                   }}
                 >
-                  <Link to="/dkawodkwo" style={{ textDecoration: "none", color: "inherit" }}>
                     Logout
-                  </Link>
-                </div>
-              </div>
+                </button>
             </div>
           </div>
         </div>
