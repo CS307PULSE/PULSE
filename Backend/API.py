@@ -2749,6 +2749,7 @@ def play_context():
             if playback.get('item') != None: 
                 context_uri = playback.get('context').get('uri')
             user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            time.sleep(20)
             playback = user.spotify_user.current_playback()
             if playback.get('item') != None: 
                 current_track = playback['item'].get('name')
