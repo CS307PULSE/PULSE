@@ -164,24 +164,28 @@ def login():
     # Redirect the user to the Spotify login page
     return auth_url, 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/logout')
+@app.route('/api/logout')
 def logout():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
+        resp = make_response("User logged out")
         resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict', max_age=0)
         resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict', max_age=0)
         session.clear()
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv("CLIENT_ID"),
                                                     client_secret=os.getenv("CLIENT_SECRET"), 
                                                     redirect_uri=os.getenv("REDIRECT_URI"), 
-                                                    scope=scope,
-                                                    username=user.spotify_id))
+                                                    scope=scope))
 
-        sp.auth_manager._session.request("DELETE", sp.auth_manager.TOKEN_URL, headers=sp.auth_manager.headers)
-
-        return resp , 302, {'Reason-Phrase': 'OK'}
+        if sp._auth:
+            token_info = sp._auth.get_cached_token()
+            if token_info:
+                revoke_url = f"https://accounts.spotify.com/api/token"
+                headers = {'Authorization': f"Basic {sp._auth.get_access_token(as_dict=False)}"}
+                payload = {'token': token_info['access_token']}
+                resp = sp._auth._session.post(revoke_url, headers=headers, data=payload) 
+        return resp , 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
