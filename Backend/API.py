@@ -2756,6 +2756,7 @@ def play_context():
             context_uri = current_track + " " + name
             if current_track != name :
                 user.spotify_user.start_playback(None, None, [data.get('spotify_uri')], None, None)
+            response = user.spotify_user.current_playback()
         except Exception as e:
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
@@ -2764,7 +2765,7 @@ def play_context():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(context_uri), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/info/get_song_dict', methods=['POST'])
 def get_song_dict():
