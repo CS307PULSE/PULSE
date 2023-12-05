@@ -3041,7 +3041,7 @@ def update_data(user,
             return update_data(user, retries=retries+1)
 
 def get_user_seed_tracks(user):
-    # Two seed tracks from past month and three from recent history
+    # Two seed tracks from past 6 months and three from recent history
     update_data(user)
     recent_history = user.stats.recent_history
     top_songs = user.stats.top_songs
@@ -3050,7 +3050,7 @@ def get_user_seed_tracks(user):
 
     if top_songs is not None:
         if len(top_songs) > 2:
-            for song in top_songs[0]:
+            for song in top_songs[1]:
                 if len(seed_tracks) < 2:
                     seed_tracks.append(song.get('uri', ':'))
 
