@@ -2732,7 +2732,7 @@ def change_device():
     return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/player/play_context', methods=['POST'])
-def change_device():
+def play_context():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
