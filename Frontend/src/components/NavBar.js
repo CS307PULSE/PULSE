@@ -70,7 +70,7 @@ const Navbar = () => {
           <Link to="/games" style={linkStyle}>Games</Link>
         </div>
         <div style={linkStyle}>
-          <Link to="/match" style={linkStyle}>Match It</Link>
+          <Link to="/match" style={linkStyle}>Matcher</Link>
         </div>
         <div style={linkStyle}>
           <Link to="/pulsebot" style={linkStyle}>PulseBot</Link>
