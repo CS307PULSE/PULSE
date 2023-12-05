@@ -164,24 +164,28 @@ def login():
     # Redirect the user to the Spotify login page
     return auth_url, 200, {'Reason-Phrase': 'OK'}
 
-@app.route('/logout')
+@app.route('/api/logout')
 def logout():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
-        resp = make_response(redirect("https://spotify-pulse-efa1395c58ba.herokuapp.com"))
+        resp = make_response("User logged out")
         resp.set_cookie('user_id_cookie', '',secure=True, httponly=True, samesite='Strict', max_age=0)
         resp.set_cookie('token_cookie', '',secure=True, httponly=True, samesite='Strict', max_age=0)
         session.clear()
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv("CLIENT_ID"),
                                                     client_secret=os.getenv("CLIENT_SECRET"), 
                                                     redirect_uri=os.getenv("REDIRECT_URI"), 
-                                                    scope=scope,
-                                                    username=user.spotify_id))
+                                                    scope=scope))
 
-        sp.auth_manager._session.request("DELETE", sp.auth_manager.TOKEN_URL, headers=sp.auth_manager.headers)
-
-        return resp , 302, {'Reason-Phrase': 'OK'}
+        if sp._auth:
+            token_info = sp._auth.get_cached_token()
+            if token_info:
+                revoke_url = f"https://accounts.spotify.com/api/token"
+                headers = {'Authorization': f"Basic {sp._auth.get_access_token(as_dict=False)}"}
+                payload = {'token': token_info['access_token']}
+                response = sp._auth._session.post(revoke_url, headers=headers, data=payload) 
+        return resp , 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
@@ -444,16 +448,16 @@ def update_followers():
                     most_recent_time = current_time - timedelta(days=1)
                 if current_time - most_recent_time >= timedelta(days=1):
                     return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
+            with DatabaseConnector(db_config) as conn:
+                if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
+                    error_message = "Error storing/getting information! Please try logging in again!"
+                    error_code = 415
+                    
+                    error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                    return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         except Exception as e:
             print(e)
 
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
-                error_message = "Error storing/getting information! Please try logging in again!"
-                error_code = 415
-                
-                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
@@ -1633,9 +1637,9 @@ def remove_friend():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
-                bufferobject['status'] = "needs implemented in backend" #frienduser.status
-                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
-                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
+                bufferobject['status'] = frienduser.status
+                bufferobject['textColor'] = frienduser.public_display_text_color
+                bufferobject['backgroundColor'] = frienduser.public_display_background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1673,9 +1677,9 @@ def request_choice():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
-                bufferobject['status'] = "needs implemented in backend" #frienduser.status
-                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
-                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
+                bufferobject['status'] = frienduser.status
+                bufferobject['textColor'] = frienduser.public_display_text_color
+                bufferobject['backgroundColor'] = frienduser.public_display_background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1702,9 +1706,9 @@ def friend_request_search():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
-                bufferobject['status'] = "needs implemented in backend" #frienduser.status
-                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
-                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
+                bufferobject['status'] = frienduser.status
+                bufferobject['textColor'] = frienduser.public_display_text_color
+                bufferobject['backgroundColor'] = frienduser.public_display_background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1731,9 +1735,9 @@ def get_friends():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
-                bufferobject['status'] = frienduser.status #frienduser.status
-                bufferobject['textColor'] = frienduser.public_display_text_color #frienduser.text_color
-                bufferobject['backgroundColor'] = frienduser.public_display_background_color #frienduser.background_color
+                bufferobject['status'] = frienduser.status
+                bufferobject['textColor'] = frienduser.public_display_text_color
+                bufferobject['backgroundColor'] = frienduser.public_display_background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -1760,9 +1764,9 @@ def get_requests():
                 bufferobject['name'] = frienduser.display_name
                 bufferobject['photoUri'] = conn.get_icon_from_DB(item)
                 bufferobject['favoriteSong'] = frienduser.chosen_song
-                bufferobject['status'] = "needs implemented in backend" #frienduser.status
-                bufferobject['textColor'] = "#FFFFFFF" #frienduser.text_color
-                bufferobject['backgroundColor'] = "#000000" #frienduser.background_color
+                bufferobject['status'] = frienduser.status
+                bufferobject['textColor'] = frienduser.public_display_text_color
+                bufferobject['backgroundColor'] = frienduser.public_display_background_color
                 bufferobject['spotify_id'] = frienduser.spotify_id
                 jsonarray.append(bufferobject)
             if len(response_data) == 0:
@@ -2630,7 +2634,9 @@ def get_playing():
         try:
             refresh_token(user)
             playback = user.spotify_user.current_playback()
-            if playback != None:
+            print(playback)
+            if playback.get('item') != None: 
+                current_track = playback['item']
                 is_playing = playback['is_playing']
                 current_device = playback['device']
                 all_devices = user.spotify_user.devices()
@@ -2770,6 +2776,53 @@ def get_owned():
             response_data = user.spotify_user.current_user_playlists()
         except Exception as e:
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/api/playlist/merge', methods=['POST'])
+def playlist_merge():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        data = request.get_json()
+        name = data.get('name')
+        playlist_1 = data.get('first_playlist')
+        playlist_2 = data.get('second_playlist')
+        try:
+            refresh_token(user)
+            Playlist.playlist_merge(user, name, playlist_1, playlist_2)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+        response_data = 'Merged playlists!'
+    else:
+        error_message = "The user is not in the session! Please try logging in again!"
+        error_code = 410
+        
+        error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+        return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
+    return jsonify(response_data), 200, {'Reason-Phrase': 'OK'}
+
+@app.route('/api/playlist/fuse', methods=['POST'])
+def playlist_fuse():
+    if 'user' in session:
+        user_data = session['user']
+        user = User.from_json(user_data)
+        data = request.get_json()
+        name = data.get('name')
+        playlist_1 = data.get('first_playlist')
+        playlist_2 = data.get('second_playlist')
+        try:
+            refresh_token(user)
+            Playlist.playlist_fusion(user, name, playlist_1, playlist_2)
+        except Exception as e:
+            return f"{e}", 200, {'Reason-Phrase': 'OK'}
+        response_data = 'Fused playlists!'
     else:
         error_message = "The user is not in the session! Please try logging in again!"
         error_code = 410
@@ -3041,7 +3094,7 @@ def update_data(user,
             return update_data(user, retries=retries+1)
 
 def get_user_seed_tracks(user):
-    # Two seed tracks from past month and three from recent history
+    # Two seed tracks from past 6 months and three from recent history
     update_data(user)
     recent_history = user.stats.recent_history
     top_songs = user.stats.top_songs
@@ -3050,7 +3103,7 @@ def get_user_seed_tracks(user):
 
     if top_songs is not None:
         if len(top_songs) > 2:
-            for song in top_songs[0]:
+            for song in top_songs[1]:
                 if len(seed_tracks) < 2:
                     seed_tracks.append(song.get('uri', ':'))
 
