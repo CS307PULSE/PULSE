@@ -160,30 +160,16 @@ export function formatAdvancedGraphData(props, itemsSelected) {
       ? "Number of Streams"
       : "Skips";
   let itemType = props.dataVariation;
-  const years = props.bothFriendAndOwnData
+  const yearsOrder = props.bothFriendAndOwnData
     ? Array.from(
         new Set(props.data.map((item) => Object.keys(item.Yearly)).flat())
-      )
-        .sort(function (a, b) {
-          return a - b;
-        })
-        .filter((year) => props.data.Yearly[year] !== null)
-    : Object.keys(props.data.Yearly)
-        .sort(function (a, b) {
-          return a - b;
-        })
-        .filter((year) => props.data.Yearly[year] !== null);
-  const highestYear = Math.max(...years.map(Number));
-  const dataSource = props.bothFriendAndOwnData
-    ? props.timeRange === "year"
-      ? [props.data[0].Yearly, props.data[1].Yearly]
-      : [
-          props.data[0].Yearly[highestYear].Monthly,
-          props.data[1].Yearly[highestYear].Monthly,
-        ]
-    : props.timeRange === "year"
-    ? [props.data.Yearly]
-    : [props.data.Yearly[highestYear].Monthly];
+      ).sort(function (a, b) {
+        return a - b;
+      })
+    : Object.keys(props.data.Yearly).sort(function (a, b) {
+        return a - b;
+      });
+  const years = yearsOrder.filter((year) => props.data.Yearly[year] !== null);
   const monthsOrder = [
     "JANUARY",
     "FEBRUARY",
@@ -199,7 +185,7 @@ export function formatAdvancedGraphData(props, itemsSelected) {
     "DECEMBER",
   ];
   let dataOrder = ["Overall"];
-  for (const year of years) {
+  for (const year of yearsOrder) {
     dataOrder.push(year);
     for (const month of monthsOrder) {
       dataOrder.push(month + " " + year);
@@ -214,7 +200,17 @@ export function formatAdvancedGraphData(props, itemsSelected) {
       dataOrders.push(props.friendName + " " + item);
     }
   }
-  //console.log(dataOrders);
+  const highestYear = Math.max(...years.map(Number));
+  const dataSource = props.bothFriendAndOwnData
+    ? props.timeRange === "year"
+      ? [props.data[0].Yearly, props.data[1].Yearly]
+      : [
+          props.data[0].Yearly[highestYear].Monthly,
+          props.data[1].Yearly[highestYear].Monthly,
+        ]
+    : props.timeRange === "year"
+    ? [props.data.Yearly]
+    : [props.data.Yearly[highestYear].Monthly];
 
   let params = {
     itemType: itemType,
