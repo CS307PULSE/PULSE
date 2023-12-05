@@ -624,21 +624,14 @@ function Profile({ testParameter }) {
               </div>
             </div>
             <div style={sectionContainerStyle}>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    ...buttonStyle,
-                    cursor: "pointer", // Add this to show it's clickable
-                    width: "calc(100% - 300px)",
-                    position: "absolute",
-                    top: "120px",
-                    right: "20px",
-                    textDecoration: "none",
-                    textAlign: "center",
-                  }}
-                >
-                    Logout
-                </button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  ...buttonStyle
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
