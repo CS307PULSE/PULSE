@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { StyleSheet, css } from "aphrodite";
+import { useAppContext } from './Context';
 
 const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
+  const { state, dispatch } = useAppContext();
   const theme = {
     primaryColor: "#6EEB4D",
     backgroundColor: "#000000",
@@ -75,7 +77,8 @@ const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
     card: {
       width: "500px",
       height: "600px",
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: state.colorAccent,
+      color: state.colorText,
       borderRadius: "10px",
       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
       overflow: "hidden",
@@ -93,14 +96,19 @@ const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
       color: theme.textColor,
       fontFamily: theme.fontFamily,
       fontSize: "20px",
-      textTransform: "uppercase",
     },
     image: {
       width: "300px",
       height: "300px",
       borderColor:"white",
-      padding:"10px",
       borderWidth:"3",
+      paddingBottom:"40px",
+    },
+    box:{
+      background: "rgba(0, 0, 0, 0.8)",
+      borderRadius: "20px",
+      paddingBottom: "10px",
+      paddingTop: "10px",
     },
    
   });
@@ -112,12 +120,15 @@ const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDrag={handleDrag}
+      // onClick={}
     >
       <div className={css(styles.content)}>
         <img src={image1Url} alt="Album cover" className={css(styles.image) } />
+        <div className={css(styles.box)}>
         <p>{"Artist: " + artistName1}</p>
         <p>{"Song Name: " + trackName}</p>
         <p>{"Release Date: " + albumReleaseDate}</p>
+        </div>
       </div>
     </div>
   );

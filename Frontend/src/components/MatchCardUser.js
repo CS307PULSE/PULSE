@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { StyleSheet, css } from "aphrodite";
+import { useAppContext } from './Context';
 
 const MatchCardUser = ({ onSwipeLeft, onSwipeRight, data }) => {
+  const { state, dispatch } = useAppContext();
   const theme = {
     primaryColor: "#6EEB4D",
     backgroundColor: "#000000",
@@ -10,7 +12,10 @@ const MatchCardUser = ({ onSwipeLeft, onSwipeRight, data }) => {
     lightOffGrey: "#c5d1c0",
     fontFamily: "'Poppins', sans-serif",
   };
-    const { id, name, image,  song, status, text_color, backgound_color } = data;
+
+  // Destructuring data
+  const { id, name, image, song, status, text_color, backgound_color } = data;
+
   const [startX, setStartX] = useState(0);
 
   const handleDragStart = (e) => {
@@ -33,13 +38,13 @@ const MatchCardUser = ({ onSwipeLeft, onSwipeRight, data }) => {
     // Adjust the card's position during the drag
     e.target.style.transform = "translateX(0)";
   };
-  
 
   const styles = StyleSheet.create({
     card: {
       width: "500px",
       height: "600px",
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: state.colorAccent,
+      color: state.colorText,
       borderRadius: "10px",
       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
       overflow: "hidden",
@@ -52,21 +57,41 @@ const MatchCardUser = ({ onSwipeLeft, onSwipeRight, data }) => {
       },
     },
     content: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
       padding: "20px",
       textAlign: "center",
       color: theme.textColor,
       fontFamily: theme.fontFamily,
       fontSize: "20px",
-      textTransform: "uppercase",
     },
     image: {
       width: "300px",
       height: "300px",
-      borderColor:"white",
-      padding:"10px",
-      borderWidth:"3",
+      borderColor: "white",
+      borderWidth: "3",
+      paddingBottom: "40px",
+    },
+    box: {
+      background: "rgba(0, 0, 0, 0.8)",
+      borderRadius: "20px",
+      paddingBottom: "10px",
+      paddingTop: "10px",
     },
   });
+
+  // Check if data is empty
+  if (Object.keys(data).length === 0) {
+    return (
+      <div className={css(styles.card)}>
+        <div className={css(styles.content)}>
+          <p>No more users to match with.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -77,10 +102,12 @@ const MatchCardUser = ({ onSwipeLeft, onSwipeRight, data }) => {
       onDrag={handleDrag}
     >
       <div className={css(styles.content)}>
-        <img src={image} alt="Album cover" className={css(styles.image) }/>
-        <p>{"Username: "+ name}</p>
-        <p>{"Favorite song: " +song}</p>
-        <p>{"Status:" +status}</p>
+        <img src={image} alt="Album cover" className={css(styles.image)} />
+        <div className={css(styles.box)}>
+          <p>{"Username: " + name}</p>
+          <p>{"Favorite song: " + song}</p>
+          <p>{"Status:" + status}</p>
+        </div>
       </div>
     </div>
   );

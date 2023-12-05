@@ -5,11 +5,9 @@ import MatchCardSong from './MatchCardSong';
 import axios from 'axios';
 import PopupPage from './PopupPage';
 
-
-
-
 class MatchIt extends Component {
-  
+ // const { states, dispatch } = useAppContext();
+
   constructor(props) {
     super(props);
     this.state = {
@@ -222,24 +220,34 @@ class MatchIt extends Component {
       top: '65px',
       right: 0,
       margin: '10px',
-      backgroundColor: '#2ecc71',
-      color: '#fff',
+      backgroundColor: '#6EEB4D',
+      color: 'black',
       border: 'none',
       padding: '10px 20px',
       fontSize: '16px',
       cursor: 'pointer',
+      borderRadius: '20px',
+      transition: 'color 0.3s ease-in-out', // Add transition for smooth color change
+      ':hover': {
+        color: 'white',
+      },
     };
-
+    
     const bottomButtonStyle = {
       position: 'fixed',
       bottom: '10px',
       right: '10px',
-      backgroundColor: '#2ecc71',
-      color: '#fff',
+      backgroundColor: '#6EEB4D',
+      color: 'black',
       border: 'none',
       padding: '10px 20px',
       fontSize: '16px',
       cursor: 'pointer',
+      borderRadius: '20px',
+      transition: 'color 0.3s ease-in-out', // Add transition for smooth color change
+      ':hover': {
+        color: 'white',
+      },
     };
 
     const centerStyle = {
@@ -248,19 +256,53 @@ class MatchIt extends Component {
       alignItems: 'center',
     };
 
+    const HeaderStyle = {
+      display: "flex",
+      justifyContent: 'center',
+      fontWeight: 700,
+      alignItems: 'center',
+      color: "white",
+      textTransform: 'uppercase',
+      fontFamily: "'Poppins', sans-serif",
+      textDecoration: 'none',
+      margin: '10px 10px',
+      padding: '5px',
+      width: "160px",
+      height: "25px",
+      borderRadius: 20,
+      whiteSpace: "nowrap"
+    };
+    
+    // const buttonStyle = {
+    //   backgroundColor: state.colorBackground,
+    //   color: state.colorText,
+    //   borderWidth: '1px',
+    //   borderStyle: 'solid',
+    //   borderColor: state.colorBorder,
+    //   borderRadius: '10px',
+    //   cursor: 'pointer',
+    //   margin: '5px',
+    //   padding: '0px 10px 0px 10px',
+    //   width: '100%',
+    //   height: "50px",
+    //   fontSize: textSizes.body
+    // };
+
     const viewLikedButtonText =
       currentPage === 'user' ? 'View Liked User' : 'View Liked Song';
 
     return (
-      <div>
+      <div style={{background:"black", height: "100vh" }}>
         <Navbar />
-        <div style={{ paddingLeft: '10px' }}>
-          <h2>{currentPage === 'user' ? 'User Page' : 'Song Page'}</h2>
+        <div style={{ paddingLeft: '10px'}}>
+          <h2 style={HeaderStyle}>{currentPage === 'user' ? 'User Matcher' : 'Song Matcher'}</h2>
+          <p style={{color: "white"}}>{currentPage === 'user' ? 'Match with other users based on the genres you listen to! Add users you match with as friends to be able to see the songs and artists they listen to.' : 'Match with songs based on the music you listen to and your listening preferences! As you swipe left or right your preferences will be dynamically updated to recommend you songs that better reflect your tastes.'}</p>
           <div>
             <button
               className="toggle-button"
               onClick={this.handleToggle}
               style={topButtonStyle}
+              
             >
               {currentPage === 'user'
                 ? 'Go to Song Page'
@@ -299,7 +341,8 @@ class MatchIt extends Component {
             <button
               className="view-liked-button"
               onClick={this.handleViewLiked}
-              style={bottomButtonStyle}
+              style={bottomButtonStyle }
+              onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'black'}
             >
               {viewLikedButtonText}
             </button>
