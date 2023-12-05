@@ -2647,7 +2647,7 @@ def get_playing():
                 all_devices = user.spotify_user.devices()
                 volume = playback['device']['volume_percent']
                 queue = user.spotify_user.queue()
-            if is_playing: 
+            if playback.get('item') != None: 
                 current_track = playback['item']
             if is_playing and current_track == None:
                 playback = user.spotify_user.current_playback(additional_types='episode')
@@ -2745,9 +2745,13 @@ def play_context():
             playback = user.spotify_user.current_playback()
             if playback.get('item') != None: 
                 context_uri = playback.get('context').get('uri')
-            user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            context_uri = user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            playback = user.spotify_user.current_playback()
+            if playback.get('item') != None: 
+                current_track = playback['item']
+            if current_track == None or current_track.get('uri') != song_uri.get('uri'):
+                user.spotify_user.start_playback(None, None, song_uri, None, None)
         except Exception as e:
-            user.spotify_user.start_playback(None, None, song_uri, None, None)
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
