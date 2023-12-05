@@ -241,6 +241,7 @@ function Profile({ testParameter }) {
     );
     const data = response.data;
     navigate("/")
+    window.location.reload();
     return
   }
 

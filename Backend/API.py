@@ -146,7 +146,9 @@ def boot():
             if user_exists:
                 user = conn.get_user_from_user_DB(spotify_id=user_id)
                 session['user'] = user.to_json()
-                return "T", 200, {'Reason-Phrase': 'OK'}
+                user_logged_out = conn.get_is_logged_out_from_user_DB(user_id)
+                if user_logged_out == 0:
+                    return "T", 200, {'Reason-Phrase': 'OK'}
     
     return "F", 200, {'Reason-Phrase': 'OK'}
 
@@ -160,7 +162,8 @@ def login():
     
     # Generate the authorization URL
     auth_url = sp_oauth.get_authorize_url()
-
+    auth_url = f"{auth_url}&show_dialog=true"
+    
     # Redirect the user to the Spotify login page
     return auth_url, 200, {'Reason-Phrase': 'OK'}
 
@@ -185,6 +188,8 @@ def logout():
                 headers = {'Authorization': f"Basic {sp._auth.get_access_token(as_dict=False)}"}
                 payload = {'token': token_info['access_token']}
                 response = sp._auth._session.post(revoke_url, headers=headers, data=payload) 
+        with DatabaseConnector(db_config) as conn:
+            conn.update_is_logged_out(user.spotify_id, 1)
         return resp , 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -255,6 +260,7 @@ def callback():
                 conn.create_new_user_in_user_DB(user)
             else:
                 conn.update_token(user.spotify_id, user.login_token)
+            conn.update_is_logged_out(user.spotify_id, 0)
 
         session['user'] = user.to_json()
 

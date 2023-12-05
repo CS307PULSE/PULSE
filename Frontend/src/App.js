@@ -58,7 +58,7 @@ function App() {
         setIsCacheDB(false);
       }
     });
-  }, [data]);
+  }, []);
 
   const handleLoginClick = () => {
     // Perform any login logic here if needed
