@@ -230,7 +230,7 @@ function Profile({ testParameter }) {
     setThemeEditsMade(false);
   }
 
-  async function handleLogout() {
+  async function handleLogout(event) {
     const axiosInstance = axios.create({
       withCredentials: true,
     });
@@ -238,6 +238,7 @@ function Profile({ testParameter }) {
       "/api/logout",
     );
     const data = response.data;
+    event.preventDefault();
     return
   }
 
@@ -635,7 +636,7 @@ function Profile({ testParameter }) {
                     textAlign: "center",
                   }}
                 >
-                  <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit" }}>
+                  <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
                     Logout
                   </Link>
                 </div>
