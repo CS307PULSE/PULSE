@@ -17,10 +17,10 @@ async function updateFollowers() {
 export default function StatsCard() {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+  
   const cardContent = {
     color: state.colorText,
     fontSize: textSizes.body,
-    fontFamily: "'Poppins', sans-serif",
   };
 
   //Data to display on stats card

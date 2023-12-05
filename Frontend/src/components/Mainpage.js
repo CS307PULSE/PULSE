@@ -34,7 +34,6 @@ function Mainpage() {
     margin: "20px", // Add some bottom margin for spacing
     padding: "20px",
     textAlign: "center",
-    fontFamily: "'Poppins', sans-serif",
     overflow: "hidden",
   };
   const cardContent = {
@@ -83,7 +82,7 @@ function Mainpage() {
           <Card headerText="STATISTICS" style={cardStyle}>
             <StatsCard />
           </Card>
-          <Card headerText="Explorer" style={cardStyle}>
+          <Card headerText="EXPLORER" style={cardStyle}>
             <div style={cardContent}>
               <div style={buttonContainerStyle}>
                 {/* Use Link instead of button, and provide the to prop with the dynamic URL */}

@@ -8,7 +8,7 @@ import { useAppContext } from "./Context";
 
 const GuessTheArtist = () => {
   //eslint-disable-next-line no-unused-vars
-  const { state, dispatch } = useAppContext();
+  const { state } = useAppContext();
   const [numberOfPlayers, setNumberOfPlayers] = useState(0);
   const [numberOfRounds, setNumberOfRounds] = useState(0);
   const [isStartClicked, setIsStartClicked] = useState(false);
@@ -28,7 +28,6 @@ const GuessTheArtist = () => {
     position: "fixed",
     top: "64px",
     right: "0px",
-    bottom: "60px",
     left: "80%",
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
   };
@@ -43,6 +42,7 @@ const GuessTheArtist = () => {
   };
 
   const innerBoxStyle = {
+    backgroundColor: state.colorBackground,
     marginTop: "120px",
     display: "flex",
     flexDirection: "column", // or 'row' depending on your layout
@@ -52,7 +52,6 @@ const GuessTheArtist = () => {
   const gameTitleStyle = {
     color: state.colorText,
     textAlign: "center",
-    fontFamily: "Rhodium Libre",
     fontSize: "30px",
     fontStyle: "normal",
     fontWeight: 400,
@@ -63,7 +62,6 @@ const GuessTheArtist = () => {
   const gameSubTitleStyle = {
     color: state.colorText,
     textAlign: "center",
-    fontFamily: "Rhodium Libre",
     fontSize: "15px",
     fontStyle: "normal",
     fontWeight: 300,
@@ -74,7 +72,6 @@ const GuessTheArtist = () => {
   const gameTextStyle = {
     color: state.colorText,
     textAlign: "center",
-    fontFamily: "Rhodium Libre",
     fontSize: "20px",
     fontStyle: "normal",
     fontWeight: 400,
@@ -84,16 +81,15 @@ const GuessTheArtist = () => {
   };
 
   const inputStyle = {
-    fontFamily: "Poppins-Bold, Helvetica",
-    backgroundColor: "black",
-    border: "2px solid white",
+    backgroundColor: state.colorBackground,
+    border: "2px solid " + state.colorBorder,
     margin: "5px", // Add margin for spacing between inputs
     textAlign: "center", // Center the text inside the input
     color: state.colorText,
   };
   const gameButton = {
     marginTop: "100px",
-    backgroundColor: "#6eeb4d",
+    backgroundColor: state.colorAccent,
     padding: "5px 5px", // Adjusted padding for a narrower button
     display: "flex",
     alignItems: "center",

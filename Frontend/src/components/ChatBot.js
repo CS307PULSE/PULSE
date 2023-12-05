@@ -1,11 +1,12 @@
 // ChatBot.js
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import OpenAI from "openai";
 import Navbar from './NavBar';
 import axios from 'axios';
 import { useAppContext } from './Context';
+import Colors, { hexToRGBA, pulseColors } from '../theme/Colors';
+import TextSize from '../theme/TextSize';
 
 const OPENAI_API_KEY = "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";
 const openai = new OpenAI({
@@ -14,34 +15,35 @@ const openai = new OpenAI({
 });
 
 const ChatBot = () => {
-    const { state, dispatch } = useAppContext();
+    const { state } = useAppContext();
+    const textSizes = TextSize(state.settingTextSize);
+
     const [inputValue, setInputValue] = useState('');
-    const [messages, setMessages] = useState([{ type: 'bot', content: "Hey! Welcome to pulse bot" }]);
+    const [messages, setMessages] = useState([{ type: 'bot', content: "Hey! Welcome to PULSE Bot." }]);
     const [songs, setSongs] = useState([]);
     const [feedback, setFeedback] = useState('');
     const [awaitingFeedback, setAwaitingFeedback] = useState(false);
 
-  
     useEffect(() => {
         let isMounted = true;
         console.log("Updated songs:", songs);
         
         const sendSong = async () => {
             // Check if songs is not just empty spaces
-                try {
-                    const axiosInstance = axios.create({
-                        withCredentials: true,
-                      });
-                      const response = await axiosInstance.post(
-                        "/api/chatbot/pull_songs",
-                        {
-                          songlist: songs,
-                        }
-                      );
-                    console.log(response.data); // Assuming the server sends back JSON
-                } catch (error) {
-                    console.error('Error sending songs:', error.response ? error.response.data : error.message);
-                }
+            try {
+                const axiosInstance = axios.create({
+                    withCredentials: true,
+                    });
+                    const response = await axiosInstance.post(
+                    "/api/chatbot/pull_songs",
+                    {
+                        songlist: songs,
+                    }
+                    );
+                console.log(response.data); // Assuming the server sends back JSON
+            } catch (error) {
+                console.error('Error sending songs:', error.response ? error.response.data : error.message);
+            }
         };
     
         // Call sendSong here
@@ -91,22 +93,25 @@ const ChatBot = () => {
             backgroundColor: state.colorBackground,
           },
         title:{
-            color: "#FFF",
+            color: state.colorText,
+            fontSize: textSizes.header2,
             textAlign: "center",
-            fontFamily: "'Poppins', sans-serif",
-            fontSize: "30px",
-            fontStyle: "normal",
-            fontWeight: 400,
+            fontWeight: 600,
             lineHeight: "normal",
-            textTransform: "uppercase"
         },
         container: {
+            backgroundColor: state.colorBackground,
+            backgroundImage: "url('" + state.backgroundImage + "')",
+            backgroundSize: "cover", //Adjust the image size to cover the element
+            backgroundRepeat: "no-repeat", //Prevent image repetition
+            backgroundAttachment: "fixed", //Keep the background fixed
             display: 'flex',
             flexDirection: 'column',
             height: '100vh', // Make sure the container takes up the full viewport height
             width: '100vw'  
         },
         chatWindow: {
+            backgroundColor: hexToRGBA(state.colorBackground, 0.5),
             flexGrow: 1,   
             height: '400px',
             border: '1px solid #ccc',
@@ -118,7 +123,9 @@ const ChatBot = () => {
             padding: '8px',
             marginBottom: '8px',
             borderRadius: '5px',
-            backgroundColor: '#6EEB4D',
+            fontSize: textSizes.body,
+            backgroundColor: pulseColors.white,
+            border: "1px " + state.colorBorder + " solid",
             color:'black',
             alignSelf: 'flex-end',
             order: 2
@@ -127,16 +134,24 @@ const ChatBot = () => {
             padding: '8px',
             marginBottom: '8px',
             borderRadius: '5px',
-            backgroundColor: 'white',
+            fontSize: textSizes.body,
+            backgroundColor: pulseColors.green,
+            border: "1px " + state.colorBorder + " solid",
             color:'black',
             alignSelf: 'flex-start',
             order: 1
         },
-        chatInput: {
+        chatInputContainer: {
             display: 'flex',
-            gap: '10px'
+            gap: '10px',
+            padding: "5px"
         },
         inputField: {
+            backgroundColor: state.colorBackground,
+            color: state.colorText,
+            borderRadius: "5px",
+            height: "30px",
+            fontSize: textSizes.body,
             flexGrow: 1
         },
         sendButton: {
@@ -159,34 +174,33 @@ const ChatBot = () => {
 
     // Check if the message is about feedback
     const feedbackKeywords = ['feedback', 'comment', 'suggestion', 'recommendation'];
-    const isFeedback = feedbackKeywords.some(keyword => inputValue.toLowerCase().includes(keyword));
-   
+    //const isFeedback = feedbackKeywords.some(keyword => inputValue.toLowerCase().includes(keyword));
 
-        setMessages([...messages, { type: 'user', content: messageToSend }]);
-        try {
-            const promptText = `The following is a conversation with a song helper assistant.The webiste the assistant is running on is called PULSE. The website has 5 main sections: the dashboard, the statistics page, the games page, a DJ mixer page and the uploader page. The games futher divided into: Guess the song, Guess the artist, Guess who listens to the song, guess the next lyric and heads up. You can change the dark/light mode and text size in the profile under the setting section. Given partial lyrics ALWAYS send a link to the full lyrics as url. When asked for songs based on any criteria each song name with be in its oen seperate pair of quotes. \n\nHuman: ${messageToSend}\nAI: `;
-            
-            const response = await openai.completions.create({
-                model: "gpt-3.5-turbo-instruct",
-                prompt: promptText,
-                temperature: 0.9,
-                max_tokens: 150,
-                top_p: 1,
-                frequency_penalty: 0,
-                presence_penalty: 0.6,
-                stop: ["Human:", "AI:"],
-            });
-            console.log(response)
-            const botResponse = response.choices[0].text.trim();
+    setMessages([...messages, { type: 'user', content: messageToSend }]);
+    try {
+        const promptText = `The following is a conversation with a song helper assistant.The webiste the assistant is running on is called PULSE. The website has 5 main sections: the dashboard, the statistics page, the games page, a DJ mixer page and the uploader page. The games futher divided into: Guess the song, Guess the artist, Guess who listens to the song, guess the next lyric and heads up. You can change the dark/light mode and text size in the profile under the setting section. Given partial lyrics ALWAYS send a link to the full lyrics as url. When asked for songs based on any criteria each song name with be in its oen seperate pair of quotes. \n\nHuman: ${messageToSend}\nAI: `;
+        
+        const response = await openai.completions.create({
+            model: "gpt-3.5-turbo-instruct",
+            prompt: promptText,
+            temperature: 0.9,
+            max_tokens: 150,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0.6,
+            stop: ["Human:", "AI:"],
+        });
+        console.log(response)
+        const botResponse = response.choices[0].text.trim();
 
-            const songMatches = botResponse.match(/"([^"]+)"/g); // Regex to find quotes
-            if (songMatches) {
-                setSongs(songMatches.map(song => song.replace(/"/g, ''))); // Remove quotes and add to songs list
-            } else {
-                setSongs([]); // If no songs are found, set the state to an empty array
-            }
+        const songMatches = botResponse.match(/"([^"]+)"/g); // Regex to find quotes
+        if (songMatches) {
+            setSongs(songMatches.map(song => song.replace(/"/g, ''))); // Remove quotes and add to songs list
+        } else {
+            setSongs([]); // If no songs are found, set the state to an empty array
+        }
 
-            const feedbackKeywords = ['feedback', 'comment', 'suggestion', 'recommendation'];
+        const feedbackKeywords = ['feedback', 'comment', 'suggestion', 'recommendation'];
         const isFeedbackKeyword = feedbackKeywords.some(keyword => inputValue.toLowerCase().includes(keyword));
 
         if (isFeedbackKeyword) {
@@ -232,7 +246,7 @@ const ChatBot = () => {
     return (
         <div style={styles.container}>
             <Navbar/>
-            <h2 style={styles.title}>PULSE BOT</h2>
+            <h2 style={styles.title}>PULSE Bot</h2>
             <div style={styles.chatWindow}>
                 {messages.map((message, index) => (
                     <div 
@@ -243,14 +257,14 @@ const ChatBot = () => {
                 ))}
             </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List popular songs")}>Popular Songs</button>
-                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List newly released songs ")}>New Releases</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List some popular songs")}>Popular Songs</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List some newly released songs")}>New Releases</button>
                 <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List songs for for working out")}>Workout Playlist</button>
-                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List Taylor Swift songs")}>Taylor Swift Playlist</button>
-                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("How do I cahnge the text size or light and dark mode?")}>Custom themes</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("List some Taylor Swift songs")}>Taylor Swift Playlist</button>
+                <button style={styles.linkStyle} onClick={() => handleButtonPrompt("How do I change the text size and/or theme of my PULSE app?")}>Custom themes</button>
             </div>
             <div style={{padding:5}}/>
-            <div style={styles.chatInput}>
+            <div style={styles.chatInputContainer}>
                 <input style={styles.inputField} value={inputValue} onChange={handleInputChange} onKeyPress={handleKeyPress}  />
                 <button style={styles.sendButton} onClick={handleSendMessage}>Send</button>
             </div>
@@ -259,45 +273,3 @@ const ChatBot = () => {
 }
 
 export default ChatBot;
-
-export const ChatbotButton = () => {
-    const { state, dispatch } = useAppContext();
-
-    // Inline styles for the components
-    const containerStyle = {
-        position: 'fixed',
-        bottom: '10%',
-        right: '2%',
-    };
-
-    const buttonStyle = {
-        backgroundColor: state.colorAccent,
-        color: state.colorText,
-        border: 'none',
-        padding: '10px 20px',
-        fontFamily: "Rhodium Libre",
-        borderRadius: '50px',
-        cursor: 'pointer',
-        transition: 'background-color 0.3s ease',
-        textDecoration: 'none'
-    };
-
-    const buttonHoverStyle = {
-        backgroundColor: state.colorBackground
-    };
-
-    const [isHovered, setIsHovered] = React.useState(false);
-
-    return (
-        <div style={containerStyle}>
-            <Link 
-                to="/PulseBot" 
-                style={isHovered ? { ...buttonStyle, ...buttonHoverStyle } : buttonStyle}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                PulseBot
-            </Link>
-        </div>
-    );
-}

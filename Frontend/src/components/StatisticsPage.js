@@ -9,7 +9,10 @@ import { hexToRGBA } from "../theme/Colors";
 
 export default function StatisticsPage() {
   //eslint-disable-next-line no-unused-vars
+  
   const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+
   const bodyStyle = {
     backgroundColor: state.colorBackground,
     backgroundImage: "url('" + state.backgroundImage + "')",
@@ -21,9 +24,6 @@ export default function StatisticsPage() {
   };
   // Access the CSS variable
   const root = document.documentElement;
-
-  const themeSetting = 0;
-  const textSizes = TextSize(1);
 
   document.documentElement.style.setProperty(
     "--graph-text-size",
@@ -41,17 +41,11 @@ export default function StatisticsPage() {
     "--container-background",
     hexToRGBA(state.colorBackground, 0.8)
   );
+  
 
-  // Modify the CSS variable
-  if (themeSetting === 1) {
-    root.style.setProperty("--graph-text-fill", state.colorText);
-    root.style.setProperty("--tooltip-container-background", "#ffffff");
-    root.style.setProperty("--light-dark-scheme", "auto");
-  } else {
-    root.style.setProperty("--graph-text-fill", state.colorText);
-    root.style.setProperty("--tooltip-container-background", "#000000");
-    root.style.setProperty("--light-dark-scheme", "dark");
-  }
+  root.style.setProperty("--graph-text-fill", state.colorText);
+  root.style.setProperty("--tooltip-container-background", state.backgroundColor);
+  root.style.setProperty("--light-dark-scheme", "auto");
 
   useEffect(() => {
     document.title = "PULSE - Statistics Page";

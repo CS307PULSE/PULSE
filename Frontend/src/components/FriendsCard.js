@@ -47,8 +47,8 @@ const FriendsCard = ({}) => {
     top: 0,
     position: "sticky",
     color: state.colorText,
-    fontFamily: "Poppins, sans-serif",
     fontSize: textSizes.header3,
+    textDecoration: "none",
     fontStyle: "normal",
     fontWeight: 700,
     padding: "10px",
@@ -73,7 +73,8 @@ const FriendsCard = ({}) => {
   };
 
   const noFriendsMessage = (
-    <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
+    <p>You have no friends.</p>
+    // <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
   );
 
 const loadingTextStyle = {

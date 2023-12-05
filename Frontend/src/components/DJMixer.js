@@ -21,11 +21,19 @@ const DJMixer = () => {
   
   const friendContainerStyle = {
     position: "fixed",
-    top: 100,
-    right: 0,
-    width: "20%",
-    height: "900",
-    backgroundColor: state.colorBackground,
+    top: "64px",
+    right: "0px",
+    bottom: "60px",
+    left: "80%",
+    backgroundColor: hexToRGBA(state.colorBackground, 0.5),
+  };
+  const headerTextStyle = {
+    color: state.colorText,
+    fontSize: textSizes.header2,
+    textAlign: "center",
+    fontWeight: 600,
+    lineHeight: "normal",
+    
   };
   
   const buttonContainerStyle = {
@@ -55,7 +63,7 @@ const DJMixer = () => {
   };
 
   useEffect(() => {
-    document.title = "PULSE - DJ Mixer";
+    document.title = "PULSE - Explorer";
   }, []);
 
   return (
@@ -66,6 +74,7 @@ const DJMixer = () => {
           <FriendsCard />
         </div>
         <div style={buttonContainerStyle}>
+          <p style={headerTextStyle}>Explorer</p>
           <Link
             to="/explorer/ParameterRecommendation"
             style={{ ...buttonStyle, textDecoration: "none" }}

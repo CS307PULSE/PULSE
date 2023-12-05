@@ -18,7 +18,7 @@ try {
 }
 
 const Friends = () => {
-  const { state, dispatch } = useAppContext();
+  const { state } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
   
   const bodyStyle = {
@@ -51,7 +51,7 @@ const Friends = () => {
   const buttonContainerStyle = {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: "16px",
+    marginBottom: "16px"
   };
 
   const buttonStyle = {
@@ -122,7 +122,7 @@ const Friends = () => {
 
   const noFriendsMessage = (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <p>You have no friends ;-; Click "add friends" to add friends</p>
+      <p>You have no friends ;-; Click "Add Friends" to search for friends</p>
     </div>
   );
   const removeFriendsMessage = (
@@ -139,7 +139,6 @@ const Friends = () => {
           <Link to="/Friends/addFriends" style={{ ...buttonStyle, textDecoration: 'none' }}>Add Friends</Link>
           <Link to="/Friends/friendRequests" style={{ ...buttonStyle, textDecoration: 'none' }}>Friend Requests</Link>
         </div>
-        {removeFriendsMessage}
         {friendsData ? (friendsData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
       </div>
       <div className="footer"><Playback /></div>

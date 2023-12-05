@@ -34,15 +34,13 @@ const Navbar = () => {
     justifyContent: 'center',
     alignItems: 'center',
     color: state.colorText,
-    fontWeight: 500,
-    textTransform: 'uppercase',
-    fontFamily: "'Poppins', sans-serif",
+    fontWeight: 600,
     textDecoration: 'none',
-    margin: '10px 10px',
+    margin: '5px 5px',
     padding: '5px',
-    width: "160px",
-    height: "25px",
-    borderRadius: 20,
+    width: "125px",
+    height: "30px",
+    borderRadius: 10,
     backgroundColor: state.colorBackground,
     whiteSpace: "nowrap"
   };
@@ -65,6 +63,9 @@ const Navbar = () => {
         </div>
         <div style={linkStyle}>
           <Link to="/friends" style={linkStyle}>Friends</Link>
+        </div>
+        <div style={linkStyle}>
+          <Link to="/explorer" style={linkStyle}>Explorer</Link>
         </div>
         <div style={linkStyle}>
           <Link to="/games" style={linkStyle}>Games</Link>

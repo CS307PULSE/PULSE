@@ -63,7 +63,6 @@ const Games = () => {
   };
   const sectionContainerStyle = {
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-    width: "calc(100% - 60px)",
     padding: "20px",
     margin: "20px",
     position: "relative",
@@ -76,12 +75,6 @@ const Games = () => {
     bottom: "60px",
     left: "80%",
     backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-  };
-
-  const cardStyle = {
-    marginBottom: "20px", // Add some bottom margin for spacing
-    textAlign: "center",
-    fontFamily: "'Poppins', sans-serif",
   };
 
   const cardContent = {
@@ -106,30 +99,14 @@ const Games = () => {
     marginBottom: "5px", // Small space between buttons
     width: "90%",
   };
-  const gamesTitleStyle = {
+  const headerTextStyle = {
     color: state.colorText,
-    textAlign: "center",
-    fontFamily: "Rhodium Libre",
     fontSize: textSizes.header2,
-    fontStyle: "normal",
-    fontWeight: 400,
-    lineHeight: "normal",
-    textTransform: "uppercase",
-    width: "80%", // Take up 20% of the viewport width
-  };
-
-  const gamesSubTitleStyle = {
-    color: state.colorText,
     textAlign: "center",
-    fontFamily: "Rhodium Libre",
-    fontSize: "14px",
-    fontStyle: "normal",
-    fontWeight: 400,
+    fontWeight: 600,
     lineHeight: "normal",
-    textTransform: "uppercase",
-    width: "80%", // Take up 20% of the viewport width
+    width: "80%"
   };
-
   useEffect(() => {
     document.title = "PULSE - Games Page";
     // Make a GET request to your Flask backend
@@ -187,11 +164,7 @@ const Games = () => {
 
     const gamesTable = scores.map((gameType, index1) => (
       <div
-        style={{
-          backgroundColor: hexToRGBA(state.colorBackground, 0.5),
-          borderRadius: "20px",
-          padding: "10px",
-        }}
+        style={sectionContainerStyle}
         key={index1}
       >
         <h3>
@@ -274,7 +247,7 @@ const Games = () => {
           <FriendsCard />
         </div>
         <div>
-          <h2 style={gamesTitleStyle}>AVAILABLE GAMES</h2>
+          <h2 style={headerTextStyle}>Available Games</h2>
           <div style={cardContent}>
             <div style={buttonContainerStyle}>
               {/* Use Link instead of button, and provide the to prop with the dynamic URL */}
@@ -332,7 +305,7 @@ const Games = () => {
           </div>
         </div>
         {/* NEED TO FIX PULLING OF GAME STYLE */}
-        <h2 style={gamesTitleStyle}>PREVIOUS SCORES</h2>
+        <h2 style={headerTextStyle}>Previous Scores</h2>
         <div
           style={{
             color: state.colorText,

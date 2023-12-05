@@ -652,10 +652,7 @@ function Playback({ syncTrigger = null }) {
                       />
                       <button
                         style={{ ...buttonStyle, width: "30%" }}
-                        onClick={() => {
-                          getSearchResults(searchString, searchQueryType);
-                        }}
-                      >
+                        onClick={() => getSearchResults(searchString, searchQueryType)}>
                         Search
                       </button>
                     </div>

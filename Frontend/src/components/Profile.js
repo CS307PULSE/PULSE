@@ -47,7 +47,8 @@ async function setUserInfo(payload) {
 
 function Profile({ testParameter }) {
   const { state, dispatch } = useAppContext();
-  const textSizes = TextSize(state.settingTextSize); //Obtain text size values
+  const textSizes = TextSize(state.settingTextSize);
+  const [changesMade, setChangesMade] = useState(false);
 
   const [userIcon, setUserIcon] = useState(storedUserFields.icon);
   const [displayName, setDisplayName] = useState(storedUserFields.display_name);
@@ -69,6 +70,7 @@ function Profile({ testParameter }) {
 
   const updateTextSize = (newSetting) => {
     dispatch({ type: "UPDATE_TEXT_SIZE", payload: newSetting });
+    setChangesMade(true);
   };
 
   const updateColor = (colorType, newColor) => {
@@ -88,11 +90,14 @@ function Profile({ testParameter }) {
       case "accent":
         dispatch({ type: "UPDATE_COLOR_ACCENT", payload: newColor });
         break;
+      default: return;
     }
+    setChangesMade(true);
     setThemeEditsMade(true);
   };
   const updateBackgroundImage = (newSetting) => {
     dispatch({ type: "UPDATE_BACKGROUND_IMAGE", payload: newSetting });
+    setChangesMade(true);
     setThemeEditsMade(false);
   };
 
@@ -112,20 +117,16 @@ function Profile({ testParameter }) {
   };
   const headerTextStyle = {
     color: state.colorText,
-    fontFamily: "'Poppins', sans-serif",
     fontSize: textSizes.header1,
-    fontStyle: "normal",
     fontWeight: 600,
     lineHeight: "normal",
   };
   const profileText = {
-    // backgroundColor: backgroundColor,
     color: state.colorText,
     fontSize: textSizes.body,
     fontStyle: "normal",
     fontFamily: "'Poppins', sans-serif",
   };
-
   const customThemeContainerStyle = {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
@@ -168,25 +169,6 @@ function Profile({ testParameter }) {
     position: "absolute",
     right: "20px",
   };
-  const iconContainerStyle = {
-    position: "absolute",
-    top: "20px",
-    right: "20px",
-    display: "inline-block",
-    justifyContent: "center",
-  };
-  const iconPictureStyle = {
-    width: "120px",
-    height: "120px",
-    borderRadius: "10px",
-  };
-  const backgroundOptionStyle = {
-    width: "160px",
-    height: "90px",
-    borderRadius: "10px",
-    margin: "20px",
-    border: "1px " + state.colorBorder + " solid",
-  };
   function getCurrentColorArray() {
     return [
       state.colorBackground,
@@ -198,7 +180,7 @@ function Profile({ testParameter }) {
 
   function retrieveTheme(index) {
     var retrievedTheme = state.savedThemes[index];
-    if (index < 0 || retrieveTheme == undefined) {
+    if (index < 0 || retrieveTheme === undefined) {
       return;
     }
     setNewThemeName(retrievedTheme[0]);
@@ -207,7 +189,6 @@ function Profile({ testParameter }) {
       dispatch({ type: "UPDATE_BACKGROUND_IMAGE", payload: retrievedTheme[5] });
     }
     setThemeEditsMade(false);
-    console.log(state.savedThemes);
   }
   useEffect(() => {
     retrieveTheme(selectedThemeIndex);
@@ -224,7 +205,7 @@ function Profile({ testParameter }) {
     setThemeEditsMade(false);
   }
   function updateTheme(index, name, newColors) {
-    if (state.savedThemes[index] == undefined) {
+    if (state.savedThemes[index] === undefined) {
       return;
     }
     var newSavedThemes = state.savedThemes;
@@ -237,7 +218,7 @@ function Profile({ testParameter }) {
     setThemeEditsMade(false);
   }
   function deleteTheme(index) {
-    if (state.savedThemes[index] == undefined) {
+    if (state.savedThemes[index] === undefined) {
       return;
     }
     setSelectedThemeIndex(-1);
@@ -263,7 +244,7 @@ function Profile({ testParameter }) {
   }
   async function saveUserSettings() {
     const axiosInstance = axios.create({ withCredentials: true });
-    const savePromises = [
+    const requests = [
       axiosInstance.post("/api/profile/set_text_size", {
         text_size: state.settingTextSize,
       }),
@@ -275,12 +256,27 @@ function Profile({ testParameter }) {
       }),
       axiosInstance.post("/api/profile/set_saved_themes", {
         themes: state.savedThemes,
-      }),
+      })
     ];
-    await Promise.all(savePromises);
+    await Promise.all(requests);
+    setChangesMade(false);
+    return requests;
+  }
+  async function handleSaveSettingsButton() {
+    await saveUserSettings();
     window.location.reload();
   }
+  
+  window.addEventListener('beforeunload', function (e) {
+    if (changesMade) {
+      e.preventDefault();
+      e.returnValue = '';
+      return 'You have unsaved changes. Are you sure you want to leave?';
+    }
+  });
+
   return (
+
     <div className="wrapper">
       <div className="header">
         <Navbar />
@@ -421,7 +417,7 @@ function Profile({ testParameter }) {
                   top: "60px",
                   right: "20px",
                 }}
-                onClick={() => saveUserSettings()}
+                onClick={() => handleSaveSettingsButton()}
               >
                 Save Settings
               </button>
@@ -443,6 +439,7 @@ function Profile({ testParameter }) {
                   onClick={() => {
                     updateColor("all", presetColors.dark);
                     updateBackgroundImage(customBackgrounds[0]);
+                    setChangesMade(true);
                   }}
                   style={buttonStyle}
                 >
@@ -452,6 +449,7 @@ function Profile({ testParameter }) {
                   onClick={() => {
                     updateColor("all", presetColors.light);
                     updateBackgroundImage(customBackgrounds[1]);
+                    setChangesMade(true);
                   }}
                   style={buttonStyle}
                 >
@@ -461,6 +459,7 @@ function Profile({ testParameter }) {
                   onClick={() => {
                     updateColor("all", presetColors.scary);
                     updateBackgroundImage(customBackgrounds[2]);
+                    setChangesMade(true);
                   }}
                   style={buttonStyle}
                 >
@@ -506,6 +505,7 @@ function Profile({ testParameter }) {
                 <button
                   onClick={() => {
                     updateTheme(selectedThemeIndex);
+                    setChangesMade(true);
                   }}
                   style={buttonStyle}
                 >
@@ -517,6 +517,7 @@ function Profile({ testParameter }) {
                 <button
                   onClick={() => {
                     createTheme();
+                    setChangesMade(true);
                   }}
                   style={buttonStyle}
                 >
@@ -525,6 +526,7 @@ function Profile({ testParameter }) {
                 <button
                   onClick={() => {
                     deleteTheme(selectedThemeIndex);
+                    setChangesMade(true);
                   }}
                   style={buttonStyle}
                 >

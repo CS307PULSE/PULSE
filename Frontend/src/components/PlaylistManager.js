@@ -28,7 +28,7 @@ export async function getPlaylists() {
 }
 
 const PlaylistManager = () => {
-  const { state, dispatch } = useAppContext();
+  const { state } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
 
   const [syncValue, setSyncValue] = useState(Date.now());
@@ -292,6 +292,25 @@ const PlaylistManager = () => {
           </>);
           case "explore": return (<>
             <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 2 */}
+              <div style={{...sectionContainerStyle, height: "400px"}}>
+                <p style={headerTextStyle}>Followed Playlists</p>
+                <ItemList 
+                  data={playlists}
+                  selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
+                  buttons={
+                    [
+                      {
+                        width: "40px",
+                        value: "-",
+                        size: "30px",
+                        onClick: (item) => {playlistPost("unfollow", {playlist: item.id}, updatePlaylists)}
+                      }
+                    ]
+                  }
+                />
+              </div>
+            </div>
+            <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
               <div style={sectionContainerStyle}>
                 <div style={buttonContainerStyle}>
                     <p style={textStyle}>Playlist Name </p>
@@ -320,21 +339,18 @@ const PlaylistManager = () => {
                     }}>Generate Playlist</button>
                 </div>
               </div>
-              <div style={{...sectionContainerStyle, height: "400px"}}>
-                <p style={headerTextStyle}>Playlists</p>
-                <ItemList 
-                  data={playlists}
-                  selectedIndex={selectedPlaylistIndex} onClick={setSelectedPlaylistIndex}
-                />
-              </div>
-            </div>
-            <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
               <div style={sectionContainerStyle}>
+                <p style={headerTextStyle}>Search For Playlists</p>
                 <div style={buttonContainerStyle}>
                   <input type="text" style={buttonStyle} value={playlistSearchString}
                     onChange={(e) => setPlaylistSearchString(e.target.value)}
                     onKeyDown={(e) => {if (e.key === "Enter") {handlePlaylistSearch()}}}
                   />
+                  <button
+                    style={{ ...buttonStyle, width: "30%" }}
+                    onClick={() => handleSynthSearch1()}>
+                    Search
+                  </button>
                 </div>
                 <ItemList
                   data={playlistSearch}
@@ -360,44 +376,52 @@ const PlaylistManager = () => {
           </>);
           case "synthesize": return (<>
             <div style={{width:"calc((100% - 120px) * 0.7)"}}> {/* Column 2 */}
-              <div style={{...sectionContainerStyle, display:"flex", height:"calc(100vh - 240px)"}}>
-                <div style={{width:"50%", overflowY:"scroll"}}>
-                  <div style={buttonContainerStyle}>
-                    <input type="text" style={buttonStyle} value={synthSearch1}
-                      onChange={(e) => setSynthSearch1(e.target.value)}
-                      onKeyDown={(e) => {if (e.key === "Enter") {handleSynthSearch1()}}}
+              <div style={{...sectionContainerStyle, height:"calc(100vh - 240px)"}}>
+                <p style={headerTextStyle}>Search For Playlists</p>
+                <div style={{display:"flex"}}>
+                  <div style={{width:"50%", overflowY:"scroll"}}>
+                    <div style={buttonContainerStyle}>
+                      <input type="text" style={buttonStyle} value={synthSearch1}
+                        onChange={(e) => setSynthSearch1(e.target.value)}
+                        onKeyDown={(e) => {if (e.key === "Enter") {handleSynthSearch1()}}}
+                      />
+                      <button
+                        style={{ ...buttonStyle, width: "30%" }}
+                        onClick={() => handleSynthSearch1()}>
+                        Search
+                      </button>
+                    </div>
+                    <ItemList
+                      data={synthPlaylists1}
+                      selectedIndex={selectedSynthIndex1}
+                      onClick={setSelectedSynthIndex1}
                     />
-                    {/* <img style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}
-                      onClick={() => handleSynthSearch1()}
-                    /> */}
                   </div>
-                  <ItemList
-                    data={synthPlaylists1}
-                    selectedIndex={selectedSynthIndex1}
-                    onClick={setSelectedSynthIndex1}
-                  />
-                </div>
-                <div style={{width:"50%", overflowY:"scroll"}}>
-                  <div style={buttonContainerStyle}>
-                    <input type="text" style={buttonStyle} value={synthSearch2}
-                      onChange={(e) => setSynthSearch2(e.target.value)}
-                      onKeyDown={(e) => {if (e.key === "Enter") {handleSynthSearch2()}}}
+                  <div style={{width:"50%", overflowY:"scroll"}}>
+                    <div style={buttonContainerStyle}>
+                      <input type="text" style={buttonStyle} value={synthSearch2}
+                        onChange={(e) => setSynthSearch2(e.target.value)}
+                        onKeyDown={(e) => {if (e.key === "Enter") {handleSynthSearch2()}}}
+                      />
+                      <button
+                        style={{ ...buttonStyle, width: "30%" }}
+                        onClick={() => handleSynthSearch2()}>
+                        Search
+                      </button>
+                    </div>
+                    <ItemList
+                      data={synthPlaylists2}
+                      selectedIndex={selectedSynthIndex2}
+                      onClick={setSelectedSynthIndex2}
                     />
-                    {/* <img style={{height: "40px", position: "absolute", top: "20px", right: "15px"}} src={images.searchButton}
-                      onClick={() => handleSynthSearch2()}
-                    /> */}
                   </div>
-                  <ItemList
-                    data={synthPlaylists2}
-                    selectedIndex={selectedSynthIndex2}
-                    onClick={setSelectedSynthIndex2}
-                  />
                 </div>
               </div>
             </div>
             <div style={{width:"calc((100% - 120px) * 0.3)"}}> {/* Column 2 */}
               <div style={sectionContainerStyle}>
-                <div>
+                <div style={buttonContainerStyle}>
+                  <p style={textStyle}>New Playlist Name:</p>
                   <input type="text" style={buttonStyle} value={newSynthPlaylistName}
                     onChange={(e) => setNewSynthPlaylistName(e.target.value)}
                   />

@@ -675,7 +675,7 @@ export default function GraphGrid() {
   if (!finishedPullingData) {
     return (
       <div style={{ textAlign: "center" }}>
-        <p className="loadingText">Still Loading...</p>
+        <p className="loadingText" style={{fontStyle: "italic"}}>Loading...</p>
       </div>
     );
   } else if (!finishedPullingAdvancedData) {
