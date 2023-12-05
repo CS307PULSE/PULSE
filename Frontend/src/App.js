@@ -54,9 +54,11 @@ function App() {
     fetchDataCache().then((data) => {
       if (data === "T") {
         setIsCacheDB(true);
+      } else {
+        setIsCacheDB(false);
       }
     });
-  }, []);
+  }, [data]);
 
   const handleLoginClick = () => {
     // Perform any login logic here if needed

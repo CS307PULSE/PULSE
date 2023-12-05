@@ -346,6 +346,13 @@ class DatabaseConnector(object):
         self.resultset = self.db_cursor.fetchone()
         return self.resultset[0]
     
+    # Returns the is_logged_out from DB as a string.
+    def get_is_logged_out_from_user_DB(self, spotify_id):
+        sql = "SELECT is_logged_out from pulse.users WHERE spotify_id = %s"
+        self.db_cursor.execute(sql, (spotify_id,))
+        self.resultset = self.db_cursor.fetchone()
+        return int(self.resultset[0])
+    
     # Returns icon string from DB. Returns None if no icon exists, and a string if it does
     def get_icon_from_DB(self, spotify_id):
         sql_fetch_icon_string_query = """SELECT icon from pulse.users where spotify_id = %s"""
@@ -867,6 +874,22 @@ class DatabaseConnector(object):
         except Exception as e:
             # Handle any exceptions that may occur during the database operation.
             print("Error updating gender:", str(e))
+            self.db_conn.rollback()
+            return -1  # Indicate that the update failed
+        
+     # Update is_logged_out (expected int 0 or 1) in user DB. Returns 1 if successful, -1 if not.
+    def update_is_logged_out(self, spotify_id, bool):
+        try:
+            sql_has_uploaded_query = """UPDATE pulse.users SET is_logged_out = %s WHERE spotify_id = %s"""
+            self.db_cursor.execute(sql_has_uploaded_query, (bool, spotify_id,))
+            self.db_conn.commit()
+            # Optionally, you can check if any rows were affected by the UPDATE operation.
+            # If you want to fetch the updated record, you can do it separately.
+            affected_rows = self.db_cursor.rowcount
+            return affected_rows
+        except Exception as e:
+            # Handle any exceptions that may occur during the database operation.
+            print("Error updating is_logged_out:", str(e))
             self.db_conn.rollback()
             return -1  # Indicate that the update failed
 
