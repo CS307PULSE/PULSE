@@ -2640,7 +2640,6 @@ def get_playing():
         try:
             refresh_token(user)
             playback = user.spotify_user.current_playback()
-            print(playback)
             if playback.get('item') != None: 
                 current_track = playback['item']
                 is_playing = playback['is_playing']
