@@ -2747,10 +2747,11 @@ def play_context():
             if playback.get('item') != None: 
                 context_uri = playback.get('context').get('uri')
             user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            time.sleep(10)
             playback = user.spotify_user.current_playback()
             if playback.get('item') != None: 
                 current_track = playback['item'].get('uri')
-            context_uri = current_track != data.get('spotify_uri')
+            context_uri = current_track + " " + data.get('spotify_uri')
             if current_track != data.get('spotify_uri'):
                 user.spotify_user.start_playback(None, None, [data.get('spotify_uri')], None, None)
         except Exception as e:
