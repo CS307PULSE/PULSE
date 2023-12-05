@@ -2747,6 +2747,7 @@ def play_context():
                 context_uri = playback.get('context').get('uri')
             user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
         except Exception as e:
+            user.spotify_user.start_playback(None, None, song_uri, None, None)
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
