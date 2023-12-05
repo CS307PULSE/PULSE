@@ -1,4 +1,5 @@
 import { React, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // If using React Router for navigation
 import Navbar from "./NavBar";
 import Playback from "./Playback";
 import axios from "axios";
@@ -50,6 +51,8 @@ function Profile({ testParameter }) {
   const textSizes = TextSize(state.settingTextSize);
   const [changesMade, setChangesMade] = useState(false);
 
+  const navigate = useNavigate()
+
   const [userIcon, setUserIcon] = useState(storedUserFields.icon);
   const [displayName, setDisplayName] = useState(storedUserFields.display_name);
   const [gender, setGender] = useState(storedUserFields.gender);
@@ -72,6 +75,7 @@ function Profile({ testParameter }) {
     dispatch({ type: "UPDATE_TEXT_SIZE", payload: newSetting });
     setChangesMade(true);
   };
+
 
   const updateColor = (colorType, newColor) => {
     switch (colorType) {
@@ -226,6 +230,18 @@ function Profile({ testParameter }) {
     newSavedThemes.splice(index, 1);
     dispatch({ type: "UPDATE_SAVED_THEMES", payload: newSavedThemes });
     setThemeEditsMade(false);
+  }
+
+  async function handleLogout() {
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    const response =  axiosInstance.get(
+      "/api/logout",
+    );
+    const data = response.data;
+    navigate("/")
+    return
   }
 
   async function saveUserProfile() {
@@ -606,6 +622,23 @@ function Profile({ testParameter }) {
                 ></input>
                 <br></br>
               </div>
+            </div>
+            <div style={sectionContainerStyle}>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    ...buttonStyle,
+                    cursor: "pointer", // Add this to show it's clickable
+                    width: "calc(100% - 300px)",
+                    position: "absolute",
+                    top: "120px",
+                    right: "20px",
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                    Logout
+                </button>
             </div>
           </div>
         </div>
