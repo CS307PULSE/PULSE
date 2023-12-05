@@ -194,6 +194,7 @@ function Playback({ syncTrigger = null }) {
     if (!item) {
       return;
     }
+    const axiosInstance = axios.create({ withCredentials: true });
     const response = await axiosInstance.post("/api/player/play_context", {
       spotify_uri: item.uri,
     });
