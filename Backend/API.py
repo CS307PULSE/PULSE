@@ -184,7 +184,7 @@ def logout():
                 revoke_url = f"https://accounts.spotify.com/api/token"
                 headers = {'Authorization': f"Basic {sp._auth.get_access_token(as_dict=False)}"}
                 payload = {'token': token_info['access_token']}
-                resp = sp._auth._session.post(revoke_url, headers=headers, data=payload) 
+                response = sp._auth._session.post(revoke_url, headers=headers, data=payload) 
         return resp , 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -448,16 +448,16 @@ def update_followers():
                     most_recent_time = current_time - timedelta(days=1)
                 if current_time - most_recent_time >= timedelta(days=1):
                     return jsonify("Time less than one day!"), 200, {'Reason-Phrase': 'OK'}
+            with DatabaseConnector(db_config) as conn:
+                if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
+                    error_message = "Error storing/getting information! Please try logging in again!"
+                    error_code = 415
+                    
+                    error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
+                    return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         except Exception as e:
             print(e)
 
-        with DatabaseConnector(db_config) as conn:
-            if (conn.update_followers(user.spotify_id, follower_data[0], follower_data[1]) == -1):
-                error_message = "Error storing/getting information! Please try logging in again!"
-                error_code = 415
-                
-                error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
-                return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
