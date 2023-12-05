@@ -635,7 +635,7 @@ function Profile({ testParameter }) {
                     textAlign: "center",
                   }}
                 >
-                  <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+                  <Link to="/dkawodkwo" style={{ textDecoration: "none", color: "inherit" }}>
                     Logout
                   </Link>
                 </div>
