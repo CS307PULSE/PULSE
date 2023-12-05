@@ -70,9 +70,10 @@ const Friends = () => {
 
   const friendRowStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // Adjust column width as needed
-    gap: "10vw", // Adjust the gap between friends
-    marginBottom: "16px", // Add vertical space between rows
+    padding: "5px",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", // Adjust column width as needed
+    gap: "40px", // Adjust the gap between friends
+    marginBottom: "10px", // Add vertical space between rows
   };
 
   
@@ -99,19 +100,19 @@ const Friends = () => {
         <div key={i} style={friendRowStyle}>
           {friendsInRow.map((friend, index) => (
             <div key={friend.name + index}>
-              <Friend
-                name={friend.name}
-                photoFilename={friend.photoUri}
-                favoriteSong={friend.favoriteSong}
-                status={friend.status}
-                publicColorText={friend.textColor}
-                publicColorBackground={friend.backgroundColor}
-              />
-              <div style={{alignContent: "center"}}>
-                <button style={{ ...buttonStyle, textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
-                  Remove Friend
-                </button>
+              <div style={{margin: "5px", height: "225px", overflow: "auto"}}>
+                <Friend
+                  name={friend.name}
+                  photoFilename={friend.photoUri}
+                  favoriteSong={friend.favoriteSong}
+                  status={friend.status}
+                  publicColorText={friend.textColor}
+                  publicColorBackground={friend.backgroundColor}
+                />
               </div>
+              <button style={{ ...buttonStyle, width: "100%", textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
+                Remove Friend
+              </button>
             </div>
       ))}
         </div>
