@@ -2736,6 +2736,7 @@ def play_context():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
+        current_track = None
         data = request.get_json()
         song_uri = {
             "uri": data.get('spotify_uri')
