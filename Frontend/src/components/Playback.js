@@ -116,6 +116,7 @@ function Playback({ syncTrigger = null }) {
   const [devices, setDevices] = useState(null);
   const [currentDevice, setCurrentDevice] = useState();
   const [songParameters, setSongParameters] = useState();
+  const [playerContext, setPlayerContext] = useState();
 
   const [queueData, setQueueData] = useState([]);
   const [searchQueryType, setSearchQueryType] = useState("track");
@@ -189,18 +190,14 @@ function Playback({ syncTrigger = null }) {
     var data = await searchSpotify(query, type);
     setSearchResults(data);
   }
-  async function skipInQueue(number, syncFunction) {
-    if (skipping) {
+  async function skipInQueue(item, syncFunction) {
+    if (!item) {
       return;
     }
-    setSkipping(true);
-    var promises = [];
-    for (var i = 0; i < number; i++) {
-      promises.push(axios.get("/api/player/skip", { withCredentials: true }));
-    }
-    await Promise.all(promises);
-    setSkipping(false);
-    syncPlayer();
+    const response = await axiosInstance.post("/api/player/play_context", {
+      spotify_uri: item.uri,
+    });
+    syncFunction();
   }
   async function changeDevice(newDeviceID) {
     setCurrentDevice(newDeviceID);
@@ -580,7 +577,7 @@ function Playback({ syncTrigger = null }) {
                     <ItemList
                       data={queueData}
                       onClick={(index) => {
-                        skipInQueue(index + 1, syncPlayer);
+                        skipInQueue(queueData[index], syncPlayer);
                       }}
                     />
                   </div>
