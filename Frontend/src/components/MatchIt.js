@@ -306,7 +306,8 @@ class MatchIt extends Component {
               className="toggle-button"
               onClick={this.handleToggle}
               style={topButtonStyle}
-              
+              onMouseEnter={(e) => e.target.style.color = 'white'}
+              onMouseLeave={(e) => e.target.style.color = 'black'}
             >
               {currentPage === 'user'
                 ? 'Go to Song Match'
@@ -345,31 +346,20 @@ class MatchIt extends Component {
          />
          
           ) : (
-            <button
-              className="view-liked-button"
-              style={bottomButtonStyle}
-              onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'black'}
-            >
-              {currentPage === 'user' ? (
-                <Link to="/view-liked-users" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  {viewLikedButtonText}
-                </Link>
-              ) : (
+            <div>
+            {currentPage !== 'user' && (
+              <button
+                className="view-liked-button"
+                style={bottomButtonStyle}
+                onMouseEnter={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = 'black'}
+              >
                 <Link to="/view-liked-songs" style={{ textDecoration: 'none', color: 'inherit' }}>
                   {viewLikedButtonText}
                 </Link>
-              )}
-            </button>
-            
-            // <Link to="/user">viewLikedButtonText</Link>
-            // <button
-            //   className="view-liked-button"
-            //   onClick={this.handleViewLiked}
-            //   style={bottomButtonStyle }
-            //   onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'black'}
-            // >
-            //   {viewLikedButtonText}
-            // </button>
+              </button>
+            )}
+             </div>           
           )}
           </div>
         </div>

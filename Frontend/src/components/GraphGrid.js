@@ -16,7 +16,7 @@ import Popup from "./Popup";
 import "react-resizable/css/styles.css";
 import axios from "axios";
 //import tempBasicData from "./TempData/BasicStats.js";
-import tempAdvancedData from "./TempData/AdvancedStats";
+//import tempAdvancedData from "./TempData/AdvancedStats";
 import defaultLayout from "./TempData/defaultLayout";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -360,11 +360,8 @@ export default function GraphGrid() {
         alert("Page failed fetching advanced data");
         setAdvancedData("Empty");
         */
-        alert(
-          "Page failed fetching advanced data - please upload your advanced data"
-        );
         console.error("Error fetching advanced data:", error);
-        setAdvancedData(tempAdvancedData);
+        //setAdvancedData(tempAdvancedData);
         setFinishedAdvanced(true);
       }
     };
@@ -675,7 +672,9 @@ export default function GraphGrid() {
   if (!finishedPullingData) {
     return (
       <div style={{ textAlign: "center" }}>
-        <p className="loadingText" style={{fontStyle: "italic"}}>Loading...</p>
+        <p className="loadingText" style={{ fontStyle: "italic" }}>
+          Loading...
+        </p>
       </div>
     );
   } else if (!finishedPullingAdvancedData) {

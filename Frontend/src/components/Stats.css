@@ -57,8 +57,14 @@
 
 .MenuButton {
   cursor: pointer;
+  background-color: var(--container-background);
   color: var(--graph-text-fill);
+  border: 2px solid darken(var(--container-background), 50%);
   margin: 0px 2px;
+}
+
+.MenuButton:hover {
+  filter: brightness(65%);
 }
 
 .TypButton {
@@ -168,4 +174,3 @@ html {
   color-scheme: var(--light-dark-scheme) !important;
   color: var(--graph-text-fill);
 }
-
