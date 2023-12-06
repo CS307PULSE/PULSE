@@ -142,6 +142,7 @@ const GuessWhoListens = () => {
     }
   };
 
+  
   async function sendFriendIds(playerNamesArray) {
     try {
       const axiosInstance = axios.create({
@@ -154,7 +155,7 @@ const GuessWhoListens = () => {
         ),
       };
       const response = await axiosInstance.post(
-        "/api/get_friends_recent_songs",
+        "/api/statistics/get_friends_recent_songs",
         payload
       );
       const data = response.data;
