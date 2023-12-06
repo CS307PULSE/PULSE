@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { StyleSheet, css } from "aphrodite";
 import { useAppContext } from './Context';
+import axios from "axios";
 
-const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
+const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, onClick = () => {}, data }) => {
   const { state, dispatch } = useAppContext();
   const theme = {
     primaryColor: "#6EEB4D",
@@ -73,6 +74,12 @@ const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
     e.target.style.transform = "translateX(0)";
   };
 
+  const onClickSong = async () => {
+    const axiosInstance = axios.create({ withCredentials: true });
+    const response = await axiosInstance.post("/api/player/play_song", { spotify_uri: trackUri });
+    return response.data;
+  }
+
   const styles = StyleSheet.create({
     card: {
       width: "500px",
@@ -122,7 +129,7 @@ const MatchCardSongs = ({ onSwipeLeft, onSwipeRight, data }) => {
       onDrag={handleDrag}
       // onClick={}
     >
-      <div className={css(styles.content)}>
+      <div className={css(styles.content)} onClick={() => onClickSong()}>
         <img src={image1Url} alt="Album cover" className={css(styles.image) } />
         <div className={css(styles.box)}>
         <p>{"Artist: " + artistName1}</p>

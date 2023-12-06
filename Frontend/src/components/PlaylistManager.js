@@ -11,7 +11,7 @@ import ItemList from "./ItemList";
 import { searchSpotify } from "./Playback";
 import { playItem } from "./Playback";
 
-async function playlistPost(action, payload, reloadFunction = () => {}) {
+export async function playlistPost(action, payload, reloadFunction = () => {}) {
   const route = "/api/playlist/" + action;
   const axiosInstance = axios.create({withCredentials: true});
   const response = await axiosInstance.post(route, payload);
@@ -25,6 +25,14 @@ export async function getPlaylists() {
     const parsedPlaylists = response.data.items ? response.data.items : [];
     return parsedPlaylists;
   } catch (e) { console.log("Error getting playlists: " + e); }
+}
+export async function addSongToPlaylist(playlist, song) {
+  if (!playlist || !song) { return; }
+  const axiosInstance = axios.create({ withCredentials: true });
+  const response = await axiosInstance.post("/api/playlist/add_song",
+    {selectedPlaylistID: playlist.id, selectedSongURI: song.uri}
+  );
+  return response.data;
 }
 
 const PlaylistManager = () => {
@@ -250,7 +258,7 @@ const PlaylistManager = () => {
                     <input name="reorder-index-3" type="number" style={buttonStyle} value={reorderIndexInsert} onChange={e => {setReorderIndexInsert(e.target.value)}}></input>
                 </div>
                 <p style={textStyle}>{reorderResponseText}</p>
-                <button style={buttonStyle} onClick={() => reorderPlaylist(playlists[selectedPlaylistIndex], reorderIndexStart, reorderIndexAmount, reorderIndexInsert)}>Reorder</button>
+                <button style={buttonStyle} onClick={() => reorderPlaylist(playlists[selectedPlaylistIndex], reorderIndexStart, reorderIndexAmount, reorderIndexInsert)}>Reorder Tracks</button>
               </div>
             </div>
             <div style={{width:"calc((100% - 120px) * 0.5)"}}> {/* Column 3 */}
@@ -261,7 +269,7 @@ const PlaylistManager = () => {
                     <button style={{...buttonStyle, width: "200px"}} onClick={() => {playlistPost("change_image", {url: imagePath, playlist: playlists[selectedPlaylistIndex].id})}}>{"Update Icon (.jpeg, < x800x800)"}</button>
                 </div>
                 <div style={buttonContainerStyle}>
-                    <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button>
+                    {/* <button style={buttonStyle} onClick={() => {playlistPost("reorder_tracks", {playlist: playlists[selectedPlaylistIndex].id})}}>Reorder Tracks</button> */}
                     {/* <button style={buttonStyle} onClick={() => {playlistPost("follow", {playlist: playlists[selectedPlaylistIndex].id})}}>Follow</button> */}
                     <button style={buttonStyle} onClick={() => {playlistPost("unfollow", {playlist: playlists[selectedPlaylistIndex].id})}}>Unfollow</button>
                     <Link to="/explorer/ParameterRecommendation"><button style={buttonStyle} onClick={() => {}}>Derive Emotion</button></Link>

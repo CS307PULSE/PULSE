@@ -281,6 +281,7 @@ function Profile({ testParameter }) {
   }
   async function handleSaveSettingsButton() {
     await saveUserSettings();
+    setChangesMade(false);
     window.location.reload();
   }
   

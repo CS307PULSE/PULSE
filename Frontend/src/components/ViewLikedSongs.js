@@ -3,31 +3,28 @@ import Navbar from './NavBar';
 import axios from 'axios';
 import ItemList from "./ItemList";
 import { playItem } from "./Playback";
-import { getPlaylists } from "./PlaylistManager";
+import { getPlaylists, addSongToPlaylist } from "./PlaylistManager";
 import { useAppContext } from "./Context";
 import { hexToRGBA } from "../theme/Colors";
 import TextSize from "../theme/TextSize";
+import Playback from './Playback';
 
 const ViewLikedSongs = () => {
-const { state, dispatch } = useAppContext();
-const textSizes = TextSize(state.settingTextSize);
-const [likedSongs, setLikedSongs] = useState([]);
-const [savedPlaylists, setSavedPlaylists] = useState([]);
-const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(null);
-const [syncValue, setSyncValue] = useState(Date.now());
+  const { state, dispatch } = useAppContext();
+  const textSizes = TextSize(state.settingTextSize);
+  const [likedSongs, setLikedSongs] = useState([]);
+  const [savedPlaylists, setSavedPlaylists] = useState([]);
+  const [selectedPlaylistIndex, setSelectedPlaylistIndex] = useState(null);
+  const [syncValue, setSyncValue] = useState(Date.now());
+  const [addSongResponse, setAddSongResponse] = useState("");
 
-//from alex's code 
-  async function addSongToPlaylist(playlist, song) {
-    console.log(playlist);
-    console.log(song);
-    if (!playlist || !song) { return; }
-    const axiosInstance = axios.create({ withCredentials: true });
-    const response = await axiosInstance.post("/api/playlist/add_song",
-      {selectedPlaylistID: playlist.id, selectedSongURI: song.uri}
-    );
-    console.log(response);
-    const data = response.data;
-    return data;
+  async function handleAddPlaylistButton(playlist, item) {
+    if (!playlist || !item) {
+      setAddSongResponse("Please select a playlist!")
+    }
+    setAddSongResponse("Adding song...");
+    const response = await addSongToPlaylist(playlist, item);
+    setAddSongResponse(response);
   }
 
   // getting the liked songs
@@ -50,14 +47,6 @@ const [syncValue, setSyncValue] = useState(Date.now());
   useEffect(() => {
     fetchData();
   }, []);
-
-  const songListStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: '50px',
-    color: 'white',
-  };
 
   const textStyle = {
     color: state.colorText,
@@ -91,15 +80,6 @@ const [syncValue, setSyncValue] = useState(Date.now());
     overflow: "auto"
   };
 
-  const songItemStyle = {
-    margin: '10px',
-    padding: '10px',
-    border: '1px solid #6EEB4D',
-    borderRadius: '10px',
-    width: '300px',
-    textAlign: 'center',
-  };
-
   useEffect(() => {
     (async () => {
       setSavedPlaylists("loading");
@@ -109,45 +89,38 @@ const [syncValue, setSyncValue] = useState(Date.now());
   }, [])
 
   return (
-    <div style={{ background: 'black', height: '100vh' }}>
-        <Navbar/>
-        <div>
-          {likedSongs && likedSongs.length > 0 ? (
- <div className="content" style={bodyStyle}>
- <div style={{display:"flex"}}>
-   <div style={sectionContainerStyle}>
-     <p style={headerTextStyle}>Playlists</p>
-     <ItemList 
-       data={savedPlaylists} 
-       selectedIndex={selectedPlaylistIndex} 
-       onClick={setSelectedPlaylistIndex}
-     />
-   </div>
-   <div style={sectionContainerStyle}>
-     <p style={headerTextStyle}>Liked Songs</p>
-     <div style={{position: "absolute", top: "20px", right: "10px"}}>
-     </div>
-     <ItemList 
-           data={likedSongs}
-           onClick={(index) => playItem(likedSongs[index], () => setSyncValue(Date.now()))}
-           buttons={[
-             {
-               width: "40px", value: "+", size: "30px",
-               onClick: (item) => addSongToPlaylist(savedPlaylists[selectedPlaylistIndex], item)
-             }
-           ]}
-         />
-   </div>
- </div>
- 
-</div>
-          
-          ) : (
-            <p>No liked songs available.</p>
-          )}
+    <div className="wrapper">
+      <div className="header"><Navbar /></div>
+      <div className="content" style={bodyStyle}>
+        <div style={{display:"flex"}}>
+          <div style={sectionContainerStyle}>
+            <p style={headerTextStyle}>Playlists</p>
+            <ItemList 
+              data={savedPlaylists} 
+              selectedIndex={selectedPlaylistIndex} 
+              onClick={setSelectedPlaylistIndex}
+            />
+          </div>
+          <div style={sectionContainerStyle}>
+            <p style={headerTextStyle}>Liked Songs</p>
+            <p style={textStyle}>{addSongResponse}</p>
+            <div style={{position: "absolute", top: "20px", right: "10px"}}>
+          </div>
+            <ItemList 
+              data={likedSongs}
+              onClick={(index) => playItem(likedSongs[index], () => setSyncValue(Date.now()))}
+              buttons={[
+                {
+                  width: "40px", value: "+", size: "30px",
+                  onClick: (item) => handleAddPlaylistButton(savedPlaylists[selectedPlaylistIndex], item)
+                }
+              ]}
+            />
+          </div>
         </div>
       </div>
-
+      <div className="footer"><Playback syncTrigger={syncValue}/></div>
+    </div>
   );
 };
 

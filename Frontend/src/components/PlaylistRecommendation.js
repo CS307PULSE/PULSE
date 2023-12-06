@@ -10,6 +10,7 @@ import { hexToRGBA } from "../theme/Colors";
 import ItemList from "./ItemList";
 import { playItem } from "./Playback";
 import { getPlaylists } from "./PlaylistManager";
+import { addSongToPlaylist } from "./PlaylistManager";
 
 async function getRecommendations(playlist, method) {
   if (!playlist) { return; }
@@ -22,19 +23,6 @@ async function getRecommendations(playlist, method) {
     );
     return response.data;
   } catch (e) { console.log(e); }
-}
-
-async function addSongToPlaylist(playlist, song) {
-  console.log(playlist);
-  console.log(song);
-  if (!playlist || !song) { return; }
-  const axiosInstance = axios.create({ withCredentials: true });
-  const response = await axiosInstance.post("/api/playlist/add_song",
-    {selectedPlaylistID: playlist.id, selectedSongURI: song.uri}
-  );
-  console.log(response);
-  const data = response.data;
-  return data;
 }
 
 const PlaylistRecommendation = () => {

@@ -238,7 +238,7 @@ class MatchIt extends Component {
     
     const bottomButtonStyle = {
       position: 'fixed',
-      right: '10px',
+      right: '30px',
       bottom: '70px',
       backgroundColor: '#6EEB4D',
       color: 'black',
@@ -292,7 +292,7 @@ class MatchIt extends Component {
     // };
 
     const viewLikedButtonText =
-      currentPage === 'user' ? 'View Liked User' : 'View Liked Song';
+      currentPage === 'user' ? 'View Liked Users' : 'View Liked Songs';
 
     return (
       <div className="wrapper" style={{background:"black", height: "100vh" }}>
@@ -327,7 +327,10 @@ class MatchIt extends Component {
             {loadingSong ? (
               <p>Loading...</p>
             ) : (
-              <MatchCardSong onSwipeLeft={this.onSwipeLeftSong} onSwipeRight={this.onSwipeRightSong} data={this.state.nextSongData} />
+              <MatchCardSong 
+                onSwipeLeft={this.onSwipeLeftSong} 
+                onSwipeRight={this.onSwipeRightSong}
+                data={this.state.nextSongData} />
             )}
           </div>
         )}
