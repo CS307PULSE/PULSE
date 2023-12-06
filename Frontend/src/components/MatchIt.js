@@ -238,8 +238,8 @@ class MatchIt extends Component {
     
     const bottomButtonStyle = {
       position: 'fixed',
-      bottom: '80px',
       right: '10px',
+      bottom: '70px',
       backgroundColor: '#6EEB4D',
       color: 'black',
       border: 'none',
