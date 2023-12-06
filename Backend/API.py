@@ -2745,7 +2745,7 @@ def play_context():
             playback = user.spotify_user.current_playback()
             if playback.get('item') != None: 
                 context_uri = playback.get('context').get('uri')
-            user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            context_uri = user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
         except Exception as e:
             user.spotify_user.start_playback(None, None, song_uri, None, None)
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
