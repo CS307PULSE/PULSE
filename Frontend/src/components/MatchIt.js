@@ -96,6 +96,31 @@ class MatchIt extends Component {
     }
   };
 
+  sendFriendRequest = async (spotify_id) => {
+    const axiosInstance = axios.create({
+      withCredentials: true,
+    });
+    try {
+      const response = await axiosInstance.post(
+        "/api/friends/friend_request",
+        { request: spotify_id }
+      );
+      const data = response.data;
+      console.log("Sent friend request to: " + spotify_id);
+      alert("Friend request sent!");
+
+      // Hide alert after 5 seconds
+      setTimeout(() => {
+        this.hideAlert();
+      }, 5000);
+      return data;
+    
+    } catch (error) {
+      console.error("Error sending friend request:", error);
+      // Handle the error as needed
+    }
+  };
+
   onSwipeRight = async () => {
      const { userId } = this.state;
     console.log("Swiped Right!");
@@ -107,7 +132,7 @@ class MatchIt extends Component {
       }, {
         withCredentials: true,
       });
-
+      await this.sendFriendRequest(userId);
       // Recall the get user data function to update the next user data
       await this.getNextUser();
     } catch (error) {
@@ -115,6 +140,7 @@ class MatchIt extends Component {
       // Handle the error as needed
     }
   };
+
 
   onSwipeLeftSong = async () => {
     console.log("Swiped Left!");
@@ -215,6 +241,7 @@ class MatchIt extends Component {
     }
   };
 
+  
   render() {
     const { currentPage, nextUserData, loading, loadingSong } = this.state;
 
