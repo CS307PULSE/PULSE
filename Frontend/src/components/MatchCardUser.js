@@ -77,6 +77,8 @@ const MatchCardUser = ({ onSwipeLeft, onSwipeRight, data }) => {
     box: {
       background: "rgba(0, 0, 0, 0.8)",
       borderRadius: "20px",
+      paddingLeft:'10px',
+      paddingRight: '10px',
       paddingBottom: "10px",
       paddingTop: "10px",
     },

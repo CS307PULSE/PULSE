@@ -306,7 +306,8 @@ class MatchIt extends Component {
               className="toggle-button"
               onClick={this.handleToggle}
               style={topButtonStyle}
-              
+              onMouseEnter={(e) => e.target.style.color = 'white'}
+              onMouseLeave={(e) => e.target.style.color = 'black'}
             >
               {currentPage === 'user'
                 ? 'Go to Song Match'
