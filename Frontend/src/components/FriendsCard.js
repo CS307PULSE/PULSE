@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import Friend from './Friend'; 
+import React, { useState, useEffect } from "react";
+import Friend from "./Friend";
 import { Link } from "react-router-dom";
-import { useAppContext } from './Context';
+import { useAppContext } from "./Context";
 import TextSize from "../theme/TextSize";
-import axios from 'axios';
-
+import axios from "axios";
 
 const FriendsCard = ({}) => {
   const { state, dispatch } = useAppContext();
@@ -12,16 +11,15 @@ const FriendsCard = ({}) => {
   const [loading, setLoading] = useState(true);
 
   const textSizes = TextSize(1); // Obtain text size values
-  
 
   useEffect(() => {
     const fetchFriendsData = async () => {
       try {
-        const friendsResponse = await axios.get(
-          "/api/friends/get_friends",
-          { withCredentials: true }
-        );
+        const friendsResponse = await axios.get("/api/friends/get_friends", {
+          withCredentials: true,
+        });
         setFriendsData(friendsResponse.data);
+        setLoading(false);
       } catch (e) {
         console.log("Friends fetch failed: " + e);
         setFriendsData([]); // Set an empty array or handle the error accordingly
@@ -29,9 +27,7 @@ const FriendsCard = ({}) => {
     };
 
     fetchFriendsData();
-    setLoading(false)
   }, []); // Empty dependency array ensures that the effect runs only once on mount
-
 
   const cardContainerStyle = {
     border: "none", //"1px solid " + state.colorBorder,
@@ -39,9 +35,9 @@ const FriendsCard = ({}) => {
     maxWidth: "500px",
     width: "100%",
     height: "100%",
-    margin: "0 auto"
+    margin: "0 auto",
   };
-  
+
   const header = {
     backgroundColor: state.colorAccent,
     top: 0,
@@ -52,9 +48,9 @@ const FriendsCard = ({}) => {
     fontStyle: "normal",
     fontWeight: 700,
     padding: "10px",
-    textTransform: "uppercase"
+    textTransform: "uppercase",
   };
-  
+
   const content = {
     color: state.colorText,
     fontFamily: "Rhodium Libre",
@@ -63,13 +59,13 @@ const FriendsCard = ({}) => {
     fontWeight: 400,
     lineHeight: "normal",
     textTransform: "uppercase",
-    padding: "16px"
+    padding: "16px",
   };
-  
+
   const styledLink = {
     position: "sticky",
     textDecoration: "none",
-    color: "inherit"
+    color: "inherit",
   };
 
   const noFriendsMessage = (
@@ -77,22 +73,24 @@ const FriendsCard = ({}) => {
     // <img style={{ width: "100%", height: "100%" }} src={"https://i.imgflip.com/7bw89a.jpg"} alt="No friends" />
   );
 
-const loadingTextStyle = {
+  const loadingTextStyle = {
     color: state.colorText,
     fontSize: textSizes.header2,
     fontStyle: "normal",
     fontFamily: "'Poppins', sans-serif",
     margin: "20px",
-    fontStyle: "italic"
+    fontStyle: "italic",
   };
 
-  const loadingText =(  <div style={{textAlign: "center"}}>
-  <p style={loadingTextStyle}>Loading...</p>
-</div>);
+  const loadingText = (
+    <div style={{ textAlign: "center" }}>
+      <p style={loadingTextStyle}>Loading...</p>
+    </div>
+  );
 
   const renderFriends = () => {
     return friendsData.map((friend, index) => (
-      <div style={{padding: "10px", marginBottom: "20px"}} key={index}>
+      <div style={{ padding: "10px", marginBottom: "20px" }} key={index}>
         <Friend
           name={friend.name}
           photoFilename={friend.photoUri}
@@ -112,7 +110,11 @@ const loadingTextStyle = {
       </Link>
 
       <div className="friend-list">
-        {loading ? loadingText : (friendsData && friendsData.length > 0 ? renderFriends() : noFriendsMessage)}
+        {loading
+          ? loadingText
+          : friendsData && friendsData.length > 0
+          ? renderFriends()
+          : noFriendsMessage}
       </div>
     </div>
   );

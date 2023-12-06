@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Friend from './Friend';
+import Friend from "./Friend";
 import Navbar from "./NavBar";
 import Playback from "./Playback";
 import TextSize from "../theme/TextSize";
@@ -10,7 +10,9 @@ import { Link } from "react-router-dom";
 
 var initialFriendData;
 try {
-  var friendResponse = await axios.get("/api/friends/get_friends", {withCredentials: true});
+  var friendResponse = await axios.get("/api/friends/get_friends", {
+    withCredentials: true,
+  });
   initialFriendData = friendResponse.data;
 } catch (e) {
   console.log("Friends fetch failed: " + e);
@@ -19,8 +21,9 @@ try {
 
 const Friends = () => {
   const { state } = useAppContext();
+  const [gotFriends, setGotFriends] = useState(false);
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
-  
+
   const bodyStyle = {
     backgroundColor: state.colorBackground,
     backgroundImage: "url('" + state.backgroundImage + "')",
@@ -33,13 +36,16 @@ const Friends = () => {
     document.title = "PULSE - Friends";
     fetchFriendsData();
   }, []);
-  
+
   const [friendsData, setFriendsData] = useState([]);
 
   const fetchFriendsData = async () => {
     try {
-      const friendResponse = await axios.get("/api/friends/get_friends", { withCredentials: true });
+      const friendResponse = await axios.get("/api/friends/get_friends", {
+        withCredentials: true,
+      });
       setFriendsData(friendResponse.data);
+      setGotFriends(true);
     } catch (e) {
       console.log("Friends fetch failed: " + e);
       setFriendsData([]); // Set an empty array or handle the error accordingly
@@ -55,7 +61,7 @@ const Friends = () => {
   const buttonContainerStyle = {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: "16px"
+    marginBottom: "16px",
   };
 
   const buttonStyle = {
@@ -80,17 +86,14 @@ const Friends = () => {
     marginBottom: "10px", // Add vertical space between rows
   };
 
-  
-
   async function removeFriend(spotify_id) {
-    console.log("friend to be removed is sent to dane:" + spotify_id)
+    console.log("friend to be removed is sent to dane:" + spotify_id);
     const axiosInstance = axios.create({
       withCredentials: true,
     });
-    const response = await axiosInstance.post(
-      "/api/friends/remove_friend",
-      { spotify_id: spotify_id }
-    );
+    const response = await axiosInstance.post("/api/friends/remove_friend", {
+      spotify_id: spotify_id,
+    });
     const data = response.data;
     console.log("Friend removed: " + spotify_id);
     return data;
@@ -104,7 +107,7 @@ const Friends = () => {
         <div key={i} style={friendRowStyle}>
           {friendsInRow.map((friend, index) => (
             <div key={friend.name + index}>
-              <div style={{margin: "5px", height: "225px", overflow: "auto"}}>
+              <div style={{ margin: "5px", height: "225px", overflow: "auto" }}>
                 <Friend
                   name={friend.name}
                   photoFilename={friend.photoUri}
@@ -114,11 +117,22 @@ const Friends = () => {
                   publicColorBackground={friend.backgroundColor}
                 />
               </div>
-              <button style={{ ...buttonStyle, width: "100%", textDecoration: 'none' }} onClick={() => {removeFriend(friend.spotify_id).then(data => setFriendsData(data))}}>
+              <button
+                style={{
+                  ...buttonStyle,
+                  width: "100%",
+                  textDecoration: "none",
+                }}
+                onClick={() => {
+                  removeFriend(friend.spotify_id).then((data) =>
+                    setFriendsData(data)
+                  );
+                }}
+              >
                 Remove Friend
               </button>
             </div>
-      ))}
+          ))}
         </div>
       );
     }
@@ -130,6 +144,20 @@ const Friends = () => {
       <p>You have no friends ;-; Click "Add Friends" to search for friends</p>
     </div>
   );
+  const loadingTextStyle = {
+    color: state.colorText,
+    fontSize: textSizes.header2,
+    fontStyle: "normal",
+    fontFamily: "'Poppins', sans-serif",
+    margin: "20px",
+    fontStyle: "italic",
+  };
+
+  const loadingText = (
+    <div style={{ textAlign: "center" }}>
+      <p style={loadingTextStyle}>Loading...</p>
+    </div>
+  );
   const removeFriendsMessage = (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
       <p>Click on a friend to remove them as a friend</p>
@@ -138,21 +166,37 @@ const Friends = () => {
 
   return (
     <div className="wrapper">
-      <div className="header"><Navbar /></div>
+      <div className="header">
+        <Navbar />
+      </div>
       <div className="content" style={bodyStyle}>
         <div style={buttonContainerStyle}>
-          <Link to="/Friends/addFriends" style={{ ...buttonStyle, textDecoration: 'none' }}>Add Friends</Link>
-          <Link to="/Friends/friendRequests" style={{ ...buttonStyle, textDecoration: 'none' }}>Friend Requests</Link>
+          <Link
+            to="/Friends/addFriends"
+            style={{ ...buttonStyle, textDecoration: "none" }}
+          >
+            Add Friends
+          </Link>
+          <Link
+            to="/Friends/friendRequests"
+            style={{ ...buttonStyle, textDecoration: "none" }}
+          >
+            Friend Requests
+          </Link>
         </div>
-        {friendsData ? (friendsData.length > 0 ? renderFriendRows() : noFriendsMessage) : noFriendsMessage}
+        {gotFriends
+          ? friendsData
+            ? friendsData.length > 0
+              ? renderFriendRows()
+              : noFriendsMessage
+            : noFriendsMessage
+          : loadingText}
       </div>
-      <div className="footer"><Playback /></div>
+      <div className="footer">
+        <Playback />
+      </div>
     </div>
   );
 };
-
-
-
-
 
 export default Friends;
