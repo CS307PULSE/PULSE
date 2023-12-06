@@ -17,7 +17,7 @@ async function updateFollowers() {
 export default function StatsCard() {
   const { state, dispatch } = useAppContext();
   const textSizes = TextSize(state.settingTextSize); //Obtain text size values
-  
+
   const cardContent = {
     color: state.colorText,
     fontSize: textSizes.body,
@@ -40,6 +40,8 @@ export default function StatsCard() {
       } catch (e) {
         console.log(e);
         console.log("Top Artist empty");
+        fetchData();
+        return;
       }
 
       try {

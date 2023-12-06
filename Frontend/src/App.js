@@ -32,6 +32,7 @@ import {
   Routes,
 } from "react-router-dom";
 import ChatBot from "./components/ChatBot";
+import ViewLikedSongs from "./components/ViewLikedSongs";
 axios.defaults.baseURL = process.env.REACT_APP_SITE_URI;
 
 // for the cache and DB call for fetch
@@ -57,6 +58,7 @@ function App() {
       } else {
         setIsCacheDB(false);
       }
+      
     });
   }, []);
 
@@ -92,15 +94,28 @@ function App() {
           <Route path="/PulseBot" element={<ChatBot />} />
           <Route path="/games" element={<Games />} />
           <Route path="/explorer" element={<DJMixer />} />
-          <Route path="/explorer/SongRecommendation" element={<SongRecommendations />}/>
-          <Route path="/explorer/ParameterRecommendation" element={<ParameterRecommendations />}/>
-          <Route path="/explorer/PlaylistRecommendation" element={<PlaylistRecommendation />}/>
-          <Route path="/explorer/PlaylistManager" element={<PlaylistManager />}/>
-          <Route path="/explorer/ArtistExplorer" element={<ArtistExplorer />}/>
+          <Route
+            path="/explorer/SongRecommendation"
+            element={<SongRecommendations />}
+          />
+          <Route
+            path="/explorer/ParameterRecommendation"
+            element={<ParameterRecommendations />}
+          />
+          <Route
+            path="/explorer/PlaylistRecommendation"
+            element={<PlaylistRecommendation />}
+          />
+          <Route
+            path="/explorer/PlaylistManager"
+            element={<PlaylistManager />}
+          />
+          <Route path="/explorer/ArtistExplorer" element={<ArtistExplorer />} />
           <Route path="/friends/addFriends" element={<AddFriends />} />
           <Route path="/friends/friendRequests" element={<FriendRequests />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/match" element={<MatchIt />} />
+          <Route path="/view-liked-songs" element={<ViewLikedSongs />} />
         </Routes>
       </Router>
     </AppContextProvider>

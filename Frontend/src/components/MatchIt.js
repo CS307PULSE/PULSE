@@ -6,7 +6,7 @@ import MatchCardSong from './MatchCardSong';
 import axios from 'axios';
 import PopupPage from './PopupPage';
 import Playback from './Playback';
-
+import { Link } from 'react-router-dom';
 class MatchIt extends Component {
  // const { states, dispatch } = useAppContext();
 
@@ -238,15 +238,15 @@ class MatchIt extends Component {
     
     const bottomButtonStyle = {
       position: 'fixed',
-      bottom: '10px',
+      bottom: '80px',
       right: '10px',
       backgroundColor: '#6EEB4D',
       color: 'black',
       border: 'none',
-      padding: '10px 20px',
       fontSize: '16px',
       cursor: 'pointer',
       borderRadius: '20px',
+      padding:'10px 20px',
       transition: 'color 0.3s ease-in-out', // Add transition for smooth color change
       ':hover': {
         color: 'white',
@@ -344,12 +344,29 @@ class MatchIt extends Component {
           ) : (
             <button
               className="view-liked-button"
-              onClick={this.handleViewLiked}
-              style={bottomButtonStyle }
+              style={bottomButtonStyle}
               onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'black'}
             >
-              {viewLikedButtonText}
+              {currentPage === 'user' ? (
+                <Link to="/view-liked-users" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {viewLikedButtonText}
+                </Link>
+              ) : (
+                <Link to="/view-liked-songs" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {viewLikedButtonText}
+                </Link>
+              )}
             </button>
+            
+            // <Link to="/user">viewLikedButtonText</Link>
+            // <button
+            //   className="view-liked-button"
+            //   onClick={this.handleViewLiked}
+            //   style={bottomButtonStyle }
+            //   onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'black'}
+            // >
+            //   {viewLikedButtonText}
+            // </button>
           )}
           </div>
         </div>

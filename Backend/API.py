@@ -2647,7 +2647,7 @@ def get_playing():
                 all_devices = user.spotify_user.devices()
                 volume = playback['device']['volume_percent']
                 queue = user.spotify_user.queue()
-            if is_playing: 
+            if playback.get('item') != None: 
                 current_track = playback['item']
             if is_playing and current_track == None:
                 playback = user.spotify_user.current_playback(additional_types='episode')
@@ -2736,18 +2736,28 @@ def play_context():
     if 'user' in session:
         user_data = session['user']
         user = User.from_json(user_data)
+        current_track = None
         data = request.get_json()
         song_uri = {
             "uri": data.get('spotify_uri')
             }
         try:
             refresh_token(user)
+            uri = data.get('spotify_uri')
+            name = user.spotify_user.track(uri).get('name')
             playback = user.spotify_user.current_playback()
             if playback.get('item') != None: 
                 context_uri = playback.get('context').get('uri')
-            context_uri = user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            user.spotify_user.start_playback(None, context_uri, None, song_uri, None)
+            time.sleep(5)
+            playback = user.spotify_user.current_playback()
+            if playback.get('item') != None: 
+                current_track = playback['item'].get('name')
+            context_uri = current_track + " " + name
+            if current_track != name :
+                user.spotify_user.start_playback(None, None, [data.get('spotify_uri')], None, None)
+            response = user.spotify_user.current_playback()
         except Exception as e:
-            user.spotify_user.start_playback(None, None, song_uri, None, None)
             return f"{e}", 200, {'Reason-Phrase': 'OK'}
     else:
         error_message = "The user is not in the session! Please try logging in again!"
@@ -2755,7 +2765,7 @@ def play_context():
         
         error_html_f = error_html.format(error_code, error_message, "https://spotify-pulse-efa1395c58ba.herokuapp.com")
         return error_html_f, 404, {'Reason-Phrase': 'Not OK'}
-    return jsonify(context_uri), 200, {'Reason-Phrase': 'OK'}
+    return jsonify(response), 200, {'Reason-Phrase': 'OK'}
 
 @app.route('/api/info/get_song_dict', methods=['POST'])
 def get_song_dict():
