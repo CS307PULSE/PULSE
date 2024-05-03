@@ -8,7 +8,7 @@ import { useAppContext } from './Context';
 import Colors, { hexToRGBA, pulseColors } from '../theme/Colors';
 import TextSize from '../theme/TextSize';
 
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = "sk-proj-mUP7RZOA9t8sIebqS7UIT3BlbkFJKhiJ5ufEZsU0PCOZ91ok";
 const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
